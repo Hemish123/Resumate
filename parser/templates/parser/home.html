@@ -1,0 +1,74 @@
+{% extends "parser/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<link rel="stylesheet" href="../../static/parser/css/home.css">
+
+<!-- Hero Section -->
+<div class="hero-section text-center">
+    <div class="overlay">
+        <h1 class="display-4 text-white">Welcome to ResuMate</h1>
+        <p class="lead text-white">Your ultimate resume screening and analytics tool</p>
+        <a href="{% url 'parsing-about' %}" class="btn btn-primary btn-lg">Learn More</a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-11"> <!-- Adjust column width as needed -->
+            <div class="custom-card text-start">
+                <form method="post" id="resumeScreeningForm" enctype="multipart/form-data" class="form-container"> <!-- Added class="form-container" -->
+                    <!-- Dropdown for Field -->
+                    {% csrf_token %}
+                    {{ category_form|crispy }}
+                    
+<!--                    <div class="form-group">-->
+<!--                        <label for="id_field">Field*</label>-->
+<!--                        <select id="id_field" name="field" class="form-control">-->
+<!--                            <option value="" selected disabled>Choose a Field</option>-->
+<!--                            <option value="IT">IT</option>-->
+<!--                            <option value="Non-IT">Non-IT</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash; Dropdown for Category &ndash;&gt;-->
+<!--                    <div class="form-group" id="categoryDropdown" style="display: none;">-->
+<!--&lt;!&ndash;                        {{ category_form }}&ndash;&gt;-->
+<!--                        <label for="id_category">Category*</label>-->
+<!--                        <select id="id_category" name="category" class="form-control">-->
+<!--                            <option value="" selected disabled>Choose a Category</option>-->
+<!--                        </select>-->
+
+<!--                        <span id="categoryError" class="text-danger" style="display: none;">Please select a category.</span>-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash; Error message for field &ndash;&gt;-->
+<!--                    <span id="fieldError" class="text-danger" style="display: none;">Please select a field.</span>-->
+                    <!-- Buttons -->
+                    <div class="mt-4">
+                        <button type="submit" name="all_resume_screening"
+                            class="btn btn-primary btn-lg btn-custom mr-2 ">
+                            All Resumes Screening
+                        </button>
+<!--                        <a href="{% url 'parsing-screening' %}" class="btn btn-primary btn-lg" name="all_resume_screening" id="allResumeScreeningBtn">-->
+<!--                            All Resume Screening-->
+<!--                        </a>-->
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        const categoryChoices = {
+        {% for key, value in category_choices.items %}
+                    '{{ key }}': [
+                        {% for item in value %}
+                            ['{{ item.0 }}', '{{ item.1 }}'],
+                        {% endfor %}
+                    ],
+        {% endfor %}
+        };
+
+
+</script>
+<script src="../../static/parser/js/home.js"></script>
+{% endblock content %}

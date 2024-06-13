@@ -1,0 +1,119 @@
+select#id_category.select.form-control.choice-class{
+  /*  width : 50%;
+ */}
+i.upload-style:hover{
+    color : #3d3d3d;
+}
+i.upload-style{
+    font-size : 160px;
+    color : #bdbdbd;
+}
+.input_style {
+    display : none;
+}
+
+
+.deleteForm .delete-button:focus {
+        outline-color: red !important; /* Set the outline color to transparent */
+}
+
+
+
+.bg-steel {
+  background-color: rgb(32, 201, 151);
+  
+}
+.navbar .nav-item .nav-link {
+    color : white;
+
+}
+
+.navbar-brand{
+    color : #ffffff;
+}
+
+.navbar .nav-item .nav-link:hover {
+    color : black;
+}
+.navbar .nav-item .nav-link:focus {
+    color : #ffffff;
+}
+
+/* Add this CSS to your stylesheet */
+
+.nav-link.active {
+    border-bottom: 2px solid white; /* Adjust the color and thickness as needed */
+}
+
+
+
+
+.bg-steel {
+    background-color: rgb(32, 201, 151);
+  }
+  
+  .navbar .nav-item .nav-link {
+      color: white;
+  }
+  
+  .navbar-brand {
+      color: #ffffff;
+  }
+  
+  .navbar .nav-item .nav-link:hover {
+      color: black;
+  }
+  
+  .navbar .nav-item .nav-link:focus {
+      color: #ffffff;
+  }
+  
+  .nav-link.active {
+      border-bottom: 2px solid white;
+  }
+  
+  .container.justify-content-center {
+      display: flex;
+      justify-content: center;
+  }
+  
+  .container.justify-content-center .navbar-nav {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+  }
+  
+  .container.justify-content-center .navbar-nav .nav-item {
+      margin: 0 10px;
+  }
+  
+/* footer css */
+
+  footer {
+      background-color: rgb(32, 201, 151);
+      padding: 40px 0;
+      color: #ffffff;
+  }
+  
+  footer h5 {
+      margin-bottom: 20px;
+  }
+  
+  footer a {
+      color: #ffffff;
+      text-decoration: none;
+  }
+  
+  footer a:hover {
+      text-decoration: underline;
+  }
+  
+  footer .fa {
+      margin-right: 15px;
+      color: #ffffff;
+  }
+  
+  footer .fa:hover {
+      color: #d4d4d4;
+  }
+  

@@ -1,0 +1,54 @@
+.upload-style {
+    font-size: 2rem;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.upload-style:hover {
+    color: #0056b3;
+}
+
+#fileList table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#fileList th, #fileList td {
+    padding: 10px;
+    text-align: center;
+}
+
+.table-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.error-message {
+    font-size: 0.9rem;
+}
+
+.custom-button {
+    border: 2px solid black; 
+    display: inline-block;
+    padding: 7px 15px;
+    background-color: white;
+    color: black;
+    text-decoration: none;
+    /* border: 1px solid #007bff; */
+    border-radius: 7px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.custom-button:hover {
+    background-color:#20c997;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #158c5f;
+    color: white ;
+}
+
+.btn{
+    color: white; background-color: #20c997;
+}

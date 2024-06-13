@@ -1,0 +1,141 @@
+{% extends "parser/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<!-- nikita mam code -->
+<!-- <div class="container" >
+    <div class="container mt-3">
+        <div class="d-flex justify-content-start">
+            <a class="btn btn-primary" href="{% url 'parsing-home' %}">
+                <i class="bi bi-arrow-left"></i> Go Back
+            </a>
+        </div>
+
+        <div class="d-flex justify-content-center bg-light border border-2 mt-2 py-2">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ category_form|crispy }} -->
+<!--                    {{ form|crispy }}-->
+<!-- <p class="text-muted fs-4">Upload Your Files Here</p>
+                    <div class="d-flex justify-content-center">
+                        <label for="fileInput" class="mt-5">
+                            <i class="bi bi-cloud-upload upload-style d-flex justify-content-center" id="uploadImage"></i>
+                            <p id="fileName" class="d-flex justify-content-center">No file chosen</p>
+                            {% for error in form.upload_resume.errors %}
+                                <div class="error-message text-danger mb-1">{{ error }}</div>
+                            {% endfor %}
+                        </label>
+
+                        <input type="file" name="upload_resume" class="d-none" multiple="multiple" id="fileInput"> -->
+<!--                        {{ form.upload_resume }}-->
+<!-- </div>
+                    
+                    <div class="container mt-3">
+                        <div class="row">
+                            <div class="col-6 mx-auto">
+                                <button type="submit" class="btn btn-primary d-block" name="upload" style="height: 50px; width: 150px;">
+                                    Upload
+                                </button>
+                            </div>
+                            
+                            <div class="col-6 mx-auto">
+                                <button type="submit" class="btn btn-primary d-block" name="start_screening" style="height: 50px; width: 150px;">
+                                    Start Screening
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+
+                </form>
+
+        </div>
+
+</div> -->
+
+<link rel="stylesheet" href="../../static/parser/css/upload_resume.css">
+<!-- my-code -->
+<div class="container">
+    <div class="container mt-3">
+        <div class="d-flex align-items-center mt-2 mb-3">
+            <!-- <a href="{% url 'parsing-resumes' %}" class="custom-button">
+                <i class="bi bi-arrow-left"></i> Go Back
+            </a> -->
+            <button onclick="goBack()" class="custom-button">
+                <i class="bi bi-arrow-left"></i> Go Back
+            </button>
+        </div>
+
+        <div
+            class="d-flex justify-content-center bg-light border border-2 mt-2 py-2">
+            <form method="POST" enctype="multipart/form-data" id="uploadForm"
+                action="{% url 'parsing-upload' %}">
+                <!-- <form id="uploadForm"> -->
+                {% csrf_token %}
+                {{ category_form|crispy }}
+                {% if category_form.errors %}
+                    {% for error in category_form.errors %}
+                        {{ error }}
+                    {% endfor %}
+                {% endif %}
+                
+                <p class="text-muted fs-4">Upload Your Files Here</p>
+                <div class="d-flex justify-content-center" id="dropArea">
+                    <label for="fileInput" class="mt-3">
+                        <i
+                            class="bi bi-cloud-upload upload-style d-flex justify-content-center"
+                            id="uploadImage"></i>
+                        <div id="fileList"
+                            class="d-flex flex-column justify-content-center table-container">
+                            <p class="d-flex justify-content-center">No file
+                                chosen</p>
+                        </div>
+                        {% for error in form.upload_resume.errors %}
+                        <div class="error-message text-danger mb-1">{{ error }}</div>
+                        {% endfor %}
+                    </label>
+                    <input type="file" name="upload_resume" class="d-none"
+                        multiple="multiple" id="fileInput">
+                </div>
+
+                <div class="container mt-1">
+                    <div class="row">
+                        <div class="col-6 mx-auto">
+                            <button type="submit" name="upload_button"
+                                class="btn  d-block"
+                                style="height: 50px; width: 150px;">
+                                Upload
+                            </button>
+                        </div>
+
+                        <div class="col-6 mx-auto">
+                            <button type="submit"
+                                class="btn  d-block"
+                                name="start_screening"
+                                style="height: 50px; width: 150px; ">
+                                Start Screening
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+        const categoryChoices = {
+        {% for key, value in category_choices.items %}
+                    '{{ key }}': [
+                        {% for item in value %}
+                            ['{{ item.0 }}', '{{ item.1 }}'],
+                        {% endfor %}
+                    ],
+        {% endfor %}
+        };
+    
+    </script>
+<script src="../../static/parser/js/upload_resume.js"></script>
+
+{% endblock content %}

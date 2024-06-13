@@ -1,0 +1,87 @@
+/* Hero Section */
+.hero-section {
+    position: relative;
+    background: url('../images/pic1.jpg') no-repeat center center/cover;
+    height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Custom Card */
+.custom-card {
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+    padding: 40px;
+    background-color: #f8f9fa;
+    height: auto; /* Adjust height to auto for content flexibility */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow for better appearance */
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #20c997;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #158c5f;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+#id_field, #id_category {
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* Custom Styles for Navbar */
+.bg-steel {
+    background-color: rgb(32, 201, 151);
+}
+
+.navbar .nav-item .nav-link {
+    color: white;
+}
+
+.navbar-brand {
+    color: #ffffff;
+}
+
+.navbar .nav-item .nav-link:hover {
+    color: black;
+}
+
+.navbar .nav-item .nav-link:focus {
+    color: #ffffff;
+}
+
+.nav-link.active {
+    border-bottom: 2px solid white;
+}

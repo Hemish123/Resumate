@@ -1,0 +1,59 @@
+{% extends "parser/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'parser/css/analytics.css' %}">
+<div class="container mt-1">
+    <h2 class="text-center mb-4">Analytics</h2>
+    <div class="card shadow-sm" style="width: 85%; margin: auto;">
+        <div class="card-body">
+            <canvas id="pie-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script>
+Chart.pluginService.register({
+    beforeDraw: function(chart) {
+        var ctx = chart.chart.ctx;
+        var sum = {{ resumes_total }};
+        var centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+        var centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+        ctx.font = '30px Arial';
+        ctx.fillStyle = '#000';
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.fillText('Total: ' + sum, centerX, centerY);
+    }
+});
+
+var config = {
+    type: 'doughnut',
+    data: {
+        datasets: [{
+            data: {{ data|safe }},
+            backgroundColor: {{ colors|safe }},
+            label: 'Resumes'
+        }],
+        labels: {{ labels|safe }}
+    },
+    options: {
+        responsive: true,
+        legend: {
+            display: true,
+            position: 'right',
+            align: 'center',
+            labels: {
+                boxWidth: 15,
+                boxHeight: 25
+            }
+        }
+    }
+};
+
+window.onload = function() {
+    var ctx = document.getElementById('pie-chart').getContext('2d');
+    window.myPie = new Chart(ctx, config);
+};
+</script>
+{% endblock content %}

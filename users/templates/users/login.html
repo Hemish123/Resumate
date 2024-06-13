@@ -1,0 +1,83 @@
+{% extends "parser/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+{% if not user.is_authenticated %}
+<div id="main-wrapper" class="oxyy-login-register">
+  <div class="container-fluid px-0">
+    <div class="row g-0 min-vh-100">
+      <!-- Welcome Text
+      ========================= -->
+      <div class="col-md-5">
+        <div class="hero-wrap h-100">
+          <div class="hero-mask opacity-3 bg-primary"></div>
+          <div class="hero-content w-100">
+            <div class="container d-flex flex-column min-vh-100">
+                <div class="row g-0">
+                    <div class="col-11 col-md-10 col-lg-9 mx-auto">
+                      <div class="logo mt-5 mb-5 mb-md-0"> <a class="d-flex" href="#" title="JMS"><img src="{% static 'parser/images/icon.png' %}" alt="JMS"></a> </div>
+                    </div>
+                </div>
+              <div class="row g-0 my-auto">
+                <div class="col-11 col-md-10 col-lg-9 mx-auto">
+                  <p class="text-4 lh-base">We are glad to see you again!</p>
+                  <h1 class="text-9 fw-600 mb-5">Ready to dive back in? Log in seamlessly to ResuMate.</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Welcome Text End -->
+        <!-- Login Form
+      ========================= -->
+      <div class="col-md-7 d-flex flex-column">
+        <div class="container pt-5">
+          <div class="row g-0">
+            <div class="col-12 mx-auto">
+              <p class="text-end text-2 mb-0">Don't Have An Account? <a href="{% url 'register' %}">Register Here</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="container my-auto py-5">
+          <div class="row g-0">
+            <div class="col-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
+              <h3 class="fw-600 mb-4">Log In</h3>
+              <form class="" method="post" enctype="multipart/form-data" id="loginForm">
+                {% csrf_token %}
+                  <div class="mb-3">
+<!--                  {{ form }}-->
+                      {% if form.errors %}
+                        <ul class="errorlist nonfield error-message text-danger">
+                            <li>Please enter a correct username and password. Note that both fields may be case-sensitive.
+                            </li>
+                        </ul>
+                    {% endif %}
+                      <label for="id_username" class="form-label fw-500">Username</label>
+                      <input type="text" name="username" class="form-control bg-light border-light" id="id_username" required placeholder="Enter Your name">
+                  </div>
+<!--                  <div class="mb-3">-->
+<!--&lt;!&ndash;                  {{ form|crispy }}&ndash;&gt;-->
+<!--                      <label for="emailAddress" class="form-label fw-500">Email Address</label>-->
+<!--                      <input type="email" name="email" class="form-control bg-light border-light" id="emailAddress" required placeholder="Enter Your Email">-->
+<!--                  </div>-->
+                  <div class="mb-3">
+                      <label for="loginPassword" class="form-label fw-500">Password</label>
+                      <a class="float-end text-2" href="{% url 'password_reset' %}">Forgot Password ?</a>
+                      <input type="password" name="password" class="form-control bg-light border-light" id="loginPassword" required placeholder="Enter Password">
+                  </div>
+                  <button class="btn btn-primary shadow-none mt-2" type="submit">Log In</button>
+              </form>
+                <!-- Login Form End -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}{% endblock %}
