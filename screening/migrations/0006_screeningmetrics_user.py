@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parser', '0005_screeningmetrics_for_role'),
+        ('screening', '0005_screeningmetrics_for_role'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

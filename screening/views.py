@@ -22,15 +22,15 @@ from django.conf import settings
 from .forms import ContactForm
 
 def about(request):
-    return render(request, 'parser/about.html', context={'title':'About'})
+    return render(request, 'screening/about.html', context={'title':'About'})
 
 
 
 # def resumes(request):
-#     return render(request,'parser/resumes.html',context={'title':'Resumes'})
+#     return render(request,'screening/resumes.html',context={'title':'Resumes'})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
-    template_name = 'parser/home.html'
+    template_name = 'screening/home.html'
     title = 'Home'
 
     def get_context_data(self, **kwargs):
@@ -61,7 +61,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name, context=self.get_context_data())
 
 class ResumeView(LoginRequiredMixin, TemplateView):
-    template_name = 'parser/resumes.html'
+    template_name = 'screening/resumes.html'
     title = 'Resumes'
 
     def get_context_data(self, **kwargs):
@@ -73,7 +73,7 @@ class ResumeView(LoginRequiredMixin, TemplateView):
 class ResumeCreateView(LoginRequiredMixin, CreateView):
     model = Resume
     fields = {'upload_resume'}
-    template_name = 'parser/upload_resume.html'
+    template_name = 'screening/upload_resume.html'
     title = 'Upload Resumes'
 
     def get_context_data(self, **kwargs):
@@ -167,7 +167,7 @@ class ResumeDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class ScreeningListView(LoginRequiredMixin, TemplateView):
-    template_name = 'parser/screening.html'
+    template_name = 'screening/screening.html'
     title = 'Screening'
 
     def get_context_data(self, **kwargs):
@@ -194,7 +194,7 @@ class ScreeningListView(LoginRequiredMixin, TemplateView):
 
 
 class AnalyticsTemplateView(LoginRequiredMixin, TemplateView):
-    template_name = 'parser/analytics.html'
+    template_name = 'screening/analytics.html'
     title = 'Analytics'
 
     def get_context_data(self, **kwargs):
@@ -254,7 +254,7 @@ def ScreenResume(resumes, category_value, user):
     return results, suggest_resume
 
 class ContactUsView(FormView):
-    template_name = 'parser/contactus.html'
+    template_name = 'screening/contactus.html'
     form_class = ContactForm
     success_url = '/contactus/'  # Adjust this as needed
 

@@ -2,7 +2,7 @@ import verify_email.views
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm
-from parser.decorators import logout_required
+from screening.decorators import logout_required
 from django.core.mail import send_mail
 from verify_email.email_handler import send_verification_email
 

@@ -11,7 +11,7 @@ def ResumeScreening(text):
     field_mapping = ['IT', 'Non-IT']
 
 
-    model = "parser/resume_screening/resume_screening1.sav"
+    model = "screening/resume_screening/resume_screening1.sav"
     loaded_model = joblib.load(model)
     # result = loaded_model.predict([text])
     prediction = loaded_model.predict([text])[0]

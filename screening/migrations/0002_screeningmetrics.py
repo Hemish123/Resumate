@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parser', '0001_initial'),
+        ('screening', '0001_initial'),
     ]
 
     operations = [

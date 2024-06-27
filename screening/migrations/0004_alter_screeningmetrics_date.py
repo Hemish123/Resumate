@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parser', '0003_screeningmetrics_date_and_more'),
+        ('screening', '0003_screeningmetrics_date_and_more'),
     ]
 
     operations = [

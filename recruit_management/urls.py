@@ -36,7 +36,7 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
          name='password_reset_complete'),
-    path('', include('parser.urls')),
+    path('', include('screening.urls')),
     path('login/', lambda request: redirect('parsing-home') if request.user.is_authenticated else auth_views.LoginView.as_view(template_name='users/login.html')(request), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('verification/', include('verify_email.urls')),

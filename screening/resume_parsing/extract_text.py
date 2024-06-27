@@ -178,7 +178,7 @@ def extractText(file_path):
         logging.error("An error occurred:", exc_info=True)
         return " "
 
-# text, font_info = extractText("/home/nikita/projects/JMS_ATS/parser/resume_parsing/resume/Nikita_Kapadiya.pdf")
+# text, font_info = extractText("/home/nikita/projects/JMS_ATS/screening/resume_parsing/resume/Nikita_Kapadiya.pdf")
 # print('text : ', text)
 # print('font info : ', font_info)
 
