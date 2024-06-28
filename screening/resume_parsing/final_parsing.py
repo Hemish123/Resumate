@@ -7,7 +7,7 @@ nlp = spacy.load('model-best')
 
 # initialize matcher with a vocab
 
-file_path = 'resume/chandan+kumar_Nodejs_Full_Stack.pdf'
+file_path = 'resume/Intelliveer -ChandraKantPaliwal[9y_0m].pdf'
 text = extractText(file_path)
 text.strip()
 text = " ".join(text.split())
