@@ -1,0 +1,74 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+
+<!-- Hero Section -->
+<!--<div class="hero-section text-center">-->
+<!--    <div class="overlay">-->
+<!--        <h1 class="display-4 text-white">Welcome to ResuMate</h1>-->
+<!--        <p class="lead text-white">Your ultimate resume screening and analytics tool</p>-->
+<!--        <a href="{% url 'parsing-about' %}" class="btn btn-primary btn-lg">Learn More</a>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Main Content &ndash;&gt;-->
+<!--<div class="container mt-4">-->
+<!--    <div class="row justify-content-center">-->
+<!--        <div class="col-md-11"> &lt;!&ndash; Adjust column width as needed &ndash;&gt;-->
+<!--            <div class="custom-card text-start">-->
+<!--                <form method="post" id="resumeScreeningForm" enctype="multipart/form-data" class="form-container"> &lt;!&ndash; Added class="form-container" &ndash;&gt;-->
+<!--                    &lt;!&ndash; Dropdown for Field &ndash;&gt;-->
+<!--                    {% csrf_token %}-->
+<!--                    {{ category_form|crispy }}-->
+<!--                    -->
+<!--&lt;!&ndash;                    <div class="form-group">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <label for="id_field">Field*</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <select id="id_field" name="field" class="form-control">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option value="" selected disabled>Choose a Field</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option value="IT">IT</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option value="Non-IT">Non-IT</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    &lt;!&ndash; Dropdown for Category &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div class="form-group" id="categoryDropdown" style="display: none;">&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        {{ category_form }}&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <label for="id_category">Category*</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <select id="id_category" name="category" class="form-control">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option value="" selected disabled>Choose a Category</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </select>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        <span id="categoryError" class="text-danger" style="display: none;">Please select a category.</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    &lt;!&ndash; Error message for field &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                    <span id="fieldError" class="text-danger" style="display: none;">Please select a field.</span>&ndash;&gt;-->
+<!--                    &lt;!&ndash; Buttons &ndash;&gt;-->
+<!--                    <div class="mt-4">-->
+<!--                        <button type="submit" name="all_resume_screening"-->
+<!--                            class="btn btn-primary btn-lg btn-custom mr-2 ">-->
+<!--                            All Resumes Screening-->
+<!--                        </button>-->
+<!--&lt;!&ndash;                        <a href="{% url 'parsing-screening' %}" class="btn btn-primary btn-lg" name="all_resume_screening" id="allResumeScreeningBtn">&ndash;&gt;-->
+<!--&lt;!&ndash;                            All Resume Screening&ndash;&gt;-->
+<!--&lt;!&ndash;                        </a>&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<script>-->
+<!--        const categoryChoices = {-->
+<!--        {% for key, value in category_choices.items %}-->
+<!--                    '{{ key }}': [-->
+<!--                        {% for item in value %}-->
+<!--                            ['{{ item.0 }}', '{{ item.1 }}'],-->
+<!--                        {% endfor %}-->
+<!--                    ],-->
+<!--        {% endfor %}-->
+<!--        };-->
+
+
+<!--</script>-->
+<!--<script src="../../static/screening/js/home.js"></script>-->
+{% endblock content %}

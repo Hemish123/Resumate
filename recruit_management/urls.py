@@ -26,6 +26,9 @@ from users.forms import EmailValidationOnForgotPassword
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('screening/', include('screening.urls')),
+    path('', include('dashboard.urls')),
+    path('manager/', include('manager.urls')),
     path('register/', user_views.register, name='register'),
     path('password_reset/',
          lambda request: redirect('parsing-home') if request.user.is_authenticated else auth_views.PasswordResetView.as_view(form_class=EmailValidationOnForgotPassword, template_name='users/forgot-password-10.html')(request),
@@ -36,8 +39,7 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
          name='password_reset_complete'),
-    path('', include('screening.urls')),
-    path('login/', lambda request: redirect('parsing-home') if request.user.is_authenticated else auth_views.LoginView.as_view(template_name='users/login.html')(request), name='login'),
+    path('login/', lambda request: redirect('dashboard') if request.user.is_authenticated else auth_views.LoginView.as_view(template_name='users/login.html')(request), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('verification/', include('verify_email.urls')),
 ]

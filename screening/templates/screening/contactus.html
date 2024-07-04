@@ -1,0 +1,60 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-11">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0" style="color: white;">Contact Us</h5>
+                </div>
+                <div class="card-body">
+                    <form id="contact-form" method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="form-group mt-4">
+                            <button type="button" onclick="sendMessage()" class="btn btn-block" style="height: 50px; width: 150px; background-color: #20c997; color:white;">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                    <!-- Success message container -->
+                    <div id="success-message" style="display: none;" class="alert alert-success mt-3">
+                        <strong>Success!</strong> Message sent successfully.
+                    </div>
+                    <!-- Error message container -->
+                    <div id="error-message" style="display: none;" class="alert alert-danger mt-3">
+                        <strong>Error!</strong> Failed to send message. Please try again later.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function sendMessage() {
+        var formData = new FormData(document.getElementById("contact-form"));
+        $.ajax({
+            url: "{% url 'parsing-contactus' %}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // Show success message
+                $("#success-message").fadeIn().delay(2000).fadeOut(); // Fade in, wait 2 seconds, then fade out
+                $("#error-message").hide();
+                document.getElementById("contact-form").reset();
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                $("#error-message").fadeIn().delay(2000).fadeOut(); // Fade in, wait 2 seconds, then fade out
+            }
+        });
+    }
+</script>
+
+{% endblock content %}

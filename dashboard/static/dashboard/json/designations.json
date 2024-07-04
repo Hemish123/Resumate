@@ -1,0 +1,18 @@
+{"IT" : [
+          "Java Developer", "DotNet Developer",
+          "Testing", "DevOps Engineer",
+          "Python Developer", "Web Designing",
+          "Hadoop", "Blockchain",
+          "ETL Developer", "Data Science",
+          "Database", "Automation Testing",
+          "Network Security Engineer", "SAP Developer"
+      ],
+  "Non-IT" : [
+          "HR", "Operations Manager",
+          "Sales", "Mechanical Engineer",
+          "Arts", "Electrical Engineering",
+          "Health and fitness", "PMO",
+          "Business Analyst", "Civil Engineer",
+          "Advocate"
+  ]
+}

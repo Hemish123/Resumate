@@ -1,93 +1,132 @@
 
-{% extends "parser/base.html" %}
+{% extends "users/user_base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
 {% block content %}
-<script src="../../static/user/js/register.js"></script>
-<link rel="stylesheet" href="../../static/user/css/register.css">
 
 
-<div id="main-wrapper" class="oxyy-login-register">
-  <div class="container-fluid px-0">
-    <div class="row g-0 min-vh-100">
-<!-- Welcome Text
-      ========================= -->
-      <div class="col-md-5">
-        <div class="hero-wrap h-100">
-          <div class="hero-mask opacity-3 bg-primary"></div>
-          <div class="hero-content w-100">
-            <div class="container d-flex flex-column min-vh-100">
-              <div class="row g-0">
-                <div class="col-11 col-md-10 col-lg-9 mx-auto">
-                  <div class="logo mt-5 mb-5 mb-md-0"> <a class="d-flex fa-lg" href="#" title="JMS"><img src="{% static 'parser/images/icon.png' %}" alt="JMS"></a> </div>
-                </div>
-              </div>
-              <div class="row g-0 my-auto">
-                <div class="col-11 col-md-10 col-lg-9 mx-auto">
-                  <p class="text-4 lh-base">Looks like you're new here!</p>
-                  <h1 class="text-9 fw-600 mb-5">Enhance your resume screening experience with ResuMate –
-                      Join Us Now!</h1>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Welcome Text End -->
-<!-- Register Form
-      ========================= -->
-      <div class="col-md-7 d-flex flex-column">
-        <div class="container pt-5">
-          <div class="row g-0">
-            <div class="col-11 mx-auto">
-              <p class="text-end text-2 mb-0">Already Have An Account? <a href="{% url 'login' %}">Log In</a></p>
-            </div>
-          </div>
-        </div>
-        <div class="container my-auto py-5">
-          <div class="row g-0">
-            <div class="col-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
-              <h3 class="fw-600 mb-4">Join Now</h3>
-              <form action="" method="post" id="registerForm" enctype="multipart/form-data">
+<h4 class="mb-1">Adventure starts here 🚀</h4>
+              <p class="mb-6">Make your app management easy and fun!</p>
+
+              <form id="formAuthentication" class="mb-6" enctype="multipart/form-data" method="post">
                 {% csrf_token %}
-                
-                <div class="mb-3">
-                  <label for="fullName" class="form-label fw-500">Username</label>
-                  <input type="text" name="username" class="form-control bg-light border-light" id="fullName" required placeholder="Enter Your Username" onclick="showSuggestions('fullName')" onblur="hideSuggestions('fullName')">
-                  <small id="fullName_suggestion" class="form-text text-muted" style="display: none;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+                <div class="mb-6">
+                  <label for="username" class="form-label">Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                    autofocus />
+                  <small id="username_suggestion" class="form-text text-muted" style="display: none;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+                  {% if form.errors %}
+                  {% for error in form.username.errors %}
+                        <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
                 </div>
-
-                <div class="mb-3">
-                  <label for="emailAddress" class="form-label fw-500">Email Address</label>
-                  <input type="email" name="email" class="form-control bg-light border-light" id="emailAddress" required placeholder="Enter Your Email Address" onclick="showSuggestions('emailAddress')" onblur="hideSuggestions('emailAddress')">
+                <div class="mb-6">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="text" class="form-control" id="email" name="email" required placeholder="Enter your email" />
+                  {% if form.errors %}
+                  {% for error in form.email.errors %}
+                        <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
                 </div>
-
-                <div class="mb-3">
-                  <label for="loginPassword1" class="form-label fw-500">Password</label>
-                  <input type="password" name="password1" class="form-control bg-light border-light" id="loginPassword1" required placeholder="Enter Password" onclick="showSuggestions('loginPassword1')" onblur="hideSuggestions('loginPassword1')">
-                  <small id="loginPassword1_suggestion" class="form-text text-muted" style="display: none;">
+                <div class="mb-6 form-password-toggle">
+                  <label class="form-label" for="password">Password</label>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="password"
+                      id="password"
+                      class="form-control"
+                      name="password1"
+                      required
+                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                      aria-describedby="password" />
+                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                    <small id="password_suggestion" class="form-text text-muted" style="display: none;">
                     Your password can’t be too similar to your other personal information.<br>
                     Your password must contain at least 8 characters.<br>
                     Your password can’t be a commonly used password.<br>
                     Your password can’t be entirely numeric.
                   </small>
+
+                  </div>
+                  {% if form.errors %}
+                  {% for error in form.password1.errors %}
+                        <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+                </div>
+                <div class="mb-6 form-password-toggle">
+                  <label class="form-label" for="password2">Confirm Password</label>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="password"
+                      id="password2"
+                      class="form-control"
+                      name="password2"
+                      required
+                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                      aria-describedby="password" />
+                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                    <small id="password2_suggestion" class="form-text text-muted" style="display: none;">Enter the same password as before, for verification.</small>
+
+                  </div>
+                    {% if form.errors %}
+                    {% for error in form.password2.errors %}
+                          <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                    {% endif %}
                 </div>
 
-                <div class="mb-3">
-                  <label for="loginPassword2" class="form-label fw-500">Re-Enter Password</label>
-                  <input type="password" name="password2" class="form-control bg-light border-light" id="loginPassword2" required placeholder="Enter Password Again" onclick="showSuggestions('loginPassword2')" onblur="hideSuggestions('loginPassword2')">
-                  <small id="loginPassword2_suggestion" class="form-text text-muted" style="display: none;">Enter the same password as before, for verification.</small>
+                <div class="my-8">
+                  <div class="form-check mb-0 ms-2">
+                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms" />
+                    <label class="form-check-label" for="terms-conditions">
+                      I agree to
+                      <a href="javascript:void(0);">privacy policy & terms</a>
+                    </label>
+                  </div>
                 </div>
-
-                <button class="btn btn-primary shadow-none" type="submit">Sign In</button>
+                <button class="btn btn-primary d-grid w-100" type="submit">Sign up</button>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Register Form End -->
-    </div>
-  </div>
-</div>
+
+              <p class="text-center">
+                <span>Already have an account?</span>
+                <a href="{% url 'login' %}">
+                  <span>Sign in instead</span>
+                </a>
+              </p>
+
+              <div class="divider my-6">
+                <div class="divider-text">or</div>
+              </div>
+
+              <div class="d-flex justify-content-center">
+                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-facebook me-1_5">
+                  <i class="tf-icons ti ti-brand-facebook-filled"></i>
+                </a>
+
+                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-twitter me-1_5">
+                  <i class="tf-icons ti ti-brand-twitter-filled"></i>
+                </a>
+
+                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-github me-1_5">
+                  <i class="tf-icons ti ti-brand-github-filled"></i>
+                </a>
+
+                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-google-plus">
+                  <i class="tf-icons ti ti-brand-google-filled"></i>
+                </a>
+              </div>
+
+<script src="../../static/user/js/register.js"></script>
+
+
 {% endblock content %}

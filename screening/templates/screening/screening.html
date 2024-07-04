@@ -1,0 +1,53 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<link rel="stylesheet" href="../../static/screening/css/screening.css">
+<div class="container" style="max-width: 1100px;">
+    <div class="d-flex align-items-center mt-2 mb-3">
+        <!-- <a href="{{ next }}" class="custom-button">   Using next parameter for Go Back button 
+            <i class="bi bi-arrow-left"></i> Go Back
+        </a> -->
+        
+        <button onclick="goBack()" class="custom-button">
+            <i class="bi bi-arrow-left"></i> Go Back
+        </button>
+
+    </div>
+    <div class="row">
+        <div class="col-md-7">
+            <div class="content-section">
+                <h5>Resume List</h5>
+                <ul class="resume-list">
+                    {% if resume_list %}
+                        {% for resume in resume_list %}
+                            <li class="resume-item">
+                                <a class="resume-link" href="{{ resume.upload_resume.url }}" target="_blank">{{ resume.filename }}</a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="text-muted fs-4">No resumes match for selected role</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="content-section">
+                <h5>Suggested Resume</h5>
+                <ul class="resume-list">
+                    {% if suggest_resume_list %}
+                        {% for resume in suggest_resume_list %}
+                            <li class="resume-item">
+                                <a class="resume-link" href="{{ resume.upload_resume.url }}" target="_blank">{{ resume.filename }}</a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="text-muted fs-4">No suggested resumes match for selected role</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

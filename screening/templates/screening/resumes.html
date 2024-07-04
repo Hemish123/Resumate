@@ -1,0 +1,62 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<link rel="stylesheet" href="../../static/screening/css/resumes.css">
+
+
+
+<div class="container" style="justify-content:flex-start; margin-right:8px;">
+    <form method="post" action="{% url 'parsing-upload' %}" class="form-container">
+        {% csrf_token %}
+        <div class="button-group mt-1">
+            <a class="button btn-primary d-block" style="height: 50px; width: 150px; text-decoration: none; text-align: center;" name="upload_new" href="{% url 'parsing-upload' %}">
+                Upload
+            </a>
+        </div>
+    </form>
+</div>
+
+
+<div class="container">
+    <div style="width: 1025px;">
+        <div class="mt-1">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Upload Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="uploadedFiles">
+                    {% for resume in resume_list %}
+                    <tr>
+                        <td>
+                            <a class="resume-link" href="{{ resume.upload_resume.url }}" target="_blank">{{ resume.filename }}</a>
+                        </td>
+                        <td>{{ resume.updated_on|date:"d/m/Y" }}</td>
+                        <td>
+                            <form id="deleteForm{{ forloop.counter }}" method="post" action="{% url 'parsing-delete' resume.pk %}">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('{{ forloop.counter }}')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if resume_list|length == 0 %}
+                    <tr>
+                        <td colspan="3" class="text-center">No files uploaded yet.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script src="../../static/screening/js/resumes.js"></script>
+{% endblock content %}

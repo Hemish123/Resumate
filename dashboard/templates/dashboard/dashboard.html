@@ -1,0 +1,38 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+{% if has_perm %}
+<a href="{% url 'job-opening' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Opening
+</a>
+{% endif %}
+<div class="row mt-1 mb-12 g-6">
+{% for jobs in job_posts %}
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card mb-6">
+            <div class="card-body">
+                <a href="{% url 'job-process' %}">
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <h5 class="card-title">{{jobs.designation}}</h5>
+                          <span class="badge bg-{{jobs.alert}} fs-6">{{jobs.status}}</span>
+                    </div>
+                  <div class="card-subtitle mt-2 mb-4">{{jobs.company}}</div>
+                  <p class="card-text">
+                      {{jobs.open}}
+                  </p>
+                    <div class="alert alert-info" role="alert">New Applications</div>
+
+
+<!--              <a href="javascript:void(0)" class="card-link">Card link</a>-->
+<!--              <a href="javascript:void(0)" class="card-link">Another link</a>-->
+                </a>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
+</div>
+
+{% endblock content %}
