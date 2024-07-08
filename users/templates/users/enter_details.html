@@ -1,0 +1,54 @@
+{% extends "users/user_base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+{% if user.is_authenticated %}
+<h4 class="mb-1">Welcome to ResuMate! 👋</h4>
+              <p class="mb-6">Please enter your details to your account and start the adventure</p>
+
+              <form id="formAuthentication" enctype="multipart/form-data" class="mb-4" method="post">
+                {% csrf_token %}
+                  <div class="mb-6">
+                      {% if form.errors %}
+                        <ul class="errorlist nonfield error-message text-danger">
+                            {% for error in form.errors %}
+                            <li> {{ error }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                  <label for="name" class="form-label">Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your Full Name"
+                    required
+                    autofocus />
+                </div>
+                <div class="mb-6 form-password-toggle">
+                  <label class="form-label" for="contact">Contact</label>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="number"
+                      id="contact"
+                      class="form-control"
+                      name="contact"
+                      placeholder="Enter your contact number"
+                      required
+                       />
+                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                  </div>
+                </div>
+
+                <div class="mb-6">
+                  <button class="btn btn-primary d-grid w-100" type="submit">Submit</button>
+                </div>
+              </form>
+
+    <!-- / Content -->
+
+{% endif %}{% endblock %}

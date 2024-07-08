@@ -6,6 +6,9 @@
 <a href="{% url 'job-opening' %}" type="button" class="btn btn-outline-primary">
     <span class="ti-xs ti ti-plus me-2"></span>New Opening
 </a>
+<a href="{% url 'create-employee' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Employee
+</a>
 {% endif %}
 <div class="row mt-1 mb-12 g-6">
 {% for jobs in job_posts %}

@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import FileExtensionValidator, EmailValidator
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from users.models import Employee
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -37,6 +38,6 @@ class JobOpening(models.Model):
                                                                         message='Select pdf, docx, doc or txt files only')])
     updated_on = models.DateTimeField(default=timezone.now)
     jd_content = models.TextField(blank=True)
-    assignemployee = models.CharField(max_length=255)
+    assignemployee = models.ManyToManyField(Employee, null=True)
     # assignemployee = models.ForeignKey(Employee, on_delete=models.CASCADE)  # ForeignKey to Employee
     content_type = models.CharField(blank=True, max_length=10, choices=[('file', 'File'), ('text', 'Text')])  # Choice for content type

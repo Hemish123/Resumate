@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from .models import JobOpening, Organization
+from users.models import Employee
 from .forms import JobOpeningForm
 from django.views.generic.edit import FormView
 
@@ -29,6 +30,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         form = JobOpeningForm()
+        context['choices'] = Employee.objects.all()
         with open("dashboard/static/dashboard/json/designations.json") as f:
             data = json.load(f)
 

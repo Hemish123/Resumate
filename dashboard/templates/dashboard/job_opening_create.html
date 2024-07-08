@@ -53,7 +53,13 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_assignemployee">Assign Recruiter</label>
-                <select id="id_assignemployee" required class="select2 form-select">
+                <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>
+                  <option value=""></option>
+                  {% for employee in choices %}
+
+                    <option value="{{ employee }}">{{ employee }}</option>
+
+                  {% endfor %}
                   {{ form.assignemployee }}
                 </select>
               </div>

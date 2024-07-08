@@ -13,17 +13,19 @@
                   <div class="mb-6">
                       {% if form.errors %}
                         <ul class="errorlist nonfield error-message text-danger">
-                            <li>Please enter a correct username and password. Note that both fields may be case-sensitive.
+                            {% for error in form.errors %}
+                            <li> {{ error }}
                             </li>
+                            {% endfor %}
                         </ul>
                     {% endif %}
-                  <label for="email" class="form-label">Email or Username</label>
+                  <label for="email" class="form-label">Username</label>
                   <input
                     type="text"
                     class="form-control"
                     id="email"
                     name="username"
-                    placeholder="Enter your email or username"
+                    placeholder="Enter your username"
                     required
                     autofocus />
                 </div>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Your Employee Account</title>
+</head>
+<body>
+    <h1>Welcome to ResuMate, {{ employee.user.username }}!</h1>
+    <p>Login to your account with following details:</p>
+    <p>Username: {{ employee.user.username }}</p>
+    <p>Password: {{ password }}</p>
+    <p><a href="http://{{ site_url }}/users-details/{{ employee.id }}">Login</a></p>
+    <p>Change your password as soon as you login.</p>
+<!--    <p>This link will expire in {{ activation_link_expiration_days }} days. If you don't activate your account within that time, you'll need to request a new activation link.</p>-->
+    <p>Sincerely,</p>
+    <p>ResuMate Team</p>
+</body>
+</html>
