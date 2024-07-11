@@ -1,14 +1,5 @@
 from django import forms
-from .models import Resume
 
-
-class UploadForms(forms.ModelForm):
-    class Meta:
-        model = Resume
-        fields = ['upload_resume']
-        widgets = {
-            'upload_resume': forms.FileInput(attrs={'id': 'fileInput', 'allow_multiple_selected': True}),
-        }
 
 class CategoryForm(forms.Form):
     field_choices = [

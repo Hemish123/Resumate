@@ -4,19 +4,19 @@ from phonenumber_field.widgets import PhoneNumberPrefixWidget
 import json
 
 
-class OrganizationForm(forms.ModelForm):
-
-    def clean_email(self):
-        # Convert email to lowercase
-        email = self.cleaned_data['email'].lower()
-        return email
-
-    class Meta:
-        model = Organization
-        fields = ['name', 'location', 'email', 'contact', 'website']
-        # widgets = {
-        #     'contact': PhoneNumberPrefixWidget(),
-        # }
+# class OrganizationForm(forms.ModelForm):
+    #
+    # def clean_email(self):
+    #     # Convert email to lowercase
+    #     email = self.cleaned_data['email'].lower()
+    #     return email
+    #
+    # class Meta:
+    #     model = Organization
+    #     fields = ['name', 'location', 'email', 'contact', 'website']
+    #     # widgets = {
+    #     #     'contact': PhoneNumberPrefixWidget(),
+    #     # }
 
 
 
@@ -37,6 +37,4 @@ class JobOpeningForm(forms.ModelForm):
         # Dynamically populate company choices and designation choices
         self.fields['organization'].choices = [(company.pk, company.name) for company in Organization.objects.all()]
 
-        self.fields['assignemployee'].choices = [(company.pk, company.name) for company in Organization.objects.all()]
-        self.fields['requiredskills'].choices = [(company.pk, company.name) for company in Organization.objects.all()]
 

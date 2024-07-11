@@ -6,26 +6,7 @@ from django.urls import reverse
 from datetime import timedelta
 
 # Create your models here.
-class Resume(models.Model) :
-    upload_resume = models.FileField(upload_to='resumes/',
-                                     validators=[FileExtensionValidator(allowed_extensions=['pdf','docx','doc'],
-                                                                        message='Select pdf, docx or doc files only')])
-    updated_on = models.DateTimeField(default=timezone.now)
-    uploaded_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    filename = models.CharField(max_length=255 , blank=True)
-    text_content = models.TextField()
-    selected = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.filename
-
-    def get_absolute_url(self):
-        return reverse('parsing-home')
-    def save(self, *args, **kwargs):
-        if self.upload_resume:
-            # Extract the original filename
-            self.filename = self.upload_resume.name
-        super().save(*args, **kwargs)
 
 class ScreeningMetrics(models.Model):
     total_resumes_processed = models.IntegerField(default=0)

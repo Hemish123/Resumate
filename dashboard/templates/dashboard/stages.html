@@ -41,7 +41,8 @@
                 <!-- Add new board -->
                 <div class="row">
                   <div class="col-12">
-                    <form class="kanban-add-new-board">
+                    <form class="kanban-add-new-board" id="formAuthentication" enctype="multipart/form-data" method="post">
+                      {% csrf_token %}
                       <label class="kanban-add-board-btn" for="kanban-add-board-input">
                         <i class="ti ti-plus"></i>
                         <span class="align-middle">Add new</span>
@@ -51,10 +52,11 @@
                         class="form-control w-px-250 kanban-add-board-input mb-4 d-none"
                         placeholder="Add Board Title"
                         id="kanban-add-board-input"
+                        name="name"
                         required />
                       <div class="mb-4 kanban-add-board-input d-none">
                         <button class="btn btn-primary btn-sm me-4">Add</button>
-                        <button type="button" class="btn btn-label-secondary btn-sm kanban-add-board-cancel-btn">
+                        <button type="submit" class="btn btn-label-secondary btn-sm kanban-add-board-cancel-btn">
                           Cancel
                         </button>
                       </div>
@@ -339,7 +341,7 @@
 
 
     <!-- Page JS -->
-    <script src="{% static 'dashboard/js/app-kanban.js' %}"></script>
+    <script src="{% static 'dashboard/js/app-kanban.js' %}" data-jobopeningid="{{ job_opening.id }}"></script>
     <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
 {% endblock js %}

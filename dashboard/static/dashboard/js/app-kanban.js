@@ -19,12 +19,16 @@
   // Init kanban Offcanvas
   const kanbanOffcanvas = new bootstrap.Offcanvas(kanbanSidebar);
 
+    const data = document.currentScript.dataset;
+  const jobOpeningId = data.jobopeningid;
   // Get kanban data
-  const kanbanResponse = await fetch(assetsPath + 'json/kanban.json');
+
+  const kanbanResponse = await fetch(`/stage-api/${jobOpeningId}`);
   if (!kanbanResponse.ok) {
     console.error('error', kanbanResponse);
   }
   boards = await kanbanResponse.json();
+  console.log('boards ', boards);
 
   // datepicker init
   if (datePicker) {
@@ -38,28 +42,28 @@
 
   //! TODO: Update Event label and guest code to JS once select removes jQuery dependency
   // select2
-  if (select2.length) {
-    function renderLabels(option) {
-      if (!option.id) {
-        return option.text;
-      }
-      var $badge = "<div class='badge " + $(option.element).data('color') + "'> " + option.text + '</div>';
-      return $badge;
-    }
-
-    select2.each(function () {
-      var $this = $(this);
-      $this.wrap("<div class='position-relative'></div>").select2({
-        placeholder: 'Select Label',
-        dropdownParent: $this.parent(),
-        templateResult: renderLabels,
-        templateSelection: renderLabels,
-        escapeMarkup: function (es) {
-          return es;
-        }
-      });
-    });
-  }
+//  if (select2.length) {
+//    function renderLabels(option) {
+//      if (!option.id) {
+//        return option.text;
+//      }
+//      var $badge = "<div class='badge " + $(option.element).data('color') + "'> " + option.text + '</div>';
+//      return $badge;
+//    }
+//
+//    select2.each(function () {
+//      var $this = $(this);
+//      $this.wrap("<div class='position-relative'></div>").select2({
+//        placeholder: 'Select Label',
+//        dropdownParent: $this.parent(),
+//        templateResult: renderLabels,
+//        templateSelection: renderLabels,
+//        escapeMarkup: function (es) {
+//          return es;
+//        }
+//      });
+//    });
+//  }
 
   // Comment editor
   if (commentEditor) {

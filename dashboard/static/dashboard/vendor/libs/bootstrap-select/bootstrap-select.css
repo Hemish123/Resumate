@@ -186,7 +186,7 @@ select.selectpicker {
 .bootstrap-select .dropdown-toggle .bs-select-clear-selected {
   position: relative;
   display: block;
-  margin-right: 5px;
+  margin-right: 15px;
   text-align: center;
 }
 .bs3.bootstrap-select .dropdown-toggle .bs-select-clear-selected {

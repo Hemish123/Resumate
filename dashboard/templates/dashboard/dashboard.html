@@ -9,21 +9,33 @@
 <a href="{% url 'create-employee' %}" type="button" class="btn btn-outline-primary">
     <span class="ti-xs ti ti-plus me-2"></span>New Employee
 </a>
+<a href="{% url 'create-organization' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Organization
+</a>
 {% endif %}
+<a href="{% url 'candidate-create' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Candidate
+</a>
 <div class="row mt-1 mb-12 g-6">
+{% if job_posts %}
 {% for jobs in job_posts %}
 
     <div class="col-md-6 col-lg-4">
         <div class="card mb-6">
             <div class="card-body">
-                <a href="{% url 'job-process' %}">
+
+                <a href="{% url 'job-process' jobs.id %}">
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                         <h5 class="card-title">{{jobs.designation}}</h5>
-                          <span class="badge bg-{{jobs.alert}} fs-6">{{jobs.status}}</span>
+                        {% if jobs.active %}
+                          <span class="badge bg-primary ">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger ">Closed</span>
+                        {% endif %}
                     </div>
-                  <div class="card-subtitle mt-2 mb-4">{{jobs.company}}</div>
+                  <div class="card-subtitle mt-2 mb-4">{{jobs.organization}}</div>
                   <p class="card-text">
-                      {{jobs.open}}
+                      Open Positions : {{jobs.openings}}
                   </p>
                     <div class="alert alert-info" role="alert">New Applications</div>
 
@@ -36,6 +48,9 @@
     </div>
 
 {% endfor %}
+    {% elif no_job_posts %}
+        {{ no_job_posts }}
+    {% endif %}
 </div>
 
 {% endblock content %}

@@ -1,0 +1,243 @@
+{% extends "dashboard/theme.html" %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/pickr/pickr-themes.css' %}" />
+
+
+
+{% endblock css %}
+
+{% block body %}
+
+<div class="content-wrapper">
+            <!-- Content -->
+
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-6">
+      <h5 class="card-header">New Candidate</h5>
+      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-12">
+<!--              {% if form.errors %}-->
+<!--                  {% for field, errors in form.errors.items %}-->
+<!--                      {% for error in errors %}-->
+<!--                          <div class="error-message text-danger">{{ error }}</div>-->
+<!--                      {% endfor %}-->
+<!--                  {% endfor %}-->
+<!--                  {% endif %}-->
+            <div class="row g-6">
+              <div class="col-md-3">
+                <label class="form-label" for="id_job_openings">Hiring For</label>
+                  <select name="job_openings" id="id_job_openings" class="selectpicker w-100"
+                          data-show-subtext="true" data-placeholder="Select" data-style="btn-default"
+                          data-allow-clear="true">
+
+                  {% for choice in choices %}
+
+                    <option value="{{ choice.id }}" data-subtext="{{ choice.organization }}">{{ choice.designation }}</option>
+
+                  {% endfor %}
+                </select>
+                  {% if form.errors %}
+                  {% for error in form.job_openings.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_name">Candidate Name</label>
+                <input id="id_name" name="name" class="form-control" required/>
+                  {% if form.errors %}
+                  {% for error in form.name.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_contact">Contact</label>
+                <input name="contact" id="id_contact" class="form-control" required/>
+                  {% if form.errors %}
+                  {% for error in form.contact.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label for="id_email" class="form-label">Email</label>
+                <input id="id_email" name="email" class="form-control" required/>
+                  {% if form.errors %}
+                  {% for error in form.email.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                  <label for="id_location" class="form-label">Location</label>
+                  <input id="id_location" name="location" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.location.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                  <label for="id_dob" class="form-label">Date of Birth</label>
+                  <input id="id_dob" name="dob" type="date" class="form-control"/>  <!-- class = bs-datepicker-format  -->
+                  {% if form.errors %}
+                  {% for error in form.dob.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                  <label for="id_doc" class="form-label">Date of Contact</label>
+                  <input id="id_doc" name="doc" type="date" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.doc.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_website">Social Media Link (if any)</label>
+                <input id="id_website" type="url" name="website" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.website.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_education">Education (Degree)</label>
+                <input id="id_education" name="education" class="form-control" required/>
+                  {% if form.errors %}
+                  {% for error in form.education.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_experience">Experience (in years)</label>
+                <input id="id_experience" type="number" name="experience" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.experience.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_current_designation">Current Designation</label>
+                <input id="id_current_designation" name="current_designation" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.current_designation.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_current_organization">Current Organization</label>
+                <input id="id_current_organization" name="current_organization" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.current_organization.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_current_ctc">Current CTC (in LPA)</label>
+                <input id="id_current_ctc" type="number" name="current_ctc" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.current_ctc.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_expected_ctc">Expected CTC (in LPA)</label>
+                <input id="id_expected_ctc" type="number" name="expected_ctc" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.expected_ctc.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_offer_in_hand">Offer in hand (if any)(in LPA)</label>
+                <input id="id_offer_in_hand" type="number" name="offer_in_hand" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.offer_in_hand.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_notice_period">Notice Period (in days)</label>
+                <input id="id_notice_period" type="number" name="notice_period" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.notice_period.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_reason_for_change">Reason For Change</label>
+                <input id="id_reason_for_change" name="reason_for_change" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.reason_for_change.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_feedback">Feedback</label>
+                <input id="id_feedback" name="feedback" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.feedback.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-6">
+          <button type="submit" class="btn btn-primary me-4">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock body %}
+
+
+{% block js %}
+
+<!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/pickr/pickr.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-pickers.js' %}"></script>
+<!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
+    <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
+
+
+
+
+{% endblock js %}

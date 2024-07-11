@@ -11,13 +11,17 @@ class Organization(models.Model):
     name = models.CharField(max_length=255, unique=True)
     location = models.CharField(max_length=400, blank=True)
     email = models.EmailField(validators=[EmailValidator], unique=True)
-    contact = PhoneNumberField(blank=True)
+    contact = models.CharField(max_length=12, blank=True)
     website = models.URLField(max_length=100, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.email = self.email.lower()  # Convert email to lowercase
+        super().save(*args, **kwargs)
 
 def exempt_zero(value):
     if value == 0:
@@ -38,6 +42,10 @@ class JobOpening(models.Model):
                                                                         message='Select pdf, docx, doc or txt files only')])
     updated_on = models.DateTimeField(default=timezone.now)
     jd_content = models.TextField(blank=True)
-    assignemployee = models.ManyToManyField(Employee, null=True)
+    assignemployee = models.ManyToManyField(Employee)
     # assignemployee = models.ForeignKey(Employee, on_delete=models.CASCADE)  # ForeignKey to Employee
     content_type = models.CharField(blank=True, max_length=10, choices=[('file', 'File'), ('text', 'Text')])  # Choice for content type
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.designation

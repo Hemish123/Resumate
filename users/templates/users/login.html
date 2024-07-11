@@ -12,12 +12,13 @@
                 {% csrf_token %}
                   <div class="mb-6">
                       {% if form.errors %}
-                        <ul class="errorlist nonfield error-message text-danger">
-                            {% for error in form.errors %}
-                            <li> {{ error }}
-                            </li>
-                            {% endfor %}
-                        </ul>
+
+                            {% for field, errors in form.errors.items %}
+                                  {% for error in errors %}
+                                      <div class="error-message text-danger">{{ error }}</div>
+                                  {% endfor %}
+                              {% endfor %}
+
                     {% endif %}
                   <label for="email" class="form-label">Username</label>
                   <input

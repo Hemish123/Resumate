@@ -20,12 +20,27 @@
       <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row g-6">
+
           <div class="col-md-6">
+            {% if form.errors %}
+                  {% for field, errors in form.errors.items %}
+                      {% for error in errors %}
+                          <div class="error-message text-danger">{{ error }}</div>
+                      {% endfor %}
+                  {% endfor %}
+                  {% endif %}
             <div class="row g-6">
               <div class="col-md-6">
                 <label class="form-label" for="id_organization">Organization</label>
                 <select id="id_organization" name="organization" required class="select2 form-select" data-allow-clear="true">
-                  {{ form.organization }}
+                  <option value=""></option>
+                  {% for org in organizations %}
+
+                    <option value="{{ org.id }}">{{ org }}</option>
+
+                  {% endfor %}
+
+
                 </select>
               </div>
               <div class="col-md-6">
@@ -43,12 +58,19 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_openings">Openings</label>
-                <input type="number" placeholder="0" id="id_openings" min="0" class="form-control" required/>
+                <input type="number" name="openings" placeholder="0" id="id_openings" min="0" class="form-control" required/>
               </div>
               <div class="col-md-6">
                 <label for="id_requiredskills" class="form-label">Required Skills</label>
-                <select id="id_requiredskills" class="select2 form-select" required multiple>
-                  {{ form.requiredskills }}
+                <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>
+                  <option value=""></option>
+                  {% for skill in skills %}
+
+                    <option value="{{ skill }}">{{ skill }}</option>
+
+                  {% endfor %}
+
+
                 </select>
               </div>
               <div class="col-md-6">
@@ -57,10 +79,10 @@
                   <option value=""></option>
                   {% for employee in choices %}
 
-                    <option value="{{ employee }}">{{ employee }}</option>
+                    <option value="{{ employee.id }}">{{ employee }}</option>
 
                   {% endfor %}
-                  {{ form.assignemployee }}
+
                 </select>
               </div>
               <div class="row mt-4">

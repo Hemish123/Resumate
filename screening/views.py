@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
-from .models import Resume, ScreeningMetrics
+from .models import ScreeningMetrics
 from django.contrib import messages
-from .forms import UploadForms, CategoryForm,ContactForm
+from .forms import CategoryForm,ContactForm
+from candidate.models import Resume
+
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .resume_screening.extract_text import extractText
