@@ -6,7 +6,7 @@ from candidate.models import Candidate
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['id', 'name', 'email']
+        fields = ['id', 'name', 'email', 'contact']
 
 
 class CandidateStageSerializer(serializers.ModelSerializer):

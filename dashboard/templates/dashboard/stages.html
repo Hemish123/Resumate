@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/quill/katex.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/quill/editor.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/pickr/pickr-themes.css' %}" />
 
     <!-- Page CSS -->
 
@@ -99,8 +102,12 @@
                             <input type="text" id="title" class="form-control" placeholder="Enter Title" />
                           </div>
                           <div class="mb-5">
-                            <label class="form-label" for="due-date">Due Date</label>
-                            <input type="text" id="due-date" class="form-control" placeholder="Enter Due Date" />
+                            <label class="form-label" for="contact">Contact</label>
+                            <input type="text" id="contact" class="form-control" placeholder="Enter Contact" />
+                          </div>
+                          <div class="mb-5">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="text" id="email" class="form-control" placeholder="Enter Email" />
                           </div>
                           <div class="mb-5">
                             <label class="form-label" for="label"> Label</label>
@@ -331,17 +338,21 @@
     <!-- Vendors JS -->
     <script src="{% static 'dashboard/vendor/libs/moment/moment.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/flatpickr/flatpickr.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/jkanban/jkanban.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/quill/katex.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/quill/quill.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/bloodhound/bloodhound.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/pickr/pickr.js' %}"></script>
+
 
 
 
     <!-- Page JS -->
     <script src="{% static 'dashboard/js/app-kanban.js' %}" data-jobopeningid="{{ job_opening.id }}"></script>
-    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
-    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+<!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
+<!--    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>-->
 {% endblock js %}

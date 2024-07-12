@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Stage, CandidateStage
-from .serializers import StageSerializer
+from .serializers import StageSerializer, CandidateSerializer
 from django.views.generic.edit import FormView
 from django.http import JsonResponse
 from .forms import StageForm
@@ -48,6 +48,17 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class CandidateAPIView(APIView):
+    serializer_class = CandidateSerializer
+
+    def get(self, request):
+        candidates = Candidate.objects.all()
+        if not candidates.exists():
+            return Response({'detail': 'No candidates found.'}, status=status.HTTP_200_OK)
+
+        serializer = self.serializer_class(candidates, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class StageAPIView(APIView):
     serializer_class = StageSerializer
 
@@ -62,11 +73,53 @@ class StageAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()  # Save the stage
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        job_opening_id = self.kwargs.get('pk')
+        # serializer = self.serializer_class(data=request.data)
+        # print('s : ', serializer )
+        job_opening = JobOpening.objects.get(id=job_opening_id)
+        # stage_instance = serializer.save()  # Save the stage
+        candidateid = request.data.get('candidateid')
+        stageid = request.data.get('id')
+        stage_name = request.data.get('title')
+        if stage_name:
+            stage = Stage.objects.create(id=stageid, name=stage_name, job_opening=job_opening)
+            stage.save()
+        if candidateid:
+            stage = Stage.objects.get(id=stageid)
+            candidate = Candidate.objects.get(id=candidateid)
+            candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=0)
+            candidate_stage.save()
+
+        serializer = self.serializer_class(stage)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+
+        stageid = request.data.get('stage_id')
+        candidateid = request.data.get('candidate_id')
+        candidatestageid = request.data.get('candidate_stage_id')
+        job_opening = JobOpening.objects.get(id=pk)
+        if stageid:
+            stage = Stage.objects.get(job_opening=job_opening, id=stageid)
+            stage.delete()
+        if candidateid:
+            stage = Stage.objects.get(job_opening=job_opening, id=candidatestageid)
+            candidate = CandidateStage.objects.get(stage=stage, id=candidateid)
+            candidate.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        # except Stage.DoesNotExist:
+        #     return Response(status=status.HTTP_404_NOT_FOUND)
+        # candidate_stage_data = {
+        #     'stage': stageid,
+        #     'candidates': {
+        #         'candidate' : candidate,
+        #     },
+        #     'order': 0  # Set the order as needed
+        # }
+        #
+        # stage(data=candidate_stage_data).save()
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     # def get_queryset(self):
     #     job_opening_id = self.kwargs.get('pk')
     #     return Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')

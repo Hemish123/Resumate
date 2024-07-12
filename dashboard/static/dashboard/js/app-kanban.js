@@ -27,18 +27,66 @@
   if (!kanbanResponse.ok) {
     console.error('error', kanbanResponse);
   }
-  boards = await kanbanResponse.json();
-  console.log('boards ', boards);
+  const stages = await kanbanResponse.json();
 
-  // datepicker init
-  if (datePicker) {
-    datePicker.flatpickr({
-      monthSelectorType: 'static',
-      altInput: true,
-      altFormat: 'j F, Y',
-      dateFormat: 'Y-m-d'
+boards = stages.map(stage => ({
+    id: String(stage.id),
+    title: stage.name,
+    item: stage.candidates.map(candidateStage => ({
+      id: String(candidateStage.id),
+      title: candidateStage.candidate.name,
+      contact: candidateStage.candidate.contact,
+      email: candidateStage.candidate.email
+    }))
+  }));
+
+    const fetchCandidates = async () => {
+    const cresponse = await fetch('/candidate-api/');
+    if (!cresponse.ok) {
+      console.error('error', cresponse);
+      return [];
+    }
+    const data = await cresponse.json();
+    if (data.detail) {
+      // No candidates found, show a message to the user
+      const noCandidatesMessage = document.createElement('p');
+      noCandidatesMessage.textContent = data.detail;
+      document.body.appendChild(noCandidatesMessage);
+      return [];
+    }
+    return data;
+  };
+
+  const candidates = await fetchCandidates();
+  let candidateSelect;
+  if (candidates.length > 0) {
+    candidateSelect = document.createElement('select');
+    candidateSelect.id = 'candidateSelect';
+    candidateSelect.className = 'form-control add-new-item selectpicker w-100';
+    candidateSelect.setAttribute('data-show-subtext', 'true');
+    candidateSelect.setAttribute('data-placeholder', 'Select');
+    candidateSelect.setAttribute('data-style', 'btn-default');
+    candidateSelect.setAttribute('autofocus', '');
+    candidateSelect.setAttribute('required', '');
+      candidates.forEach(candidate => {
+      const option = document.createElement('option');
+      option.value = candidate.id;
+      option.setAttribute('data-subtext', candidate.email);
+      option.text = `${candidate.name}`;
+      candidateSelect.appendChild(option);
+
     });
   }
+
+  // datepicker init
+//  if (datePicker) {
+//    datePicker.flatpickr({
+//      monthSelectorType: 'static',
+//      altInput: true,
+//      altFormat: 'j F, Y',
+//      dateFormat: 'Y-m-d'
+//    });
+//  }
 
   //! TODO: Update Event label and guest code to JS once select removes jQuery dependency
   // select2
@@ -66,15 +114,15 @@
 //  }
 
   // Comment editor
-  if (commentEditor) {
-    new Quill(commentEditor, {
-      modules: {
-        toolbar: '.comment-toolbar'
-      },
-      placeholder: 'Write a Comment... ',
-      theme: 'snow'
-    });
-  }
+//  if (commentEditor) {
+//    new Quill(commentEditor, {
+//      modules: {
+//        toolbar: '.comment-toolbar'
+//      },
+//      placeholder: 'Write a Comment... ',
+//      theme: 'snow'
+//    });
+//  }
 
   // Render board dropdown
   function renderBoardDropdown() {
@@ -103,15 +151,12 @@
     );
   }
   // Render header
-  function renderHeader(color, text) {
+  function renderHeader(email) {
     return (
-      "<div class='d-flex justify-content-between flex-wrap align-items-center mb-2'>" +
+      "<div class='d-flex justify-content-between flex-wrap align-items-start mb-2'>" +
       "<div class='item-badges'> " +
-      "<div class='badge bg-label-" +
-      color +
-      "'> " +
-      text +
-      '</div>' +
+      "<span class='d-flex align-items-start'>" + email +
+      '</span>' +
       '</div>' +
       renderDropdown() +
       '</div>'
@@ -119,57 +164,56 @@
   }
 
   // Render avatar
-  function renderAvatar(images, pullUp, size, margin, members) {
-    var $transition = pullUp ? ' pull-up' : '',
-      $size = size ? 'avatar-' + size + '' : '',
-      member = members == undefined ? ' ' : members.split(',');
+//  function renderAvatar(images, pullUp, size, margin, members) {
+//    var $transition = pullUp ? ' pull-up' : '',
+//      $size = size ? 'avatar-' + size + '' : '',
+//      member = members == undefined ? ' ' : members.split(',');
+//
+//    return images == undefined
+//      ? ' '
+//      : images
+//          .split(',')
+//          .map(function (img, index, arr) {
+//            var $margin = margin && index !== arr.length - 1 ? ' me-' + margin + '' : '';
+//
+//            return (
+//              "<div class='avatar " +
+//              $size +
+//              $margin +
+//              "'" +
+//              "data-bs-toggle='tooltip' data-bs-placement='top'" +
+//              "title='" +
+//              member[index] +
+//              "'" +
+//              '>' +
+//              "<img src='" +
+//              assetsPath +
+//              'img/avatars/' +
+//              img +
+//              "' alt='Avatar' class='rounded-circle " +
+//              $transition +
+//              "'>" +
+//              '</div>'
+//            );
+//          })
+//          .join(' ');
+//  }
 
-    return images == undefined
-      ? ' '
-      : images
-          .split(',')
-          .map(function (img, index, arr) {
-            var $margin = margin && index !== arr.length - 1 ? ' me-' + margin + '' : '';
-
-            return (
-              "<div class='avatar " +
-              $size +
-              $margin +
-              "'" +
-              "data-bs-toggle='tooltip' data-bs-placement='top'" +
-              "title='" +
-              member[index] +
-              "'" +
-              '>' +
-              "<img src='" +
-              assetsPath +
-              'img/avatars/' +
-              img +
-              "' alt='Avatar' class='rounded-circle " +
-              $transition +
-              "'>" +
-              '</div>'
-            );
-          })
-          .join(' ');
-  }
+    function getCookie(name) {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(';').shift();
+        }
 
   // Render footer
-  function renderFooter(attachments, comments, assigned, members) {
+  function renderFooter(comments) {
     return (
       "<div class='d-flex justify-content-between align-items-center flex-wrap mt-2'>" +
-      "<div class='d-flex'> <span class='d-flex align-items-center me-2'><i class='ti ti-paperclip me-1'></i>" +
-      "<span class='attachments'>" +
-      attachments +
-      '</span>' +
-      "</span> <span class='d-flex align-items-center ms-2'><i class='ti ti-message-2 me-1'></i>" +
+      "<div class='d-flex'><span class='d-flex align-items-center ms-2'><i class='ti ti-message-2 me-1'></i>" +
       '<span> ' +
       comments +
       ' </span>' +
       '</span></div>' +
-      "<div class='avatar-group d-flex align-items-center assigned-avatar'>" +
-      renderAvatar(assigned, true, 'xs', null, members) +
-      '</div>' +
       '</div>'
     );
   }
@@ -194,65 +238,124 @@
       let title = element.getAttribute('data-eid')
           ? element.querySelector('.kanban-text').textContent
           : element.textContent,
-        date = element.getAttribute('data-due-date'),
-        dateObj = new Date(),
-        year = dateObj.getFullYear(),
-        dateToUse = date
-          ? date + ', ' + year
-          : dateObj.getDate() + ' ' + dateObj.toLocaleString('en', { month: 'long' }) + ', ' + year,
-        label = element.getAttribute('data-badge-text'),
-        avatars = element.getAttribute('data-assigned');
+        contact = element.getAttribute('data-contact'),
+        email = element.getAttribute('data-email');
+//        dateObj = new Date(),
+//        year = dateObj.getFullYear(),
+//        dateToUse = date
+//          ? date + ', ' + year
+//          : dateObj.getDate() + ' ' + dateObj.toLocaleString('en', { month: 'long' }) + ', ' + year,
+//        label = element.getAttribute('data-badge-text'),
+//        avatars = element.getAttribute('data-assigned');
 
       // Show kanban offcanvas
       kanbanOffcanvas.show();
 
       // To get data on sidebar
       kanbanSidebar.querySelector('#title').value = title;
-      kanbanSidebar.querySelector('#due-date').nextSibling.value = dateToUse;
+      kanbanSidebar.querySelector('#contact').value = contact;
+      kanbanSidebar.querySelector('#email').value = email;
 
       // ! Using jQuery method to get sidebar due to select2 dependency
       $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
 
       // Remove & Update assigned
-      kanbanSidebar.querySelector('.assigned').innerHTML = '';
-      kanbanSidebar
-        .querySelector('.assigned')
-        .insertAdjacentHTML(
-          'afterbegin',
-          renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
-            "<div class='avatar avatar-xs ms-1'>" +
-            "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
-            '</div>'
-        );
+//      kanbanSidebar.querySelector('.assigned').innerHTML = '';
+//      kanbanSidebar
+//        .querySelector('.assigned')
+//        .insertAdjacentHTML(
+//          'afterbegin',
+//          renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
+//            "<div class='avatar avatar-xs ms-1'>" +
+//            "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
+//            '</div>'
+//        );
+
+
+
+
+//    // Add event listener to board headers
+    document.querySelectorAll('.kanban-board-header').forEach(header => {
+      header.addEventListener('click', function () {
+        const stageId = this.parentNode.getAttribute('data-id');
+        document.getElementById('stage_id').value = stageId;
+      });
+    });
+
     },
 
     buttonClick: function (el, boardId) {
       const addNew = document.createElement('form');
-      addNew.setAttribute('class', 'new-item-form');
+      addNew.className = 'new-item-form card-body';
+      addNew.setAttribute('method', 'POST'); // Set method to POST
+      addNew.setAttribute('enctype', 'multipart/form-data'); // Set enctype
       addNew.innerHTML =
         '<div class="mb-4">' +
-        '<textarea class="form-control add-new-item" rows="2" placeholder="Add Content" autofocus required></textarea>' +
+        '<label class="form-label" for="candidateSelect">Select Candidate</label>' +
+        `${candidateSelect.outerHTML}` +
+//        '<input type="hidden" name="stage_id" id="stage_id">' +
         '</div>' +
         '<div class="mb-4">' +
         '<button type="submit" class="btn btn-primary btn-sm me-4 waves-effect waves-light">Add</button>' +
         '<button type="button" class="btn btn-label-secondary btn-sm cancel-add-item waves-effect waves-light">Cancel</button>' +
         '</div>';
       kanban.addForm(boardId, addNew);
+      $('.selectpicker').selectpicker();
 
-      addNew.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const currentBoard = [].slice.call(
-          document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .kanban-item')
-        );
-        kanban.addElement(boardId, {
-          title: "<span class='kanban-text'>" + e.target[0].value + '</span>',
-          id: boardId + '-' + currentBoard.length + 1
+      addNew.addEventListener('submit', async (event) => {
+      event.preventDefault();
+//      const stageId = document.getElementById('stage_id').value;
+      const candidateId = document.getElementById('candidateSelect').value;
+      const id = el.closest('.kanban-board').getAttribute('data-id');
+
+
+      const response = await fetch(`/stage-api/${jobOpeningId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ 'candidateid' : candidateId, 'id' : id })
+      });
+
+      if (response.ok) {
+        const stage = await response.json();
+        const newCandidate = stage.candidates[stage.candidates.length - 1];
+//
+//        // Add the new candidate to the kanban board
+        kanban.addElement(id, {
+          id: newCandidate.id,
+          title: `${renderHeader(newCandidate.candidate.email)}
+                    <span class='kanban-text'>
+                    ${newCandidate.candidate.name}
+
+                  </span>`
         });
+      } else {
+        console.error('Error adding candidate:', response);
+      }
 
+//        const currentBoard = [].slice.call(
+//          document.querySelectorAll(`.kanban-board[data-id=${boardId}] .kanban-item`)
+//        );
+//        kanban.addElement(id, {
+//          title: "<span class='kanban-text'>" + e.target[0].value + '</span>',
+//          id: boardId + '-' + currentBoard.length + 1
+//        });
+//        }
         // add dropdown in new boards
+
+
         const kanbanText = [].slice.call(
-          document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .kanban-text')
+
+          document.querySelectorAll('.kanban-board[data-id="' + boardId + '"] .kanban-text')
         );
+//        kanbanText.forEach(function (e) {
+//        e.insertAdjacentHTML(
+//          'afterbegin',
+//          renderHeader(e.getAttribute('data-email'))
+//        );
+//      });
         kanbanText.forEach(function (e) {
           e.insertAdjacentHTML('beforebegin', renderDropdown());
         });
@@ -269,11 +372,20 @@
 
         // delete tasks for new boards
         const deleteTask = [].slice.call(
-          document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .delete-task')
+          document.querySelectorAll('.kanban-board[data-id="' + boardId + '"] .delete-task')
         );
         deleteTask.forEach(function (e) {
-          e.addEventListener('click', function () {
+          e.addEventListener('click', async function () {
             const id = this.closest('.kanban-item').getAttribute('data-eid');
+            const stageid = this.closest('.kanban-board').getAttribute('data-id');
+            const response = await fetch(`/stage-api/${jobOpeningId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 'candidate_id': id, 'candidate_stage_id': stageid })
+            });
             kanban.removeElement(id);
           });
         });
@@ -310,10 +422,10 @@
           "'>";
       }
       el.textContent = '';
-      if (el.getAttribute('data-badge') !== undefined && el.getAttribute('data-badge-text') !== undefined) {
+      if (el.getAttribute('data-email') !== undefined) {
         el.insertAdjacentHTML(
           'afterbegin',
-          renderHeader(el.getAttribute('data-badge'), el.getAttribute('data-badge-text')) + img + element
+          renderHeader(el.getAttribute('data-email')) + img + element
         );
       }
       if (
@@ -324,10 +436,8 @@
         el.insertAdjacentHTML(
           'beforeend',
           renderFooter(
-            el.getAttribute('data-attachments'),
-            el.getAttribute('data-comments'),
-            el.getAttribute('data-assigned'),
-            el.getAttribute('data-members')
+            el.getAttribute('data-comments')
+
           )
         );
       }
@@ -381,9 +491,22 @@
   const deleteBoards = [].slice.call(document.querySelectorAll('.delete-board'));
   if (deleteBoards) {
     deleteBoards.forEach(function (elem) {
-      elem.addEventListener('click', function () {
+      elem.addEventListener('click', async function () {
         const id = this.closest('.kanban-board').getAttribute('data-id');
-        kanban.removeBoard(id);
+        const response = await fetch(`/stage-api/${jobOpeningId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 'stage_id': id })
+            });
+
+            if (response.ok) {
+                kanban.removeBoard(id);
+            } else {
+                console.error('Error deleting board');
+            }
       });
     });
   }
@@ -392,9 +515,19 @@
   const deleteTask = [].slice.call(document.querySelectorAll('.delete-task'));
   if (deleteTask) {
     deleteTask.forEach(function (e) {
-      e.addEventListener('click', function () {
+      e.addEventListener('click', async function () {
         const id = this.closest('.kanban-item').getAttribute('data-eid');
+        const stageid = this.closest('.kanban-board').getAttribute('data-id');
+        const response = await fetch(`/stage-api/${jobOpeningId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 'candidate_id': id, 'candidate_stage_id': stageid })
+            });
         kanban.removeElement(id);
+
       });
     });
   }
@@ -410,18 +543,41 @@
   }
 
   // Add new board
+
+  // Function to generate a new board ID
+    function generateNewBoardId() {
+        const allBoards = document.querySelectorAll('.kanban-board');
+        let maxId = 0;
+
+        allBoards.forEach(board => {
+            const id = parseInt(board.getAttribute('data-id'), 10);
+            if (!isNaN(id) && id > maxId) {
+                maxId = id;
+            }
+        });
+
+        return maxId + 1;
+    }
   if (kanbanAddNewBoard) {
-    kanbanAddNewBoard.addEventListener('submit', function (e) {
+    kanbanAddNewBoard.addEventListener('submit', async function (e) {
       e.preventDefault();
       const thisEle = this,
         value = thisEle.querySelector('.form-control').value,
-        id = value.replace(/\s+/g, '-').toLowerCase();
+        id = String(generateNewBoardId());
       kanban.addBoards([
         {
           id: id,
           title: value
         }
       ]);
+      const response = await fetch(`/stage-api/${jobOpeningId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ 'id' : id, 'title' : value })
+      });
 
       // Adds delete board option to new board, delete new boards & updates data-order
       const kanbanBoardLastChild = document.querySelectorAll('.kanban-board:last-child')[0];
