@@ -23,7 +23,7 @@
   const jobOpeningId = data.jobopeningid;
   // Get kanban data
 
-  const kanbanResponse = await fetch(`/stage-api/${jobOpeningId}`);
+  const kanbanResponse = await fetch(`/stage-api/${jobOpeningId}/`);
   if (!kanbanResponse.ok) {
     console.error('error', kanbanResponse);
   }
@@ -163,42 +163,6 @@ boards = stages.map(stage => ({
     );
   }
 
-  // Render avatar
-//  function renderAvatar(images, pullUp, size, margin, members) {
-//    var $transition = pullUp ? ' pull-up' : '',
-//      $size = size ? 'avatar-' + size + '' : '',
-//      member = members == undefined ? ' ' : members.split(',');
-//
-//    return images == undefined
-//      ? ' '
-//      : images
-//          .split(',')
-//          .map(function (img, index, arr) {
-//            var $margin = margin && index !== arr.length - 1 ? ' me-' + margin + '' : '';
-//
-//            return (
-//              "<div class='avatar " +
-//              $size +
-//              $margin +
-//              "'" +
-//              "data-bs-toggle='tooltip' data-bs-placement='top'" +
-//              "title='" +
-//              member[index] +
-//              "'" +
-//              '>' +
-//              "<img src='" +
-//              assetsPath +
-//              'img/avatars/' +
-//              img +
-//              "' alt='Avatar' class='rounded-circle " +
-//              $transition +
-//              "'>" +
-//              '</div>'
-//            );
-//          })
-//          .join(' ');
-//  }
-
     function getCookie(name) {
           const value = `; ${document.cookie}`;
           const parts = value.split(`; ${name}=`);
@@ -284,6 +248,17 @@ boards = stages.map(stage => ({
 
     },
 
+    // update item order on drag and drop
+
+    dropEl: ItemDrop,
+
+
+    // update board order on drag and drop
+
+    dropBoard: BoardDrop,
+
+
+
     buttonClick: function (el, boardId) {
       const addNew = document.createElement('form');
       addNew.className = 'new-item-form card-body';
@@ -293,7 +268,6 @@ boards = stages.map(stage => ({
         '<div class="mb-4">' +
         '<label class="form-label" for="candidateSelect">Select Candidate</label>' +
         `${candidateSelect.outerHTML}` +
-//        '<input type="hidden" name="stage_id" id="stage_id">' +
         '</div>' +
         '<div class="mb-4">' +
         '<button type="submit" class="btn btn-primary btn-sm me-4 waves-effect waves-light">Add</button>' +
@@ -304,12 +278,11 @@ boards = stages.map(stage => ({
 
       addNew.addEventListener('submit', async (event) => {
       event.preventDefault();
-//      const stageId = document.getElementById('stage_id').value;
       const candidateId = document.getElementById('candidateSelect').value;
       const id = el.closest('.kanban-board').getAttribute('data-id');
 
 
-      const response = await fetch(`/stage-api/${jobOpeningId}`, {
+      const response = await fetch(`/stage-api/${jobOpeningId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -350,15 +323,13 @@ boards = stages.map(stage => ({
 
           document.querySelectorAll('.kanban-board[data-id="' + boardId + '"] .kanban-text')
         );
-//        kanbanText.forEach(function (e) {
-//        e.insertAdjacentHTML(
-//          'afterbegin',
-//          renderHeader(e.getAttribute('data-email'))
-//        );
-//      });
+
         kanbanText.forEach(function (e) {
           e.insertAdjacentHTML('beforebegin', renderDropdown());
         });
+
+      // add drag and drop functionality for new items
+        el.addEventListener('drop', ItemDrop);
 
         // prevent sidebar to open onclick dropdown buttons of new tasks
         const newTaskDropdown = [].slice.call(document.querySelectorAll('.kanban-item .kanban-tasks-item-dropdown'));
@@ -378,7 +349,7 @@ boards = stages.map(stage => ({
           e.addEventListener('click', async function () {
             const id = this.closest('.kanban-item').getAttribute('data-eid');
             const stageid = this.closest('.kanban-board').getAttribute('data-id');
-            const response = await fetch(`/stage-api/${jobOpeningId}`, {
+            const response = await fetch(`/stage-api/${jobOpeningId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -398,6 +369,71 @@ boards = stages.map(stage => ({
       });
     }
   });
+
+
+// drop update order item
+  async function ItemDrop(el, target, source, sibling) {
+  const stageId = target.parentElement.getAttribute('data-id');
+  const candidateId = el.dataset.eid;
+
+  // Create the order array
+  const item_order = Array.from(target.children).map((item, index) => ({
+    id: item.dataset.eid,
+    order: index + 1
+  }));
+
+  try {
+    // Send the order array to the backend
+    const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included for security
+      },
+      body: JSON.stringify({'order': item_order, 'stage_id': stageId})
+    });
+
+    if (!response.ok) {
+      console.error('Error updating order:', response);
+    } else {
+      console.log('Order updated successfully');
+      // Update the UI with the new order
+//          renderOrderedItems(target, order);
+    }
+  } catch (error) {
+    console.error('Error updating order:', error);
+  }
+}
+
+// drop update order board
+    async function BoardDrop(el, target, source, sibling) {
+    // Create the order array for boards (stages)
+    const board_order = Array.from(document.querySelectorAll('.kanban-board')).map((board, index) => ({
+        id: board.dataset.id,
+        order: index + 1
+    }));
+
+    try {
+        // Send the board order array to the backend
+        const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ 'order': board_order })
+        });
+
+        if (!response.ok) {
+            console.error('Error updating board order:', response);
+        } else {
+            console.log('Board order updated successfully');
+        }
+    } catch (error) {
+        console.error('Error updating board order:', error);
+    }
+  }
+
 
   // Kanban Wrapper scrollbar
   if (kanbanWrapper) {
@@ -493,7 +529,7 @@ boards = stages.map(stage => ({
     deleteBoards.forEach(function (elem) {
       elem.addEventListener('click', async function () {
         const id = this.closest('.kanban-board').getAttribute('data-id');
-        const response = await fetch(`/stage-api/${jobOpeningId}`, {
+        const response = await fetch(`/stage-api/${jobOpeningId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -518,7 +554,7 @@ boards = stages.map(stage => ({
       e.addEventListener('click', async function () {
         const id = this.closest('.kanban-item').getAttribute('data-eid');
         const stageid = this.closest('.kanban-board').getAttribute('data-id');
-        const response = await fetch(`/stage-api/${jobOpeningId}`, {
+        const response = await fetch(`/stage-api/${jobOpeningId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -570,7 +606,7 @@ boards = stages.map(stage => ({
           title: value
         }
       ]);
-      const response = await fetch(`/stage-api/${jobOpeningId}`, {
+      const response = await fetch(`/stage-api/${jobOpeningId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -591,13 +627,29 @@ boards = stages.map(stage => ({
         });
       }
 
+      // add drag and drop functionality for new boards
+      kanbanBoardLastChild.addEventListener('drop', BoardDrop);
+
       // Add delete event to delete newly added boards
       const deleteNewBoards = kanbanBoardLastChild.querySelector('.delete-board');
       if (deleteNewBoards) {
-        deleteNewBoards.addEventListener('click', function () {
+        deleteNewBoards.addEventListener('click', async function () {
           const id = this.closest('.kanban-board').getAttribute('data-id');
-          kanban.removeBoard(id);
-        });
+            const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ 'stage_id': id })
+                });
+
+                if (response.ok) {
+                    kanban.removeBoard(id);
+                } else {
+                    console.error('Error deleting board');
+                }
+            });
       }
 
       // Remove current append new add new form

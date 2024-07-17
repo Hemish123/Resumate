@@ -13,9 +13,13 @@ class Stage(models.Model):
     name = models.CharField(max_length=100)
     order = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['order']
+
 class CandidateStage(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
     order = models.IntegerField(default=0)  # To maintain order within the stage
 
-
+    class Meta:
+        ordering = ['order']

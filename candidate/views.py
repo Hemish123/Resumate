@@ -18,8 +18,9 @@ import json
 class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Candidate
     # form_class = CandidateForm
-    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'doc', 'website', 'education',
-              'experience', 'current_designation', 'current_organization', 'current_ctc', 'expected_ctc',
+    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'doc', 'linkedin', 'github',
+              'portfolio', 'blog', 'education', 'experience', 'current_designation', 'current_organization',
+              'current_ctc', 'current_ctc_ih', 'expected_ctc', 'expected_ctc_ih',
               'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback']
     template_name = "candidate/candidate_create.html"
     title = "Create Candidate"

@@ -21,40 +21,37 @@
         {% csrf_token %}
         <div class="row g-6">
           <div class="col-md-6">
-              {% if form.errors %}
-                  {% for field, errors in form.errors.items %}
-                      {% for error in errors %}
-                          <div class="error-message text-danger">{{ error }}</div>
-                      {% endfor %}
-                  {% endfor %}
-                  {% endif %}
             <div class="row g-6">
               <div class="col-md-6">
-                <label class="form-label" for="id_name">Name</label>
+                <label class="form-label" for="id_name">Name
+                    <span>*</span>
+                </label>
                 <input id="id_name" name="name" class="form-control" required/>
-<!--                  {{ form.name }}-->
 
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="id_location">Location</label>
+                <label class="form-label" for="id_location">Location
+                    <span>*</span>
+                </label>
                 <input id="id_location" name="location" class="form-control" required/>
-<!--                  {{ form.location }}-->
 
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="id_contact">Contact</label>
-                <input name="contact" type="number" placeholder="0" id="id_contact" min="0" class="form-control"/>
+                <label class="form-label" for="id_contact">Contact
+                    <span>*</span>
+                </label>
+                <input name="contact" type="number" placeholder="0" id="id_contact" min="0" class="form-control" required/>
               </div>
               <div class="col-md-6">
-                <label for="id_email" class="form-label">Email</label>
+                <label for="id_email" class="form-label">Email
+                    <span>*</span>
+                </label>
                 <input id="id_email" name="email" class="form-control" required/>
-<!--                  {{ form.email }}-->
 
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_website">Website URL</label>
                 <input id="id_website" name="website" class="form-control"/>
-<!--                  {{ form.website }}-->
 
               </div>
             </div>

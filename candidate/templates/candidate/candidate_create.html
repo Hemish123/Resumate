@@ -34,7 +34,8 @@
 <!--                  {% endif %}-->
             <div class="row g-6">
               <div class="col-md-3">
-                <label class="form-label" for="id_job_openings">Hiring For</label>
+                <label class="form-label" for="id_job_openings">Hiring For
+                </label>
                   <select name="job_openings" id="id_job_openings" class="selectpicker w-100"
                           data-show-subtext="true" data-placeholder="Select" data-style="btn-default"
                           data-allow-clear="true">
@@ -52,7 +53,9 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_name">Candidate Name</label>
+                <label class="form-label" for="id_name">Candidate Name
+                    <span>*</span>
+                </label>
                 <input id="id_name" name="name" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.name.errors %}
@@ -62,7 +65,9 @@
 
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_contact">Contact</label>
+                <label class="form-label" for="id_contact">Contact
+                    <span>*</span>
+                </label>
                 <input name="contact" id="id_contact" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.contact.errors %}
@@ -71,7 +76,9 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label for="id_email" class="form-label">Email</label>
+                <label for="id_email" class="form-label">Email
+                    <span>*</span>
+                </label>
                 <input id="id_email" name="email" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.email.errors %}
@@ -80,8 +87,10 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                  <label for="id_location" class="form-label">Location</label>
-                  <input id="id_location" name="location" class="form-control"/>
+                  <label for="id_location" class="form-label">Location
+                    <span>*</span>
+                  </label>
+                  <input id="id_location" name="location" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.location.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -89,8 +98,10 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                  <label for="id_dob" class="form-label">Date of Birth</label>
-                  <input id="id_dob" name="dob" type="date" class="form-control"/>  <!-- class = bs-datepicker-format  -->
+                  <label for="id_dob" class="form-label">Date of Birth
+                    <span>*</span>
+                  </label>
+                  <input id="id_dob" name="dob" type="date" class="form-control" required/>  <!-- class = bs-datepicker-format  -->
                   {% if form.errors %}
                   {% for error in form.dob.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -98,7 +109,8 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                  <label for="id_doc" class="form-label">Date of Contact</label>
+                  <label for="id_doc" class="form-label">Date of Contact
+                  </label>
                   <input id="id_doc" name="doc" type="date" class="form-control"/>
                   {% if form.errors %}
                   {% for error in form.doc.errors %}
@@ -107,16 +119,47 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_website">Social Media Link (if any)</label>
-                <input id="id_website" type="url" name="website" class="form-control"/>
+                <label class="form-label" for="id_linkedin">LinkedIn
+                </label>
+                <input id="id_linkedin" type="url" name="linkedin" class="form-control"/>
                   {% if form.errors %}
-                  {% for error in form.website.errors %}
+                  {% for error in form.linkedin.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_education">Education (Degree)</label>
+                <label class="form-label" for="id_github">GitHub</label>
+                <input id="id_github" type="url" name="github" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.github.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_portfolio">Portfolio</label>
+                <input id="id_portfolio" type="url" name="portfolio" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.portfolio.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_blog">Blog</label>
+                <input id="id_blog" type="url" name="blog" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.blog.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label" for="id_education">Education (Degree)
+                    <span>*</span>
+                </label>
                 <input id="id_education" name="education" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.education.errors %}
@@ -125,8 +168,10 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_experience">Experience (in years)</label>
-                <input id="id_experience" type="number" name="experience" class="form-control"/>
+                <label class="form-label" for="id_experience">Experience (in years)
+                    <span>*</span>
+                </label>
+                <input id="id_experience" type="number" name="experience" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.experience.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -152,8 +197,10 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_current_ctc">Current CTC (in LPA)</label>
-                <input id="id_current_ctc" type="number" name="current_ctc" class="form-control"/>
+                <label class="form-label" for="id_current_ctc">Current CTC (in LPA)
+                    <span>*</span>
+                </label>
+                <input id="id_current_ctc" type="" name="current_ctc" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.current_ctc.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -161,8 +208,19 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_expected_ctc">Expected CTC (in LPA)</label>
-                <input id="id_expected_ctc" type="number" name="expected_ctc" class="form-control"/>
+                <label class="form-label" for="id_current_ctc_ih">Current CTC (in hand)</label>
+                <input id="id_current_ctc_ih" type="" name="current_ctc_ih" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.current_ctc_ih.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="id_expected_ctc">Expected CTC (in LPA)
+                    <span>*</span>
+                </label>
+                <input id="id_expected_ctc" type="" name="expected_ctc" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.expected_ctc.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -170,8 +228,17 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
+                <label class="form-label" for="id_expected_ctc_ih">Expected CTC (in hand)</label>
+                <input id="id_expected_ctc_ih" type="" name="expected_ctc_ih" class="form-control"/>
+                  {% if form.errors %}
+                  {% for error in form.expected_ctc_ih.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
+              </div>
+              <div class="col-md-3">
                 <label class="form-label" for="id_offer_in_hand">Offer in hand (if any)(in LPA)</label>
-                <input id="id_offer_in_hand" type="number" name="offer_in_hand" class="form-control"/>
+                <input id="id_offer_in_hand" type="" name="offer_in_hand" class="form-control"/>
                   {% if form.errors %}
                   {% for error in form.offer_in_hand.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -179,8 +246,10 @@
                   {% endif %}
               </div>
               <div class="col-md-3">
-                <label class="form-label" for="id_notice_period">Notice Period (in days)</label>
-                <input id="id_notice_period" type="number" name="notice_period" class="form-control"/>
+                <label class="form-label" for="id_notice_period">Notice Period (in days)
+                    <span>*</span>
+                </label>
+                <input id="id_notice_period" type="number" name="notice_period" class="form-control" required/>
                   {% if form.errors %}
                   {% for error in form.notice_period.errors %}
                     <div class="error-message text-danger">{{ error }}</div>

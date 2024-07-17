@@ -22,16 +22,11 @@
         <div class="row g-6">
 
           <div class="col-md-6">
-            {% if form.errors %}
-                  {% for field, errors in form.errors.items %}
-                      {% for error in errors %}
-                          <div class="error-message text-danger">{{ error }}</div>
-                      {% endfor %}
-                  {% endfor %}
-                  {% endif %}
             <div class="row g-6">
               <div class="col-md-6">
-                <label class="form-label" for="id_organization">Organization</label>
+                <label class="form-label" for="id_organization">Organization
+                  <span>*</span>
+                </label>
                 <select id="id_organization" name="organization" required class="select2 form-select" data-allow-clear="true">
                   <option value=""></option>
                   {% for org in organizations %}
@@ -42,9 +37,16 @@
 
 
                 </select>
+                {% if form.errors %}
+                  {% for error in form.organization.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="id_designation">Designation</label>
+                <label class="form-label" for="id_designation">Designation
+                  <span>*</span>
+                </label>
                 <select name="designation" id="id_designation" class="select2 form-select" required data-allow-clear="true">
                   <option value=""></option>
                   {% for key, value in data.items %}
@@ -55,13 +57,77 @@
                       </optgroup>
                   {% endfor %}
                 </select>
+                {% if form.errors %}
+                  {% for error in form.designation.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="id_openings">Openings</label>
+                <label class="form-label" for="id_job_type">Job Type
+                  <span>*</span>
+                </label>
+                <select id="id_job_type" name="job_type" required class="select2 form-select" data-allow-clear="true">
+                  <option value=""></option>
+                  {% for value, label in form.fields.job_type.choices %}
+
+                    <option value="{{ value }}">{{ label }}</option>
+
+                  {% endfor %}
+
+                </select>
+                {% if form.errors %}
+                  {% for error in form.job_type.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_job_mode">Mode of Job
+                  <span>*</span>
+                </label>
+                <select id="id_job_mode" name="job_mode" required class="select2 form-select" data-allow-clear="true">
+                  <option value=""></option>
+                  {% for value, label in form.fields.job_mode.choices %}
+
+                    <option value="{{ value }}">{{ label }}</option>
+
+                  {% endfor %}
+
+
+                </select>
+                {% if form.errors %}
+                  {% for error in form.job_mode.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_openings">Openings
+                  <span>*</span>
+                </label>
                 <input type="number" name="openings" placeholder="0" id="id_openings" min="0" class="form-control" required/>
+                {% if form.errors %}
+                  {% for error in form.openings.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="col-md-6">
-                <label for="id_requiredskills" class="form-label">Required Skills</label>
+                <label class="form-label" for="id_budget">Budget (in LPA)
+                  <span>*</span>
+                </label>
+                <input type="" name="budget" placeholder="0" id="id_budget" min="0" class="form-control" required/>
+                {% if form.errors %}
+                  {% for error in form.budget.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="id_requiredskills" class="form-label">Required Skills
+                  <span>*</span>
+                </label>
                 <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>
                   <option value=""></option>
                   {% for skill in skills %}
@@ -72,9 +138,16 @@
 
 
                 </select>
+                {% if form.errors %}
+                  {% for error in form.requiredskills.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="id_assignemployee">Assign Recruiter</label>
+                <label class="form-label" for="id_assignemployee">Assign Recruiter
+                  <span>*</span>
+                </label>
                 <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>
                   <option value=""></option>
                   {% for employee in choices %}
@@ -84,6 +157,11 @@
                   {% endfor %}
 
                 </select>
+                {% if form.errors %}
+                  {% for error in form.assignemployee.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="row mt-4">
                 <label class="form-label" for="job_description_field">Job Description</label>
@@ -118,6 +196,11 @@
                     </label>
                   </div>
                 </div>
+                {% if form.errors %}
+                  {% for error in form.content_type.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
               </div>
             </div>
           </div>
@@ -129,6 +212,11 @@
               <div class="mb-6" id="text_input" >
                 <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>
                 <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6"></textarea>
+                {% if form.errors %}
+                  {% for error in form.jd_content.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
               </div>
               <div class="mb-6" id="file_upload">
                 <div class="card-body needsclick dropzone" id="dropzone">
@@ -140,13 +228,18 @@
                       <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />
                     </div>
                 </div>
+                {% if form.errors %}
+                  {% for error in form.jobdescription.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
             </div>
           </div>
         </div>
 
         <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+          <button id="showtoast" type="button" class="btn btn-primary me-4">Submit</button>
         </div>
       </form>
     </div>

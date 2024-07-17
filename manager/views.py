@@ -16,11 +16,12 @@ import json
 # Create your views here.
 class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = JobOpening
-    fields = ['organization', 'designation', 'openings', 'requiredskills', 'jobdescription', 'assignemployee']
+    fields = ['organization', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
+              'requiredskills', 'jobdescription', 'assignemployee']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
-    success_url = reverse_lazy('dashboard')
+    # success_url = reverse_lazy('dashboard')
 
     def has_permission(self):
         # Override has_permission to consider inherited group permissions

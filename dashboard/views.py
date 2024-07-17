@@ -16,6 +16,8 @@ from .serializers import StageSerializer, CandidateSerializer
 from django.views.generic.edit import FormView
 from django.http import JsonResponse
 from .forms import StageForm
+from django.db.models import Max
+import json
 
 
 
@@ -31,6 +33,7 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         # Access permission details (optional)
         has_perm = self.request.user.groups.filter(permissions__codename='add_jobopening').exists()
         context['has_perm'] = has_perm
+
         if self.request.user.is_superuser or self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             context['job_posts'] = JobOpening.objects.all()
         else:
@@ -39,7 +42,7 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
                 job_posts = JobOpening.objects.filter(assignemployee=employee)
 
                 if job_posts.exists():
-                    context['job_posts'] = JobOpening.objects.filter(assignemployee=employee)
+                    context['job_posts'] = job_posts
                 else :
                     context['no_job_posts'] = 'No assigned openings'
             except Employee.DoesNotExist:
@@ -67,7 +70,7 @@ class StageAPIView(APIView):
         stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')
         if not stages.exists():
             Stage.objects.create(job_opening_id=job_opening_id, name='Initial Stage', order=1)
-            stages = self.get_queryset()  # Refresh queryset after creating stage
+            stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')  # Refresh queryset after creating stage
 
         serializer = self.serializer_class(stages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -82,16 +85,39 @@ class StageAPIView(APIView):
         stageid = request.data.get('id')
         stage_name = request.data.get('title')
         if stage_name:
-            stage = Stage.objects.create(id=stageid, name=stage_name, job_opening=job_opening)
+            order = Stage.objects.filter(job_opening_id=job_opening_id).aggregate(Max('order'))['order__max'] or 0
+            stage = Stage.objects.create(id=stageid, name=stage_name, job_opening=job_opening, order=order+1)
             stage.save()
         if candidateid:
             stage = Stage.objects.get(id=stageid)
+            order = CandidateStage.objects.filter(stage_id=stageid).aggregate(Max('order'))['order__max'] or 0
+
             candidate = Candidate.objects.get(id=candidateid)
-            candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=0)
+            candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=order+1)
             candidate_stage.save()
 
         serializer = self.serializer_class(stage)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, *args, **kwargs):
+        order = request.data.get('order', [])
+        stage_id = request.data.get('stage_id')
+
+        print('or' , order)
+        if stage_id:
+            stage = Stage.objects.get(id=stage_id)
+            for item in order:
+                candidate_stage_id = item.get('id')
+                candidate_order = item.get('order')
+                CandidateStage.objects.filter(id=candidate_stage_id).update(order=candidate_order, stage=stage)
+        else:
+            for item in order[:-1]:
+                stage_id = item.get('id')
+                print('s', stage_id)
+                order = item.get('order')
+                Stage.objects.filter(id=stage_id).update(order=order)
+
+        return JsonResponse({'status': 'success'}, status=200)
 
     def delete(self, request, pk):
 
@@ -107,22 +133,7 @@ class StageAPIView(APIView):
             candidate = CandidateStage.objects.get(stage=stage, id=candidateid)
             candidate.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        # except Stage.DoesNotExist:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # candidate_stage_data = {
-        #     'stage': stageid,
-        #     'candidates': {
-        #         'candidate' : candidate,
-        #     },
-        #     'order': 0  # Set the order as needed
-        # }
-        #
-        # stage(data=candidate_stage_data).save()
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # def get_queryset(self):
-    #     job_opening_id = self.kwargs.get('pk')
-    #     return Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')
+
 
 class StageView(LoginRequiredMixin, TemplateView):
 
@@ -134,6 +145,11 @@ class StageView(LoginRequiredMixin, TemplateView):
         context['form'] = StageForm
         job_opening_id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=job_opening_id)
+        with open("dashboard/static/dashboard/json/skills.json") as f:
+            skills = json.load(f)
+        context['skills'] = skills
+        context['s_skills'] = job_opening.requiredskills.split(',')
+        print('s', context['s_skills'])
         stages = Stage.objects.filter(job_opening=job_opening).order_by('order')
         candidates_by_stage = {}
         if Stage.objects.filter(job_opening=job_opening).exists():

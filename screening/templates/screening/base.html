@@ -258,15 +258,9 @@
               <div class="">
                   {% if messages %}
                     {% for message in messages %}
-                      {% if message.tags == "error" %}
-                          <div class="alert alert-danger mt-2 container">
-                            {{ message }}
-                          </div>
-                      {% else %}
-                          <div class="alert alert-{{ message.tags }} mt-2 container" id="message_id">
-                            {{ message }}
-                          </div>
-                      {%endif %}
+                      <div class="messages" data-tags="{{ message.tags }}" data-message="{{ message }}">
+                        {{ message }}
+                      </div>
                     {% endfor %}
                   {% endif %}
                   {% block content %}{% endblock content %}

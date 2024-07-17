@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // for dropdown selection
     function dropdownSelection() {
-        console.log(categoryChoices);
 
         // Get the initial value of the field
         var field = $('#id_field').val();
@@ -52,22 +51,45 @@ document.addEventListener('DOMContentLoaded', function(){
         const fileInput = document.getElementById('fileInput');
         const fileNameDisplay = document.getElementById('fileName');
 
-        fileInput.addEventListener('change', function() {
-            fileNameDisplay.textContent = 'Selected Files: ';
-            files = fileInput.files;
-            for (var i = 0; i < files.length; i++) {
-                // Access individual file using files[i]
-                fileNameDisplay.textContent += files[i].name;
-                if (i<(files.length-1)) {
-                    fileNameDisplay.textContent += ' , ' ;
+        if (fileInput && fileName) {
+            fileInput.addEventListener('change', function() {
+                fileNameDisplay.textContent = 'Selected Files: ';
+                files = fileInput.files;
+                for (var i = 0; i < files.length; i++) {
+                    // Access individual file using files[i]
+                    fileNameDisplay.textContent += files[i].name;
+                    if (i<(files.length-1)) {
+                        fileNameDisplay.textContent += ' , ' ;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
+    function checkLength() {
+        const element = document.getElementById('id_notice_period');
+        if (element) {
+        element.addEventListener('input', function() {
+                if (element.value.length > 2) {
+                    element.value = element.value.slice(0, 2);
+                }
+            });
+        }
+    }
+
+//    // Automatically remove messages after 2 seconds
+//    setTimeout(function() {
+//        var messagesElement = document.querySelector('.messages');
+//        if (messagesElement) {
+//            messagesElement.remove();
+//        }
+//    }, 2000); // 2000 milliseconds = 2 seconds
+
+    checkLength();
     deleteResumes();
     dropdownSelection();
     uploadResumes();
+
 
 });
 

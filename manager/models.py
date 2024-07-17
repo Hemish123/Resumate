@@ -40,6 +40,12 @@ class JobOpening(models.Model):
     jobdescription = models.FileField(blank=True, upload_to='jd/',
                                      validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc', 'txt'],
                                                                         message='Select pdf, docx, doc or txt files only')])
+    budget = models.PositiveIntegerField(default=0)
+    job_type = models.CharField(max_length=50,blank=True, choices=[('Contractual', 'Contractual'),
+                                                        ('Permanent', 'Permanent')])
+    job_mode = models.CharField(max_length=50,blank=True, choices=[('Office', 'Office'),
+                                                        ('Remote', 'Remote'),
+                                                        ('Hybrid', 'Hybrid')])
     updated_on = models.DateTimeField(default=timezone.now)
     jd_content = models.TextField(blank=True)
     assignemployee = models.ManyToManyField(Employee)
