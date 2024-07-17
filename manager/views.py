@@ -21,7 +21,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
-    # success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('dashboard')
 
     def has_permission(self):
         # Override has_permission to consider inherited group permissions
