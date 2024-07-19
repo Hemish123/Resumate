@@ -1,0 +1,61 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css' %}" />
+{% endblock css %}
+
+
+{% block content %}
+
+<div class="card">
+    <div class="card-datatable table-responsive pt-0">
+                <div class="d-none">
+                    <button id="button_datatable" onclick="location.href = '{% url 'candidate-create' %}'" class="btn btn-secondary create-new btn-primary waves-effect waves-light" tabindex="0" aria-controls="DataTables_Table_0" type="button">
+                        <span><i class="ti ti-plus me-sm-1"></i>
+                            <span class="d-none d-sm-inline-block">New Candidate</span>
+                        </span>
+                    </button>
+                </div>
+            <table class="datatables-basic table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>
+            </th>
+
+            <th>Name</th>
+            <th>Designation</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>Experience (in years)</th>
+          </tr>
+        </thead>
+          <tbody>
+          {% for candidate in candidates %}
+          <tr>
+              <td></td>
+              <td>
+              </td>
+
+              <td>{{candidate.name}}</td>
+              <td>{{candidate.current_designation}}</td>
+              <td>{{candidate.contact}}</td>
+              <td>{{candidate.email}}</td>
+              <td>{{candidate.experience}}</td>
+
+
+          </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block js %}
+    <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>
+{% endblock js %}

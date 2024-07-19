@@ -76,3 +76,15 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
             #     return self.form_invalid(form)
             messages.success(self.request, message='Candidate created successfully!')
             return super().form_valid(form)
+
+
+class CandidateListView(LoginRequiredMixin, TemplateView):
+    template_name = 'candidate/candidate_list.html'
+    title = 'Candidate Database'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['candidates'] = Candidate.objects.all()
+
+        return context

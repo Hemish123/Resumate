@@ -57,10 +57,25 @@
                 <div data-i18n="Page 1">Home</div>
               </a>
             </li>
+            <li class="menu-item {% if request.path == '/candidate/candidate-list/' %}active{% endif %}">
+              <a href="{% url 'candidate-list' %}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users-group"></i>
+                <div data-i18n="Page 2">Candidates</div>
+              </a>
+            </li>
             <li class="menu-item {% if request.path == '/screening/about/' %}active{% endif %}">
               <a href="{% url 'parsing-about' %}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-app-window"></i>
                 <div data-i18n="Page 2">About</div>
+              </a>
+            </li>
+            <li class="menu-header small">
+              <span class="menu-header-text" data-i18n="Apps & Pages">User</span>
+            </li>
+            <li class="menu-item {% if request.path == '/users-settings/' %}active{% endif %}">
+              <a href="{% url 'users-settings' %}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-settings-2"></i>
+                <div data-i18n="Page 2">Settings</div>
               </a>
             </li>
           </ul>
@@ -195,8 +210,8 @@
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="ti ti-settings me-3 ti-md"></i><span class="align-middle">Settings</span>
+                      <a class="dropdown-item" href="{% url 'users-settings' %}">
+                        <i class="ti ti-settings-2 me-3 ti-md"></i><span class="align-middle">Settings</span>
                       </a>
                     </li>
                     <li>

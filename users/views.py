@@ -9,6 +9,7 @@ from verify_email.email_handler import send_verification_email
 from django.contrib.auth.models import Group, User
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from .models import Employee
+from manager.models import Organization
 from django.shortcuts import get_object_or_404
 
 
@@ -54,3 +55,20 @@ class UserDetailView(LoginRequiredMixin, CreateView):
         employee.save()
         return redirect('dashboard')
 
+class SettingsView(LoginRequiredMixin, TemplateView):
+    template_name = "users/settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['organizations'] = Organization.objects.all()[:5]
+        return context
+
+class OrganizationsListView(LoginRequiredMixin, TemplateView):
+    template_name = "users/organizations.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['organizations'] = Organization.objects.all()
+        return context
