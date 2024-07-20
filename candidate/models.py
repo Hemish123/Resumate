@@ -39,6 +39,7 @@ class Candidate(models.Model):
     reason_for_change = models.CharField(max_length=500, blank=True)
     feedback = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    updated = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase

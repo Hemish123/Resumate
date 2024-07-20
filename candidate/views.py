@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, TemplateView, DeleteView
+from django.views.generic import ListView, CreateView, TemplateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from .models import Candidate, Resume
 from users.models import Employee
@@ -81,6 +81,20 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
     title = 'Candidate Database'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['candidates'] = Candidate.objects.all()
+
+        return context
+
+
+class CandidateDetailsView(LoginRequiredMixin, DetailView):
+    template_name = 'candidate/candidate_details.html'
+    title = 'Candidate Details'
+    model = Candidate
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

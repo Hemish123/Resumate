@@ -2,10 +2,6 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css' %}" />
-{% endblock css %}
-
 
 {% block content %}
 
@@ -21,7 +17,7 @@
             <table class="datatables-basic table">
         <thead>
           <tr>
-            <th></th>
+<!--            <th></th>-->
             <th>
             </th>
 
@@ -30,20 +26,24 @@
             <th>Contact</th>
             <th>Email</th>
             <th>Experience (in years)</th>
+            <th>Stage</th>
+            <th>Updated</th>
           </tr>
         </thead>
           <tbody>
           {% for candidate in candidates %}
-          <tr>
-              <td></td>
+          <tr data-id="{{candidate.id}}">
+<!--              <td></td>-->
               <td>
               </td>
 
-              <td>{{candidate.name}}</td>
+              <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
               <td>{{candidate.current_designation}}</td>
               <td>{{candidate.contact}}</td>
               <td>{{candidate.email}}</td>
               <td>{{candidate.experience}}</td>
+              <td>{{candidate.candidatestage_set}}</td>
+              <td>{{candidate.updated|date:"F j, Y"}}</td>
 
 
           </tr>

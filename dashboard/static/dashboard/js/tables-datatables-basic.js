@@ -19,29 +19,29 @@ $(function () {
     dt_basic = dt_basic_table.DataTable({
       columns: [
         { data: '' },
-        { data: '' },
-
         { data: 'name' },
         { data: 'designation' },
         { data: 'contact' },
         { data: 'email' },
-        { data: 'experience' }
+        { data: 'experience' },
+        { data: 'status' },
+        { data: 'updated' }
       ],
       columnDefs: [
-        {
-          // For Responsive
-          className: 'control',
-          orderable: false,
-          searchable: false,
-          responsivePriority: 2,
-          targets: 0,
-          render: function (data, type, full, meta) {
-            return '';
-          }
-        },
+//        {
+//          // For Responsive
+//          className: 'control',
+//          orderable: false,
+//          searchable: false,
+//          responsivePriority: 2,
+//          targets: 0,
+//          render: function (data, type, full, meta) {
+//            return '';
+//          }
+//        },
         {
           // For Checkboxes
-          targets: 1,
+          targets: 0,
           orderable: false,
           searchable: false,
           responsivePriority: 3,
@@ -56,11 +56,12 @@ $(function () {
 
         {
           // Avatar image/badge, Name and post
-          targets: 2,
+          targets: 1,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             var $user_img = full['avatar'],
               $name = full['name'];
+
 //              $post = full['post'];
             if ($user_img) {
               // For Avatar image
@@ -70,16 +71,17 @@ $(function () {
               // For Avatar badge
               var stateNum = Math.floor(Math.random() * 6);
               var states = ['success', 'danger', 'warning', 'info', 'primary', 'secondary'];
-              var $state = states[stateNum],
-                $name = full['name'],
-                $initials = $name.split().map(function(part) {
+              var $state = states[stateNum];
+              var start = $name.indexOf('>') + 1;
+              var end = $name.lastIndexOf('<'),
+                $initials = $name.slice(start, end).split(' ').slice(0,2).map(function(part) {
                   return part.charAt(0);
                 }).join('').toUpperCase();
               $output = '<span class="avatar-initial rounded-circle bg-label-' + $state + '">' + $initials + '</span>';
             }
             // Creates full output for row
             var $row_output =
-              '<div class="d-flex justify-content-start align-items-center user-name">' +
+              `<div class="d-flex justify-content-start align-items-center user-name">` +
               '<div class="avatar-wrapper">' +
               '<div class="avatar me-2">' +
               $output +
@@ -98,29 +100,29 @@ $(function () {
           responsivePriority: 1,
           targets: 4
         },
-//        {
-//          // Label
-//          targets: -2,
-//          render: function (data, type, full, meta) {
-//            var $status_number = full['status'];
-//            var $status = {
-//              1: { title: 'Current', class: 'bg-label-primary' },
-//              2: { title: 'Professional', class: ' bg-label-success' },
-//              3: { title: 'Rejected', class: ' bg-label-danger' },
-//              4: { title: 'Resigned', class: ' bg-label-warning' },
-//              5: { title: 'Applied', class: ' bg-label-info' }
-//            };
-//            if (typeof $status[$status_number] === 'undefined') {
-//              return data;
-//            }
-//            return (
-//              '<span class="badge ' + $status[$status_number].class + '">' + $status[$status_number].title + '</span>'
-//            );
-//          }
-//        }
+        {
+          // status
+          targets: 6,
+          render: function (data, type, full, meta) {
+            var $status_number = full['status'];
+            var $status = {
+              1: { title: 'Current', class: 'bg-label-primary' },
+              2: { title: 'Professional', class: ' bg-label-success' },
+              3: { title: 'Rejected', class: ' bg-label-danger' },
+              4: { title: 'Resigned', class: ' bg-label-warning' },
+              5: { title: 'Applied', class: ' bg-label-info' }
+            };
+            if (typeof $status[$status_number] === 'undefined') {
+              return data;
+            }
+            return (
+              '<span class="badge ' + $status[$status_number].class + '">' + $status[$status_number].title + '</span>'
+            );
+          }
+        }
       ],
       order: [[2, 'desc']],
-      dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+      dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
       displayLength: 7,
       lengthMenu: [7, 10, 25, 50, 75, 100],
       language: {
@@ -278,38 +280,38 @@ $(function () {
           ]
         }
       ],
-      responsive: {
-        details: {
-          display: $.fn.dataTable.Responsive.display.modal({
-            header: function (row) {
-              var data = row.data();
-              return 'Details of ' + data['name'];
-            }
-          }),
-          type: 'column',
-          renderer: function (api, rowIdx, columns) {
-            var data = $.map(columns, function (col, i) {
-              return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
-                ? '<tr data-dt-row="' +
-                    col.rowIndex +
-                    '" data-dt-column="' +
-                    col.columnIndex +
-                    '">' +
-                    '<td>' +
-                    col.title +
-                    ':' +
-                    '</td> ' +
-                    '<td>' +
-                    col.data +
-                    '</td>' +
-                    '</tr>'
-                : '';
-            }).join('');
-
-            return data ? $('<table class="table"/><tbody />').append(data) : false;
-          }
-        }
-      },
+//      responsive: {
+//        details: {
+//          display: $.fn.dataTable.Responsive.display.modal({
+//            header: function (row) {
+//              var data = row.data();
+//              return 'Details of ' + data['name'];
+//            }
+//          }),
+//          type: 'column',
+//          renderer: function (api, rowIdx, columns) {
+//            var data = $.map(columns, function (col, i) {
+//              return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
+//                ? '<tr data-dt-row="' +
+//                    col.rowIndex +
+//                    '" data-dt-column="' +
+//                    col.columnIndex +
+//                    '">' +
+//                    '<td>' +
+//                    col.title +
+//                    ':' +
+//                    '</td> ' +
+//                    '<td>' +
+//                    col.data +
+//                    '</td>' +
+//                    '</tr>'
+//                : '';
+//            }).join('');
+//
+//            return data ? $('<table class="table"/><tbody />').append(data) : false;
+//          }
+//        }
+//      },
       initComplete: function (settings, json) {
       var header = $('.card-header');
         var importFileInput = `
@@ -377,3 +379,4 @@ function parseData(contents, fileType) {
     dt.rows.add(data).draw(); // Add new data and redraw DataTables
   }
 }
+

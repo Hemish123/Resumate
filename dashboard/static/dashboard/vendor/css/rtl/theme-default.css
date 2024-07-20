@@ -913,6 +913,13 @@ a:hover {
   color: #8176f2;
 }
 
+td > a {
+  color: var(--bs-table-color-state, var(--bs-table-color-type, var(--bs-table-color)));
+}
+td > a:hover {
+  color: #7367f0;
+}
+
 .fill-primary {
   fill: #7367f0;
 }
