@@ -1,5 +1,6 @@
-{% extends "dashboard/theme.html" %}
+{% extends "screening/base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
@@ -13,15 +14,13 @@
 
 {% endblock css %}
 
-{% block body %}
-
-<div class="content-wrapper">
-            <!-- Content -->
-
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">New Candidate</h5>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+{% block content %}
+<button onclick="window.history.back()" type="button" class="btn btn-outline-primary mb-2">
+    <span class="ti-xs ti ti-chevron-left me-2"></span>Back
+</button>
+<div class="card mb-6">
+    <h5 class="card-header">Update Candidate</h5>
+    <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row">
           <div class="col-md-12">
@@ -101,7 +100,7 @@
                   <label for="id_dob" class="form-label">Date of Birth
                     <span>*</span>
                   </label>
-                  <input id="id_dob" name="dob" value="{{ form.dob.value|default_if_none:'' }}" type="date" class="form-control" required/>  <!-- class = bs-datepicker-format  -->
+                  <input id="id_dob" name="dob" value="{{ form.dob.value|date:'Y-m-d'|default_if_none:'' }}" type="date" class="form-control" required/>  <!-- class = bs-datepicker-format  -->
                   {% if form.errors %}
                   {% for error in form.dob.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -111,7 +110,7 @@
               <div class="col-md-3">
                   <label for="id_doc" class="form-label">Date of Contact
                   </label>
-                  <input id="id_doc" name="doc" value="{{ form.doc.value|default_if_none:'' }}" type="date" class="form-control"/>
+                  <input id="id_doc" name="doc" value="{{ form.doc.value|date:'Y-m-d'|default_if_none:'' }}" type="date" class="form-control"/>
                   {% if form.errors %}
                   {% for error in form.doc.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
@@ -279,16 +278,14 @@
         </div>
 
         <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+          <button type="submit" class="btn btn-primary me-4">Update</button>
         </div>
       </form>
-    </div>
-  </div>
 </div>
 
 
 
-{% endblock body %}
+{% endblock content %}
 
 
 {% block js %}

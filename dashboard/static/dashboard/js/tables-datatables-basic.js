@@ -77,10 +77,12 @@ $(function () {
                 $initials = $name.slice(start, end).split(' ').slice(0,2).map(function(part) {
                   return part.charAt(0);
                 }).join('').toUpperCase();
+                var $link = $name.slice(0,start);
               $output = '<span class="avatar-initial rounded-circle bg-label-' + $state + '">' + $initials + '</span>';
             }
             // Creates full output for row
             var $row_output =
+                `${$link}` +
               `<div class="d-flex justify-content-start align-items-center user-name">` +
               '<div class="avatar-wrapper">' +
               '<div class="avatar me-2">' +
@@ -89,10 +91,10 @@ $(function () {
               '</div>' +
               '<div class="d-flex flex-column">' +
               '<span class="emp_name text-truncate">' +
-              $name +
+              $name.slice(start, end) +
               '</span>' +
               '</div>' +
-              '</div>';
+              '</div></a>';
             return $row_output;
           }
         },

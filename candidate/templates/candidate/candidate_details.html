@@ -1,0 +1,164 @@
+{% extends "screening/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/pickr/pickr-themes.css' %}" />
+
+
+
+{% endblock css %}
+
+{% block content %}
+<button onclick="window.history.back()" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-chevron-left me-2"></span>Back
+</button>
+
+<div class="card my-3 mx-1">
+    <div class="demo-inline-spacing ">
+        <div class="d-flex justify-content-between m-1 p-3">
+            <div>
+              <button type="button" class="btn btn-icon btn-outline-whatsapp me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Send Whatsapp Message">
+                <i class="tf-icons ti ti-brand-whatsapp ti-md"></i>
+              </button>
+              <button type="button" class="btn btn-icon btn-outline-mail me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Send E-Mail">
+                <i class="tf-icons ti ti-mail ti-md"></i>
+              </button>
+              <button type="button" class="btn btn-icon btn-outline-phone me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Call">
+                <i class="tf-icons ti ti-phone ti-md"></i>
+              </button>
+            </div>
+            <div>
+<!--                <small class="mx-3 align-middle">Schedule Interview : </small>-->
+                <button type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Schedule Interview" class="btn btn-icon btn-outline-info">
+                    <i class="tf-icons ti ti-calendar-plus ti-md"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-6">
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+        <h5 class="card-header">{{ candidate.name }}</h5>
+        <small class="m-7 text-muted">Last updated : {{ candidate.updated|date:"F j, Y" }}</small>
+    </div>
+    <div class="mx-7">
+    <a href="{% url 'candidate-update' candidate.id %}" type="button" class="btn btn-outline-primary">
+        <span class="ti-xs ti ti-pencil me-2"></span>Edit
+    </a>
+    </div>
+    <div class=" mx-7 mt-7 badge bg-label-primary">
+        <p class="card-text text-muted d-inline">Hiring for : </p>
+        <p class="fs-5 d-inline">{{ candidate.job_openings }}</p>
+        <span class="fs-6 text-muted d-inline">{{ candidate.job_openings.organization }}</span>
+    </div>
+
+    <div class="row card-body">
+        <small class="card-text text-uppercase text-muted mb-2">Personal Information</small>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Contact : {{ candidate.contact }}</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Email : {{ candidate.email }}</p>
+      </div>
+      <div class="col-md-3 mb-2">
+        <p class="card-text">Location : {{ candidate.location }}</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Date Of Birth : {{ candidate.dob|date:"F j, Y" }}</p>
+      </div>
+      <div class="col-md-8 mb-2">
+        <p class="card-text">Education : {{ candidate.education }}</p>
+      </div>
+    </div>
+    <div class="row card-body">
+      <small class="card-text text-uppercase text-muted mb-2">Social Links</small>
+      <div class="col-md-6 mb-2">
+        <p class="card-text">LinkedIn : <a href="{{ candidate.linkedin }}">{{ candidate.linkedin }}</a></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p class="card-text">GitHub : <a href="{{ candidate.github }}">{{ candidate.github }}</a></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p class="card-text">Portfolio : <a href="{{ candidate.portfolio }}">{{ candidate.portfolio }}</a></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p class="card-text">Blog : <a href="{{ candidate.blog }}">{{ candidate.blog }}</a></p>
+      </div>
+    </div>
+    <div class="row card-body">
+      <small class="card-text text-uppercase text-muted mb-2">Professional</small>
+      <div class="col-md-3 mb-2">
+        <p class="card-text">Experience : {{ candidate.experience }} Years</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Current Designation : {{ candidate.current_designation }}</p>
+      </div>
+      <div class="col-md-5 mb-2">
+        <p class="card-text">Current Organization : {{ candidate.current_organization }}</p>
+      </div>
+      <div class="col-md-3 mb-2">
+        <p class="card-text">Notice Period : {{ candidate.notice_period }} Days</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Current CTC : {{ candidate.current_ctc }} LPA</p>
+      </div>
+      <div class="col-md-5 mb-2">
+        <p class="card-text">Current CTC (in Hand) : {{ candidate.current_ctc_ih }} PM</p>
+      </div>
+      <div class="col-md-3 mb-2">
+        <p class="card-text">Expected CTC : {{ candidate.expected_ctc }} LPA</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p class="card-text">Expected CTC (in Hand) : {{ candidate.expected_ctc_ih }} PM</p>
+      </div>
+      <div class="col-md-5 mb-2">
+        <p class="card-text">Offer in hand : {{ candidate.offer_in_hand }} LPA</p>
+      </div>
+    </div>
+    <div class="row card-body">
+      <small class="card-text text-uppercase text-muted mb-2">Other</small>
+      <div class="col-md-12 mb-2">
+        <p class="card-text">Reason For Change : {{ candidate.reason_for_change }}</p>
+      </div>
+      <div class="col-md-12 mb-2">
+        <p class="card-text">Feedback : {{ candidate.feedback }}</p>
+      </div>
+      <div class="col-md-12 mb-2">
+        <p class="card-text">Date of Contact : {{ candidate.doc|date:"F j, Y" }}</p>
+      </div>
+    </div>
+
+</div>
+
+
+
+
+{% endblock content %}
+
+
+{% block js %}
+
+<!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/pickr/pickr.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-pickers.js' %}"></script>
+<!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
+    <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
+
+
+
+
+{% endblock js %}

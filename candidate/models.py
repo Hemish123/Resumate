@@ -27,15 +27,15 @@ class Candidate(models.Model):
     portfolio = models.URLField(max_length=255, blank=True)
     blog = models.URLField(max_length=255, blank=True)
     education = models.CharField(max_length=255)
-    experience = models.PositiveIntegerField(blank=True, null=True)
+    experience = models.PositiveIntegerField(blank=True, default=0)
     current_designation = models.CharField(max_length=255, blank=True)
     current_organization = models.CharField(max_length=255, blank=True)
-    current_ctc = models.FloatField(max_length=255, blank=True, null=True)
-    current_ctc_ih = models.FloatField(max_length=255, blank=True, null=True)
-    expected_ctc = models.FloatField(max_length=255, blank=True, null=True)
-    expected_ctc_ih = models.FloatField(max_length=255, blank=True, null=True)
-    offer_in_hand = models.FloatField(max_length=255, blank=True, null=True)
-    notice_period = models.PositiveIntegerField(blank=True, null=True)
+    current_ctc = models.FloatField(max_length=255, blank=True, default=0)
+    current_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
+    expected_ctc = models.FloatField(max_length=255, blank=True, default=0)
+    expected_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
+    offer_in_hand = models.FloatField(max_length=255, blank=True, default=0)
+    notice_period = models.PositiveIntegerField(blank=True, default=0)
     reason_for_change = models.CharField(max_length=500, blank=True)
     feedback = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -47,6 +47,24 @@ class Candidate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        if self.linkedin:
+            if not self.linkedin.startswith(('http://', 'https://')):
+                self.linkedin = 'http://' + self.linkedin
+
+        if self.github:
+            if not self.github.startswith(('http://', 'https://')):
+                self.github = 'http://' + self.github
+
+        if self.portfolio:
+            if not self.portfolio.startswith(('http://', 'https://')):
+                self.portfolio = 'http://' + self.portfolio
+
+        if self.blog:
+            if not self.blog.startswith(('http://', 'https://')):
+                self.blog = 'http://' + self.blog
 
 
 
