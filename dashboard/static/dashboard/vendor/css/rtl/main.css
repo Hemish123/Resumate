@@ -81,3 +81,23 @@
   background-color: #e3f6ff !important;
   border-color: #007ebd !important;
 }
+
+.kanban-disabled {
+     pointer-events: none;
+     opacity: 0.5;
+     position: relative;
+}
+
+.kanban-disabled > .badge {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 1em 1em;
+    width : 100%;
+    font-size: 0.9em;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    z-index: 10;
+    opacity: 1;
+}

@@ -10,6 +10,7 @@ let fv, offCanvasEl;
 $(function () {
   var dt_basic_table = $('.datatables-basic'),
     dt_basic;
+    var actions = $('#actioncheck');
     const btn = document.getElementById('button-datatable');
 
   // DataTable with buttons
@@ -107,19 +108,32 @@ $(function () {
           targets: 6,
           render: function (data, type, full, meta) {
             var $status_number = full['status'];
+            var stages = $status_number.split(' ');
             var $status = {
-              1: { title: 'Current', class: 'bg-label-primary' },
-              2: { title: 'Professional', class: ' bg-label-success' },
-              3: { title: 'Rejected', class: ' bg-label-danger' },
-              4: { title: 'Resigned', class: ' bg-label-warning' },
-              5: { title: 'Applied', class: ' bg-label-info' }
+              'Other': { title: 'In Stage', class: 'bg-label-primary' },
+              'Hired': { title: 'Hired', class: ' bg-label-success' },
+              'Rejected': { title: 'Rejected', class: ' bg-label-danger' },
+              'Applied': { title: 'Applied', class: ' bg-label-info' },
+              '': { title: 'Still', class: ' bg-label-secondary' }
             };
-            if (typeof $status[$status_number] === 'undefined') {
-              return data;
+
+            var statusHTML= '';
+            if (stages.includes('Hired')){
+                statusHTML = ('<span class="badge ' + $status['Hired'].class + '">' + $status['Hired'].title + '</span>');
             }
-            return (
-              '<span class="badge ' + $status[$status_number].class + '">' + $status[$status_number].title + '</span>'
+            else {
+            stages.forEach(function(stage){
+            if (stage in $status) {
+              statusHTML = ('<span class="badge ' + $status[stage].class + '">' + $status[stage].title + '</span>');
+            } else {
+            statusHTML = (
+              '<span class="badge ' + $status['Other'].class + '">' + $status['Other'].title + '</span>'
             );
+            }
+            });
+            }
+            return statusHTML;
+
           }
         }
       ],
@@ -324,6 +338,7 @@ $(function () {
         buttonHtml.show(); // Ensure the button is visible
         button.append(buttonHtml); // Append button to the desired location
         $('.card-header').after('<hr class="my-0">');
+        actions.prop('disabled', true);
       }
     });
     $('div.head-label').html('<h5 class="card-title mb-0">Candidate DataTable</h5>');
@@ -343,7 +358,64 @@ $(function () {
         }
       }
     });
+
+        // Event handler for individual checkboxes
+    $('.datatables-basic tbody').on('change', '.dt-checkboxes', function () {
+      var row = $(this).closest('tr');
+      var rowData = dt_basic.row(row).data();
+      if (this.checked) {
+        row.addClass('selected');
+
+      } else {
+        row.removeClass('selected');
+
+      }
+      updateSelectedRows();
+    });
+
+        // Handle "Select All" checkbox
+    $('.dt-checkboxes-select-all input').on('change', function () {
+      var checked = $(this).prop('checked');
+      dt_basic.rows().nodes().to$().find('input[type="checkbox"]').prop('checked', checked);
+      console.log('e', checked);
+      if (checked) {
+      console.log('r');
+        dt_basic.rows().nodes().to$().addClass('selected');
+      }
+      else {
+        dt_basic.rows().nodes().to$().removeClass('selected');
+      }
+      updateSelectedRows();
+    });
+
+
+    function updateSelectedRows() {
+      // Get all selected rows
+      var selectedRows = dt_basic.rows('.selected').data().toArray();
+      // Perform actions with the selected rows, e.g., updating the button state
+      if (selectedRows.length > 0) {
+        actions.prop('disabled', false);  // Enable button
+      } else {
+        actions.prop('disabled', true);  // Disable button
+      }
+    }
+          // Append filter inputs to the filter container
+        var filterHTML = $('#filter-container')
+        var filterline = $('#DataTables_Table_0_filter').parents('.row').first();
+        filterline.after(filterHTML).after('<hr class="my-0">');
+        filterHTML.show();
+
+
+        // Handle Status filter
+        $('#filter-status').on('change', function () {
+          dt_basic.column(6).search(this.value).draw();
+        });
+
+        $('#filter-experience').on('input', function () {
+          dt_basic.column(5).search(this.value).draw();
+        });
   }
+
 
 
   // Delete Record
@@ -352,6 +424,7 @@ $(function () {
   });
 
 });
+
 
 function parseData(contents, fileType) {
   var dt = $('.datatables-basic').DataTable();

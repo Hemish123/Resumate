@@ -36,11 +36,42 @@
                   <h4 class="text-primary d-inline-block me-2">{{ job_opening.designation }}</h4>
                   <span class="text-primary fs-6 d-inline-block">{{ job_opening.organization }}</span>
                 </div>
-<!--                <div class="col-3">-->
-<!--                  <h5 class="bg-primary text-white text-center">{{ job_opening.organization }}</h5>-->
-<!--                </div>-->
+                <div class="col-3 ms-auto">
+                  <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'job-opening-delete' job_opening.id %}">
+                      {% csrf_token %}
+                      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+                          <i class="ti ti-trash"></i>
+                      </button>
 
+                        <!-- Modal -->
+                        <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel1">Delete Job Opening</h5>
+                                <button
+                                  type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p>Are you sure you want to delete? You can close opening from Edit.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                  Close
+                                </button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                  </form>
+                </div>
               </div>
+
               <div class="app-kanban">
                 <!-- Add new board -->
                 <div class="row">
@@ -69,7 +100,11 @@
                 </div>
 
                 <!-- Kanban Wrapper -->
-                <div class="kanban-wrapper"></div>
+                <div class="kanban-wrapper {% if not active %}kanban-disabled{% endif %}">
+                  {% if not active %}
+                    <div class="fs-5 badge bg-label-danger">Closed</div>
+                  {% endif %}
+                </div>
 
                 <!-- Edit Task/Task & Activities -->
                 <div class="offcanvas offcanvas-end kanban-update-item-sidebar">
@@ -284,7 +319,7 @@
               </div>
 
               <div class="row mt-1 mb-12">
-                <div class="col-md-4 col-lg-3">
+                <div class="col-md-4 col-lg-3 {% if not active %}kanban-disabled{% endif %}">
                   <a href="#">
                     <div class="alert alert-info" role="alert">New Applications</div>
                   </a>
@@ -300,7 +335,7 @@
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                       <h5 class="card-header">Job Details</h5>
                       <span class="m-4">
-                        <button class="btn btn-primary btn-sm"><span class="ti-xs ti ti-pencil me-2"></span>Edit</button></span>
+                        <button onclick="window.location.href='{% url 'job-opening-update' job_opening.id %}'" class="btn btn-primary btn-sm"><span class="ti-xs ti ti-pencil me-2"></span>Edit</button></span>
                     </div>
                     <div class="card-body">
                       <p class="card-text">
@@ -315,7 +350,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-4 {% if not active %}kanban-disabled{% endif %}">
                   <div class="card mb-6">
                     <h5 class="card-header">Required Skills</h5>
                     <div class="select2-primary card-body">
@@ -371,6 +406,7 @@
 
     <!-- Page JS -->
     <script src="{% static 'dashboard/js/app-kanban.js' %}" data-jobopeningid="{{ job_opening.id }}"></script>
+
 <!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
 <!--    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>-->
 {% endblock js %}

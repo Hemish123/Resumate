@@ -27,11 +27,13 @@
                 <a href="{% url 'job-process' jobs.id %}">
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                         <h5 class="card-title">{{jobs.designation}}</h5>
-                        {% if jobs.active %}
-                          <span class="badge bg-primary ">Active</span>
-                        {% else %}
-                            <span class="badge bg-danger ">Closed</span>
-                        {% endif %}
+                        <div>
+                            {% if jobs.active %}
+                              <span class="badge bg-primary ">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger ">Closed</span>
+                            {% endif %}
+                        </div>
                     </div>
                   <div class="card-subtitle mt-2 mb-4">{{jobs.organization}}</div>
                   <p class="card-text">

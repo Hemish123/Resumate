@@ -35,11 +35,11 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         context['has_perm'] = has_perm
 
         if self.request.user.is_superuser or self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-            context['job_posts'] = JobOpening.objects.all()
+            context['job_posts'] = JobOpening.objects.all().order_by('-active')
         else:
             employee = Employee.objects.get(user=self.request.user)
             try:
-                job_posts = JobOpening.objects.filter(assignemployee=employee)
+                job_posts = JobOpening.objects.filter(assignemployee=employee).order_by('-active')
 
                 if job_posts.exists():
                     context['job_posts'] = job_posts
@@ -70,6 +70,7 @@ class StageAPIView(APIView):
         stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')
         if not stages.exists():
             Stage.objects.create(job_opening_id=job_opening_id, name='Initial Stage', order=1)
+            Stage.objects.create(job_opening_id=job_opening_id, name='Hired', order=10)
             stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')  # Refresh queryset after creating stage
 
         serializer = self.serializer_class(stages, many=True)
@@ -85,14 +86,14 @@ class StageAPIView(APIView):
         stageid = request.data.get('id')
         stage_name = request.data.get('title')
         if stage_name:
-            order = Stage.objects.filter(job_opening_id=job_opening_id).aggregate(Max('order'))['order__max'] or 0
+            order = Stage.objects.filter(job_opening_id=job_opening_id).exclude(name='Hired').aggregate(Max('order'))['order__max'] or 0
             stage = Stage.objects.create(id=stageid, name=stage_name, job_opening=job_opening, order=order+1)
             stage.save()
         if candidateid:
             stage = Stage.objects.get(id=stageid)
             order = CandidateStage.objects.filter(stage_id=stageid).aggregate(Max('order'))['order__max'] or 0
-
             candidate = Candidate.objects.get(id=candidateid)
+            candidate.job_openings.add(job_opening)
             candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=order+1)
             candidate_stage.save()
 
@@ -113,6 +114,8 @@ class StageAPIView(APIView):
         else:
             for item in order[:-1]:
                 stage_id = item.get('id')
+                if Stage.objects.filter(id=stage_id).name == 'Hired' :
+                    continue
                 print('s', stage_id)
                 order = item.get('order')
                 Stage.objects.filter(id=stage_id).update(order=order)
@@ -149,6 +152,7 @@ class StageView(LoginRequiredMixin, TemplateView):
             skills = json.load(f)
         context['skills'] = skills
         context['s_skills'] = job_opening.requiredskills.split(',')
+        context['active'] = job_opening.active
         print('s', context['s_skills'])
         stages = Stage.objects.filter(job_opening=job_opening).order_by('order')
         candidates_by_stage = {}

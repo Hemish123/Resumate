@@ -2,19 +2,66 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+
+{% endblock css %}
 
 {% block content %}
 
 <div class="card">
     <div class="card-datatable table-responsive pt-0">
-                <div class="d-none">
-                    <button id="button_datatable" onclick="location.href = '{% url 'candidate-create' %}'" class="btn btn-secondary create-new btn-primary waves-effect waves-light" tabindex="0" aria-controls="DataTables_Table_0" type="button">
-                        <span><i class="ti ti-plus me-sm-1"></i>
-                            <span class="d-none d-sm-inline-block">New Candidate</span>
-                        </span>
-                    </button>
+        <div class="d-none">
+            <button id="button_datatable" onclick="location.href = '{% url 'candidate-create' %}'" class="btn btn-secondary create-new btn-primary waves-effect waves-light" tabindex="0" aria-controls="DataTables_Table_0" type="button">
+                <span><i class="ti ti-plus me-sm-1"></i>
+                    <span class="d-none d-sm-inline-block">New Candidate</span>
+                </span>
+            </button>
+        </div>
+        <div class="d-none">
+            <div id="filter-container" class="d-flex align-items-center mb-2">
+              <!-- Filter inputs will be injected here -->
+                <div class="row">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="dataTables_length">
+                            <label>Action
+                            <select id="actioncheck" class="form-select w-50">
+                              <option value=""></option>
+                              <option value="Hired">Add to Job Opening</option>
+                              <option value="Rejected" class="text-danger">Delete</option>
+                              <!-- Add other options as needed -->
+                            </select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="dataTables_length">
+                            <label>Status
+                            <select id="filter-status" class="form-control form-select w-auto">
+                              <option value="">All</option>
+                              <option value="Hired">Hired</option>
+                              <option value="Rejected">Rejected</option>
+                              <option value="Applied">Applied</option>
+                              <!-- Add other options as needed -->
+                            </select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="dataTables_filter">
+                            <label>Experience
+                            <input type="number" id="filter-experience" class="form-control w-auto">
+                              <!-- Add other options as needed -->
+
+                            </label>
+                        </div>
+                    </div>
                 </div>
-            <table class="datatables-basic table">
+            </div>
+        </div>
+        <table class="datatables-basic table">
+
         <thead>
           <tr>
 <!--            <th></th>-->
@@ -26,7 +73,7 @@
             <th>Contact</th>
             <th>Email</th>
             <th>Experience (in years)</th>
-            <th>Stage</th>
+            <th>Status</th>
             <th>Updated</th>
           </tr>
         </thead>
@@ -42,7 +89,7 @@
               <td>{{candidate.contact}}</td>
               <td>{{candidate.email}}</td>
               <td>{{candidate.experience}}</td>
-              <td>{{candidate.candidatestage_set}}</td>
+              <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
               <td>{{candidate.updated|date:"F j, Y"}}</td>
 
 
@@ -58,4 +105,6 @@
 
 {% block js %}
     <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
 {% endblock js %}

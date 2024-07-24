@@ -370,6 +370,23 @@ boards = stages.map(stage => ({
     }
   });
 
+// Apply background color to boards
+function applyBoardColors() {
+        const boards = document.querySelectorAll('.kanban-board');
+        const lastBoard = boards[boards.length - 1]; // The last board
+        lastBoard.style.backgroundColor = '#d6ffe1';
+        // Set background color for all child elements of the last board
+        Array.from(lastBoard.children).forEach(child => {
+          child.style.backgroundColor = '#d6ffe1';
+        });
+//    boards.forEach(board => {
+//        const boardElement = document.querySelector(`.kanban-board:last-child`);
+//        if (boardElement) {
+//            boardElement.style.backgroundColor = '#b1fcc5';
+//        }
+//    });
+}
+applyBoardColors();
 
 // drop update order item
   async function ItemDrop(el, target, source, sibling) {
@@ -594,12 +611,16 @@ boards = stages.map(stage => ({
 
         return maxId + 1;
     }
+
   if (kanbanAddNewBoard) {
     kanbanAddNewBoard.addEventListener('submit', async function (e) {
       e.preventDefault();
       const thisEle = this,
         value = thisEle.querySelector('.form-control').value,
         id = String(generateNewBoardId());
+        const boards = document.querySelectorAll('.kanban-board');
+        const lastBoard = boards[boards.length - 1]; // The last board
+
       kanban.addBoards([
         {
           id: id,
@@ -616,7 +637,10 @@ boards = stages.map(stage => ({
       });
 
       // Adds delete board option to new board, delete new boards & updates data-order
-      const kanbanBoardLastChild = document.querySelectorAll('.kanban-board:last-child')[0];
+      const kanbanBoardLastChild = document.querySelector(`.kanban-board[data-id="${id}"]`);
+      if (kanbanBoardLastChild && lastBoard) {
+        lastBoard.parentNode.insertBefore(kanbanBoardLastChild, lastBoard);
+      }
       if (kanbanBoardLastChild) {
         const header = kanbanBoardLastChild.querySelector('.kanban-title-board');
         header.insertAdjacentHTML('afterend', renderBoardDropdown());

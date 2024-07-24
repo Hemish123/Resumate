@@ -16,7 +16,7 @@
 
   <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card mb-6">
-      <h5 class="card-header">New Job Opening</h5>
+      <h5 class="card-header">Update Job Opening</h5>
       <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row g-6">
@@ -129,10 +129,10 @@
                   <span>*</span>
                 </label>
                 <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>
-                  <option value=""></option>
+
                   {% for skill in skills %}
 
-                    <option value="{{ skill }}" {% if form.requiredskills.value == skill %}selected{% endif %}>{{ skill }}</option>
+                    <option value="{{ skill }}" {% if skill in form.requiredskills.value  %}selected{% endif %}>{{ skill }}</option>
 
                   {% endfor %}
 
@@ -148,16 +148,29 @@
                   <span>*</span>
                 </label>
                 <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>
-                  <option value=""></option>
+
                   {% for employee in choices %}
 
-                    <option value="{{ employee.id }}" {% if form.assignemployee.value == employee.id %}selected{% endif %}>{{ employee }}</option>
+                    <option value="{{ employee.id }}" {% if employee.id in form.assignemployee.value %}selected{% endif %}>{{ employee }}</option>
 
                   {% endfor %}
 
                 </select>
                 {% if form.errors %}
                   {% for error in form.assignemployee.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_active">Opening Status :
+                <input name="active" class="form-check-input ms-2" type="checkbox" value="" id="id_active" {% if form.active.value %}checked{% endif %} />
+                <span class="custom-option-header">
+                  <span class="h6 mb-1">Active</span>
+                </span>
+                </label>
+                {% if form.errors %}
+                  {% for error in form.active.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                 {% endif %}
@@ -241,7 +254,7 @@
         </div>
 
         <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+          <button type="submit" class="btn btn-primary me-4">Update</button>
         </div>
       </form>
     </div>
