@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
@@ -36,8 +36,12 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         try:
-            employee = Employee.objects.get(user=self.request.user)
-            context['choices'] = JobOpening.objects.filter(assignemployee=employee)
+            if self.request.user.is_superuser or self.request.user.groups.filter(
+                    name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
+                context['choices'] = JobOpening.objects.all()
+            else :
+                employee = Employee.objects.get(user=self.request.user)
+                context['choices'] = JobOpening.objects.filter(assignemployee=employee)
         except Employee.DoesNotExist:
             context['choices'] = JobOpening.objects.all()
         # context['organizations'] = Organization.objects.all()
@@ -100,8 +104,12 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         try:
-            employee = Employee.objects.get(user=self.request.user)
-            context['choices'] = JobOpening.objects.filter(assignemployee=employee)
+            if self.request.user.is_superuser or self.request.user.groups.filter(
+                    name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
+                context['choices'] = JobOpening.objects.all()
+            else:
+                employee = Employee.objects.get(user=self.request.user)
+                context['choices'] = JobOpening.objects.filter(assignemployee=employee)
         except Employee.DoesNotExist:
             context['choices'] = JobOpening.objects.all()
         # context['organizations'] = Organization.objects.all()
@@ -165,3 +173,11 @@ class CandidateDetailsView(LoginRequiredMixin, DetailView):
         context['title'] = self.title
 
         return context
+
+class CandidateDeleteView(LoginRequiredMixin, TemplateView):
+    def post(self, request, *args, **kwargs):
+        ids = request.POST.get('ids[]')  # Get list of IDs from POST data
+        if ids:
+            ids = [int(id) for id in ids.split(',')]
+            Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
+        return JsonResponse({'status': 'success'})

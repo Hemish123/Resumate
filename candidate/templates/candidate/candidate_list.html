@@ -23,38 +23,144 @@
             <div id="filter-container" class="d-flex align-items-center mb-2">
               <!-- Filter inputs will be injected here -->
                 <div class="row">
-                    <div class="col-sm-6 col-md-3">
+                    <div class="col-sm-12 col-md-6">
                         <div class="dataTables_length">
-                            <label>Action
-                            <select id="actioncheck" class="form-select w-50">
-                              <option value=""></option>
-                              <option value="Hired">Add to Job Opening</option>
-                              <option value="Rejected" class="text-danger">Delete</option>
-                              <!-- Add other options as needed -->
-                            </select>
-                            </label>
+                            <div class="demo-inline-spacing">
+                                <div class="btn-group" id="dropdown-icon-demo">
+                                  <button
+                                    type="button"
+                                    id="actioncheck"
+                                    class="btn btn-outline-primary dropdown-toggle ms-4"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                     Action
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li>
+                                      <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
+                                          <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
+                                    </li>
+                                    <li>
+                                      <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+                                          <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
+                                    </li>
+                                  </ul>
+                                    <!-- Modal -->
+                                <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                                      <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
+                                            <button
+                                              type="button"
+                                              class="btn-close"
+                                              data-bs-dismiss="modal"
+                                              aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <p>Are you sure you want to delete selected candidates?</p>
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                              Close
+                                            </button>
+                                              <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                                              </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-3">
+                    <div class="col-sm-12 col-md-6">
                         <div class="dataTables_length">
-                            <label>Status
-                            <select id="filter-status" class="form-control form-select w-auto">
-                              <option value="">All</option>
-                              <option value="Hired">Hired</option>
-                              <option value="Rejected">Rejected</option>
-                              <option value="Applied">Applied</option>
-                              <!-- Add other options as needed -->
-                            </select>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-3">
-                        <div class="dataTables_filter">
-                            <label>Experience
-                            <input type="number" id="filter-experience" class="form-control w-auto">
-                              <!-- Add other options as needed -->
+                            <div class="demo-inline-spacing">
+                                <div class="btn-group dropend" id="dropdown-demo">
+                                  <button
+                                    type="button"
+                                    id="filterbtn"
+                                    class="btn btn-outline-primary dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                     Filter
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li class="dropend">
+                                      <a href="javascript:void(0);"
+                                         class="dropdown-item dropdown-toggle hide-arrow d-flex justify-content-between"
+                                        data-bs-toggle="dropdown"
+                                        data-trigger="hover"
+                                        aria-expanded="false"
+                                        aria-haspopup="true">
+                                          Experience<i class="ti ti-chevron-right scaleX-n1-rtl ms-2"></i></a>
+                                        <ul class="dropdown-menu" id="filter-experience">
+                                            <li><div class="input-group">
+                                                <button type="button" class="btn btn-outline-primary">Action</button>
+                                                <button
+                                                  type="button"
+                                                  class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
+                                                  data-bs-toggle="dropdown"
+                                                  aria-expanded="false">
+                                                  <span class="visually-hidden">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                  <li><a class="dropdown-item" href="javascript:void(0);"> < </a></li>
+                                                  <li><a class="dropdown-item" href="javascript:void(0);"> > </a></li>
+                                                  <li><a class="dropdown-item" href="javascript:void(0);"> = </a></li>
 
-                            </label>
+                                                </ul>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  aria-label="Text input with segmented dropdown button" />
+                                              </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropend">
+                                      <a href="javascript:void(0);"
+                                        class="dropdown-item dropdown-toggle hide-arrow d-flex justify-content-between"
+                                        data-bs-toggle="dropdown"
+                                        data-trigger="hover"
+                                        aria-expanded="false"
+                                        aria-haspopup="true">
+                                          Status<i class="ti ti-chevron-right scaleX-n1-rtl ms-2"></i></a>
+                                        <ul class="dropdown-menu" id="filter-status">
+                                            <li><div class="form-check dropdown-item">
+                                                    <label class="form-check-label custom-option-content">
+                                                        <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
+                                                    </label>
+                                                </div>
+                                                <div class="form-check dropdown-item">
+                                                    <label class="form-check-label custom-option-content">
+                                                        <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
+                                                    </label>
+                                                </div>
+                                               <div class="form-check dropdown-item">
+                                                   <label class="form-check-label custom-option-content">
+                                                       <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
+                                                   </label>
+                                                </div>
+                                                <div class="form-check dropdown-item">
+                                                   <label class="form-check-label custom-option-content">
+                                                       <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
+                                                   </label>
+                                                </div>
+                                                <div class="form-check dropdown-item">
+                                                    <label class="form-check-label custom-option-content">
+                                                        <input type="checkbox" class="form-check-input mx-1" data-value="Still">Still
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                  </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -64,9 +170,8 @@
 
         <thead>
           <tr>
-<!--            <th></th>-->
-            <th>
-            </th>
+            <th></th>
+            <th></th>
 
             <th>Name</th>
             <th>Designation</th>
@@ -80,9 +185,8 @@
           <tbody>
           {% for candidate in candidates %}
           <tr data-id="{{candidate.id}}">
-<!--              <td></td>-->
-              <td>
-              </td>
+              <td></td>
+              <td>{{ candidate.id }}</td>
 
               <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
               <td>{{candidate.current_designation}}</td>
@@ -107,4 +211,6 @@
     <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
+    <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
 {% endblock js %}

@@ -20,6 +20,7 @@ $(function () {
     dt_basic = dt_basic_table.DataTable({
       columns: [
         { data: '' },
+        { data: 'id' },
         { data: 'name' },
         { data: 'designation' },
         { data: 'contact' },
@@ -54,10 +55,17 @@ $(function () {
             selectAllRender: '<input type="checkbox" class="form-check-input">'
           }
         },
+        {
+          // For Checkboxes
+          targets: 1,
+          orderable: false,
+          searchable: false,
+          visible : false,
+        },
 
         {
           // Avatar image/badge, Name and post
-          targets: 1,
+          targets: 2,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             var $user_img = full['avatar'],
@@ -105,7 +113,7 @@ $(function () {
         },
         {
           // status
-          targets: 6,
+          targets: 7,
           render: function (data, type, full, meta) {
             var $status_number = full['status'];
             var stages = $status_number.split(' ');
@@ -377,9 +385,7 @@ $(function () {
     $('.dt-checkboxes-select-all input').on('change', function () {
       var checked = $(this).prop('checked');
       dt_basic.rows().nodes().to$().find('input[type="checkbox"]').prop('checked', checked);
-      console.log('e', checked);
       if (checked) {
-      console.log('r');
         dt_basic.rows().nodes().to$().addClass('selected');
       }
       else {
@@ -388,10 +394,11 @@ $(function () {
       updateSelectedRows();
     });
 
-
+var selectedRows = '';
     function updateSelectedRows() {
       // Get all selected rows
-      var selectedRows = dt_basic.rows('.selected').data().toArray();
+      selectedRows = dt_basic.rows('.selected').data().toArray();
+
       // Perform actions with the selected rows, e.g., updating the button state
       if (selectedRows.length > 0) {
         actions.prop('disabled', false);  // Enable button
@@ -407,20 +414,67 @@ $(function () {
 
 
         // Handle Status filter
-        $('#filter-status').on('change', function () {
+        $('#filter-status').on('change', '.form-check-input', function () {
+
+        var filterPattern = applyFilters();
+          dt_basic.column(7).search(filterPattern, true, false).draw();
+        });
+
+        $('#filter-experience').on('input', '.form-control', function () {
           dt_basic.column(6).search(this.value).draw();
         });
 
-        $('#filter-experience').on('input', function () {
-          dt_basic.column(5).search(this.value).draw();
+        function applyFilters() {
+        // Collect selected checkboxes' values
+        let selectedValues = [];
+        $('.form-check-input:checked').each(function() {
+            selectedValues.push($(this).data('value'));
         });
+        var filterPattern = selectedValues.length > 0 ? selectedValues.join('|') : '';
+
+        // Convert array to a regex pattern for DataTables search
+        return filterPattern;
+    }
   }
 
 
+// Function to get selected IDs
+function getSelectedIds() {
+    var selectedIds = [];
+    selectedIds.push(selectedRows.map(row => row.id));  // Add the ID to the array
+
+    return selectedIds;
+}
 
   // Delete Record
-  $('.datatables-basic tbody').on('click', '.delete-record', function () {
-    dt_basic.row($(this).parents('tr')).remove().draw();
+
+  const delbtn = $('#delete_btn');
+
+  $('#deleteForm').on('submit', function(e) {
+    e.preventDefault();  // Prevent default form submission
+   var idsToDelete = getSelectedIds();
+    if (idsToDelete.length > 0) {
+    // Send AJAX request to delete rows
+    $.ajax({
+      url: $(this).attr('action'),  // Replace with your delete endpoint
+      method: 'POST',
+      data: {
+        'ids[]': idsToDelete,
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
+      },
+      success: function(response) {
+        // On success, remove rows from DataTable
+        dt_basic.rows('.selected').remove().draw(false);
+        $('.dt-checkboxes-select-all input').prop('checked', false);
+        $('#basicModal').modal('hide');
+      },
+      error: function(xhr, status, error) {
+        console.error('Error deleting rows:', status, error);
+        // Optionally, show an error message to the user
+      }
+    });
+  }
+
   });
 
 });
