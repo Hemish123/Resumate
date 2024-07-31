@@ -393,6 +393,7 @@ $(function () {
       }
       updateSelectedRows();
     });
+    
 
 var selectedRows = '';
     function updateSelectedRows() {
@@ -406,28 +407,27 @@ var selectedRows = '';
         actions.prop('disabled', true);  // Disable button
       }
     }
-          // Append filter inputs to the filter container
-        var filterHTML = $('#filter-container')
-        var filterline = $('#DataTables_Table_0_filter').parents('.row').first();
-        filterline.after(filterHTML).after('<hr class="my-0">');
-        filterHTML.show();
+        // Append filter inputs to the filter container
+    var filterHTML = $('#filter-container');
+    var filterline = $('#DataTables_Table_0_filter').parents('.row').first();
+    filterline.after(filterHTML).after('<hr class="my-0">');
+    filterHTML.show();
 
-
-        // Handle Status filter
-        $('#filter-status').on('change', '.form-check-input', function () {
-
+    // Handle Status filter
+    $('#filter-status').on('change', '.form-check-input', function () {
         var filterPattern = applyFilters();
-          dt_basic.column(7).search(filterPattern, true, false).draw();
-        });
+        dt_basic.column(7).search(filterPattern, true, false).draw();
+    });
 
-        $('#filter-experience').on('input', '.form-control', function () {
-          dt_basic.column(6).search(this.value).draw();
-        });
+    // Handle Experience filter
+    $('#experience-input').on('input', function () {
+        dt_basic.column(6).search(this.value).draw();
+    });
 
-        function applyFilters() {
+    function applyFilters() {
         // Collect selected checkboxes' values
         let selectedValues = [];
-        $('.form-check-input:checked').each(function() {
+        $('.form-check-input:checked').each(function () {
             selectedValues.push($(this).data('value'));
         });
         var filterPattern = selectedValues.length > 0 ? selectedValues.join('|') : '';

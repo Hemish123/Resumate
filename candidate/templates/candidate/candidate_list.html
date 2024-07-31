@@ -5,6 +5,7 @@
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    
 
 {% endblock css %}
 
@@ -77,92 +78,60 @@
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6">
-                        <div class="dataTables_length">
-                            <div class="demo-inline-spacing">
-                                <div class="btn-group dropend" id="dropdown-demo">
-                                  <button
-                                    type="button"
-                                    id="filterbtn"
-                                    class="btn btn-outline-primary dropdown-toggle"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                     Filter
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    <li class="dropend">
-                                      <a href="javascript:void(0);"
-                                         class="dropdown-item dropdown-toggle hide-arrow d-flex justify-content-between"
-                                        data-bs-toggle="dropdown"
-                                        data-trigger="hover"
-                                        aria-expanded="false"
-                                        aria-haspopup="true">
-                                          Experience<i class="ti ti-chevron-right scaleX-n1-rtl ms-2"></i></a>
-                                        <ul class="dropdown-menu" id="filter-experience">
-                                            <li><div class="input-group">
-                                                <button type="button" class="btn btn-outline-primary">Action</button>
-                                                <button
-                                                  type="button"
-                                                  class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
-                                                  data-bs-toggle="dropdown"
-                                                  aria-expanded="false">
-                                                  <span class="visually-hidden">Toggle Dropdown</span>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                  <li><a class="dropdown-item" href="javascript:void(0);"> < </a></li>
-                                                  <li><a class="dropdown-item" href="javascript:void(0);"> > </a></li>
-                                                  <li><a class="dropdown-item" href="javascript:void(0);"> = </a></li>
-
-                                                </ul>
-                                                <input
-                                                  type="text"
-                                                  class="form-control"
-                                                  aria-label="Text input with segmented dropdown button" />
-                                              </div>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="dropend">
-                                      <a href="javascript:void(0);"
-                                        class="dropdown-item dropdown-toggle hide-arrow d-flex justify-content-between"
-                                        data-bs-toggle="dropdown"
-                                        data-trigger="hover"
-                                        aria-expanded="false"
-                                        aria-haspopup="true">
-                                          Status<i class="ti ti-chevron-right scaleX-n1-rtl ms-2"></i></a>
-                                        <ul class="dropdown-menu" id="filter-status">
-                                            <li><div class="form-check dropdown-item">
-                                                    <label class="form-check-label custom-option-content">
-                                                        <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
-                                                    </label>
-                                                </div>
-                                                <div class="form-check dropdown-item">
-                                                    <label class="form-check-label custom-option-content">
-                                                        <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
-                                                    </label>
-                                                </div>
-                                               <div class="form-check dropdown-item">
-                                                   <label class="form-check-label custom-option-content">
-                                                       <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
-                                                   </label>
-                                                </div>
-                                                <div class="form-check dropdown-item">
-                                                   <label class="form-check-label custom-option-content">
-                                                       <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
-                                                   </label>
-                                                </div>
-                                                <div class="form-check dropdown-item">
-                                                    <label class="form-check-label custom-option-content">
-                                                        <input type="checkbox" class="form-check-input mx-1" data-value="Still">Still
-                                                    </label>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                  </ul>
-                                </div>
+                        <div class="card mb-6">
+                          <div class="card-body demo-vertical-spacing demo-only-element">
+                            <div class="input-group">
+                              <!-- Experience Segmented Button -->
+                              <button type="button" class="btn btn-outline-primary">Experience</button>
+                              <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                              </button>
+                              <ul class="dropdown-menu" id="experience-comparator">
+                                <li><a class="dropdown-item" href="javascript:void(0);">&lt;</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);">&gt;</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);">=</a></li>
+                              </ul>
+                              <input type="text" class="form-control" aria-label="Text input with segmented dropdown button" id="experience-input" />
                             </div>
+                    
+                            <div class="input-group mt-3">
+                              <!-- Status Segmented Button -->
+                              <button type="button" class="btn btn-outline-primary">Status</button>
+                              <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                              </button>
+                              <ul class="dropdown-menu" id="filter-status">
+                                <li><div class="form-check dropdown-item">
+                                        <label class="form-check-label custom-option-content">
+                                            <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
+                                        </label>
+                                    </div>
+                                    <div class="form-check dropdown-item">
+                                        <label class="form-check-label custom-option-content">
+                                            <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
+                                        </label>
+                                    </div>
+                                   <div class="form-check dropdown-item">
+                                       <label class="form-check-label custom-option-content">
+                                           <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
+                                       </label>
+                                    </div>
+                                    <div class="form-check dropdown-item">
+                                       <label class="form-check-label custom-option-content">
+                                           <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
+                                       </label>
+                                    </div>
+                                    <div class="form-check dropdown-item">
+                                        <label class="form-check-label custom-option-content">
+                                            <input type="checkbox" class="form-check-input mx-1" data-value="Still">Still
+                                        </label>
+                                    </div>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
-                    </div>
+                      </div>
                 </div>
             </div>
         </div>
