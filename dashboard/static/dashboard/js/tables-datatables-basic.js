@@ -408,34 +408,123 @@ var selectedRows = '';
       }
     }
         // Append filter inputs to the filter container
-    var filterHTML = $('#filter-container');
-    var filterline = $('#DataTables_Table_0_filter').parents('.row').first();
-    filterline.after(filterHTML).after('<hr class="my-0">');
-    filterHTML.show();
+    'use strict';
 
-    // Handle Status filter
-    $('#filter-status').on('change', '.form-check-input', function () {
-        var filterPattern = applyFilters();
-        dt_basic.column(7).search(filterPattern, true, false).draw();
+$(function () {
+  // Existing Select2 Initialization
+  const selectPicker = $('.selectpicker'),
+    select2 = $('.select2'),
+    select2Icons = $('.select2-icons');
+
+  // Bootstrap Select
+  if (selectPicker.length) {
+    selectPicker.selectpicker();
+  }
+
+  // Select2
+  if (select2.length) {
+    select2.each(function () {
+      var $this = $(this);
+      $this.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select value',
+        dropdownParent: $this.parent()
+      });
     });
+  }
 
-    // Handle Experience filter
-    $('#experience-input').on('input', function () {
-        dt_basic.column(6).search(this.value).draw();
+  // Select2 Icons
+  if (select2Icons.length) {
+    function renderIcons(option) {
+      if (!option.id) {
+        return option.text;
+      }
+      var $icon = "<i class='" + $(option.element).data('icon') + " me-2'></i>" + option.text;
+      return $icon;
+    }
+    select2Icons.wrap('<div class="position-relative"></div>').select2({
+      dropdownParent: select2Icons.parent(),
+      templateResult: renderIcons,
+      templateSelection: renderIcons,
+      escapeMarkup: function (es) {
+        return es;
+      }
     });
+  }
 
-    function applyFilters() {
-        // Collect selected checkboxes' values
-        let selectedValues = [];
-        $('.form-check-input:checked').each(function () {
-            selectedValues.push($(this).data('value'));
-        });
-        var filterPattern = selectedValues.length > 0 ? selectedValues.join('|') : '';
+  // Handle Experience Comparator Dropdown
+  $('#experience-comparator').on('click', '.dropdown-item', function () {
+    var comparator = $(this).data('comparator');
+    var comparatorText = $(this).text(); // Get the text of the selected item
+    $('#experience-input').val(comparator + ' '); // Set the comparator in the input field
+    $('#experience-input').data('comparator', comparator); // Store comparator in data attribute
+    filterCandidatesByExperience(); // Apply filter immediately after selection
+  });
 
-        // Convert array to a regex pattern for DataTables search
-        return filterPattern;
+  // Handle Experience filter input
+  $('#experience-input').on('input', function () {
+    filterCandidatesByExperience(); // Apply filter when input changes
+  });
+
+  // Append filter inputs to the filter container
+  var filterHTML = $('#filter-container');
+  var filterline = $('#DataTables_Table_0_filter').parents('.row').first();
+  filterline.after(filterHTML).after('<hr class="my-0">');
+  filterHTML.show();
+
+  // Handle Status filter
+  // Handle Status filter
+  $('#filter-status').on('change', '.form-check-input', function () {
+    var filterPattern = applyFilters();
+    dt_basic.column(7).search(filterPattern, true, false).draw();
+});
+
+  // Function to filter candidates based on experience
+  function filterCandidatesByExperience() {
+    var comparator = $('#experience-input').data('comparator') || '';
+    var experienceValue = $('#experience-input').val().replace(comparator, '').trim();
+
+    if (comparator && experienceValue !== '') {
+      dt_basic.draw(); // Trigger the DataTable to redraw
+    } else {
+      dt_basic.search('').draw(); // Clear search if no comparator or value
     }
   }
+
+  // DataTables custom search function for experience
+  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    var comparator = $('#experience-input').data('comparator') || '';
+    var experienceValue = $('#experience-input').val().replace(comparator, '').trim();
+    var experience = parseFloat(data[6]) || 0; // Assuming experience is in the 7th column (index 6)
+
+    if (comparator && experienceValue !== '') {
+      experienceValue = parseFloat(experienceValue);
+      switch (comparator) { 
+        case '<':
+          return experience < experienceValue;
+        case '>':
+          return experience > experienceValue;
+        case '=':
+          return experience == experienceValue;
+        default:
+          return true;
+      }
+    }
+    return true;
+  });
+
+  // Collect selected checkboxes' values for status filter
+  function applyFilters() {
+    let selectedValues = [];
+    $('.form-check-input:checked').each(function () {
+      selectedValues.push($(this).data('value'));
+    });
+    var filterPattern = selectedValues.length > 0 ? selectedValues.join('|') : '';
+
+    // Convert array to a regex pattern for DataTables search
+    return filterPattern;
+  }
+});
+
 
 
 // Function to get selected IDs
@@ -477,6 +566,7 @@ function getSelectedIds() {
 
   });
 
+}
 });
 
 
