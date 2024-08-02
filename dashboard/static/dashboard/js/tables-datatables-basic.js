@@ -25,6 +25,7 @@ $(function () {
         { data: 'designation' },
         { data: 'contact' },
         { data: 'email' },
+        { data: 'location' },
         { data: 'experience' },
         { data: 'status' },
         { data: 'updated' }
@@ -113,21 +114,31 @@ $(function () {
         },
         {
           // status
-          targets: 7,
+          targets: 8,
           render: function (data, type, full, meta) {
             var $status_number = full['status'];
-            var stages = $status_number.split(' ');
+            var stages = $status_number.toLowerCase().split(' ');
             var $status = {
-              'Other': { title: 'In Stage', class: 'bg-label-primary' },
-              'Hired': { title: 'Hired', class: ' bg-label-success' },
-              'Rejected': { title: 'Rejected', class: ' bg-label-danger' },
-              'Applied': { title: 'Applied', class: ' bg-label-info' },
-              '': { title: 'Still', class: ' bg-label-secondary' }
+              'other': { title: 'In Stage', class: 'bg-label-primary' },
+              'initial': { title: 'Initial', class: ' bg-label-custom' },
+              'hired': { title: 'Hired', class: ' bg-label-success' },
+              'rejected': { title: 'Rejected', class: ' bg-label-danger' },
+              'applied': { title: 'Applied', class: ' bg-label-info' },
+              '': { title: 'Inactive', class: ' bg-label-secondary' }
             };
 
             var statusHTML= '';
-            if (stages.includes('Hired')){
-                statusHTML = ('<span class="badge ' + $status['Hired'].class + '">' + $status['Hired'].title + '</span>');
+            if (stages.includes('hired')){
+                statusHTML = ('<span class="badge ' + $status['hired'].class + '">' + $status['hired'].title + '</span>');
+            }
+            else if (stages.includes('initial')){
+              statusHTML = ('<span class="badge ' + $status['initial'].class + '">' + $status['initial'].title + '</span>');
+            }
+            else if (stages.includes('rejected')){
+              statusHTML = ('<span class="badge ' + $status['rejected'].class + '">' + $status['rejected'].title + '</span>');
+            }
+            else if (stages.includes('applied')){
+              statusHTML = ('<span class="badge ' + $status['applied'].class + '">' + $status['applied'].title + '</span>');
             }
             else {
             stages.forEach(function(stage){
@@ -135,7 +146,7 @@ $(function () {
               statusHTML = ('<span class="badge ' + $status[stage].class + '">' + $status[stage].title + '</span>');
             } else {
             statusHTML = (
-              '<span class="badge ' + $status['Other'].class + '">' + $status['Other'].title + '</span>'
+              '<span class="badge ' + $status['other'].class + '">' + $status['other'].title + '</span>'
             );
             }
             });
@@ -147,7 +158,7 @@ $(function () {
       ],
       order: [[2, 'desc']],
       dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-      displayLength: 7,
+      displayLength: 9,
       lengthMenu: [7, 10, 25, 50, 75, 100],
       language: {
         paginate: {
@@ -460,6 +471,12 @@ $(function () {
     filterCandidatesByExperience(); // Apply filter immediately after selection
   });
 
+   // Set default comparator if none is selected
+   if (!$('#experience-input').data('comparator')) {
+    $('#experience-input').data('comparator', '=');
+    $('#experience-input').val(' '); // Default to "="
+  }
+
   // Handle Experience filter input
   $('#experience-input').on('input', function () {
     filterCandidatesByExperience(); // Apply filter when input changes
@@ -472,10 +489,9 @@ $(function () {
   filterHTML.show();
 
   // Handle Status filter
-  // Handle Status filter
   $('#filter-status').on('change', '.form-check-input', function () {
     var filterPattern = applyFilters();
-    dt_basic.column(7).search(filterPattern, true, false).draw();
+    dt_basic.column(8).search(filterPattern, true, false).draw();
 });
 
   // Function to filter candidates based on experience
@@ -492,9 +508,9 @@ $(function () {
 
   // DataTables custom search function for experience
   $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    var comparator = $('#experience-input').data('comparator') || '';
+    var comparator = $('#experience-input').data('comparator') || '=';
     var experienceValue = $('#experience-input').val().replace(comparator, '').trim();
-    var experience = parseFloat(data[6]) || 0; // Assuming experience is in the 7th column (index 6)
+    var experience = parseFloat(data[7]) || 0; // Assuming experience is in the 7th column (index 6)
 
     if (comparator && experienceValue !== '') {
       experienceValue = parseFloat(experienceValue);

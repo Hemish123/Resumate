@@ -5,6 +5,11 @@
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    <!-- <style>
+        .experience-input {
+            width: 100px !important;
+        }
+    </style> -->
 {% endblock css %}
 
 {% block content %}
@@ -20,28 +25,59 @@
         </div>
 
         <!-- Filter and Action Buttons -->
-        <div id="filter-container" class="mb-2">
+        <div id="filter-container" class="my-3">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center gap-2 mb-3" style="margin-top: 15px;">
+                <div class="col-md-2">
                         <!-- Action Button -->
-                        <div class="btn-group">
-                            <button type="button" id="actioncheck" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Action
+                        <div class="btn-group" id="dropdown-icon-demo">
+                            <button
+                              type="button"
+                              id="actioncheck"
+                              class="btn btn-outline-primary dropdown-toggle ms-4"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false">
+                               Action
                             </button>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
-                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
-                                        <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete
-                                    </a>
-                                </li>
+                              <li>
+                                <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
+                                    <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+                                    <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
+                              </li>
                             </ul>
+                              <!-- Modal -->
+                            <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
+                                      <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p>Are you sure you want to delete selected candidates?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                        Close
+                                      </button>
+                                        <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
+                                          {% csrf_token %}
+                                          <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    <div class="col-md-2">
 
                         <!-- Status Filter -->
                         <div class="btn-group">
@@ -78,6 +114,8 @@
                                 </li>
                             </ul>
                         </div>
+                    </div>
+                    <div class="col-md-3">
 
                         <!-- Experience Filter -->
                         <div class="input-group">
@@ -90,7 +128,7 @@
                                 <li><a class="dropdown-item" href="javascript:void(0);" data-comparator=">">&gt; </a></li>
                                 <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="=">= </a></li>
                             </ul>
-                            <input type="text" class="form-control form-control-sm" aria-label="Text input with segmented dropdown button" id="experience-input" style="width: 50px;" />
+                            <input type="text" class="form-control w-20" aria-label="Text input with segmented dropdown button" id="experience-input" />
                         </div>
                     </div>
                 </div>
@@ -106,6 +144,7 @@
               <th>Designation</th>
               <th>Contact</th>
               <th>Email</th>
+              <th>Location</th>
               <th>Experience (in years)</th>
               <th>Status</th>
               <th>Updated</th>
@@ -120,6 +159,7 @@
                 <td>{{candidate.current_designation}}</td>
                 <td>{{candidate.contact}}</td>
                 <td>{{candidate.email}}</td>
+                <td>{{candidate.location}}</td>
                 <td>{{candidate.experience}}</td>
                 <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
                 <td>{{candidate.updated|date:"F j, Y"}}</td>
@@ -129,6 +169,28 @@
         </table>
     </div>
 </div>
+
+<!-- Modal for Delete Confirmation -->
+<!-- <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete selected candidates?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
+                    {% csrf_token %}
+                    <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
 
 {% endblock content %}
 

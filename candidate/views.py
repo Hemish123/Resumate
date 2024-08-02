@@ -176,7 +176,9 @@ class CandidateDetailsView(LoginRequiredMixin, DetailView):
 
 class CandidateDeleteView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
+        
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
+        print(ids)  
         if ids:
             ids = [int(id) for id in ids.split(',')]
             Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs

@@ -62,7 +62,17 @@ class SettingsView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['organizations'] = Organization.objects.all()[:5]
+      # Add employee data
+
+
+        has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
+        context['employees'] = Employee.objects.all()[:5]
+        context['has_perm2'] = has_perm2
+        
+
         return context
+    
+    
 
 class OrganizationsListView(LoginRequiredMixin, TemplateView):
     template_name = "users/organizations.html"
@@ -71,4 +81,21 @@ class OrganizationsListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['organizations'] = Organization.objects.all()
+
+         # Access permission details (optional)
+        has_perm1 = self.request.user.groups.filter(permissions__codename='add_organization').exists()
+        context['has_perm1'] = has_perm1
+        
+        has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
+        context['has_perm2'] = has_perm2
+        
+        return context
+    
+class EmployeeListView(LoginRequiredMixin,TemplateView):
+    template_name = "users/employees.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['employees'] = Employee.objects.all()
         return context

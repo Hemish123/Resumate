@@ -1,4 +1,12 @@
-[
-  "python", "data science", "cloud", "aws", "java", "c", "c++", "matlab", "R programming", "SAP",
-  "html", "css", "javascript", "bootstrap", "sql", "jquery"
-]
+["Python","Django","Flask","FastAPI","JavaScript","NodeJS","ExpressJS","NestJs","ReactJS","Angular","NextJS","Java","Kotlin","Swift","C#","ASP.NET","PHP","Laravel",
+"WordPress","Spring","SpringBoot","Golang","Hibernate","Golang","Flutter","ReactNative","AWS","Azure","Google Cloud Platform","Docker","Kubernetes","DevOps","Manual QA",
+"Automation QA","Security Testing","Selenium","Regression Testing","Performance Testing","AI","Machine learning","DataScience","DeepLearning","MySql","Mongodb","PostgreSql",
+"HTML","CSS","Vue.js","Bootstrap","Jquery","SEO","c","c++","oracle","CyberSecurity","DataAnalysis","InformationSecurity","BigData","DataVisualization","Graphics Design",
+"Blockchain","Ruby","R","Figma","Sketch","AdobeXD","IOT","UI design","animation","video editing","3D modeling","salesforce","Perl","NLP","Datamining","Illustrator","PhotoShop",
+"CorelDraw","Autocad","Scrum","Jira","TestRail","CodeIgniter","VB.NET","Xamarin","Cryptocurrency","NoSQL","Agile","CI/CD","EC2","Lambda","API Testing","Bugzilla","Mantis",
+"Perl","Objective-C","TypeScript","GitHub","GitLab","Bitbucket","Heroku","NumPy","pandas","PyTorch","Matplotlib","Seaborn","SOAP","scikit-learn","TensorFlow","Keras","data structures",
+"algorithms","cryptography","Linux","Unix","Scala","Technical writing","Social media management","Network configuration","Windows","masOS","Android","iOS","Shopify","Magento","BigCommerce",
+"Squarespace","WooCommerce","content management","XML","Apache","Apache","SQLite","JSON","Microsoft Publisher","Dreamweaver","InDesign","Lightroom","Acrobat","Hardware configuration","system administration",
+"tech support","network automation","WAN/LAN","DNS","DHCP","Firewalls","Hadoop","Spark","VMware","Hyper-V","AR/VR development","SAP cloud","IBM Cloud","MATLAB","Data cleaning","data synchronization",
+"OLAP","data warehousing","Snowflake","ETL Pipelines","Scala","Jenkins","Ethical hacking","penetration testing","PowerShell","Statistics","Network architecture","Network security","Cloud migration",
+"Data security","Data modeling","Database administration","Web scraping","Quantum computing","Robotics","JEE(Java Platform, Enterprise Edition)"]

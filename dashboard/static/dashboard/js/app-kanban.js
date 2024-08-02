@@ -36,7 +36,8 @@ boards = stages.map(stage => ({
       id: String(candidateStage.id),
       title: candidateStage.candidate.name,
       contact: candidateStage.candidate.contact,
-      email: candidateStage.candidate.email
+      email: candidateStage.candidate.email,
+      feedback:candidateStage.candidate.feedback
     }))
   }));
 
@@ -114,15 +115,15 @@ boards = stages.map(stage => ({
 //  }
 
   // Comment editor
-//  if (commentEditor) {
-//    new Quill(commentEditor, {
-//      modules: {
-//        toolbar: '.comment-toolbar'
-//      },
-//      placeholder: 'Write a Comment... ',
-//      theme: 'snow'
-//    });
-//  }
+ if (commentEditor) {
+   new Quill(commentEditor, {
+     modules: {
+       toolbar: '.comment-toolbar'
+     },
+     placeholder: 'Write a Comment... ',
+     theme: 'snow'
+   });
+ }
 
   // Render board dropdown
   function renderBoardDropdown() {
@@ -203,7 +204,8 @@ boards = stages.map(stage => ({
           ? element.querySelector('.kanban-text').textContent
           : element.textContent,
         contact = element.getAttribute('data-contact'),
-        email = element.getAttribute('data-email');
+        email = element.getAttribute('data-email'),
+        feedback = element.getAttribute('data-feedback');
 //        dateObj = new Date(),
 //        year = dateObj.getFullYear(),
 //        dateToUse = date
@@ -219,6 +221,7 @@ boards = stages.map(stage => ({
       kanbanSidebar.querySelector('#title').value = title;
       kanbanSidebar.querySelector('#contact').value = contact;
       kanbanSidebar.querySelector('#email').value = email;
+      kanbanSidebar.querySelector('#feedback').value = feedback;
 
       // ! Using jQuery method to get sidebar due to select2 dependency
       $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');

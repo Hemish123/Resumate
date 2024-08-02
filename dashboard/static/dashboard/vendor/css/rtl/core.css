@@ -7179,6 +7179,12 @@ h6, .h6 {
   right: -1px;
 }
 
+.bg-label-custom {
+  background-color: #f2e4f5 !important;
+  color: #d742f5 !important;
+
+}
+
 .bg-label-secondary {
   background-color: #ebebed !important;
   color: #808390 !important;

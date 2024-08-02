@@ -1,18 +1,16 @@
-{"IT" : [
-          "Java Developer", "DotNet Developer",
-          "Testing", "DevOps Engineer",
-          "Python Developer", "Web Designing",
-          "Hadoop", "Blockchain",
-          "ETL Developer", "Data Science",
-          "Database", "Automation Testing",
-          "Network Security Engineer", "SAP Developer"
-      ],
-  "Non-IT" : [
-          "HR", "Operations Manager",
-          "Sales", "Mechanical Engineer",
-          "Arts", "Electrical Engineering",
-          "Health and fitness", "PMO",
-          "Business Analyst", "Civil Engineer",
-          "Advocate"
-  ]
+{
+  "Software Development":["Front-End Developer","Back-End Developer","Full Stack Developer","Mobile App Developer","Software Tester / QA Engineer","DevOps Engineer",
+  "UI / FrontEnd Developer","Python Developer",".NET Developer","Android developer","React Native Developer","Angular Developer","React Developer","NodeJS Developer",
+  "Flutter developer","IOS developer"],
+
+  "Systems and Network Administration":["Cloud Engineer","Systems Engineer"],
+
+  "Data and Analytics ":["Data Engineer","Data Analyst","Business Intelligence (BI) Analyst","Machine Learning Engineer","Artificial Intelligence (AI) Specialist",
+  "Big Data Engineer","Data Mining Engineer","Deep Learning Engineer"],
+
+  "Project and Product Management":["Business Analyst","Scrum Master"],
+     
+  "Web Development and Design":["Web Developer","Web Designer","UX/UI Designer"],
+
+  "cloud":["Azure Cloud","AWS DATA ENGINEER","Cloud Architect"]
 }

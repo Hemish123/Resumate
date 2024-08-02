@@ -1,15 +1,15 @@
 import requests
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from .models import JobOpening, Organization
+from .models import JobOpening, Organization, Application
 from users.models import Employee
 from dashboard.models import Stage
-from .forms import JobOpeningForm
+from .forms import JobOpeningForm,ApplicationForm
 from django.views.generic.edit import FormView
 
 import json
@@ -160,3 +160,25 @@ class OrganizationCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
     #     context['form'] = form
     #     context['data'] = data
     #     return context
+
+class ApplicationCreateView(CreateView):
+    model = Application
+    form_class = ApplicationForm
+    template_name = 'manager/application_create.html'
+    success_url = '/applications/'  # Adjust URL as needed
+
+    def get_success_url(self):
+        return reverse_lazy('job-process')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        context['job_opening'] = job_opening
+        return context
+
+    def form_valid(self, form):
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        form.instance.job_opening = job_opening
+        messages.success(self.request, "Application created successfully!")
+        return super().form_valid(form) 
+    
