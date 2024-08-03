@@ -26,147 +26,147 @@
 
         <!-- Filter and Action Buttons -->
         <div id="filter-container" class="my-3">
-            <div class="row">
-                <div class="col-md-2">
-                        <!-- Action Button -->
-                        <div class="btn-group" id="dropdown-icon-demo">
-                            <button
-                              type="button"
-                              id="actioncheck"
-                              class="btn btn-outline-primary dropdown-toggle ms-4"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false">
-                               Action
-                            </button>
-                            <ul class="dropdown-menu">
-                              <li>
-                                <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
-                                    <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
-                              </li>
-                              <li>
-                                <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
-                                    <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
-                              </li>
-                            </ul>
-                              <!-- Modal -->
-                            <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
-                                      <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                <div class="row">
+                    <div class="col-md-2">
+                            <!-- Action Button -->
+                            <div class="btn-group" id="dropdown-icon-demo">
+                                <button
+                                  type="button"
+                                  id="actioncheck"
+                                  class="btn btn-outline-primary dropdown-toggle ms-4"
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false">
+                                   Action
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li>
+                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
+                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
+                                  </li>
+                                  <li>
+                                    <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+                                        <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
+                                  </li>
+                                </ul>
+                                  <!-- Modal -->
+                                <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
+                                          <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          <p>Are you sure you want to delete selected candidates?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                            Close
+                                          </button>
+                                            <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
+                                              {% csrf_token %}
+                                              <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div class="modal-body">
-                                      <p>Are you sure you want to delete selected candidates?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                                        Close
-                                      </button>
-                                        <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
-                                          {% csrf_token %}
-                                          <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                  </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-2">
+                        <div class="col-md-2">
 
-                        <!-- Status Filter -->
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Status
-                            </button>
-                            <ul class="dropdown-menu" id="filter-status">
-                                <li>
-                                    <div class="form-check dropdown-item">
-                                        <label class="form-check-label custom-option-content">
-                                            <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
-                                        </label>
-                                    </div>
-                                    <div class="form-check dropdown-item">
-                                        <label class="form-check-label custom-option-content">
-                                            <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
-                                        </label>
-                                    </div>
-                                    <div class="form-check dropdown-item">
-                                        <label class="form-check-label custom-option-content">
-                                            <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
-                                        </label>
-                                    </div>
-                                    <div class="form-check dropdown-item">
-                                        <label class="form-check-label custom-option-content">
-                                            <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
-                                        </label>
-                                    </div>
-                                    <div class="form-check dropdown-item">
-                                        <label class="form-check-label custom-option-content">
-                                            <input type="checkbox" class="form-check-input mx-1" data-value="Still">Still
-                                        </label>
-                                    </div>
-                                </li>
-                            </ul>
+                            <!-- Status Filter -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Status
+                                </button>
+                                <ul class="dropdown-menu" id="filter-status">
+                                    <li>
+                                        <div class="form-check dropdown-item">
+                                            <label class="form-check-label custom-option-content">
+                                                <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
+                                            </label>
+                                        </div>
+                                        <div class="form-check dropdown-item">
+                                            <label class="form-check-label custom-option-content">
+                                                <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
+                                            </label>
+                                        </div>
+                                        <div class="form-check dropdown-item">
+                                            <label class="form-check-label custom-option-content">
+                                                <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
+                                            </label>
+                                        </div>
+                                        <div class="form-check dropdown-item">
+                                            <label class="form-check-label custom-option-content">
+                                                <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
+                                            </label>
+                                        </div>
+                                        <div class="form-check dropdown-item">
+                                            <label class="form-check-label custom-option-content">
+                                                <input type="checkbox" class="form-check-input mx-1" data-value="Still">Still
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
+                        <div class="col-md-3">
 
-                        <!-- Experience Filter -->
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-primary">Experience</button>
-                            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="visually-hidden">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu" id="experience-comparator">
-                                <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="<">&lt; </a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" data-comparator=">">&gt; </a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="=">= </a></li>
-                            </ul>
-                            <input type="text" class="form-control w-20" aria-label="Text input with segmented dropdown button" id="experience-input" />
+                            <!-- Experience Filter -->
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-primary">Experience</button>
+                                <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" id="experience-comparator">
+                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="<">&lt; </a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator=">">&gt; </a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="=">= </a></li>
+                                </ul>
+                                <input type="text" class="form-control w-20" aria-label="Text input with segmented dropdown button" id="experience-input" />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
 
         <table class="datatables-basic table">
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-              <th>Name</th>
-              <th>Designation</th>
-              <th>Contact</th>
-              <th>Email</th>
-              <th>Location</th>
-              <th>Experience (in years)</th>
-              <th>Status</th>
-              <th>Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for candidate in candidates %}
-            <tr data-id="{{candidate.id}}">
-                <td></td>
-                <td>{{ candidate.id }}</td>
-                <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
-                <td>{{candidate.current_designation}}</td>
-                <td>{{candidate.contact}}</td>
-                <td>{{candidate.email}}</td>
-                <td>{{candidate.location}}</td>
-                <td>{{candidate.experience}}</td>
-                <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
-                <td>{{candidate.updated|date:"F j, Y"}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th>Name</th>
+                  <th>Designation</th>
+                  <th>Contact</th>
+                  <th>Email</th>
+                  <th>Location</th>
+                  <th>Experience (in years)</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for candidate in candidates %}
+                <tr data-id="{{candidate.id}}">
+                    <td></td>
+                    <td>{{ candidate.id }}</td>
+                    <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
+                    <td>{{candidate.current_designation}}</td>
+                    <td>{{candidate.contact}}</td>
+                    <td>{{candidate.email}}</td>
+                    <td>{{candidate.location}}</td>
+                    <td>{{candidate.experience}}</td>
+                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
+                    <td>{{candidate.updated|date:"F j, Y"}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
     </div>
 </div>
 
