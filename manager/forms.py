@@ -37,7 +37,4 @@ class JobOpeningForm(forms.ModelForm):
         # Dynamically populate company choices and designation choices
         self.fields['organization'].choices = [(company.pk, company.name) for company in Organization.objects.all()]
 
-class ApplicationForm(forms.ModelForm):
-    class Meta:
-        model = Application
-        fields = ['file_upload']
+

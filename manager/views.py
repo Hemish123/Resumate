@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, 
 from .models import JobOpening, Organization, Application
 from users.models import Employee
 from dashboard.models import Stage
-from .forms import JobOpeningForm,ApplicationForm
+from .forms import JobOpeningForm
 from django.views.generic.edit import FormView
 
 import json
@@ -161,14 +161,8 @@ class OrganizationCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
     #     context['data'] = data
     #     return context
 
-class ApplicationCreateView(CreateView):
-    model = Application
-    form_class = ApplicationForm
+class ApplicationCreateView(TemplateView):
     template_name = 'manager/application_create.html'
-    success_url = '/applications/'  # Adjust URL as needed
-
-    def get_success_url(self):
-        return reverse_lazy('job-process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,9 +170,63 @@ class ApplicationCreateView(CreateView):
         context['job_opening'] = job_opening
         return context
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        form.instance.job_opening = job_opening
-        messages.success(self.request, "Application created successfully!")
-        return super().form_valid(form) 
-    
+        
+        file_upload = request.FILES.get('file_upload')
+
+        if not file_upload:
+            messages.error(request, "Please upload a file.")
+            return self.render_to_response(self.get_context_data(**kwargs))
+
+        application = Application.objects.create(
+            job_opening=job_opening,
+            file_upload=file_upload
+        )
+        application.save()
+        
+        messages.success(request, f"Application created successfully for {job_opening.designation}!")
+        return HttpResponseRedirect(reverse('application_success', kwargs={'pk': job_opening.pk}))
+
+# class ApplicationSuccessView(TemplateView):
+#     template_name = 'manager/application_success.html'
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+#         context['job_opening'] = job_opening
+#         return contextclass ApplicationCreateView(TemplateView):
+    template_name = 'manager/application_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        context['job_opening'] = job_opening
+        return context
+
+    def post(self, request, *args, **kwargs):
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        
+        file_upload = request.FILES.get('file_upload')
+
+        if not file_upload:
+            messages.error(request, "Please upload a file.")
+            return self.render_to_response(self.get_context_data(**kwargs))
+
+        application = Application.objects.create(
+            job_opening=job_opening,
+            file_upload=file_upload
+        )
+        application.save()
+        
+        messages.success(request, f"Application created successfully for {job_opening.designation}!")
+        return HttpResponseRedirect(reverse('application_success', kwargs={'pk': job_opening.pk}))
+
+class ApplicationSuccessView(TemplateView):
+    template_name = 'manager/application_success.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        context['job_opening'] = job_opening
+        return context

@@ -1,0 +1,14 @@
+{% extends "dashboard/theme.html" %}
+
+{% block body %}
+<div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="card mb-6">
+            <h5 class="card-header">Success</h5>
+            <div class="card-body">
+                <p>Application created successfully for {{ job_opening.designation }}!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
