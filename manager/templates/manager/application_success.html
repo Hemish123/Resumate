@@ -1,14 +1,18 @@
 {% extends "dashboard/theme.html" %}
+{% load static %}
 
 {% block body %}
-<div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="card mb-6">
-            <h5 class="card-header">Success</h5>
-            <div class="card-body">
-                <p>Application created successfully for {{ job_opening.designation }}!</p>
-            </div>
+<!-- Success Page -->
+<div class="container d-flex justify-content-center align-items-center min-vh-100 bg-gradient">
+    <div class="card text-center shadow-lg p-5" style="max-width: 500px; border-radius: 15px;">
+        <!-- Success Icon -->
+        <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto mb-2 bg-white" style="width: 120px; height: 120px;">
+            <i class="ti ti-rosette-discount-check text-black" style="font-size: 8rem;"></i>
         </div>
+        <!-- Success Header -->
+        <h1 class="display-4 text-success mb-3">Success!</h1>
+        <!-- Success Message -->
+        <p class="lead text-dark mb-4">Well done! Your application for <strong>{{ job_opening.designation }}</strong> has been successfully created.</p>
     </div>
 </div>
 {% endblock body %}

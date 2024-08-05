@@ -8,28 +8,34 @@
 {% endblock css %}
 
 {% block body %}
-<div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="card mb-6">
-            <h5 class="card-header">Create Application for {{ job_opening.designation }}</h5>
-            <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
-                {% csrf_token %}
-                <div class="row g-6">
-                    <div class="col-md-6">
-                        <label class="form-label" for="id_file_upload">Upload File <span>*</span></label>
-                        <input type="file" name="file_upload" id="id_file_upload" class="form-control" required />
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert {{ message.tags }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
+<div class="container-xxl flex-grow-1 container-p-y d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card mb-6" style="max-width: 1100px; width: 100%;">
+        <h5 class="card-header text-center">Create Application for {{ job_opening.designation }}</h5>
+        <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="id_file_upload">Upload File <span class="text-danger">*</span></label>
+                
+                <div class="card-body needsclick dropzone" id="dropzone">
+                    <div class="dz-message">
+                        Drop files here or click to upload
+                    </div>
+                    <span id="selected-filename" class="d-block mt-2 text-muted">No file chosen</span>
+                    <div class="fallback">
+                        <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="file_upload" type="file" />
                     </div>
                 </div>
-                <div class="pt-6">
-                    <button type="submit" class="btn btn-primary me-4">Submit</button>
-                </div>
-            </form>
-        </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                            <div class="alert {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="text-left ms-2">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock body %}
@@ -40,5 +46,6 @@
 <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
 <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
 <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>
 <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
 {% endblock js %}
