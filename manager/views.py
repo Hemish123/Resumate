@@ -18,7 +18,7 @@ import json
 class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = JobOpening
     fields = ['organization', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
-              'requiredskills', 'jobdescription', 'assignemployee']
+              'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'content_type']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
@@ -34,15 +34,14 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context['title'] = self.title
         context['choices'] = Employee.objects.all()
         context['organizations'] = Organization.objects.all()
+
+        # Load JSON data for designations and skills
         with open("dashboard/static/dashboard/json/designations.json") as f:
-            data = json.load(f)
+            context['data'] = json.load(f)
 
         with open("dashboard/static/dashboard/json/skills.json") as f:
-            skills = json.load(f)
+            context['skills'] = json.load(f)
 
-
-        context['skills'] = skills
-        context['data'] = data
         return context
 
     def form_valid(self, form):
@@ -50,20 +49,28 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             job_opening = form.save(commit=False)
             organization = form.cleaned_data['organization']
             designation = form.cleaned_data['designation']
-            required_skills = self.request.POST.getlist('requiredskills')
-
-            # Convert list of skills to a string (comma-separated or JSON format)
-            selected_skills = ",".join(required_skills)
-            job_opening.requiredskills = selected_skills
+            jd_content = form.cleaned_data['jd_content']
+            
+            # Extract and process required skills
+            required_skills = self.request.POST.get('requiredskills')
+            if required_skills:
+                skills_list = json.loads(required_skills)
+                skills_string = ', '.join([skill['value'] for skill in skills_list])
+                job_opening.requiredskills = skills_string
+            
+            # Check if the job opening already exists
             if JobOpening.objects.filter(organization=organization, designation=designation).exists():
-                form.add_error('organization', 'opening already exists')
-                return self.form_invalid(form)
-            messages.success(self.request, message='Opening created successfully!')
+             form.add_error('organization', 'Opening already exists')
+             self.form_invalid(form)
+             
+            # Save the job opening and create default stages
             job_opening.save()
             Stage.objects.create(job_opening_id=job_opening.id, name='Initial Stage', order=1)
             Stage.objects.create(job_opening_id=job_opening.id, name='Hired', order=50)
-            return super().form_valid(form)
 
+            messages.success(self.request, 'Opening created successfully!')
+            return super().form_valid(form)
+        
 class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = JobOpening
     fields = ['organization', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
@@ -102,6 +109,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             organization = form.cleaned_data['organization']
             designation = form.cleaned_data['designation']
             required_skills = self.request.POST.getlist('requiredskills')
+            print('active:', form.cleaned_data['active'])
 
             # Convert list of skills to a string (comma-separated or JSON format)
             selected_skills = ",".join(required_skills)
@@ -168,11 +176,27 @@ class ApplicationCreateView(TemplateView):
         context = super().get_context_data(**kwargs)
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
         context['job_opening'] = job_opening
+        context['organization'] = job_opening.organization
+        context['required_skills'] = job_opening.requiredskills.split(',')
+        context['job_type'] = job_opening.job_type
+        context['job_mode'] = job_opening.job_mode
+        print('hi',job_opening.content_type)
+ 
+        # Check the content type and assign the appropriate context variable
+    
+        if job_opening.content_type == 'file' and job_opening.jobdescription:
+            print('job1:',job_opening.jobdescription)
+            context['job_description_file'] = job_opening.jobdescription
+            
+        elif job_opening.content_type == 'text' and job_opening.jd_content:
+            print('job2:',job_opening.jd_content)
+            context['job_description_text'] = job_opening.jd_content
+            
+
         return context
 
     def post(self, request, *args, **kwargs):
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        
         file_upload = request.FILES.get('file_upload')
 
         if not file_upload:

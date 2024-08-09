@@ -139,23 +139,38 @@ class StageAPIView(APIView):
 
 
 class StageView(LoginRequiredMixin, TemplateView):
-
     template_name = 'dashboard/stages.html'
     title = 'Job Process'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = StageForm
+
+        # Retrieve the JobOpening instance
         job_opening_id = self.kwargs.get('pk')
-        job_opening = JobOpening.objects.get(pk=job_opening_id)
+        job_opening = get_object_or_404(JobOpening, pk=job_opening_id)
+
+        # Load skills from the JSON file
         with open("dashboard/static/dashboard/json/skills.json") as f:
             skills = json.load(f)
         context['skills'] = skills
-        context['s_skills'] = job_opening.requiredskills.split(',')
+
+        # Get the required skills for the job opening
+        skills = job_opening.requiredskills
+        
+        context['s_skills'] = job_opening.requiredskills
+       
         context['active'] = job_opening.active
-        print('s', context['s_skills'])
+
+        # Retrieve stages and candidates
         stages = Stage.objects.filter(job_opening=job_opening).order_by('order')
         candidates_by_stage = {}
+        # if stages.exists():
+        #     for stage in stages:
+        #         candidates = Candidate.objects.filter(
+        #             candidatestage__stage=stage,
+        #         ).order_by('candidatestage__order')
+        #         candidates_by_stage[stage.name] = candidates
         if Stage.objects.filter(job_opening=job_opening).exists():
             for stage in stages:
                 candidates = Candidate.objects.filter(
@@ -164,9 +179,24 @@ class StageView(LoginRequiredMixin, TemplateView):
                 ).order_by('candidatestage__order')
                 candidates_by_stage[stage.name] = candidates
 
+        # Add data to the context
         context['job_opening'] = job_opening
-        # context['stages'] = stages
         context['candidates_by_stage'] = candidates_by_stage
+        
+        # Generate full URL for creating applications
+        base_url = self.request.build_absolute_uri('/')
+        application_create_url = base_url + reverse('application_create', kwargs={'pk': job_opening_id})
+        context['application_create_url'] = application_create_url
+
+        # Add job description and job details to the context
+        if job_opening.content_type == 'file' and job_opening.jobdescription:
+            context['job_description_file'] = job_opening.jobdescription
+        elif job_opening.content_type == 'text' and job_opening.jd_content:
+            context['job_description_text'] = job_opening.jd_content
+
+        context['job_type'] = job_opening.job_type
+        context['job_mode'] = job_opening.job_mode
+
         return context
 
 
