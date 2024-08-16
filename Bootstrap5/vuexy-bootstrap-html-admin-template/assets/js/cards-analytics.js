@@ -1086,7 +1086,6 @@
           bottom: -12
         }
       },
-
       colors: [
         config.colors.primary,
         config.colors.info,
