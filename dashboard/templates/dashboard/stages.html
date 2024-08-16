@@ -16,6 +16,9 @@
     <!-- Page CSS -->
 
     <link rel="stylesheet" href="{% static 'dashboard/vendor/css/pages/app-kanban.css' %}" />
+     
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 {% endblock css %}
 
@@ -71,7 +74,7 @@
                   </form>
                 </div>
               </div>
-
+            
               <div class="app-kanban">
                 <!-- Add new board -->
                 <div class="row">
@@ -321,65 +324,70 @@
               <div class="row mt-1 mb-12">
                 <div class="col-md-4 col-lg-3 {% if not active %}kanban-disabled{% endif %}">
                   <a href="#">
-                    <div class="alert alert-info" role="alert">New Applications</div>
+                      <div class="alert alert-info" role="alert">New Applications</div>
                   </a>
                   <a href="#">
-                    <div class="alert alert-primary" role="alert">Assigned to :
-                      {% for employee in job_opening.assignemployee.all %}
-                      {{ employee }}
-                      {% endfor %}</div>
+                      <div class="alert alert-primary" role="alert">Assigned to :
+                          {% for employee in job_opening.assignemployee.all %}
+                          {{ employee }}
+                          {% endfor %}</div>
                   </a>
+                  <!-- Display the URL attractively using Bootstrap classes -->
+                  <div class="bg-light border rounded p-3 mt-3 shadow-sm">
+                    <p class="font-weight-bold text-dark mb-2">Copy this URL to share with the candidate:</p>
+                    <div class="d-flex align-items-center bg-white p-2 border rounded overflow-auto text-primary">
+                        <code id="applicationCreateUrl">{{ application_create_url }}</code>
+                        <button class="btn btn-link text-primary ml-2" id="copyButton" title="Copy to clipboard">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <p id="copyMessage" class="text-success mt-2" style="display: none;">URL copied to clipboard!</p>
+                  </div>
                 </div>
+                
                 <div class="col-md-6 col-lg-4">
-                  <div class="card mb-6" id="card-block">
-                    <div class="d-flex justify-content-between w-100 flex-wrap">
-                      <h5 class="card-header">Job Details</h5>
-                      <span class="m-4">
-                        <button onclick="window.location.href='{% url 'job-opening-update' job_opening.id %}'" class="btn btn-primary btn-sm"><span class="ti-xs ti ti-pencil me-2"></span>Edit</button></span>
-                    </div>
-                    <div class="card-body">
-                      <p class="card-text">
-                        Lorem ipsum dolor sit amet, an vel affert soleat possim. Usu meis neglegentur ut, oporteat
-                        salutandi dignissim at mea. Pericula erroribus quaerendum ex duo, his autem accusamus ad,
-                        alienum detracto rationibus vis et. No est volumus ocurreret vituperata.
-                      </p>
-                      <p class="card-text">
-                        Lorem ipsum dolor sit amet, an vel affert soleat possim. Usu meis neglegentur ut, oporteat
-                        salutandi dignissim
-                      </p>
-                    </div>
+                  <div class="card mb-6 shadow-sm" id="card-block">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                          <h5 class="mb-0">Job Details</h5>
+                          <button onclick="window.location.href='{% url 'job-opening-update' job_opening.id %}'" class="btn btn-primary btn-sm">
+                              <span class="ti-xs ti ti-pencil me-2"></span>Edit
+                          </button>
+                      </div>
+                      <div class="card-body p-4">
+                          <!-- Job Information Section -->
+                          <div class="border rounded p-3">
+                              {% if job_description_file %}
+                                  <p><strong>Job Description:</strong> 
+                                      <a href="{{ job_description_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">{{ job_description_file.url }}</a>
+                                  </p>
+                              {% elif job_description_text %}
+                                  <p><strong>Job Description:</strong> {{ job_description_text }}</p>
+                              {% else %}
+                                  <p><strong>Job Description:</strong> Not provided</p>
+                              {% endif %}
+                              <p><strong>Job Type:</strong> {{ job_type }}</p>
+                              <p><strong>Job Mode:</strong> {{ job_mode }}</p>
+                          </div>
+                      </div>
                   </div>
                 </div>
                 <div class="col-md-6 col-lg-4 {% if not active %}kanban-disabled{% endif %}">
-                  <div class="card mb-6">
-                    <h5 class="card-header">Required Skills</h5>
-                    <div class="select2-primary card-body">
-                      <select id="select2Primary" class="select2 form-select" multiple>
-                        <option value=""></option>
-                        {% for skill in s_skills %}
-
-                        <option value="{{ skill }}" selected>{{ skill }}</option>
-
-                        {% endfor %}
-                        {% for skill in skills %}
-
-                        <option value="{{ skill }}">{{ skill }}</option>
-
-                        {% endfor %}
-<!--                        <optgroup label="IT">-->
-<!--                          <option value="1" selected>Python</option>-->
-<!--                          <option value="2" selected>Django</option>-->
-<!--                          <option value="6">Machine Learning</option>-->
-<!--                        </optgroup>-->
-<!--                        <optgroup label="FrontEnd">-->
-<!--                          <option value="3" selected>HTML</option>-->
-<!--                          <option value="4" selected>CSS</option>-->
-<!--                          <option value="5">JavaScript</option>-->
-<!--                        </optgroup>-->
-                      </select>
-                    </div>
+                  <div class="card mb-6 shadow-sm">
+                      <h5 class="card-header d-flex justify-content-between align-items-center">
+                          Required Skills
+                      </h5>
+                      <div class="card-body p-4">
+                          <!-- Skills Information Section -->
+                          <div class="p-3 border rounded border-light">
+                              {% if s_skills %}
+                                  <p>{{ s_skills }}</p>
+                              {% else %}
+                                  <p>No skills specified.</p>
+                              {% endif %}
+                          </div>
+                      </div>
                   </div>
-                </div>
+              </div>
               </div>
             </div>
           </div>
@@ -409,4 +417,22 @@
 
 <!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
 <!--    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>-->
+<script>
+  document.getElementById('copyButton').addEventListener('click', function() {
+      var urlElement = document.getElementById('applicationCreateUrl');
+      var range = document.createRange();
+      range.selectNode(urlElement);
+      window.getSelection().removeAllRanges(); // clear current selection
+      window.getSelection().addRange(range); // to select text
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges(); // to deselect
+
+      var messageElement = document.getElementById('copyMessage');
+      messageElement.style.display = 'block';
+      setTimeout(function() {
+          messageElement.style.display = 'none';
+      }, 3000); // Hide the message after 3 seconds
+  });
+</script>
+
 {% endblock js %}

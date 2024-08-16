@@ -42,7 +42,14 @@ function handleDrop(event) {
   selectedFile = event.dataTransfer.files[0]; // Get the first dropped file
   if (selectedFile) {
     selectedFilenameSpan.textContent = selectedFile.name;
+    updateFileInput();
   } else {
     selectedFilenameSpan.textContent = "No file selected";
   }
+}
+
+function updateFileInput() {
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(selectedFile);
+  document.getElementById("fileInput").files = dataTransfer.files;
 }
