@@ -36,7 +36,7 @@ class JobOpening(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     designation = models.CharField(max_length=255)
     openings = models.PositiveIntegerField(validators=[exempt_zero])
-    requiredskills = models.CharField(max_length=1000, blank=True)
+    requiredskills = models.TextField(blank=True)
     jobdescription = models.FileField(blank=True, upload_to='jd/',
                                      validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc', 'txt'],
                                                                         message='Select pdf, docx, doc or txt files only')])

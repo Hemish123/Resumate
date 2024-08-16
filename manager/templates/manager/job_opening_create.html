@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
 
+    <!-- Tagify CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+
 
 {% endblock css %}
 
@@ -124,7 +127,7 @@
                   {% endfor %}
                 {% endif %}
               </div>
-              <div class="col-md-6">
+              <!-- <div class="col-md-6">
                 <label for="id_requiredskills" class="form-label">Required Skills
                   <span>*</span>
                 </label>
@@ -142,7 +145,25 @@
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                 {% endif %}
+              </div> -->
+
+              <div class="col-md-6 mb-6">
+                <label for="id_requiredskills" class="form-label">Required Skills <span>*</span></label>
+                <input
+                    id="id_requiredskills"
+                    name="requiredskills"
+                    class="form-control"
+                    placeholder="Select skills"
+                    value="{% if form.requiredskills.value %}{{ form.requiredskills.value|join:', ' }}{% endif %}"
+                    required
+                />
+                {% if form.errors %}
+                    {% for error in form.requiredskills.errors %}
+                        <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
               </div>
+
               <div class="col-md-6">
                 <label class="form-label" for="id_assignemployee">Assign Recruiter
                   <span>*</span>
@@ -264,6 +285,9 @@
     <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
     <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
 
+    <script src="{% static 'dashboard/js/forms-tagify.js' %}"></script>
+    <!-- Tagify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 
 
 {% endblock js %}

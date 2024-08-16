@@ -22,7 +22,9 @@
         {% csrf_token %}
         <div class="row g-6">
             {{ form|crispy }}
-            <button type="submit">Submit</button>
+            <div class="pt-6 mt-0">
+              <button type="submit" class="btn btn-primary me-4">Submit</button>
+            </div>
         </div>
       </form>
     </div>
