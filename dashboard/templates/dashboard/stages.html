@@ -59,7 +59,7 @@
                                   aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                <p>Are you sure you want to delete? You can close opening from Edit.</p>
+                                <p>Are you sure you want to delete? You can instead close opening from Edit.</p>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
@@ -333,10 +333,10 @@
                           {% endfor %}</div>
                   </a>
                   <!-- Display the URL attractively using Bootstrap classes -->
-                  <div class="bg-light border rounded p-3 mt-3 shadow-sm">
+                  <div class="bg-light border rounded p-3 mt-3">
                     <p class="font-weight-bold text-dark mb-2">Copy this URL to share with the candidate:</p>
-                    <div class="d-flex align-items-center bg-white p-2 border rounded overflow-auto text-primary">
-                        <code id="applicationCreateUrl">{{ application_create_url }}</code>
+                    <div class="d-flex align-items-center bg-white p-2 border rounded text-primary">
+                        <code id="applicationCreateUrl" class="flex-grow-1 overflow-hidden text-wrap">{{ application_create_url }}</code>
                         <button class="btn btn-link text-primary ml-2" id="copyButton" title="Copy to clipboard">
                             <i class="fas fa-copy"></i>
                         </button>

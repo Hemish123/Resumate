@@ -35,12 +35,12 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         context['has_perm'] = has_perm
 
         if self.request.user.is_superuser or self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-            context['job_posts'] = JobOpening.objects.all().order_by('-updated_on', '-active')
+            context['job_posts'] = JobOpening.objects.all().order_by('-active')
 
         else:
             employee = Employee.objects.get(user=self.request.user)
             try:
-                job_posts = JobOpening.objects.filter(assignemployee=employee).order_by('-updated_on', '-active')
+                job_posts = JobOpening.objects.filter(assignemployee=employee).order_by('-active')
 
                 if job_posts.exists():
                     context['job_posts'] = job_posts

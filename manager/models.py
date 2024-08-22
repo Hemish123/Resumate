@@ -55,6 +55,9 @@ class JobOpening(models.Model):
 
     def __str__(self):
         return self.designation
+
+    class Meta:
+        ordering = ['-updated_on']
     
 class Application(models.Model):
     job_opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE)
