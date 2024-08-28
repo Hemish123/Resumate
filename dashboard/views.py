@@ -183,11 +183,7 @@ class StageView(LoginRequiredMixin, TemplateView):
         # Add data to the context
         context['job_opening'] = job_opening
         context['candidates_by_stage'] = candidates_by_stage
-        
-        # Generate full URL for creating applications
-        base_url = self.request.build_absolute_uri('/')
-        application_create_url = base_url + reverse('application_create', kwargs={'pk': job_opening_id})
-        context['application_create_url'] = application_create_url
+
 
         # Add job description and job details to the context
         if job_opening.content_type == 'file' and job_opening.jobdescription:

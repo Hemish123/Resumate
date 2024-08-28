@@ -26,6 +26,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         user = get_user_model()()  # Create user instance
         user.email = form.cleaned_data['email'].lower()
         user.username = user.email
+
         if User.objects.filter(email=user.email).exists():
             form.add_error('email', 'email already exists')
 

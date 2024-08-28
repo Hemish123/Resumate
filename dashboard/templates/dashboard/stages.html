@@ -332,17 +332,7 @@
                           {{ employee }}
                           {% endfor %}</div>
                   </a>
-                  <!-- Display the URL attractively using Bootstrap classes -->
-                  <div class="bg-light border rounded p-3 mt-3">
-                    <p class="font-weight-bold text-dark mb-2">Copy this URL to share with the candidate:</p>
-                    <div class="d-flex align-items-center bg-white p-2 border rounded text-primary">
-                        <code id="applicationCreateUrl" class="flex-grow-1 overflow-hidden text-wrap">{{ application_create_url }}</code>
-                        <button class="btn btn-link text-primary ml-2" id="copyButton" title="Copy to clipboard">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                    <p id="copyMessage" class="text-success mt-2" style="display: none;">URL copied to clipboard!</p>
-                  </div>
+
                 </div>
                 
                 <div class="col-md-6 col-lg-4">
@@ -417,22 +407,6 @@
 
 <!--    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>-->
 <!--    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>-->
-<script>
-  document.getElementById('copyButton').addEventListener('click', function() {
-      var urlElement = document.getElementById('applicationCreateUrl');
-      var range = document.createRange();
-      range.selectNode(urlElement);
-      window.getSelection().removeAllRanges(); // clear current selection
-      window.getSelection().addRange(range); // to select text
-      document.execCommand('copy');
-      window.getSelection().removeAllRanges(); // to deselect
 
-      var messageElement = document.getElementById('copyMessage');
-      messageElement.style.display = 'block';
-      setTimeout(function() {
-          messageElement.style.display = 'none';
-      }, 3000); // Hide the message after 3 seconds
-  });
-</script>
 
 {% endblock js %}
