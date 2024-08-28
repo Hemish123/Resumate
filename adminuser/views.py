@@ -43,7 +43,9 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         print(group)
         user.groups.add(group)
 
-        employee = Employee.objects.create(user=user)  # Don't save employee yet (for OneToOneField)
+        comapny = user.company
+
+        employee = Employee.objects.create(user=user, company=comapny)  # Don't save employee yet (for OneToOneField)
         employee.save()
 
         site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link

@@ -20,8 +20,6 @@ from django.db.models import Max
 import json
 
 
-
-
 class DashbaordView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     title = 'Dashboard'

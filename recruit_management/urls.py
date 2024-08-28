@@ -22,7 +22,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from users.forms import EmailValidationOnForgotPassword
-from users.views import UserDetailView, SettingsView, OrganizationsListView,EmployeeListView
+from users.views import (UserDetailView, SettingsView, CustomLoginView,
+                         OrganizationsListView,EmployeeListView, CompanyCreateView)
 
 
 urlpatterns = [
@@ -34,6 +35,7 @@ urlpatterns = [
     path('adminuser/', include('adminuser.urls')),
     path('register/', user_views.register, name='register'),
     path('users-details/<int:pk>', UserDetailView.as_view(), name='users-details'),
+    path('company-create/', CompanyCreateView.as_view(), name='company-create'),
     path('users-settings/', SettingsView.as_view(), name='users-settings'),
     path('users-organizations/', OrganizationsListView.as_view(), name='users-organizations'),
     path('users-employees/',EmployeeListView.as_view(),name='users-employees'),
@@ -46,7 +48,7 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
          name='password_reset_complete'),
-    path('login/', lambda request: redirect('dashboard') if request.user.is_authenticated else auth_views.LoginView.as_view(template_name='users/login.html')(request), name='login'),
+    path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('verification/', include('verify_email.urls')),
 ]

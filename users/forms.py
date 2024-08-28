@@ -23,7 +23,6 @@ class UserRegisterForm(UserCreationForm):
         first_name, last_name = (full_name.split(' ', 1) + [''])[:2]
         user.first_name = first_name
         user.last_name = last_name
-        print('full ', full_name, "first last ", first_name, last_name)
         if commit:
             user.save()
 
@@ -32,6 +31,7 @@ class UserRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['full_name', 'email', 'password1', 'password2']
+
 
 
 class EmailValidationOnForgotPassword(PasswordResetForm):
