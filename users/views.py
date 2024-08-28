@@ -3,15 +3,17 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm
 from screening.decorators import logout_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
 from verify_email.email_handler import send_verification_email
 from django.contrib.auth.models import Group, User
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
-from .models import Employee
+from .models import Employee, Company
 from manager.models import Organization
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
 
 @logout_required
@@ -29,6 +31,50 @@ def register(request):
         user_create = UserRegisterForm()
     return render(request, 'users/register.html', {'form' : user_create})
 
+class CustomLoginView(LoginView):
+    template_name = 'users/login.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        user = self.request.user
+
+        # Check if the user has completed setup
+        if user.groups.filter(name='admin').exists() and (not user.company.exists()):  # Assuming you have a Profile model with this field
+            return reverse_lazy('company-create')  # Redirect to 'create_company' URL
+
+        # Default success URL if setup is completed
+        return super().get_success_url()
+
+class CompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Company
+    fields = ['name', 'website', 'description']
+    template_name = 'users/create_company.html'
+    permission_required = 'users.add_company'  # Replace with actual permission codename
+
+    def has_permission(self):
+        # Override has_permission to consider inherited group permissions
+        user = self.request.user
+        return user.groups.filter(permissions__codename='add_company').exists()
+
+    def form_valid(self, form):
+        user = self.request.user
+        pk = self.kwargs.get('pk')  # Get primary key from URL keyword argument
+        company = form.save(commit=False)
+        company.created_by = user
+        company.save()
+        employee = Employee.objects.create(user=user, company=company)  # Securely retrieve employee
+        employee.save()
+        # employee = form.save(commit=False)  # Don't save employee yet (for OneToOneField)
+        # employee.user = user
+        # if user!=employee.user:
+        #     form.add_error('name', 'You cannot change other user\'s details')
+        #     return super().form_invalid(self)
+
+        return redirect('dashboard')
 
 class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Employee

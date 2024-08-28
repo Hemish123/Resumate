@@ -6,7 +6,7 @@
 {% block content %}
 {% if user.is_authenticated %}
 <h4 class="mb-1">Welcome to ResuMate! 👋</h4>
-              <p class="mb-6">Please enter your details to your account and start the adventure</p>
+              <p class="mb-6">Create Company and start the adventure</p>
 
               <form id="formAuthentication" enctype="multipart/form-data" class="mb-4" method="post">
                 {% csrf_token %}
@@ -18,29 +18,39 @@
                                   {% endfor %}
                               {% endfor %}
                     {% endif %}
-                  <label for="name" class="form-label">Name</label>
+                  <label for="name" class="form-label">Company Name</label>
                   <input
                     type="text"
                     class="form-control"
                     id="name"
-                    name="full_name"
-                    placeholder="John Doe"
+                    name="name"
+                    placeholder="XYZ Private Limited"
+                    value="{{ form.name.value|default_if_none:'' }}"
                     required
                     autofocus />
                 </div>
                 <div class="mb-6">
-                  <label class="form-label" for="contact">Contact</label>
-                  <div class="input-group input-group-merge">
+                  <label class="form-label" for="website">Website</label>
                     <input
-                      type="number"
-                      id="contact"
+                      id="website"
                       class="form-control"
-                      name="contact"
-                      placeholder="9238291221"
-                      required
-                       />
+                      name="website"
+                      placeholder="abc.in"
+                      value="{{ form.website.value|default_if_none:'' }}"
 
-                  </div>
+                       />
+                </div>
+                  <div class="mb-6">
+                  <label class="form-label" for="description">Company Description</label>
+
+                    <textarea
+                      id="description"
+                      class="form-control"
+                      name="description"
+                      placeholder="XYZ Private Limited is focused on ..."
+                      rows="4"
+
+                    >{{ form.description.value|default_if_none:'' }}</textarea>
                 </div>
 
                 <div class="mb-6">
@@ -51,3 +61,4 @@
     <!-- / Content -->
 
 {% endif %}{% endblock %}
+
