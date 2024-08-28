@@ -11,7 +11,6 @@ from django.contrib.auth.models import User, Group
 # Create your models here.
 class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to User model
-    name = models.CharField(max_length=255, blank=True)
     contact = models.CharField(max_length=12, unique=True, blank=True, null=True)
     joined = models.DateTimeField(default=timezone.now)
 

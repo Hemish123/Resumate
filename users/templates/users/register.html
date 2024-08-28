@@ -12,25 +12,24 @@
               <form id="formAuthentication" class="mb-6" enctype="multipart/form-data" method="post">
                 {% csrf_token %}
                 <div class="mb-6">
-                  <label for="username" class="form-label">Username</label>
+                  <label for="full_name" class="form-label">Full Name</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
+                    id="full_name"
+                    name="full_name"
+                    placeholder="John Doe"
                     required
                     autofocus />
-                  <small id="username_suggestion" class="form-text text-muted" style="display: none;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
                   {% if form.errors %}
-                  {% for error in form.username.errors %}
+                  {% for error in form.full_name.errors %}
                         <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                   {% endif %}
                 </div>
                 <div class="mb-6">
                   <label for="email" class="form-label">Email</label>
-                  <input type="text" class="form-control" id="email" name="email" required placeholder="Enter your email" />
+                  <input type="text" class="form-control" id="email" name="email" required placeholder="johndoe@gmail.com" />
                   {% if form.errors %}
                   {% for error in form.email.errors %}
                         <div class="error-message text-danger">{{ error }}</div>

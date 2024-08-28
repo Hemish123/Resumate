@@ -11,6 +11,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from .models import Employee
 from manager.models import Organization
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden
 
 
 @logout_required
@@ -29,10 +30,22 @@ def register(request):
     return render(request, 'users/register.html', {'form' : user_create})
 
 
-class UserDetailView(LoginRequiredMixin, CreateView):
+class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Employee
-    fields = ['name', 'contact']
+    fields = ['contact']
     template_name = 'users/enter_details.html'
+
+    def test_func(self):
+        # Ensure that only the user with the correct ID can access the page
+        employee = get_object_or_404(Employee, pk=self.kwargs['pk'])
+        return self.request.user == employee.user
+
+    def handle_no_permission(self):
+        # Provide a forbidden response if the user is not authorized
+        if not self.request.user.is_authenticated:
+            # Redirect to login page if not authenticated
+            return super().handle_no_permission()
+        return HttpResponseForbidden("You do not have permission to access this page.")
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -49,7 +62,12 @@ class UserDetailView(LoginRequiredMixin, CreateView):
             form.add_error('name', 'You cannot change other user\'s details')
             return super().form_invalid(self)
 
-        employee.name = form.cleaned_data['name']
+        full_name = self.request.POST.get('full_name')
+        if full_name:
+            first_name, last_name = (full_name.split(' ', 1) + [''])[:2]
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
         employee.contact = form.cleaned_data['contact']
 
         employee.save()

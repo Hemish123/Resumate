@@ -109,7 +109,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             organization = form.cleaned_data['organization']
             designation = form.cleaned_data['designation']
             required_skills = self.request.POST.getlist('requiredskills')
-            print('active:', form.cleaned_data['active'])
+
 
             # Convert list of skills to a string (comma-separated or JSON format)
             selected_skills = ",".join(required_skills)
@@ -180,16 +180,16 @@ class ApplicationCreateView(TemplateView):
         context['required_skills'] = job_opening.requiredskills.split(',')
         context['job_type'] = job_opening.job_type
         context['job_mode'] = job_opening.job_mode
-        print('hi',job_opening.content_type)
+
  
         # Check the content type and assign the appropriate context variable
     
         if job_opening.content_type == 'file' and job_opening.jobdescription:
-            print('job1:',job_opening.jobdescription)
+
             context['job_description_file'] = job_opening.jobdescription
             
         elif job_opening.content_type == 'text' and job_opening.jd_content:
-            print('job2:',job_opening.jd_content)
+
             context['job_description_text'] = job_opening.jd_content
             
 

@@ -6,6 +6,7 @@ from django.core.validators import EmailValidator
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(validators=[EmailValidator])
+    full_name = forms.CharField(max_length=255)
 
     def clean_email(self):
         # Convert email to lowercase
@@ -14,10 +15,23 @@ class UserRegisterForm(UserCreationForm):
             raise forms.ValidationError("This email address already exists.")
         return email
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email'].lower()
+        user.username = user.email  # Use email as username
+        full_name = self.cleaned_data['full_name']
+        first_name, last_name = (full_name.split(' ', 1) + [''])[:2]
+        user.first_name = first_name
+        user.last_name = last_name
+        print('full ', full_name, "first last ", first_name, last_name)
+        if commit:
+            user.save()
+
+        return user
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['full_name', 'email', 'password1', 'password2']
 
 
 class EmailValidationOnForgotPassword(PasswordResetForm):

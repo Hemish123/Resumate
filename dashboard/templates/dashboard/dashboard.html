@@ -1,4 +1,5 @@
 {% extends "screening/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -43,6 +44,16 @@
 <!--              <a href="javascript:void(0)" class="card-link">Card link</a>-->
 <!--              <a href="javascript:void(0)" class="card-link">Another link</a>-->
                 </a>
+                                                      <!-- Display the URL attractively using Bootstrap classes -->
+                  <div class="bg-light border rounded p-3 mt-3">
+                      <div class="d-flex align-items-center text-primary">
+                        <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Form</a>
+
+                      <button class="btn btn-link bg-white text-primary ml-2" data-url="{{ request.build_absolute_uri|slice:':-1' }}{% url 'application_create' jobs.id %}" id="copyButton" title="Copy to clipboard">
+                            <i class="ti ti-copy"></i>
+                        </button>
+                    </div>
+                  </div>
             </div>
         </div>
     </div>
@@ -54,3 +65,7 @@
 </div>
 
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+{% endblock js %}
