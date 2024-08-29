@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toastr.error(messageText);
         } else if (messageTags === 'success') {
             toastr.success(messageText);
+            toastr.options.showDuration = 3000;
         } else if (messageTags === 'info') {
             toastr.info(messageText);
         } else if (messageTags === 'warning') {
