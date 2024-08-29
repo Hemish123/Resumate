@@ -57,7 +57,7 @@
         <p class="card-text text-muted d-inline">Hiring for : </p>
         {% for opening in candidate.job_openings.all %}
         <p class="fs-5 d-inline">{{ opening }}</p>
-        <span class="fs-6 text-muted d-inline">{{ opening.organization }}</span>
+        <span class="fs-6 text-muted d-inline">{{ opening.client }}</span>
         {% empty %}
         <p class="d-inline">None</p>
         {% endfor %}

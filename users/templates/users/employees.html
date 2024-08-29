@@ -25,7 +25,7 @@
                         <div
                             class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
                             <div class="user-profile-info">
-                                <h4 class="mb-2 mt-lg-6">{{ user.employee.name }}</h4>
+                                <h4 class="mb-2 mt-lg-6">{{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</h4>
                                 <ul
                                     class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
                                     <li class="list-inline-item d-flex gap-2 align-items-center">
@@ -60,12 +60,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'users-settings' %}"><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a>
                     </li>
+                    {% if clients %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users-organizations' %}"><i class="ti-sm ti ti-building me-1_5"></i> Organizations</a>
+                        <a class="nav-link" href="{% url 'users-clients' %}"><i class="ti-sm ti ti-building me-1_5"></i> Clients</a>
                     </li>
+                    {% endif %}
+                    {% if has_perm2 and employees %}
                     <li class="nav-item">
                         <a class="nav-link active" href="javascript:void(0);"><i class="ti-sm ti ti-user me-1_5"></i> Employees</a>
                     </li>
+                    {% endif %}
                 </ul>
                 
                 <a href="{% url 'create-employee' %}" type="button" class="btn btn-outline-primary">
@@ -85,7 +89,7 @@
                     <div class="d-flex align-items-center mb-3 pb-1">
                         <div>
                             <div class="me-2 text-heading h5 mb-1">
-                                <i class="ti-lg ti ti-user me-1_5"></i> {{ emp.name }}</div>
+                                <i class="ti-lg ti ti-user me-1_5"></i>{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</div>
                         </div>
                         <div class="ms-auto">
                             <div class="dropdown">

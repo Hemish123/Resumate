@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from .models import JobOpening, Organization, Application
+from .models import JobOpening, Client, Application
 from users.models import Employee
 from dashboard.models import Stage
 from .forms import JobOpeningForm
@@ -17,7 +17,7 @@ import json
 # Create your views here.
 class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = JobOpening
-    fields = ['organization', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
+    fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
               'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'content_type']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
@@ -29,11 +29,15 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         user = self.request.user
         return user.groups.filter(permissions__codename='add_jobopening').exists()
 
+    def get(self, request, *args, **kwargs):
+        self.request.session['previous_page'] = request.path
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['choices'] = Employee.objects.all()
-        context['organizations'] = Organization.objects.all()
+        context['clients'] = Client.objects.all()
 
         # Load JSON data for designations and skills
         with open("dashboard/static/dashboard/json/designations.json") as f:
@@ -47,7 +51,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     def form_valid(self, form):
         if self.request.POST:
             job_opening = form.save(commit=False)
-            organization = form.cleaned_data['organization']
+            job_opening.company = self.request.user.company
+            client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
             
@@ -59,9 +64,14 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                 job_opening.requiredskills = skills_string
             
             # Check if the job opening already exists
-            if JobOpening.objects.filter(organization=organization, designation=designation).exists():
-             form.add_error('organization', 'Opening already exists')
-             self.form_invalid(form)
+            if client :
+                if JobOpening.objects.filter(company=self.request.user.company, client=client, designation=designation).exists():
+                    form.add_error('client', 'Opening already exists')
+                    self.form_invalid(form)
+            else:
+                if JobOpening.objects.filter(company=self.request.user.company ,designation=designation).exists():
+                    form.add_error('designation', 'Opening already exists')
+                    self.form_invalid(form)
              
             # Save the job opening and create default stages
             job_opening.save()
@@ -70,10 +80,11 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
             messages.success(self.request, 'Opening created successfully!')
             return super().form_valid(form)
+
         
 class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = JobOpening
-    fields = ['organization', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
+    fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
               'requiredskills', 'jobdescription', 'assignemployee', 'active']
     template_name = "manager/job_opening_update.html"
     title = "Job-Opening-Update"
@@ -91,7 +102,8 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['choices'] = Employee.objects.all()
-        context['organizations'] = Organization.objects.all()
+        if self.object.hiring_for == "client":
+            context['clients'] = Client.objects.all()
         with open("dashboard/static/dashboard/json/designations.json") as f:
             data = json.load(f)
 
@@ -106,7 +118,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def form_valid(self, form):
         if self.request.POST:
             job_opening = form.save(commit=False)
-            organization = form.cleaned_data['organization']
+            client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             required_skills = self.request.POST.getlist('requiredskills')
 
@@ -114,8 +126,8 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             # Convert list of skills to a string (comma-separated or JSON format)
             selected_skills = ",".join(required_skills)
             job_opening.requiredskills = selected_skills
-            if JobOpening.objects.exclude(id=job_opening.id).filter(organization=organization, designation=designation).exists():
-                form.add_error('organization', 'opening already exists')
+            if JobOpening.objects.exclude(id=job_opening.id).filter(client=client, designation=designation).exists():
+                form.add_error('client', 'opening already exists')
                 return self.form_invalid(form)
             messages.success(self.request, message='Opening updated successfully!')
 
@@ -136,25 +148,32 @@ class JobOpeningDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
             return redirect(self.success_url)
         return super().post(request, *args, **kwargs)
 
-class OrganizationCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Organization
+class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Client
     fields = ['name', 'location', 'email', 'contact', 'website']
-    template_name = "manager/create_organization.html"
-    title = "Add New Organization"
-    permission_required = 'manager.add_organization'  # Replace with actual permission codename
+    template_name = "manager/create_client.html"
+    title = "Add New Client"
+    permission_required = 'manager.add_client'  # Replace with actual permission codename
     # success_url = 'dashboard/dashboard.html'
 
     def has_permission(self):
         # Override has_permission to consider inherited group permissions
         user = self.request.user
-        return user.groups.filter(permissions__codename='add_organization').exists()
+        return user.groups.filter(permissions__codename='add_client').exists()
 
 
     def form_valid(self, form):
-        messages.success(self.request, message='Organization created successfully!')
+        client = form.save(commit=False)
+        client.company = self.request.user.company
+        client.save()
+        messages.success(self.request, message='Client created successfully!')
         return super().form_valid(form)
 
     def get_success_url(self):
+        previous_page = self.request.session.get('previous_page')
+        print('r', previous_page)
+        if previous_page and ('job-opening-create' in previous_page):
+            return reverse_lazy('job-opening')
         return reverse_lazy('dashboard')
 
     # def get_context_data(self, **kwargs):
@@ -176,7 +195,7 @@ class ApplicationCreateView(TemplateView):
         context = super().get_context_data(**kwargs)
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
         context['job_opening'] = job_opening
-        context['organization'] = job_opening.organization
+        context['client'] = job_opening.client
         context['required_skills'] = job_opening.requiredskills.split(',')
         context['job_type'] = job_opening.job_type
         context['job_mode'] = job_opening.job_mode

@@ -44,7 +44,7 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
                 context['choices'] = JobOpening.objects.filter(assignemployee=employee)
         except Employee.DoesNotExist:
             context['choices'] = JobOpening.objects.all()
-        # context['organizations'] = Organization.objects.all()
+        # context['clients'] = Client.objects.all()
 
         return context
 
@@ -68,15 +68,15 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
                 form.add_error('email', 'Email already exists!')
                 return self.form_invalid(form)
 
-            # organization = form.cleaned_data['organization']
+            # client = form.cleaned_data['client']
             # designation = form.cleaned_data['designation']
             # required_skills = self.request.POST.getlist('requiredskills')
 
             user = self.request.user
             candidate.created_by = user
 
-            # if JobOpening.objects.filter(organization=organization, designation=designation).exists():
-            #     form.add_error('organization', 'opening already exists')
+            # if JobOpening.objects.filter(client=client, designation=designation).exists():
+            #     form.add_error('client', 'opening already exists')
             #     return self.form_invalid(form)
             messages.success(self.request, message='Candidate created successfully!')
             return super().form_valid(form)
@@ -112,7 +112,7 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
                 context['choices'] = JobOpening.objects.filter(assignemployee=employee)
         except Employee.DoesNotExist:
             context['choices'] = JobOpening.objects.all()
-        # context['organizations'] = Organization.objects.all()
+        # context['clients'] = Client.objects.all()
 
         return context
 
@@ -136,15 +136,15 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
                 form.add_error('email', 'Email already exists!')
                 return self.form_invalid(form)
 
-            # organization = form.cleaned_data['organization']
+            # client = form.cleaned_data['client']
             # designation = form.cleaned_data['designation']
             # required_skills = self.request.POST.getlist('requiredskills')
 
             user = self.request.user
             candidate.created_by = user
 
-            # if JobOpening.objects.filter(organization=organization, designation=designation).exists():
-            #     form.add_error('organization', 'opening already exists')
+            # if JobOpening.objects.filter(client=client, designation=designation).exists():
+            #     form.add_error('client', 'opening already exists')
             #     return self.form_invalid(form)
             messages.success(self.request, message='Candidate updated successfully!')
             return super().form_valid(form)

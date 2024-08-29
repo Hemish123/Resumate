@@ -15,7 +15,7 @@ class Company(models.Model):
     website = models.URLField(max_length=100, blank=True)
     description = models.TextField(null=True, blank=True)
     joined = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='company')
+    created_by = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='company')
 
     def __str__(self):
         return self.name

@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from users.models import Employee
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-
+from django.contrib import messages
 
 
 class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -43,12 +43,13 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         print(group)
         user.groups.add(group)
 
-        comapny = user.company
+        company = self.request.user.company
 
-        employee = Employee.objects.create(user=user, company=comapny)  # Don't save employee yet (for OneToOneField)
+        employee = Employee.objects.create(user=user, company=company)  # Don't save employee yet (for OneToOneField)
         employee.save()
 
         site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
         send_activation_email(employee, site_url, password)
+        messages.success(self.request, message='Success! Email sent to employee with login details.')
 
         return redirect('dashboard')  # Redirect to success page (optional)

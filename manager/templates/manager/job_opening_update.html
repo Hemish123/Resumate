@@ -23,26 +23,31 @@
 
           <div class="col-md-6">
             <div class="row g-6">
+              {% if clients %}
               <div class="col-md-6">
-                <label class="form-label" for="id_organization">Organization
-                  <span>*</span>
-                </label>
-                <select id="id_organization" name="organization" required class="select2 form-select" data-allow-clear="true">
-                  <option value=""></option>
-                  {% for org in organizations %}
 
-                    <option value="{{ org.id }}" {% if form.organization.value == org.id %}selected{% endif %}>{{ org }}</option>
+                  <label class="form-label" for="id_client">Client
+                    <span>*</span>
+                  </label>
+                  <select id="id_client" name="client" required class="select2 form-select" data-allow-clear="true">
+                    <option value=""></option>
+                    {% for org in clients %}
 
-                  {% endfor %}
+                      <option value="{{ org.id }}" {% if form.client.value == org.id %}selected{% endif %}>{{ org }}</option>
+
+                    {% endfor %}
 
 
-                </select>
-                {% if form.errors %}
-                  {% for error in form.organization.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+                  </select>
+                  {% if form.errors %}
+                    {% for error in form.client.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+
+
               </div>
+              {% endif %}
               <div class="col-md-6">
                 <label class="form-label" for="id_designation">Designation
                   <span>*</span>

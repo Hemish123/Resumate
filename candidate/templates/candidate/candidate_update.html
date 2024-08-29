@@ -41,7 +41,7 @@
 
                   {% for choice in choices %}
 
-                    <option value="{{ choice.id }}" data-subtext="{{ choice.organization }}" {% if choice.id in form.job_openings.value %}selected{% endif %}>{{ choice.designation }}</option>
+                    <option value="{{ choice.id }}" data-subtext="{{ choice.client }}" {% if choice.id in form.job_openings.value %}selected{% endif %}>{{ choice.designation }}</option>
 
                   {% endfor %}
                 </select>
