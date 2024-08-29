@@ -26,7 +26,7 @@
                         <div
                           class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
                           <div class="user-profile-info">
-                            <h4 class="mb-2 mt-lg-6">{{ user.employee.name }}</h4>
+                            <h4 class="mb-2 mt-lg-6">{{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</h4>
                             <ul
                               class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
                               <li class="list-inline-item d-flex gap-2 align-items-center">
@@ -65,7 +65,7 @@
                                 <a class="nav-link" href="{% url 'users-settings' %}"><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" href="javascript:void(0);"><i class="ti-sm ti ti-building me-1_5"></i> Organizations</a>
+                                <a class="nav-link active" href="javascript:void(0);"><i class="ti-sm ti ti-building me-1_5"></i> Clients</a>
                             </li>
                             {% if has_perm2%}
                             <li class="nav-item">
@@ -74,8 +74,8 @@
                             {% endif %}
                         </ul>
                         {% if has_perm1 %}
-                        <a href="{% url 'create-organization' %}" type="button" class="btn btn-outline-primary">
-                            <span class="ti-xs ti ti-plus me-2"></span>New Organization
+                        <a href="{% url 'create-client' %}" type="button" class="btn btn-outline-primary">
+                            <span class="ti-xs ti ti-plus me-2"></span>New Client
                         </a>
                         {% endif %}
                     </div>
@@ -84,7 +84,7 @@
               <!--/ Navbar pills -->
 
                 <div class="row g-6">
-                {% for org in organizations %}
+                {% for org in clients %}
                 <div class="col-xl-4 col-lg-6 col-md-6">
                   <div class="card">
                     <div class="card-body">
@@ -131,66 +131,6 @@
                   </div>
                 </div>
                 {% endfor %}
-
-                    <!-- Organizations -->
-
-<!--                      <div class="card card-action mb-6">-->
-<!--                        <div class="card-header align-items-center">-->
-<!--                          <h5 class="card-action-title mb-0">Organizations</h5>-->
-<!--                          <div class="card-action-element">-->
-<!--                            <div class="dropdown">-->
-<!--                              <button-->
-<!--                                type="button"-->
-<!--                                class="btn btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow p-0 text-muted"-->
-<!--                                data-bs-toggle="dropdown"-->
-<!--                                aria-expanded="false">-->
-<!--                                <i class="ti ti-dots-vertical ti-md text-muted"></i>-->
-<!--                              </button>-->
-<!--                              <ul class="dropdown-menu dropdown-menu-end">-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Share Organizations</a></li>-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Suggest edits</a></li>-->
-<!--                                <li>-->
-<!--                                  <hr class="dropdown-divider" />-->
-<!--                                </li>-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Report bug</a></li>-->
-<!--                              </ul>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                        <div class="card-body">-->
-<!--                          <ul class="list-unstyled mb-0">-->
-<!--                            {% for org in organizations %}-->
-<!--                            <li class="mb-4">-->
-<!--                              <div class="d-flex align-items-center">-->
-
-<!--                                <div class="d-flex align-items-center">-->
-<!--&lt;!&ndash;                                  <div class="avatar me-2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <img src="../../assets/img/avatars/2.png" alt="Avatar" class="rounded-circle" />&ndash;&gt;-->
-<!--&lt;!&ndash;                                  </div>&ndash;&gt;-->
-<!--                                  <div class="me-2">-->
-<!--                                    <h6 class="mb-0">{{ org }}</h6>-->
-<!--                                    <small>{{ org.location }}</small>-->
-<!--                                  </div>-->
-<!--                                </div>-->
-<!--                                {% if org.jobopening_set.first %}-->
-<!--                                <div class="ms-auto">-->
-<!--                                  <a href="javascript:;"><span class="badge bg-label-info">Hiring</span></a>-->
-<!--                                </div>-->
-<!--                                {% endif %}-->
-
-<!--                              </div>-->
-<!--                            </li>-->
-<!--                            {% endfor %}-->
-
-<!--                            <li class="text-center mt-2">-->
-<!--                              <a href="javascript:;">View all organizations</a>-->
-<!--                            </li>-->
-<!--                          </ul>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-                    <!--/ Organizations -->
-
 
                 </div>
               <!--/ User Profile Content -->

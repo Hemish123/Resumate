@@ -9,7 +9,7 @@ from verify_email.email_handler import send_verification_email
 from django.contrib.auth.models import Group, User
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from .models import Employee, Company
-from manager.models import Organization
+from manager.models import Client
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
 from django.contrib.auth.views import LoginView
@@ -43,7 +43,7 @@ class CustomLoginView(LoginView):
         user = self.request.user
 
         # Check if the user has completed setup
-        if user.groups.filter(name='admin').exists() and (not user.company.exists()):  # Assuming you have a Profile model with this field
+        if user.groups.filter(name='admin').exists() and (not hasattr(user, 'company')):  # Assuming you have a Profile model with this field
             return reverse_lazy('company-create')  # Redirect to 'create_company' URL
 
         # Default success URL if setup is completed
@@ -66,13 +66,8 @@ class CompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         company = form.save(commit=False)
         company.created_by = user
         company.save()
-        employee = Employee.objects.create(user=user, company=company)  # Securely retrieve employee
+        employee, _ = Employee.objects.get_or_create(user=user, company=company)  # Securely retrieve employee
         employee.save()
-        # employee = form.save(commit=False)  # Don't save employee yet (for OneToOneField)
-        # employee.user = user
-        # if user!=employee.user:
-        #     form.add_error('name', 'You cannot change other user\'s details')
-        #     return super().form_invalid(self)
 
         return redirect('dashboard')
 
@@ -102,8 +97,7 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         user = self.request.user
         pk = self.kwargs.get('pk')  # Get primary key from URL keyword argument
         employee = get_object_or_404(Employee, pk=pk)  # Securely retrieve employee
-        # employee = form.save(commit=False)  # Don't save employee yet (for OneToOneField)
-        # employee.user = user
+
         if user!=employee.user:
             form.add_error('name', 'You cannot change other user\'s details')
             return super().form_invalid(self)
@@ -125,7 +119,7 @@ class SettingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['organizations'] = Organization.objects.all()[:5]
+        context['clients'] = Client.objects.all()[:5]
       # Add employee data
 
 
@@ -138,16 +132,16 @@ class SettingsView(LoginRequiredMixin, TemplateView):
     
     
 
-class OrganizationsListView(LoginRequiredMixin, TemplateView):
-    template_name = "users/organizations.html"
+class ClientsListView(LoginRequiredMixin, TemplateView):
+    template_name = "users/clients.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['organizations'] = Organization.objects.all()
+        context['clients'] = Client.objects.all()
 
          # Access permission details (optional)
-        has_perm1 = self.request.user.groups.filter(permissions__codename='add_organization').exists()
+        has_perm1 = self.request.user.groups.filter(permissions__codename='add_client').exists()
         context['has_perm1'] = has_perm1
         
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
@@ -162,4 +156,7 @@ class EmployeeListView(LoginRequiredMixin,TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['employees'] = Employee.objects.all()
+        context['clients'] = Client.objects.all()[:5]
+        has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
+        context['has_perm2'] = has_perm2
         return context

@@ -10,8 +10,8 @@
 <!-- <a href="{% url 'create-employee' %}" type="button" class="btn btn-outline-primary">
     <span class="ti-xs ti ti-plus me-2"></span>New Employee
 </a> -->
-<!-- <a href="{% url 'create-organization' %}" type="button" class="btn btn-outline-primary">
-    <span class="ti-xs ti ti-plus me-2"></span>New Organization
+<!-- <a href="{% url 'create-client' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Client
 </a> -->
 {% endif %}
 
@@ -34,7 +34,7 @@
                             {% endif %}
                         </div>
                     </div>
-                  <div class="card-subtitle mt-2 mb-4">{{jobs.organization}}</div>
+                  <div class="card-subtitle mt-2 mb-4">{{jobs.client}}</div>
                   <p class="card-text">
                       Open Positions : {{jobs.openings}}
                   </p>
@@ -49,7 +49,7 @@
                       <div class="d-flex align-items-center text-primary">
                         <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Form</a>
 
-                      <button class="btn btn-link bg-white text-primary ml-2" data-url="{{ request.build_absolute_uri|slice:':-1' }}{% url 'application_create' jobs.id %}" id="copyButton" title="Copy to clipboard">
+                      <button class="btn btn-link text-primary ml-2" data-url="{{ request.build_absolute_uri|slice:':-1' }}{% url 'application_create' jobs.id %}" id="copyButton" title="Copy to clipboard">
                             <i class="ti ti-copy"></i>
                         </button>
                     </div>

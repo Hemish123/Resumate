@@ -23,7 +23,7 @@ from django.conf.urls.static import static
 from django.shortcuts import redirect
 from users.forms import EmailValidationOnForgotPassword
 from users.views import (UserDetailView, SettingsView, CustomLoginView,
-                         OrganizationsListView,EmployeeListView, CompanyCreateView)
+                         ClientsListView,EmployeeListView, CompanyCreateView)
 
 
 urlpatterns = [
@@ -37,7 +37,7 @@ urlpatterns = [
     path('users-details/<int:pk>', UserDetailView.as_view(), name='users-details'),
     path('company-create/', CompanyCreateView.as_view(), name='company-create'),
     path('users-settings/', SettingsView.as_view(), name='users-settings'),
-    path('users-organizations/', OrganizationsListView.as_view(), name='users-organizations'),
+    path('users-clients/', ClientsListView.as_view(), name='users-clients'),
     path('users-employees/',EmployeeListView.as_view(),name='users-employees'),
     path('password_reset/',
          lambda request: redirect('parsing-home') if request.user.is_authenticated else auth_views.PasswordResetView.as_view(form_class=EmailValidationOnForgotPassword, template_name='users/forgot-password-10.html')(request),

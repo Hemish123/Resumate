@@ -66,16 +66,20 @@
                           ><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a
                         >
                       </li>
+                      {% if clients %}
                       <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users-organizations' %}"
-                          ><i class="ti-sm ti ti-building me-1_5"></i> Organizations</a
+                        <a class="nav-link" href="{% url 'users-clients' %}"
+                          ><i class="ti-sm ti ti-building me-1_5"></i> Clients</a
                         >
                       </li>
-                      {% if has_perm2 %}
+                      {% endif %}
+                      {% if has_perm2 and employees %}
+
                       <li class="nav-item">
                         <a class="nav-link" href="{% url 'users-employees' %}"
                           ><i class="ti-sm ti ti-user me-1_5"></i> Employees</a>
                       </li>
+
                       {% endif %}
                     </ul>
                   </div>
@@ -130,7 +134,7 @@
                       <ul class="list-unstyled mb-0 mt-3 pt-1">
                         {% for jobopening in user.employee.jobopening_set.all %}
                         <li class="d-flex flex-wrap mb-4">
-                          <span class="fw-medium me-2">{{ jobopening }}</span><span>({{jobopening.organization}})</span>
+                          <span class="fw-medium me-2">{{ jobopening }}</span><span>({{jobopening.client}})</span>
                         </li>
                         {% empty %}
                         <li class="d-flex flex-wrap">
@@ -145,11 +149,11 @@
                 </div>
                  <div class="col-xl-7 col-lg-6 col-md-6">
 
-                    <!-- Organizations -->
-
+                    <!-- Clients -->
+                    {% if clients %}
                       <div class="card card-action mb-6">
                         <div class="card-header align-items-center">
-                          <h5 class="card-action-title mb-0">Organizations</h5>
+                          <h5 class="card-action-title mb-0">Clients</h5>
                           <div class="card-action-element">
                             <div class="dropdown">
                               <button
@@ -160,7 +164,7 @@
                                 <i class="ti ti-dots-vertical ti-md text-muted"></i>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="javascript:void(0);">Share Organizations</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0);">Share Clients</a></li>
                                 <li><a class="dropdown-item" href="javascript:void(0);">Suggest edits</a></li>
                                 <li>
                                   <hr class="dropdown-divider" />
@@ -172,7 +176,7 @@
                         </div>
                         <div class="card-body">
                           <ul class="list-unstyled mb-0">
-                            {% for org in organizations %}
+                            {% for org in clients %}
                             <li class="mb-4">
                               <div class="d-flex align-items-center">
 
@@ -196,14 +200,15 @@
                             {% endfor %}
 
                             <li class="text-center mt-2">
-                              <a href="{% url 'users-organizations' %}">View all organizations</a>
+                              <a href="{% url 'users-clients' %}">View all clients</a>
                             </li>
                           </ul>
                         </div>
                       </div>
+                    {% endif %}
+                    <!--/ Clients -->
+                    {% if has_perm2 and employees %}
 
-                    <!--/ Organizations -->
-                    {% if has_perm2 %}
                     <div class="card card-action mb-6">
                       <div class="card-header align-items-center">
                         <h5 class="card-action-title mb-0">Employees</h5>
@@ -234,10 +239,10 @@
                             <div class="d-flex align-items-center">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
-                                  <h6 class="mb-0">{{ emp.name }}</h6>
+                                  <h6 class="mb-0">{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</h6>
                                 </div>
                               </div>
-                              {% if emp.is_active %}
+                              {% if emp.user.is_active %}
                               <div class="ms-auto">
                                 <a href="javascript:;"><span class="badge bg-label-success">Active</span></a>
                               </div>
@@ -251,7 +256,8 @@
                         </ul>
                       </div>
                     </div>
-                    {% endif %}
+
+                   {% endif %}
                      
 
                 </div>

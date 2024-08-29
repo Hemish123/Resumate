@@ -1,7 +1,6 @@
 // your.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded and parsed');
 
     // Toastr options
     toastr.options = {

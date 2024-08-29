@@ -26,25 +26,79 @@
 
           <div class="col-md-6">
             <div class="row g-6">
+              <div class="col-md-6" id="hiring_for_select">
+                <div class="form-check custom-option custom-option-basic">
+                  <label class="form-check-label custom-option-content" for="id_self">
+                    <input
+                      name="hiring_for"
+                      class="form-check-input"
+                      type="radio"
+                      value="self"
+                      id="id_self"
+                      checked
+                       />
+                    <span class="custom-option-header">
+                      <span class="h6 mb-0">Hiring for self</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               <div class="col-md-6">
-                <label class="form-label" for="id_organization">Organization
-                  <span>*</span>
-                </label>
-                <select id="id_organization" name="organization" required class="select2 form-select" data-allow-clear="true">
-                  <option value=""></option>
-                  {% for org in organizations %}
-
-                    <option value="{{ org.id }}" {% if form.organization.value == org.id %}selected{% endif %}>{{ org }}</option>
-
-                  {% endfor %}
-
-
-                </select>
-                {% if form.errors %}
-                  {% for error in form.organization.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
+                <div class="form-check custom-option custom-option-basic">
+                  <label class="form-check-label custom-option-content" for="id_select_client">
+                    <input
+                      name="hiring_for"
+                      class="form-check-input"
+                      type="radio"
+                      value="client"
+                      id="id_select_client"
+                    {% if form.hiring_for.value == "client" %}checked{% endif %} />
+                    <span class="custom-option-header">
+                      <span class="h6 mb-0">Hiring for client</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              {% if form.errors %}
+                {% for error in form.hiring_for.errors %}
+                  <div class="error-message text-danger">{{ error }}</div>
+                {% endfor %}
                 {% endif %}
+              <div class="col-md-6" id="client_selected">
+                <div class="row">
+                <div class="col-md-8">
+                  <label class="form-label" for="id_client">Client
+                    <span>*</span>
+                  </label>
+
+                  <select id="id_client" name="client" class="select2 form-select" data-allow-clear="true">
+                    <option value=""></option>
+                    {% for org in clients %}
+
+                      <option value="{{ org.id }}" {% if form.client.value == org.id %}selected{% endif %}>{{ org }}</option>
+
+                    {% endfor %}
+
+                  </select>
+
+                  {% if form.errors %}
+                    {% for error in form.client.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                <div class="col-md-2 mt-6">
+                  <button data-bs-toggle="tooltip"
+                          type="button"
+                          onclick="window.location.href='{% url 'create-client' %}';"
+                          data-bs-placement="bottom"
+                          data-bs-original-title="Create new client"
+                          class="btn btn-outline-primary">
+                    <i class="ti ti-plus"></i>
+                  </button>
+                </div>
+                  </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_designation">Designation
@@ -246,7 +300,9 @@
                     <div class="needsclick dz-message" id="dropzone-basic">
                       Drop files here or click to upload
                     </div>
-                  <span id="selected-filename">No file chosen</span>
+                  <div class="text-center">
+                    <span id="selected-filename">No file chosen</span>
+                  </div>
                     <div class="fallback">
                       <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />
                     </div>
