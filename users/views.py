@@ -119,12 +119,12 @@ class SettingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['clients'] = Client.objects.all()[:5]
+        context['clients'] = Client.objects.filter(company=self.request.user.company)[:5]
       # Add employee data
 
 
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
-        context['employees'] = Employee.objects.all()[:5]
+        context['employees'] = Employee.objects.filter(company=self.request.user.company)[:5]
         context['has_perm2'] = has_perm2
         
 
@@ -138,7 +138,7 @@ class ClientsListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['clients'] = Client.objects.all()
+        context['clients'] = Client.objects.filter(company=self.request.user.company)
 
          # Access permission details (optional)
         has_perm1 = self.request.user.groups.filter(permissions__codename='add_client').exists()
@@ -155,8 +155,8 @@ class EmployeeListView(LoginRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['employees'] = Employee.objects.all()
-        context['clients'] = Client.objects.all()[:5]
+        context['employees'] = Employee.objects.filter(company=self.request.user.company)
+        context['clients'] = Client.objects.filter(company=self.request.user.company)[:5]
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
         context['has_perm2'] = has_perm2
         return context

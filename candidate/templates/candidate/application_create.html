@@ -8,17 +8,24 @@
 {% endblock css %}
 
 {% block body %}
-<div class="container-xxl flex-grow-1 container-p-y d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card mb-6 shadow-lg border-light" style="max-width: 1200px; width: 100%;">
+<div class="content-wrapper">
+<div class="container-xxl flex-grow-1 container-p-y align-items-center">
+    <div class="card mb-6 shadow-lg border-light">
         <h3 class="card-header bg-primary text-white text-center py-3">Apply for {{ job_opening.designation }}</h3>
         <div class="card-body">
             <div class="row">
                 <!-- Job Information Section -->
-                <div class="col-md-6 my-4">
+                <div class="col-md-3 my-4">
                     <div class="p-3 border rounded border-light">
                         <h4>Job Information</h4>
                         <hr class="border-light">
-                        <p><strong>Company Name:</strong> {{ client.name }}</p>
+                        <p><strong>Company Name:</strong>
+                            {% if client %}
+                                {{ client.name }}
+                            {% else %}
+                                {{ company.name }}
+                            {% endif %}
+                        </p>
                         <p><strong>Required Skills:</strong> {% for skill in required_skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
                         {% if job_description_file %}
                             <p><strong>Job Description:</strong> <a href="{{ job_description_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">{{ job_description_file.url }}</a></p>
@@ -49,6 +56,11 @@
                                     <span id="selected-filename" class="d-block mt-2 text-muted">No file chosen</span>
                                     <div class="fallback">
                                         <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="file_upload" type="file" />
+                                    {% if form.errors %}
+                                      {% for error in form.job_openings.errors %}
+                                        <div class="error-message text-danger">{{ error }}</div>
+                                      {% endfor %}
+                                      {% endif %}
                                     </div>
                                 </div>
 
@@ -67,6 +79,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock body %}
 

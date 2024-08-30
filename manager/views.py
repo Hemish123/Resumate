@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from .models import JobOpening, Client, Application
+from .models import JobOpening, Client
 from users.models import Employee
 from dashboard.models import Stage
 from .forms import JobOpeningForm
@@ -120,15 +120,20 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             job_opening = form.save(commit=False)
             client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
-            required_skills = self.request.POST.getlist('requiredskills')
+            required_skills = self.request.POST.get('requiredskills')
+            if required_skills:
+                skills_list = json.loads(required_skills)
+                skills_string = ', '.join([skill['value'] for skill in skills_list])
+                job_opening.requiredskills = skills_string
 
-
-            # Convert list of skills to a string (comma-separated or JSON format)
-            selected_skills = ",".join(required_skills)
-            job_opening.requiredskills = selected_skills
-            if JobOpening.objects.exclude(id=job_opening.id).filter(client=client, designation=designation).exists():
-                form.add_error('client', 'opening already exists')
-                return self.form_invalid(form)
+            if client :
+                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.company, client=client, designation=designation).exists():
+                    form.add_error('client', 'opening already exists')
+                    return self.form_invalid(form)
+            else:
+                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.company, designation=designation).exists():
+                    form.add_error('designation', 'opening already exists')
+                    return self.form_invalid(form)
             messages.success(self.request, message='Opening updated successfully!')
 
             return super().form_valid(form)
@@ -173,78 +178,7 @@ class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         previous_page = self.request.session.get('previous_page')
         print('r', previous_page)
         if previous_page and ('job-opening-create' in previous_page):
+            self.request.session['previous_page'] = ''
             return reverse_lazy('job-opening')
         return reverse_lazy('dashboard')
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['title'] = self.title
-    #     form = JobOpeningForm()
-    #     context['choices'] = Employee.objects.all()
-    #     with open("dashboard/static/dashboard/json/designations.json") as f:
-    #         data = json.load(f)
-    #
-    #     context['form'] = form
-    #     context['data'] = data
-    #     return context
-
-class ApplicationCreateView(TemplateView):
-    template_name = 'manager/application_create.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        context['job_opening'] = job_opening
-        context['client'] = job_opening.client
-        context['required_skills'] = job_opening.requiredskills.split(',')
-        context['job_type'] = job_opening.job_type
-        context['job_mode'] = job_opening.job_mode
-
- 
-        # Check the content type and assign the appropriate context variable
-    
-        if job_opening.content_type == 'file' and job_opening.jobdescription:
-
-            context['job_description_file'] = job_opening.jobdescription
-            
-        elif job_opening.content_type == 'text' and job_opening.jd_content:
-
-            context['job_description_text'] = job_opening.jd_content
-            
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        file_upload = request.FILES.get('file_upload')
-
-        if not file_upload:
-            messages.error(request, "Please upload a file.")
-            return self.render_to_response(self.get_context_data(**kwargs))
-
-        application = Application.objects.create(
-            job_opening=job_opening,
-            file_upload=file_upload
-        )
-        application.save()
-        
-        messages.success(request, f"Application created successfully for {job_opening.designation}!")
-        return HttpResponseRedirect(reverse('application_success', kwargs={'pk': job_opening.pk}))
-
-# class ApplicationSuccessView(TemplateView):
-#     template_name = 'manager/application_success.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-#         context['job_opening'] = job_opening
-#         return contextclass ApplicationCreateView(TemplateView):
-    
-class ApplicationSuccessView(TemplateView):
-    template_name = 'manager/application_success.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        context['job_opening'] = job_opening
-        return context

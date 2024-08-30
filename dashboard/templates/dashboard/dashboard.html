@@ -47,7 +47,7 @@
                                                       <!-- Display the URL attractively using Bootstrap classes -->
                   <div class="bg-light border rounded p-3 mt-3">
                       <div class="d-flex align-items-center text-primary">
-                        <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Form</a>
+                        <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
 
                       <button class="btn btn-link text-primary ml-2" data-url="{{ request.build_absolute_uri|slice:':-1' }}{% url 'application_create' jobs.id %}" id="copyButton" title="Copy to clipboard">
                             <i class="ti ti-copy"></i>

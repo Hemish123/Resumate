@@ -1,39 +1,60 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from .models import Candidate, Resume
+from .models import Candidate
 from users.models import Employee
 from manager.models import JobOpening
 # from .forms import CandidateForm
 from django.utils import timezone
 from datetime import datetime
 from django.views.generic.edit import FormView
+from .extract_text import extractText
+from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
+from django.core import files
+from django.core.files.base import ContentFile
+import os
+from django.conf import settings
 
 import json
 
 # Create your views here.
-class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class CandidateCreateView(CreateView):
     model = Candidate
     # form_class = CandidateForm
-    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'doc', 'linkedin', 'github',
+    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'linkedin', 'github',
               'portfolio', 'blog', 'education', 'experience', 'current_designation', 'current_organization',
               'current_ctc', 'current_ctc_ih', 'expected_ctc', 'expected_ctc_ih',
-              'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback']
-    template_name = "candidate/candidate_create.html"
-    title = "Create Candidate"
-    permission_required = 'candidate.add_candidate'  # Replace with actual permission codename
-    success_url = reverse_lazy('dashboard')
+              'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback', 'upload_resume']
+    template_name = "candidate/application_create.html"
+    title = "Application"
 
-    def has_permission(self):
-        # Override has_permission to consider inherited group permissions
-        user = self.request.user
-        return user.groups.filter(permissions__codename='add_candidate').exists()
+    def get_success_url(self):
+        return reverse_lazy('application_success', kwargs={'pk': self.kwargs['pk']})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        context['job_opening'] = job_opening
+        context['client'] = job_opening.client
+        context['company'] = job_opening.company
+        context['required_skills'] = job_opening.requiredskills.split(',')
+        context['job_type'] = job_opening.job_type
+        context['job_mode'] = job_opening.job_mode
+
+        # Check the content type and assign the appropriate context variable
+
+        if job_opening.content_type == 'file' and job_opening.jobdescription:
+
+            context['job_description_file'] = job_opening.jobdescription
+
+        elif job_opening.content_type == 'text' and job_opening.jd_content:
+
+            context['job_description_text'] = job_opening.jd_content
+
         context['title'] = self.title
         try:
             if self.request.user.is_superuser or self.request.user.groups.filter(
@@ -50,36 +71,86 @@ class CandidateCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
 
     def form_valid(self, form):
         if self.request.POST:
-            candidate = form.save(commit=False)
-            email = form.cleaned_data['email'].lower()
-
             # if form.cleaned_data['dob']:
             #     dob = form.cleaned_data['dob'].strftime('%d-%m-%Y')
             #     candidate.dob = datetime.strptime(dob, '%d-%m-%Y').date()
             #     print('d ', candidate.dob, dob)
-            if form.cleaned_data['doc']:
-                doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
-                candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
-                print('c ', candidate.doc, doc)
-            else:
-                candidate.doc = timezone.now().date()
-
-            if Candidate.objects.filter(email=email).exists():
-                form.add_error('email', 'Email already exists!')
-                return self.form_invalid(form)
+            # if form.cleaned_data['doc']:
+            #     doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
+            #     candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
+            #     print('c ', candidate.doc, doc)
+            # else:
+            #     candidate.doc = timezone.now().date()
 
             # client = form.cleaned_data['client']
             # designation = form.cleaned_data['designation']
             # required_skills = self.request.POST.getlist('requiredskills')
 
-            user = self.request.user
-            candidate.created_by = user
+            # user = self.request.user
+            # candidate.created_by = user
 
             # if JobOpening.objects.filter(client=client, designation=designation).exists():
             #     form.add_error('client', 'opening already exists')
             #     return self.form_invalid(form)
-            messages.success(self.request, message='Candidate created successfully!')
             return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if the request is an AJAX request
+            return self.handle_ajax(request)
+        else:
+            return self.handle_form_submission(request)
+
+    def handle_ajax(self, request):
+        form = self.get_form()
+        if request.FILES.get('upload_resume'):
+
+            resume_file = request.FILES['upload_resume']
+
+            file_content = resume_file.read()
+
+            # Use in-memory file handling with ContentFile if needed
+            temp_file = ContentFile(file_content, resume_file.name)
+
+            path = default_storage.save('resume/' + resume_file.name, temp_file)
+            full_file_path = os.path.join(settings.MEDIA_ROOT, path)
+            # file_path = resume_file.path
+            parsed_data = extractText(full_file_path)
+            default_storage.delete(path)
+            if parsed_data.strip() == "" :
+                form.add_error('upload_resume', (resume_file.name + ' cannot be parsed'))
+                return JsonResponse({'success': False, 'errors': form.errors})
+            else:
+                return JsonResponse({'success': True, 'parsed_data': parsed_data})
+
+
+    def handle_form_submission(self, request):
+        # Create a form instance with the POST data
+        form = self.get_form()
+        if form.is_valid():
+            job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+            candidate = form.save(commit=False)
+            email = form.cleaned_data['email'].lower()
+            if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
+                form.add_error('email', 'You have already applied!')
+                return self.form_invalid(form)
+
+            messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
+            # Process the final submission after user reviews the parsed data
+            return self.form_valid(form)
+
+        else:
+            return self.form_invalid(form)
+
+
+class ApplicationSuccessView(TemplateView):
+    template_name = 'manager/application_success.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        context['job_opening'] = job_opening
+        return context
+
 
 class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Candidate
