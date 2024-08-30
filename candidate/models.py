@@ -17,11 +17,10 @@ def today():
 class Candidate(models.Model):
     job_openings = models.ManyToManyField(JobOpening, blank=True)
     name = models.CharField(max_length=255)
-    email = models.EmailField(validators=[EmailValidator], unique=True)
+    email = models.EmailField(validators=[EmailValidator])
     contact = models.CharField(max_length=255)
     location = models.CharField(max_length=255, blank=True)
     dob = models.DateField(blank=True, null=True)
-    doc = models.DateField(default=today, blank=True)
     linkedin = models.URLField(max_length=255, blank=True, null=True)
     github = models.URLField(max_length=255, blank=True, null=True)
     portfolio = models.URLField(max_length=255, blank=True, null=True)
@@ -38,56 +37,39 @@ class Candidate(models.Model):
     notice_period = models.PositiveIntegerField(blank=True, default=0)
     reason_for_change = models.CharField(max_length=500, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    upload_resume = models.FileField(upload_to='resumes/', null=True,
+                                     validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc'],
+                                                                        message='Select pdf, docx or doc files only')])
+    filename = models.CharField(max_length=255, blank=True)
+    text_content = models.TextField(default='')
     updated = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase
+        if self.upload_resume:
+            # Extract the original filename
+            self.filename = self.upload_resume.name
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
-    def clean(self):
-        super().clean()
-        if self.linkedin:
-            if not self.linkedin.startswith(('http://', 'https://')):
-                self.linkedin = 'http://' + self.linkedin
+    # def clean(self):
+    #     super().clean()
+    #     if self.linkedin:
+    #         if not self.linkedin.startswith(('http://', 'https://')):
+    #             self.linkedin = 'http://' + self.linkedin
+    #
+    #     if self.github:
+    #         if not self.github.startswith(('http://', 'https://')):
+    #             self.github = 'http://' + self.github
+    #
+    #     if self.portfolio:
+    #         if not self.portfolio.startswith(('http://', 'https://')):
+    #             self.portfolio = 'http://' + self.portfolio
+    #
+    #     if self.blog:
+    #         if not self.blog.startswith(('http://', 'https://')):
+    #             self.blog = 'http://' + self.blog
 
-        if self.github:
-            if not self.github.startswith(('http://', 'https://')):
-                self.github = 'http://' + self.github
-
-        if self.portfolio:
-            if not self.portfolio.startswith(('http://', 'https://')):
-                self.portfolio = 'http://' + self.portfolio
-
-        if self.blog:
-            if not self.blog.startswith(('http://', 'https://')):
-                self.blog = 'http://' + self.blog
-
-
-
-class Resume(models.Model) :
-    candidate = models.OneToOneField(Candidate, on_delete=models.CASCADE, related_name='resume')
-    upload_resume = models.FileField(upload_to='resumes/',
-                                     validators=[FileExtensionValidator(allowed_extensions=['pdf','docx','doc'],
-                                                                        message='Select pdf, docx or doc files only')])
-    updated_on = models.DateTimeField(default=timezone.now)
-    uploaded_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    filename = models.CharField(max_length=255 , blank=True)
-    text_content = models.TextField()
-
-
-    def __str__(self):
-        return self.filename
-
-    def get_absolute_url(self):
-        return reverse('parsing-home')
-
-    def save(self, *args, **kwargs):
-        if self.upload_resume:
-            # Extract the original filename
-            self.filename = self.upload_resume.name
-        super().save(*args, **kwargs)
 

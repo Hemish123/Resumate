@@ -68,10 +68,3 @@ class JobOpening(models.Model):
     class Meta:
         ordering = ['-updated_on']
     
-class Application(models.Model):
-    job_opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE)
-    file_upload = models.FileField(upload_to='applications/', blank=True)
-    updated_on = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"Application for {self.job_opening.designation} on {self.updated_on}"

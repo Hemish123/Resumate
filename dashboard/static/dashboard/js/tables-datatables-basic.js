@@ -11,7 +11,7 @@ $(function () {
   var dt_basic_table = $('.datatables-basic'),
     dt_basic;
     var actions = $('#actioncheck');
-    const btn = document.getElementById('button-datatable');
+
 
   // DataTable with buttons
   // --------------------------------------------------------------------
@@ -167,13 +167,6 @@ $(function () {
         }
       },
       buttons: [
-        {
-          text: `<i class="ti ti-upload ti-xs me-sm-1"></i> <span class="d-none d-sm-inline-block">Import</span>`,
-          className: 'btn btn-label-primary me-4 waves-effect waves-light border-none',
-          action: function (e, dt, node, config) {
-            $('#import-file').trigger('click'); // Trigger file input click
-          }
-        },
         {
           extend: 'collection',
           className: 'btn btn-label-primary dropdown-toggle me-4 waves-effect waves-light border-none',
@@ -349,34 +342,12 @@ $(function () {
 //      },
       initComplete: function (settings, json) {
       var header = $('.card-header');
-        var importFileInput = `
-          <input type="file" id="import-file" style="display: none;" />`;
-      header.append(importFileInput);
-      var button = $('.btn-group > .btn-group');
-        var buttonHtml = $('#button_datatable'); // Clone button to avoid modifying the original
-        buttonHtml.show(); // Ensure the button is visible
-        button.append(buttonHtml); // Append button to the desired location
         $('.card-header').after('<hr class="my-0">');
         actions.prop('disabled', true);
-      }
+    }
     });
     $('div.head-label').html('<h5 class="card-title mb-0">Candidate DataTable</h5>');
 
-    $('#import-file').on('change', function () {
-      var file = this.files[0];
-      if (file) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          var contents = e.target.result;
-          parseData(contents, file.type); // Parse the file content
-        };
-        if (file.type.includes('sheet')) {
-          reader.readAsBinaryString(file); // Read Excel files as binary string
-        } else {
-          reader.readAsText(file); // Read CSV files as text
-        }
-      }
-    });
 
         // Event handler for individual checkboxes
     $('.datatables-basic tbody').on('change', '.dt-checkboxes', function () {
@@ -545,34 +516,4 @@ function getSelectedIds() {
 
 }
 });
-
-
-function parseData(contents, fileType) {
-  var dt = $('.datatables-basic').DataTable();
-
-  if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || fileType === 'application/vnd.ms-excel') {
-    var workbook = XLSX.read(contents, { type: 'binary' });
-    var sheetName = workbook.SheetNames[0]; // Use the first sheet
-    var sheet = workbook.Sheets[sheetName];
-    var data = XLSX.utils.sheet_to_json(sheet);
-    console.log('data', data);
-
-    // Append new data
-    dt.rows.add(data).draw(); // Add new data and redraw DataTables
-  } else if (fileType === 'text/csv') {
-    var rows = contents.split('\n').map(row => row.split(','));
-    var headers = rows.shift(); // Remove the header row
-
-    var data = rows.map(row => {
-      var obj = {};
-      headers.forEach((header, index) => {
-        obj[header] = row[index];
-      });
-      return obj;
-    });
-
-    // Append new data
-    dt.rows.add(data).draw(); // Add new data and redraw DataTables
-  }
-}
 

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const fileInput = document.getElementById('fileInput');
         const fileNameDisplay = document.getElementById('fileName');
 
-        if (fileInput && fileName) {
+        if (fileInput && fileNameDisplay) {
             fileInput.addEventListener('change', function() {
                 fileNameDisplay.textContent = 'Selected Files: ';
                 files = fileInput.files;

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Client, JobOpening,Application
+from .models import Client, JobOpening
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 import json
 
