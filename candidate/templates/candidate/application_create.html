@@ -4,7 +4,6 @@
 {% block css %}
 <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
 <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
-<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
 {% endblock css %}
 
 {% block body %}
@@ -43,26 +42,19 @@
                     <div class="border-right border-light" style="height: 100%; border-right-style: dotted;"></div>
                 </div> -->
                 <!-- File Upload Section -->
-                <div class="col-md-6 my-4">
+                <div class="col-md-9 my-4">
                     <div class="p-3 border rounded border-light">
                         <form id="formAuthentication" enctype="multipart/form-data" method="post">
                             {% csrf_token %}
+                            <p>Upload resume to parse data into form</p>
                             <div class="mb-3">
-                                <label class="form-label" for="id_file_upload">Upload File <span class="text-danger">*</span></label>
-                                <div class="card-body needsclick dropzone border-light" id="dropzone">
-                                    <div class="dz-message">
-                                        Drop files here or click to upload
-                                    </div>
-                                    <span id="selected-filename" class="d-block mt-2 text-muted">No file chosen</span>
-                                    <div class="fallback">
-                                        <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="file_upload" type="file" />
+                                <label class="form-label" for="fileInput">Upload Resume <span class="text-danger">*</span></label>
+                                    <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="form-control" name="file_upload" type="file" />
                                     {% if form.errors %}
                                       {% for error in form.job_openings.errors %}
                                         <div class="error-message text-danger">{{ error }}</div>
                                       {% endfor %}
                                       {% endif %}
-                                    </div>
-                                </div>
 
                                 {% if messages %}
                                     {% for message in messages %}
@@ -70,9 +62,7 @@
                                     {% endfor %}
                                 {% endif %}
                             </div>
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -87,6 +77,5 @@
 <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
 <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
 <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
-<script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>
-<script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
+<script src="{% static 'dashboard/js/application_create.js' %}"></script>
 {% endblock js %}

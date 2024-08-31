@@ -1,25 +1,22 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, TemplateView, DeleteView, DetailView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.views.generic import CreateView, TemplateView, DetailView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .models import Candidate
 from users.models import Employee
 from manager.models import JobOpening
 # from .forms import CandidateForm
 from django.utils import timezone
 from datetime import datetime
-from django.views.generic.edit import FormView
-from .extract_text import extractText
+from .resume_parsing.extract_text import extractText
+from .resume_parsing.final_parsing import parse_data
 from django.core.files.storage import default_storage
-from django.core.files.temp import NamedTemporaryFile
-from django.core import files
 from django.core.files.base import ContentFile
 import os
 from django.conf import settings
 
-import json
 
 # Create your views here.
 class CandidateCreateView(CreateView):
@@ -114,12 +111,13 @@ class CandidateCreateView(CreateView):
             path = default_storage.save('resume/' + resume_file.name, temp_file)
             full_file_path = os.path.join(settings.MEDIA_ROOT, path)
             # file_path = resume_file.path
-            parsed_data = extractText(full_file_path)
+            extractedText = extractText(full_file_path)
             default_storage.delete(path)
-            if parsed_data.strip() == "" :
+            if extractedText.strip() == "" :
                 form.add_error('upload_resume', (resume_file.name + ' cannot be parsed'))
                 return JsonResponse({'success': False, 'errors': form.errors})
             else:
+                parsed_data = parse_data(extractedText)
                 return JsonResponse({'success': True, 'parsed_data': parsed_data})
 
 
