@@ -55,6 +55,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
+            if not jd_content:
+                file = form.cleaned_data('jobdescription')
             
             # Extract and process required skills
             required_skills = self.request.POST.get('requiredskills')

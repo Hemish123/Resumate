@@ -16,6 +16,8 @@ fileInput.addEventListener('change', function(event) {
         const formData = new FormData();
         formData.append('upload_resume', file);
 
+        document.querySelector('.preloader-container').style.display = 'flex';
+
         // Send the file to the server via Fetch API
         fetch('', {
             method: 'POST',
@@ -28,12 +30,18 @@ fileInput.addEventListener('change', function(event) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('success!');
+            document.querySelector('.preloader-container').style.display = 'none';
+//                alert('success!');
                 // Populate form fields with parsed data
-//                document.querySelector('input[name="name"]').value = data.parsed_data.name;
-//                document.querySelector('input[name="email"]').value = data.parsed_data.email;
+                document.querySelector('input[name="name"]').value = data.parsed_data.name;
+                document.querySelector('input[name="email"]').value = data.parsed_data.email;
+                document.querySelector('input[name="contact"]').value = data.parsed_data.contact;
+                document.querySelector('input[name="education"]').value = data.parsed_data.education;
+                document.querySelector('input[name="current_designation"]').value = data.parsed_data.designation;
 //                document.querySelector('input[name="skills"]').value = data.parsed_data.skills;
-//                document.querySelector('input[name="experience"]').value = data.parsed_data.experience;
+                if (data.parsed_data.total_experience) {
+                    document.querySelector('input[name="experience"]').value = data.parsed_data.total_experience;
+                }
             } else {
                 alert('Error parsing resume. Please try again.');
             }
