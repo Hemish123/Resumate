@@ -73,3 +73,6 @@ class Candidate(models.Model):
     #             self.blog = 'http://' + self.blog
 
 
+class ResumeAnalysis(models.Model):
+    candidate = models.OneToOneField(Candidate, on_delete=models.CASCADE, related_name="analysis")
+    response_text = models.JSONField()

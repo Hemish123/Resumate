@@ -11,5 +11,5 @@ urlpatterns = [
     path('candidate-update/<int:pk>/', CandidateUpdateView.as_view(), name='candidate-update'),
     path('candidate-delete/', CandidateDeleteView.as_view(), name='candidate-delete'),
     # path('application-create/<int:pk>/', ApplicationCreateView.as_view(), name='application_create'),
-    path('application-success/<int:pk>/', ApplicationSuccessView.as_view(), name='application_success'),
+    path('application-success/<int:pk1>/<int:pk2>/', ApplicationSuccessView.as_view(), name='application_success'),
 ]
