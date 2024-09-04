@@ -11,6 +11,7 @@ from users.models import Employee
 from dashboard.models import Stage
 from .forms import JobOpeningForm
 from django.views.generic.edit import FormView
+from candidate.resume_parsing.extract_text import extractText
 
 import json
 
@@ -18,7 +19,8 @@ import json
 class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = JobOpening
     fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
-              'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'content_type']
+              'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'min_experience',
+              'max_experience', 'education', 'content_type']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
@@ -55,11 +57,11 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
-            if not jd_content:
-                file = form.cleaned_data('jobdescription')
+            file = form.cleaned_data['jobdescription']
             
             # Extract and process required skills
             required_skills = self.request.POST.get('requiredskills')
+            print('r', required_skills)
             if required_skills:
                 skills_list = json.loads(required_skills)
                 skills_string = ', '.join([skill['value'] for skill in skills_list])
@@ -69,14 +71,17 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             if client :
                 if JobOpening.objects.filter(company=self.request.user.company, client=client, designation=designation).exists():
                     form.add_error('client', 'Opening already exists')
-                    self.form_invalid(form)
+                    return self.form_invalid(form)
             else:
                 if JobOpening.objects.filter(company=self.request.user.company ,designation=designation).exists():
                     form.add_error('designation', 'Opening already exists')
-                    self.form_invalid(form)
+                    return self.form_invalid(form)
              
             # Save the job opening and create default stages
             job_opening.save()
+            if not jd_content:
+                jd_content = extractText(job_opening.jobdescription.path)
+                job_opening.jd_content = jd_content
             Stage.objects.create(job_opening_id=job_opening.id, name='Initial Stage', order=1)
             Stage.objects.create(job_opening_id=job_opening.id, name='Hired', order=50)
 

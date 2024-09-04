@@ -1,14 +1,14 @@
 from django import forms
-from .models import Resume, Candidate
+from .models import Candidate
 
 
-class UploadForms(forms.ModelForm):
-    class Meta:
-        model = Resume
-        fields = ['upload_resume']
-        widgets = {
-            'upload_resume': forms.FileInput(attrs={'id': 'fileInput', 'allow_multiple_selected': True}),
-        }
+# class UploadForms(forms.ModelForm):
+#     class Meta:
+#         model = Resume
+#         fields = ['upload_resume']
+#         widgets = {
+#             'upload_resume': forms.FileInput(attrs={'id': 'fileInput', 'allow_multiple_selected': True}),
+#         }
 
 # class CandidateForm(forms.ModelForm):
 #     class Meta:

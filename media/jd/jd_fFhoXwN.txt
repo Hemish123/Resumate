@@ -1,0 +1,44 @@
+Job Title: Python Developer
+
+Location: [Location] (e.g., Mumbai, India)
+
+Type: [Full-Time/Part-Time/Contract]
+
+About JMS Advisory: JMS Advisory is a leading firm specializing in advanced solutions for the building and construction industry. We are dedicated to delivering innovative digital twin software, lifecycle management tools, and energy consumption monitoring solutions. Our team is passionate about leveraging technology to transform how buildings are managed and maintained.
+
+Job Summary: JMS Advisory is seeking a skilled Python Developer to join our dynamic development team. The ideal candidate will be responsible for designing, developing, and maintaining Python-based applications and services that power our cutting-edge solutions. If you are passionate about coding, problem-solving, and working on impactful projects, we want to hear from you.
+
+Key Responsibilities:
+
+Design, develop, and maintain Python-based applications and services.
+Write clean, efficient, and well-documented code.
+Collaborate with product managers, designers, and other developers to understand requirements and deliver solutions.
+Integrate and manage APIs and third-party services.
+Optimize applications for performance, scalability, and security.
+Troubleshoot, debug, and resolve technical issues.
+Conduct code reviews and ensure adherence to best practices and coding standards.
+Participate in the full software development lifecycle, including planning, development, testing, and deployment.
+Stay current with emerging technologies and industry trends to drive continuous improvement.
+Qualifications:
+
+Bachelor’s degree in Computer Science, Engineering, or a related field, or equivalent experience.
+Proven experience as a Python Developer with a strong understanding of Python frameworks (e.g., Django, Flask, FastAPI).
+Experience with front-end technologies (HTML, CSS, JavaScript) is a plus.
+Familiarity with database systems (e.g., PostgreSQL, MySQL) and ORM frameworks.
+Proficiency in version control systems such as Git.
+Excellent problem-solving skills and attention to detail.
+Ability to work independently and as part of a team.
+Strong communication and collaboration skills.
+Preferred Skills:
+
+Experience with cloud platforms (e.g., AWS, Azure) and containerization technologies (e.g., Docker).
+Knowledge of microservices architecture and RESTful APIs.
+Experience with automated testing and CI/CD pipelines.
+Understanding of digital twin technology and building management systems is a plus.
+Benefits:
+
+Competitive salary and performance-based bonuses.
+Comprehensive health and wellness benefits.
+Opportunities for professional growth and career development.
+Flexible working hours and remote work options.
+Engaging work environment with a team dedicated to innovation and excellence.
