@@ -39,6 +39,9 @@ class JobOpening(models.Model):
     designation = models.CharField(max_length=255)
     openings = models.PositiveIntegerField(validators=[exempt_zero])
     requiredskills = models.TextField(blank=True)
+    min_experience = models.PositiveIntegerField(default=0)
+    max_experience = models.PositiveIntegerField(default=1)
+    education = models.CharField(max_length=255, default="graduate", blank=True)
     jobdescription = models.FileField(blank=True, upload_to='jd/',
                                      validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc', 'txt'],
                                                                         message='Select pdf, docx, doc or txt files only')])

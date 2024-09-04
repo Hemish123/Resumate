@@ -47,6 +47,10 @@
                         {% endif %}
                         <p><strong>Job Type:</strong> {{ job_type }}</p>
                         <p><strong>Job Mode:</strong> {{ job_mode }}</p>
+                        <p><strong>Minimum Experience:</strong> {{ min_experience }} year</p>
+                        <p><strong>Maximum Experience:</strong> {{ max_experience }} year</p>
+                        <p><strong>Minimum Education:</strong> {{ education }}</p>
+
                     </div>
                 </div>
                 <!-- Vertical Dotted Line -->
@@ -62,7 +66,7 @@
                             <p>Upload resume to automatically fill data into form</p>
                             <div class="mb-3">
                                 <label class="form-label" for="fileInput">Upload Resume <span class="text-danger">*</span></label>
-                                    <input id="fileInput" required accept=".pdf, .docx, .txt, .doc" class="form-control" name="file_upload" type="file" />
+                                    <input id="fileInput" required accept=".pdf, .docx, .txt, .doc" class="form-control" name="upload_resume" type="file" />
                                     {% if form.errors %}
                                       {% for error in form.job_openings.errors %}
                                         <div class="error-message text-danger">{{ error }}</div>

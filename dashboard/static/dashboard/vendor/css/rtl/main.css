@@ -101,3 +101,7 @@
     z-index: 10;
     opacity: 1;
 }
+
+#section-block {
+    height : 100%;
+}

@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 requiredSkillsTagify.on('change', function(e) {
                     const selectedSkills = requiredSkillsTagify.value.map(tag => tag.value).join(', ');
                     requiredSkillsEl.value = selectedSkills;
+                    console.log('r', requiredSkillsEl.value);
                 });
             } else {
                 console.error('Skills data is not an array:', data);
