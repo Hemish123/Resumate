@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .models import Candidate
+from .models import Candidate, ResumeAnalysis
 from users.models import Employee
 from manager.models import JobOpening
 # from .forms import CandidateForm
@@ -14,9 +14,9 @@ from .resume_parsing.extract_text import extractText
 from .resume_parsing.final_parsing import parse_data
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-import os
+import os, json, re
 from django.conf import settings
-
+from .genai_resume import get_response
 
 # Create your views here.
 class CandidateCreateView(CreateView):
@@ -30,7 +30,8 @@ class CandidateCreateView(CreateView):
     title = "Application"
 
     def get_success_url(self):
-        return reverse_lazy('application_success', kwargs={'pk': self.kwargs['pk']})
+        candidate_id = self.request.session.get('candidate_id')
+        return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': candidate_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,6 +42,9 @@ class CandidateCreateView(CreateView):
         context['required_skills'] = job_opening.requiredskills.split(',')
         context['job_type'] = job_opening.job_type
         context['job_mode'] = job_opening.job_mode
+        context['min_experience'] = job_opening.min_experience
+        context['max_experience'] = job_opening.max_experience
+        context['education'] = job_opening.education
 
         # Check the content type and assign the appropriate context variable
 
@@ -66,32 +70,34 @@ class CandidateCreateView(CreateView):
 
         return context
 
-    def form_valid(self, form):
-        if self.request.POST:
-            # if form.cleaned_data['dob']:
-            #     dob = form.cleaned_data['dob'].strftime('%d-%m-%Y')
-            #     candidate.dob = datetime.strptime(dob, '%d-%m-%Y').date()
-            #     print('d ', candidate.dob, dob)
-            # if form.cleaned_data['doc']:
-            #     doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
-            #     candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
-            #     print('c ', candidate.doc, doc)
-            # else:
-            #     candidate.doc = timezone.now().date()
-
-            # client = form.cleaned_data['client']
-            # designation = form.cleaned_data['designation']
-            # required_skills = self.request.POST.getlist('requiredskills')
-
-            # user = self.request.user
-            # candidate.created_by = user
-
-            # if JobOpening.objects.filter(client=client, designation=designation).exists():
-            #     form.add_error('client', 'opening already exists')
-            #     return self.form_invalid(form)
-            return super().form_valid(form)
+    # def form_valid(self, form):
+    #     if self.request.POST:
+    #         # if form.cleaned_data['dob']:
+    #         #     dob = form.cleaned_data['dob'].strftime('%d-%m-%Y')
+    #         #     candidate.dob = datetime.strptime(dob, '%d-%m-%Y').date()
+    #         #     print('d ', candidate.dob, dob)
+    #         # if form.cleaned_data['doc']:
+    #         #     doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
+    #         #     candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
+    #         #     print('c ', candidate.doc, doc)
+    #         # else:
+    #         #     candidate.doc = timezone.now().date()
+    #
+    #         # client = form.cleaned_data['client']
+    #         # designation = form.cleaned_data['designation']
+    #         # required_skills = self.request.POST.getlist('requiredskills')
+    #
+    #         # user = self.request.user
+    #         # candidate.created_by = user
+    #
+    #         # if JobOpening.objects.filter(client=client, designation=designation).exists():
+    #         #     form.add_error('client', 'opening already exists')
+    #         #     return self.form_invalid(form)
+    #         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):
+        form = self.get_form()
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if the request is an AJAX request
             return self.handle_ajax(request)
         else:
@@ -118,20 +124,40 @@ class CandidateCreateView(CreateView):
                 return JsonResponse({'success': False, 'errors': form.errors})
             else:
                 parsed_data = parse_data(extractedText)
+
+                request.session['resume'] = extractedText
                 return JsonResponse({'success': True, 'parsed_data': parsed_data})
 
 
     def handle_form_submission(self, request):
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
         # Create a form instance with the POST data
         form = self.get_form()
         if form.is_valid():
-            job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
             candidate = form.save(commit=False)
             email = form.cleaned_data['email'].lower()
+            resume = request.session.get('resume', None)
+            if not resume:
+                form.add_error(None, 'Resume data is missing. Please upload the resume again.')
+                return self.form_invalid(form)
+            file = request.FILES.get('upload_resume')
+            candidate.upload_resume = file
+            candidate.filename = file.name
+            candidate.text_content = resume
             if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
                 form.add_error('email', 'You have already applied!')
                 return self.form_invalid(form)
+            self.object = candidate
+            candidate.save()  # Save the candidate
+            candidate.job_openings.set([job_opening])
+            self.request.session['candidate_id'] = candidate.id
 
+            # Clean up session
+            del request.session['resume']
+            response_text = get_response(candidate.text_content, job_opening.designation,
+                                         job_opening.requiredskills, str(job_opening.min_experience),
+                                         str(job_opening.max_experience), job_opening.education)
+            ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate)
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
@@ -141,12 +167,36 @@ class CandidateCreateView(CreateView):
 
 
 class ApplicationSuccessView(TemplateView):
-    template_name = 'manager/application_success.html'
+    template_name = 'candidate/application_success.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk1'])
+        candidate = get_object_or_404(Candidate, pk=self.kwargs['pk2'])
         context['job_opening'] = job_opening
+        context['role'] = job_opening.designation
+        response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
+        context['response_text'] = response_text
+        text = json.loads(response_text)
+        context['text'] = text
+        stable = False
+        print(response_text)
+        if text.get('average_tenure') and "year" in text.get('average_tenure'):
+            match = re.search(r'\d+', text.get('average_tenure'))
+            if match:
+                if float(match.group())>=1 :
+                    stable = True
+                else:
+
+                    if text.get('current_tenure') and "year" in text.get('current_tenure'):
+                        current_tenure = re.search(r'\d+', text.get('current_tenure'))
+                        if current_tenure:
+                            if float(current_tenure.group()) >= 2:
+                                stable = True
+
+
+
+        context['stable'] = stable
         return context
 
 

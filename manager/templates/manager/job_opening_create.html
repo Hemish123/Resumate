@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.css' %}" />
 
     <!-- Tagify CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
@@ -26,6 +27,7 @@
 
           <div class="col-md-6">
             <div class="row g-6">
+
               <div class="col-md-6" id="hiring_for_select">
                 <div class="form-check custom-option custom-option-basic">
                   <label class="form-check-label custom-option-content" for="id_self">
@@ -65,6 +67,7 @@
                   <div class="error-message text-danger">{{ error }}</div>
                 {% endfor %}
                 {% endif %}
+
               <div class="col-md-6" id="client_selected">
                 <div class="row">
                 <div class="col-md-8">
@@ -139,6 +142,30 @@
                   {% endfor %}
                 {% endif %}
               </div>
+              <div class="col-sm-5 col-md-6">
+                    <label class="form-label" for="id_min_experience">Minimum Experience</label><span>*</span>
+                    <input type="number" placeholder="0"
+                           value="{{ form.min_experience.value|default_if_none:'' }}" name="min_experience" id="id_min_experience" class="form-control w-50">
+
+              </div>
+              <div class="col-sm-5 col-md-6">
+                  <label class="form-label" for="id_max_experience">Maximum Experience</label><span>*</span>
+                  <input type="number" placeholder="1"
+                         value="{{ form.max_experience.value|default_if_none:'' }}" name="max_experience" id="id_max_experience" class="form-control w-50">
+
+              </div>
+
+              <div class="col-sm-5 col-md-6">
+                  <label class="form-label" for="id_education">Education</label>
+                  <input
+                  id="id_education"
+                  name="education"
+                  type="text"
+                  class="form-control typeahead"
+                  placeholder="Education"
+                  value="{% if form.education.value %}{{ form.education.value }}{% endif %}"
+                  />
+              </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_job_mode">Mode of Job
                   <span>*</span>
@@ -201,14 +228,14 @@
                 {% endif %}
               </div> -->
 
-              <div class="col-md-6 mb-6">
+              <div class="col-md-6">
                 <label for="id_requiredskills" class="form-label">Required Skills <span>*</span></label>
                 <input
                     id="id_requiredskills"
                     name="requiredskills"
                     class="form-control"
                     placeholder="Select skills"
-                    value="{% if form.requiredskills.value %}{{ form.requiredskills.value|join:', ' }}{% endif %}"
+                    value="{% if form.requiredskills.value %}{{ form.requiredskills.value}}{% endif %}"
                     required
                 />
                 {% if form.errors %}
@@ -237,6 +264,7 @@
                   {% endfor %}
                 {% endif %}
               </div>
+
               <div class="row mt-4">
                 <label class="form-label" for="job_description_field">Job Description</label>
                 <div class="col-md-6" id="job_description_field">
@@ -281,41 +309,47 @@
               </div>
             </div>
           </div>
+
           <div class="col-md-6 select2-primary">
-            <div class="border p-4" id="section-block">
-              <div class="mb-6" id="default_area" >
-                <h4 class="text-center m-10">Choose option for Job Description</h4>
-              </div>
-              <div class="mb-6" id="text_input" >
-                <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>
-                <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6">{{ form.jd_content.value|default_if_none:'' }}</textarea>
-                {% if form.errors %}
-                  {% for error in form.jd_content.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="mb-6" id="file_upload">
-                <div class="card-body needsclick dropzone" id="dropzone">
-                    <div class="needsclick dz-message" id="dropzone-basic">
-                      Drop files here or click to upload
-                    </div>
-                  <div class="text-center">
-                    <span id="selected-filename">No file chosen</span>
-                  </div>
-                    <div class="fallback">
-                      <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />
-                    </div>
+            <div class="row g-6">
+              <div class="col-md-12 border p-4" id="section-block">
+                <div class="mb-6" id="default_area" >
+                  <h4 class="text-center m-10">Choose option for Job Description</h4>
                 </div>
-                {% if form.errors %}
-                  {% for error in form.jobdescription.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+                <div class="mb-6" id="text_input" >
+                  <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>
+                  <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6">{{ form.jd_content.value|default_if_none:'' }}</textarea>
+                  {% if form.errors %}
+                    {% for error in form.jd_content.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="mb-6" id="file_upload">
+                  <div class="card-body needsclick dropzone d-none d-md-block" id="dropzone">
+                      <div class="needsclick dz-message" id="dropzone-basic">
+                        Drop files here or click to upload
+                      </div>
+                    <div class="text-center">
+                      <span id="selected-filename">No file chosen</span>
+                    </div>
+<!--                      <div class="fallback">-->
+<!--                        <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />-->
+<!--                      </div>-->
+                  </div>
+                  <div class="d-sm-block d-md-none">
+                      <input class="form-control" id="fileInput" accept=".pdf, .docx, .txt, .doc" name="jobdescription" type="file" />
+                  </div>
+                  {% if form.errors %}
+                    {% for error in form.jobdescription.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
               </div>
+
             </div>
           </div>
-        </div>
 
         <div class="pt-6">
           <button type="submit" class="btn btn-primary me-4">Submit</button>
@@ -337,6 +371,8 @@
     <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-typeahead.js' %}"></script>
 <!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
     <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
     <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
