@@ -43,6 +43,7 @@ fileInput.addEventListener('change', function(event) {
                     document.querySelector('input[name="experience"]').value = data.parsed_data.total_experience;
                 }
             } else {
+                document.querySelector('.preloader-container').style.display = 'none';
                 alert('Error parsing resume. Please try again.');
             }
         })
