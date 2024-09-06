@@ -2,7 +2,6 @@
 {% load static %}
 {% block css %}
 
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/apex-charts/apex-charts.css' %}" />
 
 {% endblock css %}
 
@@ -11,9 +10,9 @@
 <div class="content-wrapper">
             <!-- Content -->
 
-  <div class="container-xxl min-vh-100 bg-gradient flex-grow-1 container-p-y">
+  <div class="container-xxl bg-gradient flex-grow-1 container-p-y d-flex justify-content-center vh-auto">
 
-    <div class="card" >
+    <div class="card w-60 mt-5">
       <div class="text-center p-5">
         <!-- Success Icon -->
         <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto bg-white">
@@ -23,300 +22,9 @@
         <h3 class="text-success mb-3">Success!</h3>
         <!-- Success Message -->
         <p class="lead text-dark mb-4">Well done! You've successfully applied for the <strong>{{ job_opening.designation }}</strong> role.</p>
-        <p class="lead text-dark mb-4">Our team is excited to review your application and will be in touch shortly with the next steps.</strong> role.</p>
+        <p class="lead text-dark mb-4">Our team is excited to review your application and will be in touch shortly with the next steps.</p>
     </div>
-<div class="card-header d-flex justify-content-between mb-6">
-  <div class="card-title m-0">
-    <h5 class="mb-1">Career Spotlight: Analyzing {{ text.name }}'s Professional Path</h5>
-    <p class="card-subtitle">This detailed report brings their professional prowess into focus</p>
-  </div>
-  <div>
-    <button class="btn btn-outline-primary"
-            id="exportbtn"
-            data-name="{{ text.name }}"
-            data-des="{{ text.designation }}"
-            data-imageurl="{% static 'parser/img/jmslogo.png' %}">
-      <span class="ti ti-file-export ti-xs me-2"></span>Export
-    </button>
-  </div>
-</div>
-<div class="card-body">
-  <ul class="nav nav-tabs widget-nav-tabs pb-8 gap-10 mx-1 d-flex justify-content-center" role="tablist">
-    <li class="nav-item">
-      <a
-        href="javascript:void(0);"
-        class="nav-link btn active d-flex flex-column align-items-center justify-content-center"
-        role="tab"
-        data-bs-toggle="tab"
-        data-bs-target="#job-matching"
-        aria-controls="job-matching"
-        aria-selected="true">
-        <div class="badge bg-label-secondary rounded p-2">
-          <i class="ti ti-click ti-md"></i>
-        </div>
-        <h6 class="tab-widget-title mb-0 mt-2">Job Matching</h6>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        href="javascript:void(0);"
-        class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-        role="tab"
-        data-bs-toggle="tab"
-        data-bs-target="#skill-analysis"
-        aria-controls="skill-analysis"
-        aria-selected="false">
-        <div class="badge bg-label-secondary rounded p-2">
-          <i class="ti ti-chart-bar ti-md"></i>
-        </div>
-        <h6 class="tab-widget-title mb-0 mt-2">Skills</h6>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        href="javascript:void(0);"
-        class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-        role="tab"
-        data-bs-toggle="tab"
-        data-bs-target="#personality"
-        aria-controls="personality"
-        aria-selected="false">
-        <div class="badge bg-label-secondary rounded p-2">
-          <i class="ti ti-user-check ti-md"></i>
-        </div>
-        <h6 class="tab-widget-title mb-0 mt-2">Personality</h6>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        href="javascript:void(0);"
-        class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-        role="tab"
-        data-bs-toggle="tab"
-        data-bs-target="#questions"
-        aria-controls="questions"
-        aria-selected="false">
-        <div class="badge bg-label-secondary rounded p-2">
-          <i class="ti ti-school ti-md"></i>
-        </div>
-        <h6 class="tab-widget-title mb-0 mt-2">Assessment</h6>
-      </a>
-    </li>
-  </ul>
-  <div class="tab-content p-0 ms-0 ms-sm-2" id="export-section">
-    <div class="tab-pane fade show active" id="job-matching" role="tabpanel">
-      <div class="mb-7">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1 mt-0 card-title">
-              Fit Forecast
-            </h5>
-            <p class="card-subtitle"> How {{ text.name }} as {{ text.designation}} Measures Up to the Job Description
-              {% if role %} for {{ role }} {% endif %}</p>
-          </div>
-        </div>
-        <div class="card-body">
-          {% if text.job_matching.match %}
-          <div class="mb-6">
-            <div id="jobMatching"></div>
-            <div class="mt-3 text-center">
-              <small class="text-muted mt-3">{{ text.name }}'s alignment with your job needs.</small>
-            </div>
-          </div>
-          {% endif %}
-          <div class="mt-3">
-            <h5>Highlights of {{ text.name }}'s Fit for the Role </h5>
-            <ol>
-              {% for reason in text.job_matching.reasons_for_fit %}
-              <li class="card-text mb-1">{{ reason }}</li>
-              {% endfor %}
-            </ol>
-          </div>
-          <div class="mt-3">
-            {% if text.projects_done %}
-            <h5>Assignments Done </h5>
-            <ol>
-              {% for skill, project in text.projects_done.items %}
-              <li class="mb-1"><span class="fw-bold">{{ skill }} : </span><span class="card-text">{{ project }}</span></li>
-              {% endfor %}
-            </ol>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="tab-pane fade" id="skill-analysis" role="tabpanel">
-      <div class=" mb-6">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1 mt-0 card-title">Skill Set Analysis : Visualizing Expertise Levels</h5>
-            <small class="text-muted mb-0">on scale of 1 to 5</small>
-          </div>
-        </div>
-        <div class="card-body row g-3">
-            <div class="col-sm-12 col-md-8">
-              <div class="" id="horizontalBarChart" data-response="{{ response_text }}"></div>
-            </div>
-          <div class="unwanted-div-class col-sm-12 col-md-4 d-flex justify-content-around align-items-center">
-            <div class="row">
-              {% for skill, level in text.skills_level.items %}
-              <div class="col-sm-6 col-md-6 my-5">
-                  <p class="mb-0">{{ skill|upper }}</p>
-                  <h6>Level : {{ level }}</h6>
-              </div>
-              {% endfor %}
-            </div>
 
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="tab-pane fade" id="personality" role="tabpanel">
-      <div class="mb-7">
-        <div class="card-body">
-          {% if "none" not in text.current_tenure|lower or "none" not in text.average_tenure|lower %}
-          {% if "fresher" not in text.designation|lower %}
-            <div class="mx-2 gap-4 gap-sm-0 d-flex flex-wrap justify-content-between align-items-center">
-              <div class="">
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="badge rounded bg-label-info p-1">
-                    <i class="ti ti-clock-hour-3"></i>
-                  </div>
-                  <h6 class="mb-0 fw-normal">Total Experience</h6>
-                </div>
-                <h4 class="my-2 ms-2">{{ text.total_experience }}</h4>
-              </div>
-              <div class="">
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="badge rounded bg-label-info p-1">
-                    <i class="ti ti-clock-hour-3"></i>
-                  </div>
-                  <h6 class="mb-0 fw-normal">Current Tenure</h6>
-                </div>
-                <h4 class="my-2 ms-2">{{ text.current_tenure }}</h4>
-              </div>
-              <div class="">
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="badge rounded bg-label-info p-1"><i class="ti ti-clock-hour-3"></i></div>
-                  <h6 class="mb-0 fw-normal">Average Tenure</h6>
-                </div>
-                <h4 class="my-2 ms-2">{{ text.average_tenure }}</h4>
-              </div>
-            </div>
-            <div class="">
-                {% if stable %}
-                <div class="card shadow-none bg-primary-subtle">
-                  <div class="card-body">
-                    <p class="card-text text-primary">
-                      The tenure history reflects a strong sense of stability,
-                      with consistent and long-term positions.
-                      This indicates a solid commitment and reliability in
-                      maintaining roles over extended periods.
-                    </p>
-                  </div>
-                </div>
-                {% else %}
-                <div class="card shadow-none bg-warning-subtle">
-                  <div class="card-body">
-                    <p class="card-text text-warning fs-6">
-                    {{ text.name }}'s current tenure history suggests some instability,
-                    with frequent changes or short-term positions.
-                    This may indicate a lack of long-term commitment or potential challenges in maintaining
-                    stability within a role.
-                    </p>
-                  </div>
-                </div>
-                {% endif %}
-            </div>
-          {% endif %}
-          {% endif %}
-          <h5 class="mb-1 mt-2 card-title">
-           Unveiling Key Personality Traits
-          </h5>
-          <div class="mt-4">
-            <div class="row">
-              {% for p in text.personality_traits %}
-              <div class="col-md-4">
-                <div class="d-flex align-items-center mb-2">
-                  <div class="avatar me-4">
-                      <span class="avatar-initial rounded bg-label-primary p-1">
-                      {% if 'creative' in p|lower or 'innovative' in p|lower %}
-                        <i class="ti ti-bulb ti-28px"></i>
-                      {% elif 'friendly' in p|lower %}
-                        <i class="ti ti-mood-smile ti-28px"></i>
-                      {% elif 'organized' in p|lower %}
-                        <i class="ti ti-calendar-month ti-28px"></i>
-                      {% elif 'detail' in p|lower %}
-                        <i class="ti ti-list-search ti-28px"></i>
-                      {% elif 'adapt' in p|lower %}
-                        <i class="ti ti-arrow-autofit-width ti-28px"></i>
-                      {% elif 'analytic' in p|lower %}
-                        <i class="ti ti-chart-line ti-28px"></i>
-                      {% elif 'leader' in p|lower %}
-                        <i class="ti ti-chess-king ti-28px"></i>
-                      {% elif 'empathetic' in p|lower %}
-                        <i class="ti ti-heart ti-28px"></i>
-                      {% elif 'strategic' in p|lower %}
-                        <i class="ti ti-compass ti-28px"></i>
-                      {% elif 'communicat' in p|lower %}
-                        <i class="ti ti-message ti-28px"></i>
-                      {% elif 'exceptional' in p|lower %}
-                        <i class="ti ti-star ti-28px"></i>
-                      {% elif 'motivated' in p|lower %}
-                        <i class="ti ti-rocket ti-28px"></i>
-                      {% elif 'collaborative' in p|lower or 'team' in p|lower %}
-                        <i class="ti ti-route ti-28px"></i>
-                      {% elif 'solv' in p|lower or 'learn' in p|lower %}
-                        <i class="ti ti-brain ti-28px"></i>
-                      {% elif 'goal' in p|lower %}
-                        <i class="ti ti-target-arrow ti-28px"></i>
-                      {% else %}
-                        <i class="ti ti-sparkles ti-28px"></i>
-                      {% endif %}
-                      </span>
-
-                  </div>
-                  <h6 class="mb-0">{{ p|capfirst }}</h6>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="tab-pane fade" id="questions" role="tabpanel">
-      <div class="mb-7">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1 mt-0 card-title">Key Questions and Assessments for Interviews </h5>
-          </div>
-        </div>
-        <div class="card-body">
-          <ol>
-            {% for q in text.interview_questions %}
-            <li class="mb-1">
-              {{ q }}
-            </li>
-            {% endfor %}
-          </ol>
-
-          <div class="card shadow-none bg-info-subtle">
-            <div class="card-body">
-              <h6 class="card-title text-info">Task </h6>
-              <p class="card-text text-info">
-                {{ text.assignment }}
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-
-      </div>
-    </div>
-  </div>
 </div>
   </div>
 </div>
@@ -324,7 +32,5 @@
 
 {% block js %}
 
-    <script src="{% static 'dashboard/vendor/libs/apex-charts/apexcharts.js' %}"></script>
-    <script src="{% static 'dashboard/js/charts-apex.js' %}"></script>
 
 {% endblock js %}

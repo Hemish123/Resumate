@@ -52,6 +52,9 @@
     <a href="{% url 'candidate-update' candidate.id %}" type="button" class="btn btn-outline-primary">
         <span class="ti-xs ti ti-pencil me-2"></span>Edit
     </a>
+    <a href="{% url 'candidate-analysis' candidate.id %}" type="button" class="btn btn-outline-primary mx-2">
+        <span class="ti-xs ti ti-report-analytics me-2"></span>Get Analysis
+    </a>
     </div>
     <div class=" mx-7 mt-7 badge bg-label-primary">
         <p class="card-text text-muted d-inline">Hiring for : </p>

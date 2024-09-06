@@ -31,6 +31,7 @@ class CandidateCreateView(CreateView):
 
     def get_success_url(self):
         candidate_id = self.request.session.get('candidate_id')
+        del self.request.session['candidate_id']
         return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': candidate_id})
 
     def get_context_data(self, **kwargs):
@@ -69,31 +70,6 @@ class CandidateCreateView(CreateView):
         # context['clients'] = Client.objects.all()
 
         return context
-
-    # def form_valid(self, form):
-    #     if self.request.POST:
-    #         # if form.cleaned_data['dob']:
-    #         #     dob = form.cleaned_data['dob'].strftime('%d-%m-%Y')
-    #         #     candidate.dob = datetime.strptime(dob, '%d-%m-%Y').date()
-    #         #     print('d ', candidate.dob, dob)
-    #         # if form.cleaned_data['doc']:
-    #         #     doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
-    #         #     candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
-    #         #     print('c ', candidate.doc, doc)
-    #         # else:
-    #         #     candidate.doc = timezone.now().date()
-    #
-    #         # client = form.cleaned_data['client']
-    #         # designation = form.cleaned_data['designation']
-    #         # required_skills = self.request.POST.getlist('requiredskills')
-    #
-    #         # user = self.request.user
-    #         # candidate.created_by = user
-    #
-    #         # if JobOpening.objects.filter(client=client, designation=designation).exists():
-    #         #     form.add_error('client', 'opening already exists')
-    #         #     return self.form_invalid(form)
-    #         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -147,9 +123,11 @@ class CandidateCreateView(CreateView):
             if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
                 form.add_error('email', 'You have already applied!')
                 return self.form_invalid(form)
-            self.object = candidate
+            # self.object = candidate
             candidate.save()  # Save the candidate
-            candidate.job_openings.set([job_opening])
+            candidate.job_openings.add(job_opening)
+
+            print('c', candidate.job_openings.all(), candidate.name)
             self.request.session['candidate_id'] = candidate.id
 
             # Clean up session
@@ -158,6 +136,7 @@ class CandidateCreateView(CreateView):
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)
             ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate)
+            print('c', candidate.job_openings.all(), candidate.name)
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
@@ -173,6 +152,7 @@ class ApplicationSuccessView(TemplateView):
         context = super().get_context_data(**kwargs)
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk1'])
         candidate = get_object_or_404(Candidate, pk=self.kwargs['pk2'])
+        print('cv', candidate.job_openings.all(), candidate.name)
         context['job_opening'] = job_opening
         context['role'] = job_opening.designation
         response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
@@ -180,7 +160,7 @@ class ApplicationSuccessView(TemplateView):
         text = json.loads(response_text)
         context['text'] = text
         stable = False
-        print(response_text)
+
         if text.get('average_tenure') and "year" in text.get('average_tenure'):
             match = re.search(r'\d+', text.get('average_tenure'))
             if match:
@@ -299,6 +279,43 @@ class CandidateDeleteView(LoginRequiredMixin, TemplateView):
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
         print(ids)  
         if ids:
-            ids = [int(id) for id in ids.split(',')]
             Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
         return JsonResponse({'status': 'success'})
+
+class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
+    title = 'Resume Analysis'
+    template_name = 'candidate/candidate_analysis.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        # text = json.loads(self.request.GET.get('response'))
+        id = self.kwargs.get('pk')
+        candidate = Candidate.objects.get(id=id)
+        job_opening = candidate.job_openings.all()
+        print('j', job_opening)
+        context['job_opening'] = job_opening
+        context['role'] = job_opening.designation
+        response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
+        context['response_text'] = response_text
+        text = json.loads(response_text)
+        context['text'] = text
+        stable = False
+        print(response_text)
+        if text.get('average_tenure') and "year" in text.get('average_tenure'):
+            match = re.search(r'\d+', text.get('average_tenure'))
+            if match:
+                if float(match.group())>=1 :
+                    stable = True
+                else:
+
+                    if text.get('current_tenure') and "year" in text.get('current_tenure'):
+                        current_tenure = re.search(r'\d+', text.get('current_tenure'))
+                        if current_tenure:
+                            if float(current_tenure.group()) >= 2:
+                                stable = True
+
+
+
+        context['stable'] = stable
+        return context
