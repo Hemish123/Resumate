@@ -206,6 +206,7 @@ boards = stages.map(stage => ({
         contact = element.getAttribute('data-contact'),
         email = element.getAttribute('data-email'),
         feedback = element.getAttribute('data-feedback');
+        console.log('f', feedback);
 //        dateObj = new Date(),
 //        year = dateObj.getFullYear(),
 //        dateToUse = date
@@ -382,6 +383,12 @@ function applyBoardColors() {
         Array.from(lastBoard.children).forEach(child => {
           child.style.backgroundColor = '#d6ffe1';
         });
+        const secondLastBoard = boards[boards.length - 2]; // The last board
+        secondLastBoard.style.backgroundColor = '#fcc0bb';
+        // Set background color for all child elements of the last board
+        Array.from(secondLastBoard.children).forEach(child => {
+          child.style.backgroundColor = '#fcc0bb';
+        });
 //    boards.forEach(board => {
 //        const boardElement = document.querySelector(`.kanban-board:last-child`);
 //        if (boardElement) {
@@ -485,16 +492,20 @@ applyBoardColors();
         );
       }
       if (
-        el.getAttribute('data-comments') !== undefined ||
-        el.getAttribute('data-due-date') !== undefined ||
-        el.getAttribute('data-assigned') !== undefined
+        el.getAttribute('data-feedback') !== 'undefined'
       ) {
         el.insertAdjacentHTML(
           'beforeend',
           renderFooter(
-            el.getAttribute('data-comments')
+            el.getAttribute('data-feedback')
 
           )
+        );
+      }
+      else {
+      el.insertAdjacentHTML(
+          'beforeend',
+          renderFooter(0)
         );
       }
     });
