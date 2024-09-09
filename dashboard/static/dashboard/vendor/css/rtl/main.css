@@ -105,3 +105,21 @@
 #section-block {
     height : 100%;
 }
+
+.kanban-board {
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.kanban-board:last-child {
+    background-color: #d6ffe1;
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.kanban-board:last-child > * {
+    background-color: #d6ffe1;
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.app-kanban .kanban-wrapper .kanban-container .kanban-board .kanban-title-button {
+    margin-top : -2rem !important;
+}
