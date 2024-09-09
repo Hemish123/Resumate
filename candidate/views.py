@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
+from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
 from users.models import Employee
 from manager.models import JobOpening
@@ -30,9 +32,7 @@ class CandidateCreateView(CreateView):
     title = "Application"
 
     def get_success_url(self):
-        candidate_id = self.request.session.get('candidate_id')
-        del self.request.session['candidate_id']
-        return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': candidate_id})
+        return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': self.candidate.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,6 +113,7 @@ class CandidateCreateView(CreateView):
             candidate = form.save(commit=False)
             email = form.cleaned_data['email'].lower()
             resume = request.session.get('resume', None)
+            del request.session['resume']
             if not resume:
                 form.add_error(None, 'Resume data is missing. Please upload the resume again.')
                 return self.form_invalid(form)
@@ -126,17 +127,15 @@ class CandidateCreateView(CreateView):
             # self.object = candidate
             candidate.save()  # Save the candidate
             candidate.job_openings.add(job_opening)
+            self.candidate = candidate
+            stage = Stage.objects.get(name='Applied', job_opening=job_opening)
+            CandidateStage.objects.create(candidate=candidate, stage=stage)
 
-            print('c', candidate.job_openings.all(), candidate.name)
-            self.request.session['candidate_id'] = candidate.id
-
-            # Clean up session
-            del request.session['resume']
             response_text = get_response(candidate.text_content, job_opening.designation,
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)
             ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate)
-            print('c', candidate.job_openings.all(), candidate.name)
+
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
@@ -152,7 +151,7 @@ class ApplicationSuccessView(TemplateView):
         context = super().get_context_data(**kwargs)
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk1'])
         candidate = get_object_or_404(Candidate, pk=self.kwargs['pk2'])
-        print('cv', candidate.job_openings.all(), candidate.name)
+        candidate.job_openings.add(job_opening)
         context['job_opening'] = job_opening
         context['role'] = job_opening.designation
         response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
@@ -279,6 +278,7 @@ class CandidateDeleteView(LoginRequiredMixin, TemplateView):
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
         print(ids)  
         if ids:
+            ids = [int(id) for id in ids.split(',')]
             Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
         return JsonResponse({'status': 'success'})
 
@@ -292,7 +292,7 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
         # text = json.loads(self.request.GET.get('response'))
         id = self.kwargs.get('pk')
         candidate = Candidate.objects.get(id=id)
-        job_opening = candidate.job_openings.all()
+        job_opening = candidate.job_openings.first()
         print('j', job_opening)
         context['job_opening'] = job_opening
         context['role'] = job_opening.designation

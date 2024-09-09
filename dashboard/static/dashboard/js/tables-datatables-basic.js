@@ -63,6 +63,19 @@ $(function () {
           searchable: false,
           visible : false,
         },
+        {
+          targets: 3,
+          orderable: false,
+        },
+        {
+          targets: 4,
+          orderable: false,
+        },
+        {
+          targets: 5,
+          orderable: false,
+        },
+
 
         {
           // Avatar image/badge, Name and post
