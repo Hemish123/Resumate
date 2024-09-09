@@ -79,10 +79,12 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
              
             # Save the job opening and create default stages
             job_opening.save()
-            if not jd_content:
+            if file and not jd_content:
                 jd_content = extractText(job_opening.jobdescription.path)
                 job_opening.jd_content = jd_content
-            Stage.objects.create(job_opening_id=job_opening.id, name='Initial Stage', order=1)
+            Stage.objects.create(job_opening_id=job_opening.id, name='Applied', order=1)
+            Stage.objects.create(job_opening_id=job_opening.id, name='Initial Stage', order=2)
+            Stage.objects.create(job_opening_id=job_opening.id, name='Rejected', order=50)
             Stage.objects.create(job_opening_id=job_opening.id, name='Hired', order=50)
 
             messages.success(self.request, 'Opening created successfully!')
