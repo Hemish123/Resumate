@@ -13,10 +13,12 @@
 {% endblock css %}
 
 {% block content %}
-
+<button onclick="window.history.back()" type="button" class="btn btn-outline-primary mb-2">
+    <span class="ti-xs ti ti-chevron-left me-2"></span>Back
+</button>
 <div class="card">
     <div class="card-datatable pt-0">
-        <h5 id="datatable-title" class="card-title mb-0">Candidate DataTable</h5>
+        <h5 id="datatable-title" class="card-title mb-0">Applications</h5>
 
         <!-- Filter and Action Buttons -->
         <div id="filter-container" class="my-3">
@@ -33,10 +35,6 @@
                                    Action
                                 </button>
                                 <ul class="dropdown-menu">
-                                  <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
-                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
-                                  </li>
                                   <li>
                                     <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
                                         <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
@@ -149,7 +147,7 @@
                 <tr data-id="{{candidate.id}}">
                     <td></td>
                     <td>{{ candidate.id }}</td>
-                    <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
+                    <td><a href="{% url 'candidate-details' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
                     <td>{{candidate.current_designation}}</td>
                     <td>{{candidate.contact}}</td>
                     <td>{{candidate.email}}</td>
