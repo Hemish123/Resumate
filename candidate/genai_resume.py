@@ -25,7 +25,7 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
 
     client = OpenAI(api_key="sk-proj-bGFqRLy2avrcM5Sa7UPuT3BlbkFJ5hK2bKLzO2PBvbg7yuTx")
     content = """Your task is to parse resume into json format with following keys:
-    "name", "designation", str(total_experience(i.e. 2 years)), str(average_tenure(i.e. 2 years)), str(current_tenure(i.e. 2 years)), 
+    str(average_tenure(i.e. 2 years)), str(current_tenure(i.e. 2 years)), 
     skills_level(e.g.{'python': int(level(1-5))} grab all skills from resume), 
     {projects_done({'project title' : 'str(project description and skills in that project)'})}, 
     job_matching(dict with int(match)(0-100%)(match with respect to skills experience education in jd) and [reasons_for_fit]),
