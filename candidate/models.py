@@ -74,5 +74,6 @@ class Candidate(models.Model):
 
 
 class ResumeAnalysis(models.Model):
-    candidate = models.OneToOneField(Candidate, on_delete=models.CASCADE, related_name="analysis")
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="analysis")
+    job_opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE, null=True)
     response_text = models.JSONField()

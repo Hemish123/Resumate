@@ -114,7 +114,6 @@ class StageAPIView(APIView):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
 
-        print('or' , order)
         if stage_id:
             stage = Stage.objects.get(id=stage_id)
             for item in order:
@@ -124,9 +123,9 @@ class StageAPIView(APIView):
         else:
             for item in order[:-1]:
                 stage_id = item.get('id')
-                if Stage.objects.filter(id=stage_id).name == 'Hired' :
+                stage_name = Stage.objects.get(id=stage_id)
+                if stage_name.name == 'Hired' :
                     continue
-                print('s', stage_id)
                 order = item.get('order')
                 Stage.objects.filter(id=stage_id).update(order=order)
 

@@ -359,7 +359,11 @@ $(function () {
         actions.prop('disabled', true);
     }
     });
-    $('div.head-label').html('<h5 class="card-title mb-0">Candidate DataTable</h5>');
+    // Select the title element from the DOM
+    var titleElement = $('#datatable-title').detach();
+
+    // Insert the title into the target div
+    $('div.head-label').html(titleElement);
 
 
         // Event handler for individual checkboxes

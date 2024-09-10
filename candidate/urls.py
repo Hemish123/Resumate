@@ -3,7 +3,7 @@ from . import views
 from .views import (CandidateCreateView, CandidateListView,
                     CandidateDetailsView, CandidateUpdateView,
                     CandidateDeleteView, ApplicationSuccessView,
-                    CandidateAnalysisView)
+                    CandidateAnalysisView, ApplicationListView)
 
 urlpatterns = [
     path('application-create/<int:pk>/', CandidateCreateView.as_view(), name='application_create'),
@@ -14,5 +14,6 @@ urlpatterns = [
     # path('application-create/<int:pk>/', ApplicationCreateView.as_view(), name='application_create'),
     path('application-success/<int:pk1>/<int:pk2>/', ApplicationSuccessView.as_view(), name='application_success'),
     path('candidate-analysis/<int:pk>/', CandidateAnalysisView.as_view(), name='candidate-analysis'),
+    path('application-list/<int:pk>/', ApplicationListView.as_view(), name='application-list'),
 
 ]

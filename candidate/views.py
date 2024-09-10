@@ -110,22 +110,34 @@ class CandidateCreateView(CreateView):
         # Create a form instance with the POST data
         form = self.get_form()
         if form.is_valid():
-            candidate = form.save(commit=False)
             email = form.cleaned_data['email'].lower()
+            # candidate, created = Candidate.objects.get_or_create(email=email)
+            if Candidate.objects.filter(email=email).exists():
+                candidate = Candidate.objects.get(email=email)
+                # candidate.job_openings.add(job_opening)
+            else:
+                candidate = form.save(commit=False)
             resume = request.session.get('resume', None)
-            del request.session['resume']
+
             if not resume:
                 form.add_error(None, 'Resume data is missing. Please upload the resume again.')
                 return self.form_invalid(form)
+
+            if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
+                form.add_error(None, 'You have already applied for this role!')
+                return self.form_invalid(form)
+
+            del request.session['resume']
             file = request.FILES.get('upload_resume')
+
+            # self.object = candidate
+            # if created or candidate.upload_resume:
             candidate.upload_resume = file
             candidate.filename = file.name
             candidate.text_content = resume
-            if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
-                form.add_error('email', 'You have already applied!')
-                return self.form_invalid(form)
-            # self.object = candidate
-            candidate.save()  # Save the candidate
+
+            candidate.save()
+
             candidate.job_openings.add(job_opening)
             self.candidate = candidate
             stage = Stage.objects.get(name='Applied', job_opening=job_opening)
@@ -134,7 +146,7 @@ class CandidateCreateView(CreateView):
             response_text = get_response(candidate.text_content, job_opening.designation,
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)
-            ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate)
+            ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate, job_opening=job_opening)
 
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
@@ -143,6 +155,9 @@ class CandidateCreateView(CreateView):
         else:
             return self.form_invalid(form)
 
+    def form_invalid(self, form):
+        self.object = None
+        return super().form_invalid(form)
 
 class ApplicationSuccessView(TemplateView):
     template_name = 'candidate/application_success.html'
@@ -153,29 +168,7 @@ class ApplicationSuccessView(TemplateView):
         candidate = get_object_or_404(Candidate, pk=self.kwargs['pk2'])
         candidate.job_openings.add(job_opening)
         context['job_opening'] = job_opening
-        context['role'] = job_opening.designation
-        response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
-        context['response_text'] = response_text
-        text = json.loads(response_text)
-        context['text'] = text
-        stable = False
 
-        if text.get('average_tenure') and "year" in text.get('average_tenure'):
-            match = re.search(r'\d+', text.get('average_tenure'))
-            if match:
-                if float(match.group())>=1 :
-                    stable = True
-                else:
-
-                    if text.get('current_tenure') and "year" in text.get('current_tenure'):
-                        current_tenure = re.search(r'\d+', text.get('current_tenure'))
-                        if current_tenure:
-                            if float(current_tenure.group()) >= 2:
-                                stable = True
-
-
-
-        context['stable'] = stable
         return context
 
 
@@ -258,6 +251,19 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
 
         return context
 
+class ApplicationListView(LoginRequiredMixin, TemplateView):
+    template_name = 'candidate/application_list.html'
+    title = 'All Applications'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        id = self.kwargs.get('pk')
+        job_opening = JobOpening.objects.get(pk=id)
+        context['candidates'] = Candidate.objects.filter(job_openings=job_opening)
+        context['job_opening'] = job_opening
+
+        return context
 
 class CandidateDetailsView(LoginRequiredMixin, DetailView):
     template_name = 'candidate/candidate_details.html'
@@ -269,6 +275,9 @@ class CandidateDetailsView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
+        job_opening_id = self.request.GET.get('job_opening_id')
+        if job_opening_id :
+            context['job_opening'] = JobOpening.objects.get(pk=job_opening_id)
 
         return context
 
@@ -291,13 +300,16 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         # text = json.loads(self.request.GET.get('response'))
         id = self.kwargs.get('pk')
+        job_opening_id = self.request.GET.get('job_opening_id')
         candidate = Candidate.objects.get(id=id)
-        job_opening = candidate.job_openings.first()
-        print('j', job_opening)
-        context['job_opening'] = job_opening
-        context['role'] = job_opening.designation
-        response_text = ResumeAnalysis.objects.get(candidate=candidate).response_text
+        job_opening = candidate.job_openings.get(id=job_opening_id)
+
+        if job_opening :
+            context['job_opening'] = job_opening
+            context['role'] = job_opening.designation
+        response_text = ResumeAnalysis.objects.get(candidate=candidate, job_opening=job_opening).response_text
         context['response_text'] = response_text
+        context['candidate'] = candidate
         text = json.loads(response_text)
         context['text'] = text
         stable = False
