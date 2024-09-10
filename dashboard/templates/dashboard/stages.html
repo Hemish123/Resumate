@@ -323,8 +323,8 @@
 
               <div class="row mt-1 mb-12">
                 <div class="col-md-4 col-lg-3 {% if not active %}kanban-disabled{% endif %}">
-                  <a href="#">
-                      <div class="alert alert-info" role="alert">New Applications</div>
+                  <a href="{% url 'application-list' job_opening.id %}">
+                      <div class="alert alert-info" role="alert">All Applications</div>
                   </a>
                   <a href="#">
                       <div class="alert alert-primary" role="alert">Assigned to :
@@ -361,7 +361,7 @@
                       </div>
                   </div>
                 </div>
-                <div class="col-md-4 col-lg-2 {% if not active %}kanban-disabled{% endif %}">
+                <div class="col-md-4 col-lg-3 {% if not active %}kanban-disabled{% endif %}">
                   <div class="card mb-6 shadow-sm">
                       <h5 class="card-header d-flex justify-content-between align-items-center">
                           Required Skills
