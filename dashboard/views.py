@@ -41,15 +41,16 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
             else:
                 context['no_job_posts'] = 'No openings'
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-            job_posts = JobOpening.objects.filter(company=self.request.user.company).order_by('-active')
+            job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active')
             if job_posts.exists():
                 context['job_posts'] = job_posts
             else:
                 context['no_job_posts'] = 'No openings'
         else:
             employee = Employee.objects.get(user=self.request.user)
+
             try:
-                job_posts = JobOpening.objects.filter(company=self.request.user.company, assignemployee=employee).order_by('-active')
+                job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active')
 
                 if job_posts.exists():
                     context['job_posts'] = job_posts

@@ -38,8 +38,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['choices'] = Employee.objects.all()
-        context['clients'] = Client.objects.all()
+        context['choices'] = Employee.objects.filter(company=self.request.user.company)
+        context['clients'] = Client.objects.filter(company=self.request.user.company)
 
         # Load JSON data for designations and skills
         with open("dashboard/static/dashboard/json/designations.json") as f:
@@ -110,9 +110,9 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['choices'] = Employee.objects.all()
+        context['choices'] = Employee.objects.filter(company=self.request.user.company)
         if self.object.hiring_for == "client":
-            context['clients'] = Client.objects.all()
+            context['clients'] = Client.objects.filter(company=self.request.user.company)
         with open("dashboard/static/dashboard/json/designations.json") as f:
             data = json.load(f)
 
@@ -191,3 +191,21 @@ class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
             return reverse_lazy('job-opening')
         return reverse_lazy('dashboard')
 
+class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Client
+    fields = ['name', 'location', 'email', 'contact', 'website']
+    template_name = "manager/update_client.html"
+    title = "Update Client"
+    permission_required = 'manager.change_client'  # Replace with actual permission codename
+    success_url = reverse_lazy('users-settings')
+
+    def has_permission(self):
+        # Override has_permission to consider inherited group permissions
+        user = self.request.user
+        return user.groups.filter(permissions__codename='change_client').exists()
+
+
+    def form_valid(self, form):
+
+        messages.success(self.request, message='Client updated successfully!')
+        return super().form_valid(form)
