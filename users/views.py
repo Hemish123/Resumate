@@ -119,12 +119,12 @@ class SettingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['clients'] = Client.objects.filter(company=self.request.user.company)[:5]
+        context['clients'] = Client.objects.filter(company=self.request.user.employee.company)[:5]
       # Add employee data
 
 
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
-        context['employees'] = Employee.objects.filter(company=self.request.user.company)[:5]
+        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company)[:5]
         context['has_perm2'] = has_perm2
         
 
@@ -138,7 +138,7 @@ class ClientsListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['clients'] = Client.objects.filter(company=self.request.user.company)
+        context['clients'] = Client.objects.filter(company=self.request.user.employee.company)
 
          # Access permission details (optional)
         has_perm1 = self.request.user.groups.filter(permissions__codename='add_client').exists()
@@ -148,7 +148,24 @@ class ClientsListView(LoginRequiredMixin, TemplateView):
         context['has_perm2'] = has_perm2
         
         return context
-    
+
+class ClientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Client
+    success_url = reverse_lazy('users-settings')
+    permission_required = 'manager.delete_client'
+
+    def has_permission(self):
+        # Override has_permission to consider inherited group permissions
+        user = self.request.user
+        return user.groups.filter(permissions__codename='delete_client').exists()
+
+
+    def post(self, request, *args, **kwargs):
+        if "cancel" in request.POST:
+            return redirect(self.success_url)
+
+        return super().post(request, *args, **kwargs)
+
 class EmployeeListView(LoginRequiredMixin,TemplateView):
     template_name = "users/employees.html"
 
@@ -160,3 +177,30 @@ class EmployeeListView(LoginRequiredMixin,TemplateView):
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
         context['has_perm2'] = has_perm2
         return context
+
+class EmployeeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Employee
+    success_url = reverse_lazy('users-settings')
+    permission_required = 'users.delete_employee'
+
+    def has_permission(self):
+        # Override has_permission to consider inherited group permissions
+        user = self.request.user
+        return user.groups.filter(permissions__codename='delete_employee').exists()
+
+
+    def post(self, request, *args, **kwargs):
+        if "cancel" in request.POST:
+            return redirect(self.success_url)
+
+        # Get the employee object
+        self.object = self.get_object()
+        user = self.object.user
+
+        # Call the parent class's post method which performs deletion
+        response = super().post(request, *args, **kwargs)
+
+        # Delete the associated user after employee is deleted
+        if response.status_code == 302:  # Check for redirect after successful deletion
+            user.delete()
+        return response

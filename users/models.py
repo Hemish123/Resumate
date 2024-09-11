@@ -22,7 +22,7 @@ class Company(models.Model):
 
 
 class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to User model
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')  # Link to User model
     contact = models.CharField(max_length=12, unique=True, blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='employees', null=True)
     joined = models.DateTimeField(default=timezone.now)
