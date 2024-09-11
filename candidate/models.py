@@ -8,6 +8,7 @@ from manager.models import JobOpening
 from django.utils import timezone
 from django.urls import reverse
 from datetime import timedelta
+from users.models import Company
 
 # Create your models here.
 
@@ -43,6 +44,7 @@ class Candidate(models.Model):
     filename = models.CharField(max_length=255, blank=True)
     text_content = models.TextField(default='')
     updated = models.DateTimeField(default=timezone.now)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='candidates', null=True)
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase

@@ -1,9 +1,10 @@
-from django.shortcuts import render
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.contrib.auth.hashers import make_password
 from .utils import generate_random_password, send_activation_email
-from django.views.generic import ListView, CreateView, TemplateView, DeleteView
+from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
 from users.models import Employee
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
@@ -52,4 +53,27 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         send_activation_email(employee, site_url, password)
         messages.success(self.request, message='Success! Email sent to employee with login details.')
 
-        return redirect('dashboard')  # Redirect to success page (optional)
+        return redirect('users-settings')  # Redirect to success page (optional)
+
+class EmployeeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = User
+    fields = ['groups']
+    template_name = "adminuser/update_employee.html"
+    title = "Update Client"
+    permission_required = 'users.change_employee'   # Replace with actual permission codename
+    success_url = reverse_lazy('users-settings')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.get_object()
+
+        return context
+
+    def has_permission(self):
+        # Override has_permission to consider inherited group permissions
+        user = self.request.user
+        return user.groups.filter(permissions__codename='change_employee').exists()
+
+    def form_valid(self, form):
+        messages.success(self.request, message='Employee updated successfully!')
+        return super().form_valid(form)
