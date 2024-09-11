@@ -37,10 +37,15 @@ fileInput.addEventListener('change', function(event) {
                 document.querySelector('input[name="email"]').value = data.parsed_data.email;
                 document.querySelector('input[name="contact"]').value = data.parsed_data.contact;
                 document.querySelector('input[name="education"]').value = data.parsed_data.education;
+                document.querySelector('input[name="location"]').value = data.parsed_data.location;
+
                 document.querySelector('input[name="current_designation"]').value = data.parsed_data.designation;
 //                document.querySelector('input[name="skills"]').value = data.parsed_data.skills;
                 if (data.parsed_data.total_experience) {
                     document.querySelector('input[name="experience"]').value = data.parsed_data.total_experience;
+                }
+                else {
+                    document.querySelector('input[name="experience"]').value = 0;
                 }
             } else {
                 document.querySelector('.preloader-container').style.display = 'none';

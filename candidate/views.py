@@ -1,8 +1,8 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.contrib import messages
-from django.views.generic import CreateView, TemplateView, DetailView, UpdateView
+from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from dashboard.models import CandidateStage, Stage
@@ -19,15 +19,13 @@ from django.core.files.base import ContentFile
 import os, json, re
 from django.conf import settings
 from .genai_resume import get_response
+from .forms import CandidateForm
 
 # Create your views here.
-class CandidateCreateView(CreateView):
-    model = Candidate
-    # form_class = CandidateForm
-    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'linkedin', 'github',
-              'portfolio', 'blog', 'education', 'experience', 'current_designation', 'current_organization',
-              'current_ctc', 'current_ctc_ih', 'expected_ctc', 'expected_ctc_ih',
-              'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback', 'upload_resume']
+class CandidateCreateView(FormView):
+    # model = Candidate
+    form_class = CandidateForm
+
     template_name = "candidate/application_create.html"
     title = "Application"
 
@@ -72,7 +70,6 @@ class CandidateCreateView(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        form = self.get_form()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if the request is an AJAX request
             return self.handle_ajax(request)
@@ -112,8 +109,20 @@ class CandidateCreateView(CreateView):
         if form.is_valid():
             email = form.cleaned_data['email'].lower()
             # candidate, created = Candidate.objects.get_or_create(email=email)
-            if Candidate.objects.filter(email=email).exists():
+            if Candidate.objects.filter(email=email, company=job_opening.company).exists():
                 candidate = Candidate.objects.get(email=email)
+                candidate.name = form.cleaned_data['name']
+                candidate.contact = form.cleaned_data['contact']
+                candidate.location = form.cleaned_data['location']
+                candidate.education = form.cleaned_data['education']
+                candidate.current_designation = form.cleaned_data['current_designation']
+                candidate.experience = form.cleaned_data['experience']
+                candidate.linkedin = form.cleaned_data['linkedin']
+                candidate.github = form.cleaned_data['github']
+                candidate.portfolio = form.cleaned_data['portfolio']
+                candidate.blog = form.cleaned_data['blog']
+                candidate.current_organization = form.cleaned_data['current_organization']
+                candidate.updated = timezone.now()
                 # candidate.job_openings.add(job_opening)
             else:
                 candidate = form.save(commit=False)
@@ -121,10 +130,13 @@ class CandidateCreateView(CreateView):
 
             if not resume:
                 form.add_error(None, 'Resume data is missing. Please upload the resume again.')
+                # return render(request, self.template_name, self.get_context_data())
+
                 return self.form_invalid(form)
 
-            if Candidate.objects.filter(email=email, job_openings=job_opening).exists():
+            if Candidate.objects.filter(email=email, job_openings=job_opening, company=job_opening.company).exists():
                 form.add_error(None, 'You have already applied for this role!')
+                # return render(request, self.template_name, self.get_context_data())
                 return self.form_invalid(form)
 
             del request.session['resume']
@@ -135,8 +147,11 @@ class CandidateCreateView(CreateView):
             candidate.upload_resume = file
             candidate.filename = file.name
             candidate.text_content = resume
+            candidate.company = job_opening.company
 
-            candidate.save()
+            if not Candidate.objects.filter(email=email).exists():
+                print('save')
+                candidate.save()
 
             candidate.job_openings.add(job_opening)
             self.candidate = candidate
@@ -151,13 +166,15 @@ class CandidateCreateView(CreateView):
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
+            # return self.get_success_url()
+
 
         else:
             return self.form_invalid(form)
 
-    def form_invalid(self, form):
-        self.object = None
-        return super().form_invalid(form)
+    # def form_invalid(self, form):
+    #     self.object = None
+    #     return super().form_invalid(form)
 
 class ApplicationSuccessView(TemplateView):
     template_name = 'candidate/application_success.html'
@@ -247,7 +264,7 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['candidates'] = Candidate.objects.all()
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
 
         return context
 
@@ -260,7 +277,7 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
-        context['candidates'] = Candidate.objects.filter(job_openings=job_opening)
+        context['candidates'] = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
         context['job_opening'] = job_opening
 
         return context

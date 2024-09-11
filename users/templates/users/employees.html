@@ -86,12 +86,22 @@
         <div class="col-xl-4 col-lg-6 col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3 pb-1">
-                        <div>
-                            <div class="me-2 text-heading h5 mb-1">
-                                <i class="ti-lg ti ti-user me-1_5"></i>{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</div>
+                    <div class="d-flex align-items-start">
+                        <div class="d-flex align-items-center mb-3 pb-1">
+                            <div class="avatar me-4">
+                                <i class="ti-lg ti ti-user me-1_5"></i>
+                            </div>
+                            <div class="me-2">
+                                <h5 class="mb-0">{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</h5>
+                                <div class="text-body">{{ emp.user.groups.first.name }}</div>
+                            </div>
                         </div>
+
                         <div class="ms-auto">
+                            {% if request.user == emp.user %}
+                            <a href="javascript:void(0);"  data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit">
+                                        <i class="ti ti-pencil me-2"></i></a>
+                            {% else %}
                             <div class="dropdown">
                                 <button
                                     type="button"
@@ -101,18 +111,54 @@
                                     <i class="ti ti-dots-vertical ti-md text-muted"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="javascript:void(0);">Edit Details</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'update-employee' emp.user.id %}">
+                                        <i class="ti ti-pencil ti-xs me-2"></i>Change Position</a></li>
                                     <li>
                                         <hr class="dropdown-divider" />
                                     </li>
+
                                     <li>
-                                        <a class="dropdown-item text-danger" href="javascript:void(0);">Delete</a>
+                                        <a class="dropdown-item text-danger"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#employeeDelete-{{ emp.id }}">
+                                            <i class="ti ti-trash ti-xs me-2"></i>Delete</a>
                                     </li>
+
                                 </ul>
+                                  <!-- Modal -->
+                                <div class="modal fade" id="employeeDelete-{{ emp.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel1">Delete Employee</h5>
+                                          <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          <p>Are you sure you want to delete {{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }} }?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                            Close
+                                          </button>
+                                            <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'employees-delete' emp.id %}">
+                                              {% csrf_token %}
+                                              <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
+
                     <div><p><i class="ti-sm ti ti-phone-call me-1_5"></i> {{ emp.contact }}</p></div>
+                    <div><p><i class="ti-sm ti ti-mail me-1_5"></i> {{ emp.user.email }}</p></div>
                 </div>
             </div>
         </div>
