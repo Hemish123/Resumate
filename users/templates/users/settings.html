@@ -93,7 +93,14 @@
                   <!-- About User -->
                   <div class="card mb-6">
                     <div class="card-body">
-                      <small class="card-text text-uppercase text-muted small">About</small>
+                      <div class="d-flex justify-content-start">
+                        <small class="card-text text-uppercase text-muted small">About</small>
+                        <div class="ms-auto">
+                          <a href="{% url 'users-update' request.user.employee.id %}"  data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit">
+                            <i class="ti ti-pencil me-2"></i>
+                          </a>
+                        </div>
+                      </div>
                       <ul class="list-unstyled my-3 py-1">
                         <li class="d-flex align-items-center mb-4">
                           <i class="ti ti-user ti-lg"></i><span class="fw-medium mx-2">Full Name:</span>
