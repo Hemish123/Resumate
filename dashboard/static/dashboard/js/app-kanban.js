@@ -37,7 +37,9 @@ boards = stages.map(stage => ({
       title: candidateStage.candidate.name,
       contact: candidateStage.candidate.contact,
       email: candidateStage.candidate.email,
-      feedback:candidateStage.candidate.feedback
+      feedback:candidateStage.candidate.feedback,
+      candidateId: candidateStage.candidate.id  // Store candidate ID here
+
     }))
   }));
 
@@ -120,7 +122,7 @@ boards = stages.map(stage => ({
      modules: {
        toolbar: '.comment-toolbar'
      },
-     placeholder: 'Write a Comment... ',
+     placeholder: 'Write a Feedback... ',
      theme: 'snow'
    });
  }
@@ -146,17 +148,17 @@ boards = stages.map(stage => ({
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='kanban-tasks-item-dropdown'>" +
       "<a class='dropdown-item' href='javascript:void(0)'>Copy task link</a>" +
       "<a class='dropdown-item' href='javascript:void(0)'>Duplicate task</a>" +
-      "<a class='dropdown-item delete-task' href='javascript:void(0)'>Delete</a>" +
+      "<a class='dropdown-item delete-task text-danger' href='javascript:void(0)'>Delete</a>" +
       '</div>' +
       '</div>'
     );
   }
   // Render header
-  function renderHeader(email) {
+  function renderHeader(name) {
     return (
       "<div class='d-flex justify-content-between flex-wrap align-items-start mb-2'>" +
       "<div class='item-badges'> " +
-      "<span class='d-flex align-items-start'>" + email +
+      "<span class='kanban-text'>" + name +
       '</span>' +
       '</div>' +
       renderDropdown() +
@@ -205,8 +207,10 @@ boards = stages.map(stage => ({
           : element.textContent,
         contact = element.getAttribute('data-contact'),
         email = element.getAttribute('data-email'),
-        feedback = element.getAttribute('data-feedback');
-        console.log('f', feedback);
+        feedback = element.getAttribute('data-feedback'),
+        candidateId = element.getAttribute('data-candidateId');
+
+//        console.log('f', feedback);
 //        dateObj = new Date(),
 //        year = dateObj.getFullYear(),
 //        dateToUse = date
@@ -219,10 +223,17 @@ boards = stages.map(stage => ({
       kanbanOffcanvas.show();
 
       // To get data on sidebar
-      kanbanSidebar.querySelector('#title').value = title;
-      kanbanSidebar.querySelector('#contact').value = contact;
-      kanbanSidebar.querySelector('#email').value = email;
-      kanbanSidebar.querySelector('#feedback').value = feedback;
+
+      kanbanSidebar.querySelector('#contact').innerHTML = contact;
+      kanbanSidebar.querySelector('#email').innerHTML = email;
+//      kanbanSidebar.querySelector('#feedback').value = feedback;
+      kanbanSidebar.querySelector('#offcanvas-title').innerHTML = title;
+  // Set the onclick event for the button to navigate to the candidate's profile
+      const candidateProfileBtn = kanbanSidebar.querySelector('#candidateProfile');
+      candidateProfileBtn.onclick = function() {
+        window.location.href = `/candidate/candidate-details/${candidateId}/`;  // Redirect to candidate profile page
+      };
+
 
       // ! Using jQuery method to get sidebar due to select2 dependency
       $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
@@ -243,12 +254,12 @@ boards = stages.map(stage => ({
 
 
 //    // Add event listener to board headers
-    document.querySelectorAll('.kanban-board-header').forEach(header => {
-      header.addEventListener('click', function () {
-        const stageId = this.parentNode.getAttribute('data-id');
-        document.getElementById('stage_id').value = stageId;
-      });
-    });
+//    document.querySelectorAll('.kanban-board-header').forEach(header => {
+//      header.addEventListener('click', function () {
+//        const stageId = this.parentNode.getAttribute('data-id');
+//        document.getElementById('stage_id').value = stageId;
+//      });
+//    });
 
     },
 
@@ -302,12 +313,25 @@ boards = stages.map(stage => ({
 //        // Add the new candidate to the kanban board
         kanban.addElement(id, {
           id: newCandidate.id,
-          title: `${renderHeader(newCandidate.candidate.email)}
-                    <span class='kanban-text'>
-                    ${newCandidate.candidate.name}
+          title: `${renderHeader(newCandidate.candidate.name)}
+                    <span class='d-flex flex-wrap me-2 align-items-start'>
+                    ${newCandidate.candidate.email}
 
-                  </span>`
+                  </span>
+                  ${renderFooter(newCandidate.candidate.feedback ? newCandidate.candidate.feedback : 0)}`
         });
+        const newElement = document.querySelector(`.kanban-item[data-eid='${newCandidate.id}']`);
+//          const title = newElement.getAttribute('data-eid')
+//            ? newElement.querySelector('.kanban-text').textContent
+//            : newElement.textContent;
+        newElement.setAttribute('data-email', newCandidate.candidate.email);
+        newElement.setAttribute('data-email', newCandidate.candidate.email);
+        newElement.setAttribute('data-contact', newCandidate.candidate.contact);
+        newElement.setAttribute('data-feedback', newCandidate.candidate.feedback);
+        newElement.setAttribute('data-candidateId', newCandidate.candidate.id);
+
+
+
       } else {
         console.error('Error adding candidate:', response);
       }
@@ -474,7 +498,13 @@ applyBoardColors();
   // Render custom items
   if (kanbanItem) {
     kanbanItem.forEach(function (el) {
-      const element = "<span class='kanban-text'>" + el.textContent + '</span>';
+
+    var element = '';
+    var name = el.textContent;
+    el.textContent = '';
+    if (el.getAttribute('data-email') !== undefined) {
+      element = "<span class='d-flex flex-wrap me-2 align-items-start'>" + el.getAttribute('data-email') + '</span>';
+      }
       let img = '';
       if (el.getAttribute('data-image') !== null) {
         img =
@@ -484,13 +514,17 @@ applyBoardColors();
           el.getAttribute('data-image') +
           "'>";
       }
-      el.textContent = '';
-      if (el.getAttribute('data-email') !== undefined) {
+//      el.textContent = '';
+//      if (el.getAttribute('data-email') !== undefined) {
         el.insertAdjacentHTML(
           'afterbegin',
-          renderHeader(el.getAttribute('data-email')) + img + element
+//          renderHeader(el.getAttribute('data-email')) + element
+          renderHeader(name) + element
+
         );
-      }
+//        console.log('e', element, el.textContent);
+
+//      }
       if (
         el.getAttribute('data-feedback') !== 'undefined'
       ) {
@@ -608,6 +642,7 @@ applyBoardColors();
       });
     });
   }
+
 
   // Add new board
 
