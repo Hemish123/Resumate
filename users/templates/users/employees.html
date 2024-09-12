@@ -99,7 +99,7 @@
 
                         <div class="ms-auto">
                             {% if request.user == emp.user %}
-                            <a href="javascript:void(0);"  data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit">
+                            <a href="{% url 'users-update' emp.id %}"  data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit">
                                         <i class="ti ti-pencil me-2"></i></a>
                             {% else %}
                             <div class="dropdown">

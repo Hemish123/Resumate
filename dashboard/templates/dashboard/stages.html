@@ -112,11 +112,19 @@
                 <!-- Edit Task/Task & Activities -->
                 <div class="offcanvas offcanvas-end kanban-update-item-sidebar">
                   <div class="offcanvas-header border-bottom">
-                    <h5 class="offcanvas-title">Edit Task</h5>
+                    <h5 class="offcanvas-title" id="offcanvas-title">Candidate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                   </div>
                   <div class="offcanvas-body pt-0">
-                    <div class="nav-align-top">
+                      <button type="button" id="candidateProfile" class="btn btn-primary w-100 my-2">View Full Profile</button>
+                    <div class="my-2">
+                        <i class="ti ti-mail me-2"></i><span id="email"></span>
+                    </div>
+                      <div class="mb-2">
+                        <i class="ti ti-phone me-2"></i><span id="contact"></span>
+
+                    </div>
+                      <div class="nav-align-top">
                       <ul class="nav nav-tabs mb-5 rounded-0">
                         <li class="nav-item">
                           <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-update">
@@ -136,20 +144,9 @@
                       <!-- Update item/tasks -->
                       <div class="tab-pane fade show active" id="tab-update" role="tabpanel">
                         <form>
+
                           <div class="mb-5">
-                            <label class="form-label" for="title">Title</label>
-                            <input type="text" id="title" class="form-control" placeholder="Enter Title" />
-                          </div>
-                          <div class="mb-5">
-                            <label class="form-label" for="contact">Contact</label>
-                            <input type="text" id="contact" class="form-control" placeholder="Enter Contact" />
-                          </div>
-                          <div class="mb-5">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="text" id="email" class="form-control" placeholder="Enter Email" />
-                          </div>
-                          <div class="mb-5">
-                            <label class="form-label" for="label"> Label</label>
+                            <label class="form-label" for="label"> Stage</label>
                             <select class="select2 select2-label form-select" id="label">
                               <option data-color="bg-label-success" value="UX">UX</option>
                               <option data-color="bg-label-warning" value="Images">Images</option>
@@ -159,10 +156,7 @@
                               <option data-color="bg-label-primary" value="Charts & Maps">Charts & Maps</option>
                             </select>
                           </div>
-                          <div class="mb-5">
-                            <label class="form-label">Assigned</label>
-                            <div class="assigned d-flex flex-wrap"></div>
-                          </div>
+
                           <div class="mb-5">
                             <label class="form-label" for="attachments">Attachments</label>
                             <div>

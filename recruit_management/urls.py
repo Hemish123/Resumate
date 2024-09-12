@@ -24,7 +24,7 @@ from django.shortcuts import redirect
 from users.forms import EmailValidationOnForgotPassword
 from users.views import (UserDetailView, SettingsView, CustomLoginView,
                          ClientsListView,EmployeeListView, CompanyCreateView, EmployeeDeleteView,
-                         ClientDeleteView)
+                         ClientDeleteView, EmployeeUpdateView)
 
 
 urlpatterns = [
@@ -35,7 +35,8 @@ urlpatterns = [
     path('candidate/', include('candidate.urls')),
     path('adminuser/', include('adminuser.urls')),
     path('register/', user_views.register, name='register'),
-    path('users-details/<int:pk>', UserDetailView.as_view(), name='users-details'),
+    path('users-details/<int:pk>/', UserDetailView.as_view(), name='users-details'),
+    path('users-update/<int:pk>/', EmployeeUpdateView.as_view(), name='users-update'),
     path('company-create/', CompanyCreateView.as_view(), name='company-create'),
     path('users-settings/', SettingsView.as_view(), name='users-settings'),
     path('users-clients/', ClientsListView.as_view(), name='users-clients'),
