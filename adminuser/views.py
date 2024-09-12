@@ -55,7 +55,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
         return redirect('users-settings')  # Redirect to success page (optional)
 
-class EmployeeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = User
     fields = ['groups']
     template_name = "adminuser/update_employee.html"

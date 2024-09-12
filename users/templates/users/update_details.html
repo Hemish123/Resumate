@@ -1,0 +1,71 @@
+{% extends "users/user_base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+{% if user.is_authenticated %}
+<h4 class="mb-1">Welcome to ResuMate! 👋</h4>
+              <p class="mb-6">Please enter your details to your account and start the adventure</p>
+
+              <form id="formAuthentication" enctype="multipart/form-data" class="mb-4" method="post">
+                {% csrf_token %}
+                  <div class="mb-6">
+                      {% if form.errors %}
+                        {% for field, errors in form.errors.items %}
+                                  {% for error in errors %}
+                                      <div class="error-message text-danger">{{ error }}</div>
+                                  {% endfor %}
+                              {% endfor %}
+                    {% endif %}
+                  <label for="name" class="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="full_name"
+                    placeholder="John Doe"
+                    value="{{ full_name|default_if_none:'' }}"
+                    required
+                    autofocus />
+                </div>
+                  <div class="mb-6">
+                  <label class="form-label" for="contact">Email</label>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="email"
+                      id="email"
+                      class="form-control"
+                      name="email"
+                      placeholder="john.doe@gmail.com"
+                      value="{{ email|default_if_none:'' }}"
+                      required
+                       />
+
+                  </div>
+                </div>
+                <div class="mb-6">
+                  <label class="form-label" for="contact">Contact</label>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="number"
+                      id="contact"
+                      class="form-control"
+                      name="contact"
+                      placeholder="9238291221"
+                      value="{{ form.contact.value|default_if_none:'' }}"
+                      required
+                       />
+
+                  </div>
+                </div>
+
+
+                <div class="mb-6">
+                  <button class="btn btn-primary d-grid w-100" type="submit">Submit</button>
+                </div>
+              </form>
+
+    <!-- / Content -->
+
+{% endif %}{% endblock %}

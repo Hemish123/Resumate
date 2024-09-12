@@ -66,7 +66,7 @@ class CandidateAPIView(APIView):
     serializer_class = CandidateSerializer
 
     def get(self, request):
-        candidates = Candidate.objects.all()
+        candidates = Candidate.objects.filter(company=request.user.employee.company)
         if not candidates.exists():
             return Response({'detail': 'No candidates found.'}, status=status.HTTP_200_OK)
 
@@ -144,7 +144,9 @@ class StageAPIView(APIView):
         if candidateid:
             stage = Stage.objects.get(job_opening=job_opening, id=candidatestageid)
             candidate = CandidateStage.objects.get(stage=stage, id=candidateid)
+            Candidate.objects.get(id=candidate.candidate.id).job_openings.remove(job_opening)
             candidate.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -166,7 +168,7 @@ class StageView(LoginRequiredMixin, TemplateView):
         context['skills'] = skills
 
         # Get the required skills for the job opening
-        skills = job_opening.requiredskills
+        # skills = job_opening.requiredskills
         
         context['s_skills'] = job_opening.requiredskills
        
