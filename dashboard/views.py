@@ -97,8 +97,8 @@ class StageAPIView(APIView):
         stageid = request.data.get('id')
         stage_name = request.data.get('title')
         if stage_name:
-            order = Stage.objects.filter(job_opening_id=job_opening_id).exclude(name='Hired').aggregate(Max('order'))['order__max'] or 0
-            stage = Stage.objects.create(id=stageid, name=stage_name, job_opening=job_opening, order=order+1)
+            order = Stage.objects.filter(job_opening_id=job_opening_id).exclude(name__in=['Hired', 'Rejected']).aggregate(Max('order'))['order__max'] or 0
+            stage = Stage.objects.create(name=stage_name, job_opening=job_opening, order=order+1)
             stage.save()
         if candidateid:
             stage = Stage.objects.get(id=stageid)
@@ -156,19 +156,10 @@ class StageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = StageForm
 
         # Retrieve the JobOpening instance
         job_opening_id = self.kwargs.get('pk')
         job_opening = get_object_or_404(JobOpening, pk=job_opening_id)
-
-        # Load skills from the JSON file
-        with open("dashboard/static/dashboard/json/skills.json") as f:
-            skills = json.load(f)
-        context['skills'] = skills
-
-        # Get the required skills for the job opening
-        # skills = job_opening.requiredskills
         
         context['s_skills'] = job_opening.requiredskills
        
@@ -176,24 +167,11 @@ class StageView(LoginRequiredMixin, TemplateView):
 
         # Retrieve stages and candidates
         stages = Stage.objects.filter(job_opening=job_opening).order_by('order')
-        candidates_by_stage = {}
-        # if stages.exists():
-        #     for stage in stages:
-        #         candidates = Candidate.objects.filter(
-        #             candidatestage__stage=stage,
-        #         ).order_by('candidatestage__order')
-        #         candidates_by_stage[stage.name] = candidates
-        if Stage.objects.filter(job_opening=job_opening).exists():
-            for stage in stages:
-                candidates = Candidate.objects.filter(
-                    candidatestage__stage=stage,
+        context['stages'] = stages
 
-                ).order_by('candidatestage__order')
-                candidates_by_stage[stage.name] = candidates
 
         # Add data to the context
         context['job_opening'] = job_opening
-        context['candidates_by_stage'] = candidates_by_stage
 
 
         # Add job description and job details to the context
@@ -207,8 +185,16 @@ class StageView(LoginRequiredMixin, TemplateView):
 
         return context
 
+    def post(self, request, *args, **kwargs):
 
+        stage_id = request.POST.get('stage')
+        candidate_stage_id = request.POST.get('candidateStageId')
+        print('s', stage_id, candidate_stage_id)
+        order = CandidateStage.objects.filter(stage_id=stage_id).aggregate(Max('order'))['order__max'] or 0
 
+        # stageid = request.data.get('stage_id')
+        CandidateStage.objects.filter(id=candidate_stage_id).update(order=order+1, stage_id=stage_id)
+        return HttpResponseRedirect(reverse('job-process', kwargs={'pk': self.kwargs['pk']}))
 # class ContactUsView(FormView):
 #     template_name = 'screening/contactus.html'
 #     form_class = ContactForm

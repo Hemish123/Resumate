@@ -117,15 +117,16 @@ boards = stages.map(stage => ({
 //  }
 
   // Comment editor
- if (commentEditor) {
-   new Quill(commentEditor, {
-     modules: {
-       toolbar: '.comment-toolbar'
-     },
-     placeholder: 'Write a Feedback... ',
-     theme: 'snow'
-   });
- }
+// if (commentEditor) {
+//
+//   new Quill(commentEditor, {
+//     modules: {
+//       toolbar: '.comment-toolbar'
+//     },
+//     placeholder: 'Write a Feedback... ',
+//     theme: 'snow'
+//   });
+// }
 
   // Render board dropdown
   function renderBoardDropdown() {
@@ -222,10 +223,38 @@ boards = stages.map(stage => ({
       // Show kanban offcanvas
       kanbanOffcanvas.show();
 
-      // To get data on sidebar
+        document.querySelector('#stageUpdate')
 
+        // update candidate stage from sidebar
+      document.querySelector('#stageUpdate').addEventListener('submit', function() {
+        document.querySelector('#candidateStageId').value = element.getAttribute('data-eid');
+      });
+      console.log('stage', el.parentNode.parentNode.getAttribute('data-id'));
+      const stageId = el.parentNode.parentNode.getAttribute('data-id');
+      const stageSelect = document.querySelector('#stageSelect');
+
+        stageSelect.value = stageId;
+      // To get data on sidebar
+        // Iterate through options to find and select the one that matches the stageName
+        const options = stageSelect.querySelectorAll('option');
+        options.forEach(option => {
+            if (option.value === stageId) {
+                option.setAttribute('selected', '');
+                option.setAttribute('data-select2-id', stageId);
+                console.log('d', option.textContent);
+            }
+        });
+        $(stageSelect).trigger('change');
       kanbanSidebar.querySelector('#contact').innerHTML = contact;
       kanbanSidebar.querySelector('#email').innerHTML = email;
+      if (feedback !== 'undefined') {
+        kanbanSidebar.querySelector('#feedback_content').innerHTML = feedback;
+
+      }
+      else{
+        kanbanSidebar.querySelector('#feedback_content').classList.add('d-none');
+      }
+
 //      kanbanSidebar.querySelector('#feedback').value = feedback;
       kanbanSidebar.querySelector('#offcanvas-title').innerHTML = title;
   // Set the onclick event for the button to navigate to the candidate's profile
@@ -236,7 +265,7 @@ boards = stages.map(stage => ({
 
 
       // ! Using jQuery method to get sidebar due to select2 dependency
-      $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
+      $('.kanban-update-item-sidebar').find(select2).val(stageSelect).trigger('change');
 
       // Remove & Update assigned
 //      kanbanSidebar.querySelector('.assigned').innerHTML = '';
@@ -329,8 +358,10 @@ boards = stages.map(stage => ({
         newElement.setAttribute('data-contact', newCandidate.candidate.contact);
         newElement.setAttribute('data-feedback', newCandidate.candidate.feedback);
         newElement.setAttribute('data-candidateId', newCandidate.candidate.id);
+        newElement.classList.remove('is-moving');
 
-
+              // add drag and drop functionality for new items
+        newElement.addEventListener('drop', ItemDrop);
 
       } else {
         console.error('Error adding candidate:', response);
@@ -356,8 +387,7 @@ boards = stages.map(stage => ({
           e.insertAdjacentHTML('beforebegin', renderDropdown());
         });
 
-      // add drag and drop functionality for new items
-        el.addEventListener('drop', ItemDrop);
+
 
         // prevent sidebar to open onclick dropdown buttons of new tasks
         const newTaskDropdown = [].slice.call(document.querySelectorAll('.kanban-item .kanban-tasks-item-dropdown'));
@@ -421,6 +451,7 @@ function applyBoardColors() {
 //    });
 }
 applyBoardColors();
+
 
 // drop update order item
   async function ItemDrop(el, target, source, sibling) {
@@ -647,28 +678,44 @@ applyBoardColors();
   // Add new board
 
   // Function to generate a new board ID
-    function generateNewBoardId() {
-        const allBoards = document.querySelectorAll('.kanban-board');
-        let maxId = 0;
-
-        allBoards.forEach(board => {
-            const id = parseInt(board.getAttribute('data-id'), 10);
-            if (!isNaN(id) && id > maxId) {
-                maxId = id;
-            }
-        });
-
-        return maxId + 1;
-    }
+//    function generateNewBoardId() {
+//        const allBoards = document.querySelectorAll('.kanban-board');
+//        let maxId = 0;
+//
+//        allBoards.forEach(board => {
+//            const id = parseInt(board.getAttribute('data-id'), 10);
+//            if (!isNaN(id) && id > maxId) {
+//                maxId = id;
+//            }
+//        });
+//
+//        return maxId + 1;
+//    }
 
   if (kanbanAddNewBoard) {
     kanbanAddNewBoard.addEventListener('submit', async function (e) {
       e.preventDefault();
       const thisEle = this,
-        value = thisEle.querySelector('.form-control').value,
-        id = String(generateNewBoardId());
+        value = thisEle.querySelector('.form-control').value;
+//        id = String(generateNewBoardId());
         const boards = document.querySelectorAll('.kanban-board');
-        const lastBoard = boards[boards.length - 1]; // The last board
+        const lastBoard = boards[boards.length - 2]; // The last board
+
+      const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ 'title' : value })
+      });
+
+        let kanbanBoardLastChild; // Declare this outside the block
+
+      if (response.ok) {
+      // Get JSON data from the response
+      const data = await response.json();
+      const id = String(data.id);
 
       kanban.addBoards([
         {
@@ -676,17 +723,14 @@ applyBoardColors();
           title: value
         }
       ]);
-      const response = await fetch(`/stage-api/${jobOpeningId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ 'id' : id, 'title' : value })
-      });
+      kanbanBoardLastChild = document.querySelector(`.kanban-board[data-id="${id}"]`);
+      }
+      else {
+       alert('New Stage Could not be added. Please try again later!');
+      }
 
       // Adds delete board option to new board, delete new boards & updates data-order
-      const kanbanBoardLastChild = document.querySelector(`.kanban-board[data-id="${id}"]`);
+
       if (kanbanBoardLastChild && lastBoard) {
         lastBoard.parentNode.insertBefore(kanbanBoardLastChild, lastBoard);
       }
@@ -740,9 +784,9 @@ applyBoardColors();
   }
 
   // Clear comment editor on close
-  kanbanSidebar.addEventListener('hidden.bs.offcanvas', function () {
-    kanbanSidebar.querySelector('.ql-editor').firstElementChild.innerHTML = '';
-  });
+//  kanbanSidebar.addEventListener('hidden.bs.offcanvas', function () {
+//    kanbanSidebar.querySelector('.ql-editor').firstElementChild.innerHTML = '';
+//  });
 
   // Re-init tooltip when offcanvas opens(Bootstrap bug)
   if (kanbanSidebar) {
