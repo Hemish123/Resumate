@@ -110,7 +110,7 @@ class CandidateCreateView(FormView):
             email = form.cleaned_data['email'].lower()
             # candidate, created = Candidate.objects.get_or_create(email=email)
             if Candidate.objects.filter(email=email, company=job_opening.company).exists():
-                candidate = Candidate.objects.get(email=email)
+                candidate = Candidate.objects.get(email=email, company=job_opening.company)
                 candidate.name = form.cleaned_data['name']
                 candidate.contact = form.cleaned_data['contact']
                 candidate.location = form.cleaned_data['location']
@@ -123,8 +123,10 @@ class CandidateCreateView(FormView):
                 candidate.blog = form.cleaned_data['blog']
                 candidate.current_organization = form.cleaned_data['current_organization']
                 candidate.updated = timezone.now()
+                print('fd', candidate.contact)
                 # candidate.job_openings.add(job_opening)
             else:
+                print('se')
                 candidate = form.save(commit=False)
             resume = request.session.get('resume', None)
 
@@ -134,10 +136,10 @@ class CandidateCreateView(FormView):
 
                 return self.form_invalid(form)
 
-            if Candidate.objects.filter(email=email, job_openings=job_opening, company=job_opening.company).exists():
-                form.add_error(None, 'You have already applied for this role!')
-                # return render(request, self.template_name, self.get_context_data())
-                return self.form_invalid(form)
+            # if Candidate.objects.filter(email=email, job_openings=job_opening, company=job_opening.company).exists():
+            #     form.add_error(None, 'You have already applied for this role!')
+            #     # return render(request, self.template_name, self.get_context_data())
+            #     return self.form_invalid(form)
 
             del request.session['resume']
             file = request.FILES.get('upload_resume')
@@ -149,15 +151,12 @@ class CandidateCreateView(FormView):
             candidate.text_content = resume
             candidate.company = job_opening.company
 
-            if not Candidate.objects.filter(email=email).exists():
-                print('save')
-                candidate.save()
+            candidate.save()
 
             candidate.job_openings.add(job_opening)
             self.candidate = candidate
             stage = Stage.objects.get(name='Applied', job_opening=job_opening)
-            CandidateStage.objects.create(candidate=candidate, stage=stage)
-
+            CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
             response_text = get_response(candidate.text_content, job_opening.designation,
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)
@@ -192,7 +191,7 @@ class ApplicationSuccessView(TemplateView):
 class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Candidate
     # form_class = CandidateForm
-    fields = ['job_openings', 'name', 'email', 'contact', 'location', 'dob', 'doc', 'linkedin', 'github',
+    fields = ['name', 'email', 'contact', 'location', 'dob', 'linkedin', 'github',
               'portfolio', 'blog', 'education', 'experience', 'current_designation', 'current_organization',
               'current_ctc', 'current_ctc_ih', 'expected_ctc', 'expected_ctc_ih',
               'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback']
@@ -211,16 +210,6 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        try:
-            if self.request.user.is_superuser or self.request.user.groups.filter(
-                    name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-                context['choices'] = JobOpening.objects.all()
-            else:
-                employee = Employee.objects.get(user=self.request.user)
-                context['choices'] = JobOpening.objects.filter(assignemployee=employee)
-        except Employee.DoesNotExist:
-            context['choices'] = JobOpening.objects.all()
-        # context['clients'] = Client.objects.all()
 
         return context
 
@@ -233,27 +222,17 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
             #     dob = form.cleaned_data['dob'].strftime('%d-%m-%Y')
             #     candidate.dob = datetime.strptime(dob, '%d-%m-%Y').date()
             #     print('d ', candidate.dob, dob)
-            if form.cleaned_data['doc']:
-                doc = form.cleaned_data['doc'].strftime('%d-%m-%Y')
-                candidate.doc = datetime.strptime(doc, '%d-%m-%Y').date()
-
 
             candidate.updated = timezone.now()
 
             if email and Candidate.objects.exclude(id=candidate.id).filter(email=email).exists():
-                form.add_error('email', 'Email already exists!')
+                form.add_error('email', 'Email exists for another candidate!')
                 return self.form_invalid(form)
 
             # client = form.cleaned_data['client']
             # designation = form.cleaned_data['designation']
             # required_skills = self.request.POST.getlist('requiredskills')
 
-            user = self.request.user
-            candidate.created_by = user
-
-            # if JobOpening.objects.filter(client=client, designation=designation).exists():
-            #     form.add_error('client', 'opening already exists')
-            #     return self.form_invalid(form)
             messages.success(self.request, message='Candidate updated successfully!')
             return super().form_valid(form)
 

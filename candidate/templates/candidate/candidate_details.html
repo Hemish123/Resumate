@@ -60,15 +60,37 @@
     </div>
     <div class=" mx-7 mt-7 badge bg-label-primary">
         <p class="card-text text-muted d-inline">Hiring for : </p>
+        {% if job_opening %}
+            <p class="fs-5 d-inline">{{ job_opening }}</p>
+            {% if job_opening.client %}
+            <span class="fs-6 text-muted d-inline">{{ job_opening.client }}</span>
+            {% else %}
+            <span class="fs-6 text-muted d-inline">{{ job_opening.company }}</span>
+            {% endif %}
+
+        {% else %}
         {% for opening in candidate.job_openings.all %}
-        <p class="fs-5 d-inline">{{ opening }}</p>
-        <span class="fs-6 text-muted d-inline">{{ opening.client }}</span>
+
+            <p class="fs-5 d-inline">{{ opening }}</p>
+            {% if opening.client %}
+            <span class="fs-6 text-muted d-inline">{{ opening.client }}</span>
+            {% else %}
+            <span class="fs-6 text-muted d-inline me-2">{{ opening.company }}</span>
+            {% endif %}
         {% empty %}
         <p class="d-inline">None</p>
         {% endfor %}
+        {% endif %}
     </div>
 
     <div class="row card-body">
+        <div class="mb-4 d-flex justify-content-center">
+            {% if candidate.upload_resume %}
+                <a class="btn btn-primary" href="{{ candidate.upload_resume.url }}" target="_blank">View/Download Resume</a>
+            {% else %}
+                <p>No resume uploaded.</p>
+            {% endif %}
+        </div>
         <small class="card-text text-uppercase text-muted mb-2">Personal Information</small>
       <div class="col-md-4 mb-2">
         <p class="card-text">Contact : {{ candidate.contact }}</p>
@@ -86,21 +108,32 @@
         <p class="card-text">Education : {{ candidate.education }}</p>
       </div>
     </div>
+    {% if candidate.linkedin or candidate.github or candidate.portfolio or candidate.blog %}
     <div class="row card-body">
-      <small class="card-text text-uppercase text-muted mb-2">Social Links</small>
-      <div class="col-md-6 mb-2">
-        <p class="card-text">LinkedIn : <a href="{{ candidate.linkedin }}">{{ candidate.linkedin }}</a></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p class="card-text">GitHub : <a href="{{ candidate.github }}">{{ candidate.github }}</a></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p class="card-text">Portfolio : <a href="{{ candidate.portfolio }}">{{ candidate.portfolio }}</a></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p class="card-text">Blog : <a href="{{ candidate.blog }}">{{ candidate.blog }}</a></p>
-      </div>
+
+          <small class="card-text text-uppercase text-muted mb-2">Social Links</small>
+            {% if candidate.linkedin %}
+              <div class="col-md-6 mb-2">
+                <p class="card-text">LinkedIn : <a href="{{ candidate.linkedin }}">{{ candidate.linkedin }}</a></p>
+              </div>
+            {% endif %}
+            {% if candidate.github %}
+              <div class="col-md-6 mb-2">
+                <p class="card-text">GitHub : <a href="{{ candidate.github }}">{{ candidate.github }}</a></p>
+              </div>
+            {% endif %}
+            {% if candidate.portfolio %}
+              <div class="col-md-6 mb-2">
+                <p class="card-text">Portfolio : <a href="{{ candidate.portfolio }}">{{ candidate.portfolio }}</a></p>
+              </div>
+            {% endif %}
+            {% if candidate.blog %}
+              <div class="col-md-6 mb-2">
+                <p class="card-text">Blog : <a href="{{ candidate.blog }}">{{ candidate.blog }}</a></p>
+              </div>
+            {% endif %}
     </div>
+    {% endif %}
     <div class="row card-body">
       <small class="card-text text-uppercase text-muted mb-2">Professional</small>
       <div class="col-md-3 mb-2">
@@ -139,9 +172,7 @@
       <div class="col-md-12 mb-2">
         <p class="card-text">Feedback : {{ candidate.feedback }}</p>
       </div>
-      <div class="col-md-12 mb-2">
-        <p class="card-text">Date of Contact : {{ candidate.doc|date:"F j, Y" }}</p>
-      </div>
+
     </div>
 
 </div>

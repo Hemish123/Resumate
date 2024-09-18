@@ -34,7 +34,13 @@
                             {% endif %}
                         </div>
                     </div>
-                  <div class="card-subtitle mt-2 mb-4">{{jobs.client}}</div>
+                    <div class="card-subtitle mt-2 mb-4">
+                        {% if jobs.client %}
+                        {{jobs.client}}
+                        {% else %}
+                        {{jobs.company}}
+                        {% endif %}
+                    </div>
                   <p class="card-text">
                       Open Positions : {{jobs.openings}}
                   </p>
