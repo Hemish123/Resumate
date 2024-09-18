@@ -42,6 +42,10 @@ boards = stages.map(stage => ({
 
     }))
   }));
+const excludedCandidateIds = new Set(
+        boards.flatMap(board => board.item.map(candidate => candidate.candidateId))
+);
+
 
     const fetchCandidates = async () => {
     const cresponse = await fetch('/candidate-api/');
@@ -63,22 +67,39 @@ boards = stages.map(stage => ({
   const candidates = await fetchCandidates();
   let candidateSelect;
   if (candidates.length > 0) {
+
+        candidateSelect = document.createElement('select');
+        candidateSelect.id = 'candidateSelect';
+        candidateSelect.className = 'form-control add-new-item selectpicker w-100';
+        candidateSelect.setAttribute('data-show-subtext', 'true');
+        candidateSelect.setAttribute('data-placeholder', 'Select');
+        candidateSelect.setAttribute('data-style', 'btn-default');
+        candidateSelect.setAttribute('autofocus', '');
+        candidateSelect.setAttribute('required', '');
+          candidates.forEach(candidate => {
+          if (!excludedCandidateIds.has(candidate.id)) {
+          const option = document.createElement('option');
+          option.value = candidate.id;
+          option.setAttribute('data-subtext', candidate.email);
+          option.text = `${candidate.name}`;
+          candidateSelect.appendChild(option);
+          }
+        });
+
+  }
+  else {
     candidateSelect = document.createElement('select');
     candidateSelect.id = 'candidateSelect';
     candidateSelect.className = 'form-control add-new-item selectpicker w-100';
     candidateSelect.setAttribute('data-show-subtext', 'true');
-    candidateSelect.setAttribute('data-placeholder', 'Select');
     candidateSelect.setAttribute('data-style', 'btn-default');
-    candidateSelect.setAttribute('autofocus', '');
-    candidateSelect.setAttribute('required', '');
-      candidates.forEach(candidate => {
-      const option = document.createElement('option');
-      option.value = candidate.id;
-      option.setAttribute('data-subtext', candidate.email);
-      option.text = `${candidate.name}`;
-      candidateSelect.appendChild(option);
+    candidateSelect.setAttribute('disabled', '');
 
-    });
+    const option = document.createElement('option');
+    option.value = '';
+    option.text = 'No Candidates';
+    candidateSelect.appendChild(option);
+
   }
 
   // datepicker init
@@ -431,24 +452,38 @@ boards = stages.map(stage => ({
 // Apply background color to boards
 function applyBoardColors() {
         const boards = document.querySelectorAll('.kanban-board');
-        const lastBoard = boards[boards.length - 1]; // The last board
-        lastBoard.style.backgroundColor = '#d6ffe1';
-        // Set background color for all child elements of the last board
-        Array.from(lastBoard.children).forEach(child => {
-          child.style.backgroundColor = '#d6ffe1';
-        });
-        const secondLastBoard = boards[boards.length - 2]; // The last board
-        secondLastBoard.style.backgroundColor = '#fcc0bb';
-        // Set background color for all child elements of the last board
-        Array.from(secondLastBoard.children).forEach(child => {
-          child.style.backgroundColor = '#fcc0bb';
-        });
-//    boards.forEach(board => {
-//        const boardElement = document.querySelector(`.kanban-board:last-child`);
-//        if (boardElement) {
-//            boardElement.style.backgroundColor = '#b1fcc5';
-//        }
-//    });
+        boards.forEach(board => {
+  const boardTitle = board.querySelector('.kanban-title-board'); // Assuming '.board-title' contains the title text of the board
+
+  if (boardTitle) {
+    const titleText = boardTitle.textContent.trim().toLowerCase();
+
+    if (titleText === 'hired') {
+      board.style.backgroundColor = '#d6ffe1'; // Green background for "Hired"
+      Array.from(board.children).forEach(child => {
+        child.style.backgroundColor = '#d6ffe1';
+      });
+    } else if (titleText === 'rejected') {
+      board.style.backgroundColor = '#fcc0bb'; // Red background for "Rejected"
+      Array.from(board.children).forEach(child => {
+        child.style.backgroundColor = '#fcc0bb';
+      });
+    }
+  }
+});
+//        const lastBoard = boards[boards.length - 1]; // The last board
+//        lastBoard.style.backgroundColor = '#d6ffe1';
+//        // Set background color for all child elements of the last board
+//        Array.from(lastBoard.children).forEach(child => {
+//          child.style.backgroundColor = '#d6ffe1';
+//        });
+//        const secondLastBoard = boards[boards.length - 2]; // The last board
+//        secondLastBoard.style.backgroundColor = '#fcc0bb';
+//        // Set background color for all child elements of the last board
+//        Array.from(secondLastBoard.children).forEach(child => {
+//          child.style.backgroundColor = '#fcc0bb';
+//        });
+
 }
 applyBoardColors();
 
