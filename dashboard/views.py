@@ -195,6 +195,28 @@ class StageView(LoginRequiredMixin, TemplateView):
         # stageid = request.data.get('stage_id')
         CandidateStage.objects.filter(id=candidate_stage_id).update(order=order+1, stage_id=stage_id)
         return HttpResponseRedirect(reverse('job-process', kwargs={'pk': self.kwargs['pk']}))
+
+
+class CalendarView(LoginRequiredMixin, TemplateView):
+    template_name = 'dashboard/calendar.html'
+
+    def post(self, request, *args, **kwargs):
+        title = request.POST.get('title')
+        candidate = request.POST.get('candidate')
+        interviewer = request.POST.get('interviewer')
+        date = request.POST.get('date')
+        start_time = request.POST.get('start_datetime')
+        end_time = request.POST.get('end_datetime')
+        description = request.POST.get('description')
+        location = request.POST.get('location')
+        interview_type = request.POST.get('interview_type')
+        return HttpResponseRedirect(reverse('calendar'))
+
+
+
+
+
+
 # class ContactUsView(FormView):
 #     template_name = 'screening/contactus.html'
 #     form_class = ContactForm

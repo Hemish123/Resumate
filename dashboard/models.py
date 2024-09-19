@@ -23,3 +23,21 @@ class CandidateStage(models.Model):
 
     class Meta:
         ordering = ['order']
+
+
+class Event(models.Model):
+    title = models.CharField(max_length=100)
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    interviewer = models.CharField(max_length=100)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=256)
+    choices = [('face to face', 'Face to face'), ('virtual', 'Virtual'), ('telephonic', 'Telephonic')]
+    interview_type = models.CharField(max_length=100, choices=choices)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['-start_datetime']
