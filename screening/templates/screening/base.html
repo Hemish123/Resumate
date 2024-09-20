@@ -63,6 +63,12 @@
                 <div data-i18n="Page 2">Candidates</div>
               </a>
             </li>
+            <li class="menu-item {% if request.path == '/calendar/' %}active{% endif %}">
+              <a href="{% url 'calendar' %}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-calendar-month"></i>
+                <div data-i18n="Page 1">Calendar</div>
+              </a>
+            </li>
             <li class="menu-item {% if request.path == '/screening/about/' %}active{% endif %}">
               <a href="{% url 'parsing-about' %}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-app-window"></i>

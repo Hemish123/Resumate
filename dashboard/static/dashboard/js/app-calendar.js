@@ -24,11 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
       addEventSidebar = document.getElementById('addEventSidebar'),
       appOverlay = document.querySelector('.app-overlay'),
       calendarsColor = {
-        Business: 'primary',
-        Holiday: 'success',
-        Personal: 'danger',
-        Family: 'warning',
-        ETC: 'info'
+        facetoface: 'primary',
+        telephonic: 'success',
+        virtual: 'info'
       },
       offcanvasTitle = document.querySelector('.offcanvas-title'),
       btnToggleSidebar = document.querySelector('.btn-toggle-sidebar'),
@@ -37,16 +35,20 @@ document.addEventListener('DOMContentLoaded', function () {
       btnCancel = document.querySelector('.btn-cancel'),
       eventTitle = document.querySelector('#eventTitle'),
       eventStartDate = document.querySelector('#eventStartDate'),
-      eventEndDate = document.querySelector('#eventEndDate'),
+      eventStartTime = document.querySelector('#eventStartTime'),
+      eventEndTime = document.querySelector('#eventEndTime'),
       eventUrl = document.querySelector('#eventURL'),
+      interviewer = document.querySelector('#interviewer'),
       eventLabel = $('#eventLabel'), // ! Using jquery vars due to select2 jQuery dependency
       eventGuests = $('#eventGuests'), // ! Using jquery vars due to select2 jQuery dependency
       eventLocation = document.querySelector('#eventLocation'),
       eventDescription = document.querySelector('#eventDescription'),
-      allDaySwitch = document.querySelector('.allDay-switch'),
+//      allDaySwitch = document.querySelector('.allDay-switch'),
       selectAll = document.querySelector('.select-all'),
-      filterInput = [].slice.call(document.querySelectorAll('.input-filter')),
-      inlineCalendar = document.querySelector('.inline-calendar');
+      filterInput = [].slice.call(document.querySelectorAll('.input-filter'));
+//      inlineCalendar = document.querySelector('.inline-calendar');
+
+    let events = JSON.parse(calendarEl.dataset.events);
 
     let eventToUpdate,
       currentEvents = events, // Assign app-calendar-events.js file events (assume events from API) to currentEvents (browser store/object) to manage and update calender events
@@ -81,42 +83,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event Guests (select2)
-    if (eventGuests.length) {
-      function renderGuestAvatar(option) {
-        if (!option.id) {
-          return option.text;
-        }
-        var $avatar =
-          "<div class='d-flex flex-wrap align-items-center'>" +
-          "<div class='avatar avatar-xs me-2'>" +
-          "<img src='" +
-          assetsPath +
-          'img/avatars/' +
-          $(option.element).data('avatar') +
-          "' alt='avatar' class='rounded-circle' />" +
-          '</div>' +
-          option.text +
-          '</div>';
-
-        return $avatar;
-      }
-      eventGuests.wrap('<div class="position-relative"></div>').select2({
-        placeholder: 'Select value',
-        dropdownParent: eventGuests.parent(),
-        closeOnSelect: false,
-        templateResult: renderGuestAvatar,
-        templateSelection: renderGuestAvatar,
-        escapeMarkup: function (es) {
-          return es;
-        }
-      });
-    }
+//    if (eventGuests.length) {
+//      eventGuests.wrap('<div class="position-relative"></div>').select2({
+//        placeholder: 'Select value',
+//        dropdownParent: eventGuests.parent(),
+//        closeOnSelect: false,
+//        escapeMarkup: function (es) {
+//          return es;
+//        }
+//      });
+//    }
 
     // Event start (flatpicker)
     if (eventStartDate) {
-      var start = eventStartDate.flatpickr({
-        enableTime: true,
-        altFormat: 'Y-m-dTH:i:S',
+      var date = eventStartDate.flatpickr({
+        enableTime: false,
+        altFormat: 'Y-m-d',
+        minDate: "today",
         onReady: function (selectedDates, dateStr, instance) {
           if (instance.isMobile) {
             instance.mobileInput.setAttribute('step', null);
@@ -126,10 +109,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event end (flatpicker)
-    if (eventEndDate) {
-      var end = eventEndDate.flatpickr({
+    if (eventStartTime) {
+      var start = eventStartTime.flatpickr({
         enableTime: true,
-        altFormat: 'Y-m-dTH:i:S',
+        noCalendar: true,
+        altFormat: 'H:i:S',
+        onReady: function (selectedDates, dateStr, instance) {
+          if (instance.isMobile) {
+            instance.mobileInput.setAttribute('step', null);
+          }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            if (eventEndTime) {
+                // Update the minimum time for the end time picker based on start time
+                end.set('minTime', dateStr);
+            }
+        }
+      });
+    }
+    if (eventEndTime) {
+      var end = eventEndTime.flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        altFormat: 'H:i:S',
         onReady: function (selectedDates, dateStr, instance) {
           if (instance.isMobile) {
             instance.mobileInput.setAttribute('step', null);
@@ -139,12 +141,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Inline sidebar calendar (flatpicker)
-    if (inlineCalendar) {
-      inlineCalInstance = inlineCalendar.flatpickr({
-        monthSelectorType: 'static',
-        inline: true
-      });
-    }
+//    if (inlineCalendar) {
+//      inlineCalInstance = inlineCalendar.flatpickr({
+//        monthSelectorType: 'static',
+//        inline: true
+//      });
+//    }
 
     // Event click function
     function eventClick(info) {
@@ -164,20 +166,27 @@ document.addEventListener('DOMContentLoaded', function () {
       btnDeleteEvent.classList.remove('d-none');
 
       eventTitle.value = eventToUpdate.title;
-      start.setDate(eventToUpdate.start, true, 'Y-m-d');
-      eventToUpdate.allDay === true ? (allDaySwitch.checked = true) : (allDaySwitch.checked = false);
-      eventToUpdate.end !== null
-        ? end.setDate(eventToUpdate.end, true, 'Y-m-d')
-        : end.setDate(eventToUpdate.start, true, 'Y-m-d');
-      eventLabel.val(eventToUpdate.extendedProps.calendar).trigger('change');
-      eventToUpdate.extendedProps.location !== undefined
-        ? (eventLocation.value = eventToUpdate.extendedProps.location)
+
+      start.setDate(eventToUpdate.extendedProps.start_time, true, 'H:i:S');
+      date.setDate(eventToUpdate.extendedProps.date, true, 'Y-m-d');
+      end.setDate(eventToUpdate.extendedProps.end_time, true, 'H:i:S');
+//      eventToUpdate.allDay === true ? (allDaySwitch.checked = true) : (allDaySwitch.checked = false);
+
+      eventLabel.val(eventToUpdate._def.extendedProps.interview_type).trigger('change');
+      eventToUpdate._def.extendedProps.location !== undefined
+        ? (eventLocation.value = eventToUpdate._def.extendedProps.location)
         : null;
-      eventToUpdate.extendedProps.guests !== undefined
-        ? eventGuests.val(eventToUpdate.extendedProps.guests).trigger('change')
+      eventToUpdate._def.extendedProps.candidate_id !== undefined
+        ? eventGuests.val(eventToUpdate._def.extendedProps.candidate_id).trigger('change')
         : null;
-      eventToUpdate.extendedProps.description !== undefined
-        ? (eventDescription.value = eventToUpdate.extendedProps.description)
+      eventToUpdate._def.extendedProps.description !== undefined
+        ? (eventDescription.value = eventToUpdate._def.extendedProps.description)
+        : null;
+      eventToUpdate._def.extendedProps.interviewer !== undefined
+        ? (interviewer.value = eventToUpdate._def.extendedProps.interviewer)
+        : null;
+      eventToUpdate._def.extendedProps.interview_url !== undefined
+        ? (eventUrl.value = eventToUpdate._def.extendedProps.interview_url)
         : null;
 
       // // Call removeEvent function
@@ -241,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // You should make an API call, look into above commented API call for reference
       let selectedEvents = currentEvents.filter(function (event) {
         // console.log(event.extendedProps.calendar.toLowerCase());
-        return calendars.includes(event.extendedProps.calendar.toLowerCase());
+        return calendars.includes(event.extendedProps.interview_type.toLowerCase());
       });
       // if (selectedEvents.length > 0) {
       successCallback(selectedEvents);
@@ -252,6 +261,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // ------------------------------------------------
     let calendar = new Calendar(calendarEl, {
       initialView: 'dayGridMonth',
+      validRange: {
+        start: new Date()  // Disables past dates
+      },
       events: fetchEvents,
       plugins: [dayGridPlugin, interactionPlugin, listPlugin, timegridPlugin],
       editable: true,
@@ -271,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
       initialDate: new Date(),
       navLinks: true, // can click day/week names to navigate views
       eventClassNames: function ({ event: calendarEvent }) {
-        const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar];
+        const colorName = calendarsColor[calendarEvent._def.extendedProps.interview_type];
         // Background Color
         return ['fc-event-' + colorName];
       },
@@ -289,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function () {
         btnSubmit.classList.add('btn-add-event');
         btnDeleteEvent.classList.add('d-none');
         eventStartDate.value = date;
-        eventEndDate.value = date;
       },
       eventClick: function (info) {
         eventClick(info);
@@ -436,10 +447,10 @@ document.addEventListener('DOMContentLoaded', function () {
       // --- Set event's extendedProps ----- //
       // ? Docs: https://fullcalendar.io/docs/Event-setExtendedProp
       // eslint-disable-next-line no-plusplus
-      for (var index = 0; index < extendedPropsToUpdate.length; index++) {
-        var propName = extendedPropsToUpdate[index];
-        existingEvent.setExtendedProp(propName, updatedEventData.extendedProps[propName]);
-      }
+//      for (var index = 0; index < extendedPropsToUpdate.length; index++) {
+//        var propName = extendedPropsToUpdate[index];
+//        existingEvent.setExtendedProp(propName, updatedEventData.extendedProps[propName]);
+//      }
     };
 
     // Remove Event In Calendar (UI Only)
@@ -454,43 +465,38 @@ document.addEventListener('DOMContentLoaded', function () {
       if (btnSubmit.classList.contains('btn-add-event')) {
         if (isFormValid) {
           let newEvent = {
-            id: calendar.getEvents().length + 1,
             title: eventTitle.value,
-            start: eventStartDate.value,
-            end: eventEndDate.value,
-            startStr: eventStartDate.value,
-            endStr: eventEndDate.value,
+            date: eventStartDate.value,
+            start_time: eventStartTime.value,
+            end_time: eventEndTime.value,
+            interview_url: eventUrl.value,
+            interviewer: interviewer.value,
             display: 'block',
-            extendedProps: {
-              location: eventLocation.value,
-              guests: eventGuests.val(),
-              calendar: eventLabel.val(),
-              description: eventDescription.value
-            }
+            location: eventLocation.value,
+            candidate: eventGuests.val(),
+            interview_type: eventLabel.val(),
+            description: eventDescription.value
+
           };
-          if (eventUrl.value) {
-            newEvent.url = eventUrl.value;
-          }
-          if (allDaySwitch.checked) {
-            newEvent.allDay = true;
-          }
+//          if (allDaySwitch.checked) {
+//            newEvent.allDay = true;
+//          }
         const response = await fetch(`/calendar/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify(newEvent)
+        body: JSON.stringify(newEvent)  // Convert the data to JSON format
           });
 
-          if (response.ok) {
-            const stage = await response.json();
-            console.log('success!');
-
+          const data = await response.json();  // Process the JSON response from the server
+          if (data.status === 'success') {
+            console.log('Event created successfully');
           } else {
-            console.error('Error', response);
+            console.log('Failed to create event', data.message);
           }
-          addEvent(newEvent);
+          addEvent(data.event_data);
           bsAddEventSidebar.hide();
         }
       } else {
@@ -500,20 +506,35 @@ document.addEventListener('DOMContentLoaded', function () {
           let eventData = {
             id: eventToUpdate.id,
             title: eventTitle.value,
-            start: eventStartDate.value,
-            end: eventEndDate.value,
-            url: eventUrl.value,
-            extendedProps: {
-              location: eventLocation.value,
-              guests: eventGuests.val(),
-              calendar: eventLabel.val(),
-              description: eventDescription.value
-            },
+            date: eventStartDate.value,
+            start_time: eventStartTime.value,
+            end_time: eventEndTime.value,
+            interview_url: eventUrl.value,
+            interviewer: interviewer.value,
             display: 'block',
-            allDay: allDaySwitch.checked ? true : false
-          };
+            location: eventLocation.value,
+            candidate: eventGuests.val(),
+            interview_type: eventLabel.val(),
+            description: eventDescription.value
 
-          updateEvent(eventData);
+//            allDay: allDaySwitch.checked ? true : false
+          };
+        const response = await fetch(`/calendar/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(eventData)  // Convert the data to JSON format
+          });
+
+          const data = await response.json();  // Process the JSON response from the server
+          if (data.status === 'success') {
+            console.log('Event updated successfully');
+          } else {
+            console.log('Failed to update event:', data.message);
+          }
+          updateEvent(data.event_data);
           bsAddEventSidebar.hide();
         }
       }
@@ -529,12 +550,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Reset event form inputs values
     // ------------------------------------------------
     function resetValues() {
-      eventEndDate.value = '';
+      eventEndTime.value = '';
       eventUrl.value = '';
       eventStartDate.value = '';
+      eventStartTime.value = '';
       eventTitle.value = '';
       eventLocation.value = '';
-      allDaySwitch.checked = false;
+//      allDaySwitch.checked = false;
       eventGuests.val('').trigger('change');
       eventDescription.value = '';
     }
@@ -582,11 +604,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Jump to date on sidebar(inline) calendar change
-    inlineCalInstance.config.onChange.push(function (date) {
-      calendar.changeView(calendar.view.type, moment(date[0]).format('YYYY-MM-DD'));
-      modifyToggler();
-      appCalendarSidebar.classList.remove('show');
-      appOverlay.classList.remove('show');
-    });
+//    inlineCalInstance.config.onChange.push(function (date) {
+//      calendar.changeView(calendar.view.type, moment(date[0]).format('YYYY-MM-DD'));
+//      modifyToggler();
+//      appCalendarSidebar.classList.remove('show');
+//      appOverlay.classList.remove('show');
+//    });
   })();
 });
