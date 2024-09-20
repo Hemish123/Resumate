@@ -4,6 +4,9 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from future.backports.datetime import datetime
+from django.utils import timezone
+import pytz
 from manager.models import JobOpening
 from users.models import Employee
 from .models import Stage, CandidateStage
@@ -11,7 +14,7 @@ from candidate.models import Candidate
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Stage, CandidateStage
+from .models import Stage, CandidateStage, Event
 from .serializers import StageSerializer, CandidateSerializer
 from django.views.generic.edit import FormView
 from django.http import JsonResponse
@@ -200,17 +203,111 @@ class StageView(LoginRequiredMixin, TemplateView):
 class CalendarView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/calendar.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        events = Event.objects.filter(company=self.request.user.employee.company)
+        context['upcoming'] = events
+
+        # Create a list of dictionaries to store event data
+        event_data = [
+            {
+                "id": event.id,
+                "title": event.title,
+                "start": event.start_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+                "end": event.end_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+                "extendedProps": {
+                    "candidate": event.candidate.name,
+                    "candidate_id": event.candidate.id,
+                    "interviewer": event.interviewer,
+                    "interview_type": event.interview_type,
+                    "interview_url": event.interview_url,
+                    "date": event.start_datetime.strftime('%Y-%m-%d'),
+                    "start_time": event.start_datetime.strftime('%H:%M:%S'),
+                    "end_time": event.end_datetime.strftime('%H:%M:%S'),
+                    "description": event.description,
+                    "location": event.location
+                }
+            }
+
+            for event in events
+        ]
+
+        # Convert the list of events to a JSON string
+        context['events'] = json.dumps(event_data)
+        return context
+
+
     def post(self, request, *args, **kwargs):
-        title = request.POST.get('title')
-        candidate = request.POST.get('candidate')
-        interviewer = request.POST.get('interviewer')
-        date = request.POST.get('date')
-        start_time = request.POST.get('start_datetime')
-        end_time = request.POST.get('end_datetime')
-        description = request.POST.get('description')
-        location = request.POST.get('location')
-        interview_type = request.POST.get('interview_type')
-        return HttpResponseRedirect(reverse('calendar'))
+        # Parse the incoming JSON data
+        data = json.loads(request.body)
+
+        # Extract fields from the JSON data
+        id = data.get('id')
+        title = data.get('title')
+        candidate_id = data.get('candidate')
+        candidate = Candidate.objects.get(id=candidate_id)
+        interviewer = data.get('interviewer')
+        date_str = data.get('date')
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        start_time_str = data.get('start_time')
+        start_time = datetime.strptime(start_time_str, '%H:%M').time()
+        end_time_str = data.get('end_time')
+        end_time = datetime.strptime(end_time_str, '%H:%M').time()
+        description = data.get('description')
+        location = data.get('location')
+        interview_type = data.get('interview_type')
+        interview_url = data.get('interview_url')
+        start_datetime = datetime.combine(date,start_time)
+        end_datetime = datetime.combine(date, end_time)
+
+        # Process and save the data to the database (e.g., creating an event)
+        # Assuming you have an Event model (example shown)\
+        if id:
+            event = Event.objects.get(id=id)
+            event.title = title
+            event.candidate = candidate
+            event.interviewer = interviewer
+            event.interview_url = interview_url
+            event.start_datetime = start_datetime
+            event.end_datetime = end_datetime
+            event.description = description
+            event.location = location
+            event.interview_type = interview_type
+            event.save()
+        else:
+            event = Event.objects.create(
+                title=title,
+                candidate=candidate,
+                interviewer=interviewer,
+                interview_url=interview_url,
+                start_datetime=start_datetime,
+                end_datetime=end_datetime,
+                description=description,
+                location=location,
+                interview_type=interview_type,
+                company=request.user.employee.company
+            )
+        event_data = {
+                "id": event.id,
+                "title": event.title,
+                "start": event.start_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+                "end": event.end_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+                "extendedProps": {
+                    "candidate": event.candidate.name,
+                    "candidate_id": event.candidate.id,
+                    "interviewer": event.interviewer,
+                    "interview_type": event.interview_type,
+                    "interview_url": event.interview_url,
+                    "date": event.start_datetime.strftime('%Y-%m-%d'),
+                    "start_time": event.start_datetime.strftime('%H:%M:%S'),
+                    "end_time": event.end_datetime.strftime('%H:%M:%S'),
+                    "description": event.description,
+                    "location": event.location
+                }
+            }
+        # Return a success response
+        return JsonResponse({'status': 'success', 'event_data': event_data})
 
 
 
