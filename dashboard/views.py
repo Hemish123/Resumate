@@ -21,6 +21,9 @@ from django.http import JsonResponse
 from .forms import StageForm
 from django.db.models import Max
 import json
+from django.utils.dateformat import DateFormat
+from collections import defaultdict
+
 
 
 class DashbaordView(LoginRequiredMixin, TemplateView):
@@ -206,8 +209,28 @@ class CalendarView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
-        events = Event.objects.filter(company=self.request.user.employee.company)
-        context['upcoming'] = events
+        context['designation'] = JobOpening.objects.filter(company=self.request.user.employee.company)
+        events = Event.objects.filter(company=self.request.user.employee.company).order_by('start_datetime')
+        # Create a nested dictionary to group events by year and month
+        grouped_events = {}
+
+        for event in events:
+            year = event.start_datetime.year
+            month = DateFormat(event.start_datetime).format('F')  # Get full month name
+            date = event.start_datetime.date()
+            if date < datetime.today().date():
+                continue
+            # Check if the year already exists in the dictionary
+            if year not in grouped_events:
+                grouped_events[year] = {}  # Initialize the year as a dictionary
+
+            # Check if the month already exists for the given year
+            if month not in grouped_events[year]:
+                grouped_events[year][month] = []  # Initialize the month as a list
+
+            grouped_events[year][month].append(event)
+        context['upcoming'] = grouped_events
+        # [print('d', e.start_datetime) for e in events]
 
         # Create a list of dictionaries to store event data
         event_data = [
@@ -218,6 +241,8 @@ class CalendarView(LoginRequiredMixin, TemplateView):
                 "end": event.end_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
                 "extendedProps": {
                     "candidate": event.candidate.name,
+                    "jobopening_id": event.designation.id,
+                    "designation": event.designation.designation,
                     "candidate_id": event.candidate.id,
                     "interviewer": event.interviewer,
                     "interview_type": event.interview_type,
@@ -247,6 +272,8 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         title = data.get('title')
         candidate_id = data.get('candidate')
         candidate = Candidate.objects.get(id=candidate_id)
+        jobopening_id = data.get('designation')
+        designation = JobOpening.objects.get(id=jobopening_id)
         interviewer = data.get('interviewer')
         date_str = data.get('date')
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -274,6 +301,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             event.description = description
             event.location = location
             event.interview_type = interview_type
+            event.designation = designation
             event.save()
         else:
             event = Event.objects.create(
@@ -286,6 +314,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
                 description=description,
                 location=location,
                 interview_type=interview_type,
+                designation=designation,
                 company=request.user.employee.company
             )
         event_data = {
@@ -296,6 +325,8 @@ class CalendarView(LoginRequiredMixin, TemplateView):
                 "extendedProps": {
                     "candidate": event.candidate.name,
                     "candidate_id": event.candidate.id,
+                    "jobopening_id": event.designation.id,
+                    "designation": event.designation.designation,
                     "interviewer": event.interviewer,
                     "interview_type": event.interview_type,
                     "interview_url": event.interview_url,
@@ -308,6 +339,13 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             }
         # Return a success response
         return JsonResponse({'status': 'success', 'event_data': event_data})
+
+    def delete(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        id = data.get('id')
+        event = Event.objects.get(id=id)
+        event.delete()
+        return JsonResponse({'status': 'success'})
 
 
 

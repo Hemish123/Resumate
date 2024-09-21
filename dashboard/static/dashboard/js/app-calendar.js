@@ -41,12 +41,22 @@ document.addEventListener('DOMContentLoaded', function () {
       interviewer = document.querySelector('#interviewer'),
       eventLabel = $('#eventLabel'), // ! Using jquery vars due to select2 jQuery dependency
       eventGuests = $('#eventGuests'), // ! Using jquery vars due to select2 jQuery dependency
+      designation = $('#designation'),
       eventLocation = document.querySelector('#eventLocation'),
       eventDescription = document.querySelector('#eventDescription'),
+
 //      allDaySwitch = document.querySelector('.allDay-switch'),
       selectAll = document.querySelector('.select-all'),
       filterInput = [].slice.call(document.querySelectorAll('.input-filter'));
 //      inlineCalendar = document.querySelector('.inline-calendar');
+
+    function updateEventBadgeColors(){
+        document.querySelectorAll('[id^="upcoming_event_"]').forEach(badge => {
+        badge.classList.add({facetoface: 'bg-label-primary', telephonic: 'bg-label-success', virtual: 'bg-label-info'}[badge.dataset.interview_type] || 'bg-label-primary');
+    });
+    }
+    updateEventBadgeColors();
+
 
     let events = JSON.parse(calendarEl.dataset.events);
 
@@ -179,6 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
       eventToUpdate._def.extendedProps.candidate_id !== undefined
         ? eventGuests.val(eventToUpdate._def.extendedProps.candidate_id).trigger('change')
         : null;
+      eventToUpdate._def.extendedProps.jobopening_id !== undefined
+        ? designation.val(eventToUpdate._def.extendedProps.jobopening_id).trigger('change')
+        : null;
       eventToUpdate._def.extendedProps.description !== undefined
         ? (eventDescription.value = eventToUpdate._def.extendedProps.description)
         : null;
@@ -190,11 +203,27 @@ document.addEventListener('DOMContentLoaded', function () {
         : null;
 
       // // Call removeEvent function
-      // btnDeleteEvent.addEventListener('click', e => {
-      //   removeEvent(parseInt(eventToUpdate.id));
-      //   // eventToUpdate.remove();
-      //   bsAddEventSidebar.hide();
-      // });
+//       btnDeleteEvent.addEventListener('click', async(e) => {
+//       console.log('del');
+//       const response = await fetch(`/calendar/`, {
+//        method: 'DELETE',
+//        headers: {
+//          'Content-Type': 'application/json',
+//          'X-CSRFToken': getCookie('csrftoken')
+//        },
+//        body: JSON.stringify({'id': eventToUpdate.id})  // Convert the data to JSON format
+//          });
+//
+//          const data = await response.json();  // Process the JSON response from the server
+//          if (data.status === 'success') {
+//            console.log('Event deleted successfully');
+//          } else {
+//            console.log('Failed to delete event', data.message);
+//          }
+//         removeEvent(parseInt(eventToUpdate.id));
+//          eventToUpdate.remove();
+//         bsAddEventSidebar.hide();
+//       });
     }
 
     // Modify sidebar toggler
@@ -474,6 +503,7 @@ document.addEventListener('DOMContentLoaded', function () {
             display: 'block',
             location: eventLocation.value,
             candidate: eventGuests.val(),
+            designation: designation.val(),
             interview_type: eventLabel.val(),
             description: eventDescription.value
 
@@ -497,6 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Failed to create event', data.message);
           }
           addEvent(data.event_data);
+          addEventToUpcoming(data.event_data);
           bsAddEventSidebar.hide();
         }
       } else {
@@ -514,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
             display: 'block',
             location: eventLocation.value,
             candidate: eventGuests.val(),
+            designation: designation.val(),
             interview_type: eventLabel.val(),
             description: eventDescription.value
 
@@ -541,11 +573,86 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Call removeEvent function
-    btnDeleteEvent.addEventListener('click', e => {
+    btnDeleteEvent.addEventListener('click', async(e) => {
+    const response = await fetch(`/calendar/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({'id': eventToUpdate.id})  // Convert the data to JSON format
+          });
+
+          const data = await response.json();  // Process the JSON response from the server
+          if (data.status === 'success') {
+            console.log('Event deleted successfully');
+          } else {
+            console.log('Failed to delete event', data.message);
+          }
       removeEvent(parseInt(eventToUpdate.id));
-      // eventToUpdate.remove();
+      removeEventUpcoming(eventToUpdate);
+       eventToUpdate.remove();
       bsAddEventSidebar.hide();
     });
+
+    // Function to add event dynamically to upcoming interviews
+function addEventToUpcoming(event) {
+    const year = new Date(event.extendedProps.date).getFullYear();
+    const month = new Intl.DateTimeFormat('en', { month: 'long' }).format(new Date(event.extendedProps.date));  // Get full month name
+
+    // Check if year section exists, if not, create it
+    let yearElement = document.querySelector(`h6[data-year='${year}']`);
+    if (!yearElement) {
+        // Create year section if it doesn't exist
+        const yearContainer = document.createElement('h6');
+        yearContainer.setAttribute('data-year', year);
+        yearContainer.textContent = year;
+        document.querySelector('.upcoming-events-container').appendChild(yearContainer);
+        yearElement = yearContainer;
+    }
+
+    // Check if month section exists under the year, if not, create it
+    let monthElement = yearElement.nextElementSibling;
+    if (!monthElement || monthElement.textContent !== month) {
+        const monthContainer = document.createElement('h6');
+        monthContainer.classList.add('mb-0', 'mt-2');
+        monthContainer.textContent = month;
+        yearElement.parentNode.insertBefore(monthContainer, yearElement.nextSibling);
+        monthElement = monthContainer;
+    }
+    // Create event element and append it to the month section
+    const eventContainer = document.createElement('div');
+    const time = event.extendedProps.start_time;
+    let h;
+    const convertedTime = `${((h = parseInt(time.split(':')[0]) % 12 || 12))}:${time.split(':')[1]} ${h >= 12 ? 'PM' : 'AM'}`;
+    eventContainer.innerHTML = `
+        <div> ${event.extendedProps.date.split('-')[event.extendedProps.date.split('-').length - 1]}, ${convertedTime} </div>
+        <div class="badge text-start mb-1" id="upcoming_event_${event.id}" data-interview_type="${event.extendedProps.interview_type}">
+            ${event.extendedProps.candidate} for ${event.extendedProps.designation}
+        </div>
+    `;
+
+    monthElement.insertAdjacentElement('afterend', eventContainer);
+    const badge = document.querySelector(`#upcoming_event_${event.id}`);
+
+    updateEventBadgeColors();
+}
+
+function removeEventUpcoming(event) {
+    const eventElement = document.querySelector(`#upcoming_event_${event.id}`);
+
+    let eventDiv1 = eventElement.previousElementSibling;
+
+        // Remove the specific event elements (divs) for the event
+            if (eventDiv1 && eventDiv1.tagName.toLowerCase() === 'div') {
+            eventDiv1.remove();  // Remove the first div (e.g., event date)
+        }
+
+        if (eventElement && eventElement.tagName.toLowerCase() === 'div') {
+            eventElement.remove();  // Remove the second div (e.g., event details)
+        }
+
+}
 
     // Reset event form inputs values
     // ------------------------------------------------
@@ -558,6 +665,7 @@ document.addEventListener('DOMContentLoaded', function () {
       eventLocation.value = '';
 //      allDaySwitch.checked = false;
       eventGuests.val('').trigger('change');
+      designation.val('').trigger('change');
       eventDescription.value = '';
     }
 
