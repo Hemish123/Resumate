@@ -29,14 +29,22 @@
             <span class="align-middle">Add Event</span>
           </button>
         </div>
-        <div class="px-3 pt-2">
+        <div class="px-3 pt-2 upcoming-events-container">
 <!--          &lt;!&ndash; inline calendar (flatpicker) &ndash;&gt;-->
 <!--          <div class="inline-calendar"></div>-->
-          <h5>Upcoming Events</h5>
-          {% for e in upcoming %}
-          <div>
-            {{ e.start_datetime }}, {{ e.title }}
-          </div>
+          <h5>Upcoming Interviews</h5>
+
+          {% for year, months in upcoming.items %}
+           <h6 data-year="{{ year }}">{{ year }}</h6>  <!-- Display the year -->
+            {% for month, events in months.items %}
+                <h6 class="mb-0 mt-2">{{ month }}</h6>  <!-- Display the month -->
+                {% for e in events %}
+                    <div> {{ e.start_datetime|date:"d, h:i A" }}</div>  <!-- Format the date as "day, time" -->
+                    <div class="badge text-start mb-1" id="upcoming_event_{{ e.id }}" data-interview_type="{{ e.interview_type }}">
+                        {{ e.candidate.name }} for {{ e.designation.designation }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
           {% endfor %}
         </div>
         <hr class="mb-6 mx-n4 mt-3" />
@@ -189,6 +197,18 @@
                   >
                   {% for c in candidates %}
                   <option value="{{c.id}}">{{c.name}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-4 select2-primary">
+                <label class="form-label" for="designation">For Designation</label>
+                <select
+                  class="select2 form-select"
+                  id="designation"
+                  name="designation"
+                  >
+                  {% for d in designation %}
+                  <option value="{{d.id}}">{{d.designation}}</option>
                   {% endfor %}
                 </select>
               </div>
