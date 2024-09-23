@@ -27,6 +27,28 @@ def about(request):
     return render(request, 'screening/about.html', context={'title':'About'})
 
 
+class ScreeningView(LoginRequiredMixin, TemplateView):
+    template_name = 'screening/screening.html'
+    title = 'Screening'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+
+        results = self.request.GET.get('results', '')
+        selected_resume_ids = [int(id) for id in results.split(',') if id.isdigit()]
+        # selected_resumes = Resume.objects.filter(id__in=selected_resume_ids).order_by('-updated_on')
+        # context['resume_list'] = selected_resumes
+
+        suggest = self.request.GET.get('suggest_resumes', '')
+        suggest_resume_ids = [int(id) for id in suggest.split(',') if id.isdigit()][:10]
+        # suggested_resumes = Resume.objects.filter(id__in=suggest_resume_ids).order_by('-updated_on')
+        # context['suggest_resume_list'] = suggested_resumes
+
+        # # Add next parameter for Go Back button
+        # context['next'] = self.request.GET.get('next', reverse('parsing-home'))
+
+        return context
 
 # def resumes(request):
 #     return render(request,'screening/resumes.html',context={'title':'Resumes'})

@@ -5,11 +5,6 @@
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
-    <!-- <style>
-        .experience-input {
-            width: 100px !important;
-        }
-    </style> -->
 {% endblock css %}
 
 {% block content %}
@@ -123,6 +118,16 @@
                                 <input type="text" class="form-control w-20" aria-label="Text input with segmented dropdown button" id="experience-input" />
                             </div>
                         </div>
+                        {% if job_opening %}
+                        <div class="col-md d-flex justify-content-end">
+                            <!-- Screening -->
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input class="d-none" name="screening"/>
+                                <button type="submit" class="btn btn-primary">Start Screening</button>
+                            </form>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 

@@ -26,7 +26,7 @@
             data-bs-target="#addEventSidebar"
             aria-controls="addEventSidebar">
             <i class="ti ti-plus ti-16px me-2"></i>
-            <span class="align-middle">Add Event</span>
+            <span class="align-middle">Add Interview</span>
           </button>
         </div>
         <div class="px-3 pt-2 upcoming-events-container">
@@ -51,7 +51,7 @@
         <div class="px-6 pb-2">
           <!-- Filter -->
           <div>
-            <h5>Event Filters</h5>
+            <h5>Interview Filters</h5>
           </div>
 
           <div class="form-check form-check-secondary mb-5 ms-2">
@@ -114,7 +114,7 @@
           id="addEventSidebar"
           aria-labelledby="addEventSidebarLabel">
           <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title" id="addEventSidebarLabel">Add Event</h5>
+            <h5 class="offcanvas-title" id="addEventSidebarLabel">Add Interview</h5>
             <button
               type="button"
               class="btn-close text-reset"
@@ -130,7 +130,7 @@
                   class="form-control"
                   id="eventTitle"
                   name="title"
-                  placeholder="Event Title" />
+                  placeholder="Title" />
               </div>
               <div class="mb-5">
                 <label class="form-label" for="eventLabel">Interview Type</label>
@@ -149,7 +149,7 @@
                   class="form-control"
                   id="eventStartDate"
                   name="date"
-                  placeholder="Start Date" />
+                  placeholder="Date of Interview" />
               </div>
               <div class="mb-5">
                 <label class="form-label" for="eventStartTime">Start Time</label>
@@ -184,9 +184,9 @@
                   name="interview_url"
                   placeholder="https://www.google.com" />
               </div>
-              <div class="mb-4 select2-primary">
+              <div class="mb-5">
                 <label class="form-label" for="interviewer">Interviewer Name</label>
-                <input name="interviewer" id="interviewer"/>
+                <input name="interviewer" class="form-control" id="interviewer"/>
               </div>
               <div class="mb-4 select2-primary">
                 <label class="form-label" for="eventGuests">Candidate</label>
