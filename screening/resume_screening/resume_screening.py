@@ -13,7 +13,8 @@ def ResumeScreening(text):
 
     model = "screening/resume_screening/resume_screening1.sav"
     loaded_model = joblib.load(model)
-    # result = loaded_model.predict([text])
+    result = loaded_model.predict([text])
+    print('result', result)
     prediction = loaded_model.predict([text])[0]
     predicted_field = field_mapping[int(prediction[0])]
     predicted_category = category_mapping[int(prediction[1])]

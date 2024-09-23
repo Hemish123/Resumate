@@ -1,9 +1,10 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from screening.resume_screening.resume_screening import ResumeScreening
 
 from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
@@ -260,6 +261,14 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
         context['job_opening'] = job_opening
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        id = self.kwargs.get('pk')
+        job_opening = JobOpening.objects.get(pk=id)
+        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        for c in candidates:
+            results = ResumeScreening(c.text_content)
+        return redirect('screening')
 
 class CandidateDetailsView(LoginRequiredMixin, DetailView):
     template_name = 'candidate/candidate_details.html'
