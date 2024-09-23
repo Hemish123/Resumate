@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
       bsAddEventSidebar.show();
       // For update event set offcanvas title text: Update Event
       if (offcanvasTitle) {
-        offcanvasTitle.innerHTML = 'Update Event';
+        offcanvasTitle.innerHTML = 'Update Interview';
       }
       btnSubmit.innerHTML = 'Update';
       btnSubmit.classList.add('btn-update-event');
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // For new event set offcanvas title text: Add Event
         if (offcanvasTitle) {
-          offcanvasTitle.innerHTML = 'Add Event';
+          offcanvasTitle.innerHTML = 'Add Interview';
         }
         btnSubmit.innerHTML = 'Add';
         btnSubmit.classList.remove('btn-update-event');
@@ -677,7 +677,7 @@ function removeEventUpcoming(event) {
     // Hide left sidebar if the right sidebar is open
     btnToggleSidebar.addEventListener('click', e => {
       if (offcanvasTitle) {
-        offcanvasTitle.innerHTML = 'Add Event';
+        offcanvasTitle.innerHTML = 'Add Interview';
       }
       btnSubmit.innerHTML = 'Add';
       btnSubmit.classList.remove('btn-update-event');

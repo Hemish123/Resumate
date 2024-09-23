@@ -1,53 +1,56 @@
 {% extends "screening/base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+{% endblock css %}
+
 {% block content %}
+<button onclick="window.history.back()" type="button" class="btn btn-outline-primary mb-2">
+    <span class="ti-xs ti ti-chevron-left me-2"></span>Back
+</button>
+<div class="card">
+    <div class="card-datatable pt-0">
+        <h5 id="datatable-title" class="card-title mb-0">Applications</h5>
 
-<link rel="stylesheet" href="../../static/screening/css/screening.css">
-<div class="container" style="max-width: 1100px;">
-    <div class="d-flex align-items-center mt-2 mb-3">
-        <!-- <a href="{{ next }}" class="custom-button">   Using next parameter for Go Back button 
-            <i class="bi bi-arrow-left"></i> Go Back
-        </a> -->
-        
-        <button onclick="goBack()" class="custom-button">
-            <i class="bi bi-arrow-left"></i> Go Back
-        </button>
+        <table class="datatables-basic table">
+              <thead>
+                <tr>
+                  <th>Actions</th>
+                  <th>Name</th>
+                  <th>Experience (in years)</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for candidate in candidates %}
+                <tr data-id="{{candidate.id}}">
+                    <td>
+                        <button class="approve-btn" onclick="updateStatus({{ resume.id }}, 'Initial')">✔️</button>
+                        <button class="reject-btn" onclick="updateStatus({{ resume.id }}, 'Rejected')">❌</button>
 
-    </div>
-    <div class="row">
-        <div class="col-md-7">
-            <div class="content-section">
-                <h5>Resume List</h5>
-                <ul class="resume-list">
-                    {% if resume_list %}
-                        {% for resume in resume_list %}
-                            <li class="resume-item">
-                                <a class="resume-link" href="{{ resume.upload_resume.url }}" target="_blank">{{ resume.filename }}</a>
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="text-muted fs-4">No resumes match for selected role</li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-5">
-            <div class="content-section">
-                <h5>Suggested Resume</h5>
-                <ul class="resume-list">
-                    {% if suggest_resume_list %}
-                        {% for resume in suggest_resume_list %}
-                            <li class="resume-item">
-                                <a class="resume-link" href="{{ resume.upload_resume.url }}" target="_blank">{{ resume.filename }}</a>
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="text-muted fs-4">No suggested resumes match for selected role</li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
+                    </td>
+                    <td>{{ candidate.id }}</td>
+                    <td><a href="{% url 'candidate-details' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
+                    <td>{{candidate.experience}}</td>
+                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
+                    <td>{{candidate.updated|date:"F j, Y"}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
     </div>
 </div>
 
 {% endblock content %}
+
+{% block js %}
+<!--    <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
+    <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
+{% endblock js %}
