@@ -350,24 +350,67 @@ document.addEventListener('DOMContentLoaded', function () {
     const eventForm = document.getElementById('eventForm');
     const fv = FormValidation.formValidation(eventForm, {
       fields: {
-        eventTitle: {
+        title: {
           validators: {
             notEmpty: {
               message: 'Please enter event title '
             }
           }
         },
-        eventStartDate: {
+        interview_type: {
+          validators: {
+            notEmpty: {
+              message: 'Please select type of interview '
+            }
+          }
+        },
+        date: {
           validators: {
             notEmpty: {
               message: 'Please enter start date '
             }
           }
         },
-        eventEndDate: {
+        starttime: {
           validators: {
             notEmpty: {
-              message: 'Please enter end date '
+              message: 'Please enter start time '
+            }
+          }
+        },
+        endtime: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter end time '
+            }
+          }
+        },
+
+        interviewer: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter interviewer name '
+            }
+          }
+        },
+        candidate: {
+          validators: {
+            notEmpty: {
+              message: 'Please select candidate '
+            }
+          }
+        },
+        designation: {
+          validators: {
+            notEmpty: {
+              message: 'Please select designation '
+            }
+          }
+        },
+        location: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter location '
             }
           }
         }
@@ -492,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ------------------------------------------------
     btnSubmit.addEventListener('click', async(e) => {
       if (btnSubmit.classList.contains('btn-add-event')) {
+      console.log('d', isFormValid);
         if (isFormValid) {
           let newEvent = {
             title: eventTitle.value,
@@ -612,7 +656,7 @@ function addEventToUpcoming(event) {
     }
 
     // Check if month section exists under the year, if not, create it
-    let monthElement = yearElement.nextElementSibling;
+    let monthElement = document.querySelector(`h6[data-month='${month}']`);
     if (!monthElement || monthElement.textContent !== month) {
         const monthContainer = document.createElement('h6');
         monthContainer.classList.add('mb-0', 'mt-2');
@@ -624,7 +668,7 @@ function addEventToUpcoming(event) {
     const eventContainer = document.createElement('div');
     const time = event.extendedProps.start_time;
     let h;
-    const convertedTime = `${((h = parseInt(time.split(':')[0]) % 12 || 12))}:${time.split(':')[1]} ${h >= 12 ? 'PM' : 'AM'}`;
+    const convertedTime = `${((h = parseInt(time.split(':')[0])) % 12 || 12)}:${time.split(':')[1]} ${h >= 12 ? 'PM' : 'AM'}`;
     eventContainer.innerHTML = `
         <div> ${event.extendedProps.date.split('-')[event.extendedProps.date.split('-').length - 1]}, ${convertedTime} </div>
         <div class="badge text-start mb-1" id="upcoming_event_${event.id}" data-interview_type="${event.extendedProps.interview_type}">

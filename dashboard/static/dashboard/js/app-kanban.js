@@ -281,7 +281,7 @@ const excludedCandidateIds = new Set(
   // Set the onclick event for the button to navigate to the candidate's profile
       const candidateProfileBtn = kanbanSidebar.querySelector('#candidateProfile');
       candidateProfileBtn.onclick = function() {
-        window.location.href = `/candidate/candidate-details/${candidateId}/`;  // Redirect to candidate profile page
+        window.location.href = `/candidate/candidate-analysis/${candidateId}/?job_opening_id=${jobOpeningId}`;  // Redirect to candidate profile page
       };
 
 

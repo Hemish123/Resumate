@@ -12,32 +12,36 @@
     <span class="ti-xs ti ti-chevron-left me-2"></span>Back
 </button>
 <div class="card">
-    <div class="card-datatable pt-0">
-        <h5 id="datatable-title" class="card-title mb-0">Applications</h5>
+    <div class="card-datatable p-5">
+        <h5 id="datatable-title" class="card-title mb-0">Screening Results</h5>
 
         <table class="datatables-basic table">
               <thead>
                 <tr>
                   <th>Actions</th>
                   <th>Name</th>
-                  <th>Experience (in years)</th>
-                  <th>Status</th>
-                  <th>Updated</th>
+
+                <th>Experience (%)</th>
+                <th>Skills (%)</th>
+                <th>Education (%)</th>
+
                 </tr>
               </thead>
               <tbody>
                 {% for candidate in candidates %}
                 <tr data-id="{{candidate.id}}">
                     <td>
-                        <button class="approve-btn" onclick="updateStatus({{ resume.id }}, 'Initial')">✔️</button>
-                        <button class="reject-btn" onclick="updateStatus({{ resume.id }}, 'Rejected')">❌</button>
+                        <button class="approve-btn" onclick="updateStatus({{ candidate.id }}, 'Initial')">✔️</button>
+                        <button class="reject-btn" onclick="updateStatus({{ candidate.id }}, 'Rejected')">❌</button>
 
                     </td>
-                    <td>{{ candidate.id }}</td>
-                    <td><a href="{% url 'candidate-details' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
-                    <td>{{candidate.experience}}</td>
-                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
-                    <td>{{candidate.updated|date:"F j, Y"}}</td>
+
+                    <td><a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
+
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
                 </tr>
                 {% endfor %}
               </tbody>
