@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+
+from candidate.models import Candidate
 from .models import ScreeningMetrics
 from django.contrib import messages
 from .forms import CategoryForm,ContactForm
 # from candidate.models import Resume
+from manager.models import JobOpening
 
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -34,7 +37,10 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-
+        id = self.kwargs.get('pk')
+        job_opening = JobOpening.objects.get(pk=id)
+        context['candidates'] = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        context['job_opening'] = job_opening
         results = self.request.GET.get('results', '')
         selected_resume_ids = [int(id) for id in results.split(',') if id.isdigit()]
         # selected_resumes = Resume.objects.filter(id__in=selected_resume_ids).order_by('-updated_on')

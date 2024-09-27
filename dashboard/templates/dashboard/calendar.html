@@ -37,7 +37,7 @@
           {% for year, months in upcoming.items %}
            <h6 data-year="{{ year }}">{{ year }}</h6>  <!-- Display the year -->
             {% for month, events in months.items %}
-                <h6 class="mb-0 mt-2">{{ month }}</h6>  <!-- Display the month -->
+                <h6 data-month="{{ month }}" class="mb-0 mt-2">{{ month }}</h6>  <!-- Display the month -->
                 {% for e in events %}
                     <div> {{ e.start_datetime|date:"d, h:i A" }}</div>  <!-- Format the date as "day, time" -->
                     <div class="badge text-start mb-1" id="upcoming_event_{{ e.id }}" data-interview_type="{{ e.interview_type }}">
@@ -122,9 +122,9 @@
               aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
-            <form class="event-form pt-0" method="POST" enctype="multipart/form-data" id="eventForm" onsubmit="return false">
+            <form class="event-form pt-0" enctype="multipart/form-data" id="eventForm" onsubmit="return false">
               <div class="mb-5">
-                <label class="form-label" for="eventTitle">Title</label>
+                <label class="form-label" for="eventTitle">Title</label><span>*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -133,7 +133,7 @@
                   placeholder="Title" />
               </div>
               <div class="mb-5">
-                <label class="form-label" for="eventLabel">Interview Type</label>
+                <label class="form-label" for="eventLabel">Interview Type</label><span>*</span>
                 <select class="select2 select-event-label form-select" id="eventLabel" name="interview_type">
                   <option data-label="primary" value="facetoface" selected>Face to face</option>
                   <option data-label="success" value="telephonic">Telephonic</option>
@@ -143,7 +143,7 @@
                 </select>
               </div>
               <div class="mb-5">
-                <label class="form-label" for="eventStartDate">Date</label>
+                <label class="form-label" for="eventStartDate">Date</label><span>*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -152,7 +152,7 @@
                   placeholder="Date of Interview" />
               </div>
               <div class="mb-5">
-                <label class="form-label" for="eventStartTime">Start Time</label>
+                <label class="form-label" for="eventStartTime">Start Time</label><span>*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -161,7 +161,7 @@
                   placeholder="Start Time" />
               </div>
               <div class="mb-5">
-                <label class="form-label" for="eventEndTime">End Time</label>
+                <label class="form-label" for="eventEndTime">End Time</label><span>*</span>
                 <input
                   type="text"
                   class="form-control"
@@ -185,11 +185,11 @@
                   placeholder="https://www.google.com" />
               </div>
               <div class="mb-5">
-                <label class="form-label" for="interviewer">Interviewer Name</label>
+                <label class="form-label" for="interviewer">Interviewer Name</label><span>*</span>
                 <input name="interviewer" class="form-control" id="interviewer"/>
               </div>
-              <div class="mb-4 select2-primary">
-                <label class="form-label" for="eventGuests">Candidate</label>
+              <div class="mb-5 select2-primary">
+                <label class="form-label" for="eventGuests">Candidate</label><span>*</span>
                 <select
                   class="select2 form-select"
                   id="eventGuests"
@@ -200,8 +200,8 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="mb-4 select2-primary">
-                <label class="form-label" for="designation">For Designation</label>
+              <div class="mb-5 select2-primary">
+                <label class="form-label" for="designation">For Designation</label><span>*</span>
                 <select
                   class="select2 form-select"
                   id="designation"
@@ -213,7 +213,7 @@
                 </select>
               </div>
               <div class="mb-5">
-                <label class="form-label" for="eventLocation">Location</label>
+                <label class="form-label" for="eventLocation">Location</label><span>*</span>
                 <input
                   type="text"
                   class="form-control"

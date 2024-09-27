@@ -152,7 +152,7 @@
                 <tr data-id="{{candidate.id}}">
                     <td></td>
                     <td>{{ candidate.id }}</td>
-                    <td><a href="{% url 'candidate-details' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
+                    <td><a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
                     <td>{{candidate.current_designation}}</td>
                     <td>{{candidate.contact}}</td>
                     <td>{{candidate.email}}</td>
