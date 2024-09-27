@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy
-from django.http import JsonResponse
+from django.urls import reverse_lazy, reverse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -268,7 +268,7 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
         candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
         for c in candidates:
             results = ResumeScreening(c.text_content)
-        return redirect('screening')
+        return redirect(reverse('screening', kwargs={'pk': id}))
 
 class CandidateDetailsView(LoginRequiredMixin, DetailView):
     template_name = 'candidate/candidate_details.html'
