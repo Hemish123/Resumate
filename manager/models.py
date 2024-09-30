@@ -57,6 +57,10 @@ class JobOpening(models.Model):
     # assignemployee = models.ForeignKey(Employee, on_delete=models.CASCADE)  # ForeignKey to Employee
     content_type = models.CharField(blank=True, max_length=10, choices=[('file', 'File'), ('text', 'Text')])  # Choice for content type
     active = models.BooleanField(default=True)
+    expires = models.IntegerField(default=21)
+    experience_criteria = models.IntegerField(default=50)
+    skills_criteria = models.IntegerField(default=50)
+    education_criteria = models.IntegerField(default=50)
 
     HIRING_FOR_CHOICES = [
         ('self', 'Hiring for self'),
@@ -67,6 +71,23 @@ class JobOpening(models.Model):
 
     def __str__(self):
         return self.designation
+
+    @property
+    def expiration_date(self):
+        """Calculate the expiration date based on created_date and expires."""
+        return self.updated_on + timezone.timedelta(days=self.expires)
+
+    @property
+    def days_remaining(self):
+        """Calculate the number of days remaining until expiration."""
+        remaining = ((self.expiration_date - timezone.now()).days) + 1
+        return max(remaining, 0)  # Return 0 if already expired
+
+    @property
+    def is_expired(self):
+        print('da', self.expiration_date)
+        """Check if the job opening is expired."""
+        return timezone.now() > self.expiration_date
 
     class Meta:
         ordering = ['-updated_on']

@@ -85,7 +85,7 @@
                             <div class="badge bg-label-secondary rounded p-2">
                               <i class="ti ti-user-check ti-md"></i>
                             </div>
-                            <h6 class="tab-widget-title mb-0 mt-2">Personality</h6>
+                            <h6 class="tab-widget-title mb-0 mt-2">Behavioral</h6>
                           </a>
                         </li>
                         <li class="nav-item">
@@ -117,28 +117,63 @@
                               </div>
                             </div>
                             <div class="card-body">
-                              {% if text.job_matching.match %}
-                              <div class="mb-6">
-                                <div id="jobMatching"></div>
-                                <div class="mt-3 text-center">
-                                  <small class="text-muted mt-3">{{ candidate.name }}'s alignment with your job needs.</small>
-                                </div>
+                              <div class="mb-6 ms-0 row me-6">
+                                  {% if text.experience_matching %}
+                                  <div class="col-sm-12 col-md-4 mt-2">
+                                    <div class="text-center">
+                                      <h6 class="mb-0">Experience</h6>
+                                    </div>
+                                    <div id="experienceMatching" data-response="{{ response_text }}"></div>
+                                    <div class="mt-3 text-center">
+                                      <small class="text-muted mt-3">experience match</small>
+                                    </div>
+                                  </div>
+                                  {% endif %}
+                                  {% if text.skills_matching %}
+                                  <div class="col-sm-12 col-md-4 mt-2">
+                                    <div class="text-center">
+                                      <h6 class="mb-0">Skills</h6>
+                                    </div>
+                                    <div id="skillsMatching"></div>
+                                    <div class="mt-3 text-center">
+                                      <small class="text-muted mt-3">skills match</small>
+                                    </div>
+                                  </div>
+                                  {% endif %}
+                                  {% if text.education_matching %}
+                                  <div class="col-sm-12 col-md-4 mt-2">
+                                    <div class="text-center">
+                                      <h6 class="mb-0">Education</h6>
+                                    </div>
+                                    <div id="educationMatching"></div>
+                                    <div class="mt-3 text-center">
+                                      <small class="text-muted mt-3">education match</small>
+                                    </div>
+                                  </div>
+                                {% endif %}
                               </div>
-                              {% endif %}
                               <div class="mt-3">
                                 <h5>Highlights of {{ candidate.name }}'s Fit for the Role </h5>
-                                <ol>
-                                  {% for reason in text.job_matching.reasons_for_fit %}
-                                  <li class="card-text mb-1">{{ reason }}</li>
-                                  {% endfor %}
-                                </ol>
+                                {% if text.experience_matching.reason_for_fit %}
+                                <p>Experience : {{ text.experience_matching.reason_for_fit }}</p>
+                                {% endif %}
+                                  {% if text.skills_matching.reason_for_fit %}
+                                <p>Skills : {{ text.skills_matching.reason_for_fit }}</p>
+                                {% endif %}
+                                  {% if text.education_matching.reason_for_fit %}
+                                <p>Education : {{ text.education_matching.reason_for_fit }}</p>
+                                {% endif %}
                               </div>
                               <div class="mt-3">
                                 {% if text.projects_done %}
-                                <h5>Assignments Done </h5>
+                                <h5>Projects Done </h5>
                                 <ol>
-                                  {% for skill, project in text.projects_done.items %}
-                                  <li class="mb-1"><span class="fw-bold">{{ skill }} : </span><span class="card-text">{{ project }}</span></li>
+                                  {% for title, details in text.projects_done.items %}
+                                  <li class="mb-1"><span class="fw-bold">{{ title }} : </span><span class="card-text">{{ details.description }}</span>
+                                  <div>
+                                      <span class="fw-bold">Industry : </span><span class="card-text">{{ details.industry }}</span>
+                                  </div>
+                                  </li>
                                   {% endfor %}
                                 </ol>
                                 {% endif %}
@@ -150,26 +185,29 @@
                           <div class=" mb-6">
                             <div class="card-header d-flex justify-content-between align-items-center">
                               <div>
-                                <h5 class="mb-1 mt-0 card-title">Skill Set Analysis : Visualizing Expertise Levels</h5>
-                                <small class="text-muted mb-0">on scale of 1 to 5</small>
+                                <h5 class="mb-1 mt-0 card-title">Skill Set of {{ candidate.name }}</h5>
                               </div>
                             </div>
-                            <div class="card-body row g-3">
-                                <div class="col-sm-12 col-md-8">
-                                  <div class="" id="horizontalBarChart" data-response="{{ response_text }}"></div>
-                                </div>
-                              <div class="unwanted-div-class col-sm-12 col-md-4 d-flex justify-content-around align-items-center">
-                                <div class="row">
-                                  {% for skill, level in text.skills_level.items %}
-                                  <div class="col-sm-6 col-md-6 my-5">
-                                      <p class="mb-0">{{ skill|upper }}</p>
-                                      <h6>Level : {{ level }}</h6>
-                                  </div>
-                                  {% endfor %}
-                                </div>
+<!--                            <div class="card-body row g-3">-->
+<!--                                <div class="col-sm-12 col-md-8">-->
+                                  {% if text.skills %}
+                                    <div class="row g-3">
+                                        {% for category, skills in text.skills.items %}
+                                        <div class="col-xs-12 col-sm-6 col-md-3 skillset">
+                                            <div class="card-body p-0 pb-2 border border-primary rounded">
+                                            <h5 class="card-title mx-0 my-6 p-2 bg-primary text-white text-center">{{ category|upper }}</h5>
 
-                              </div>
-                            </div>
+                                            {% for s in skills %}
+                                                <p class="card-text text-center">{{ s }}</p>
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+<!--                                </div>-->
+
+<!--                            </div>-->
                           </div>
                         </div>
                         <div class="tab-pane fade" id="personality" role="tabpanel">
@@ -232,7 +270,7 @@
 
                               {% endif %}
                               <h5 class="mb-1 mt-2 card-title">
-                               Unveiling Key Personality Traits
+                               Unveiling Key Behavioral Traits
                               </h5>
                               <div class="mt-4">
                                 <div class="row">
@@ -294,6 +332,7 @@
                               </div>
                             </div>
                             <div class="card-body">
+                              <h6>Technical Assessment</h6>
                               <ol>
                                 {% for q in text.interview_questions %}
                                 <li class="mb-1">
@@ -308,6 +347,26 @@
                                   <p class="card-text text-info">
                                     {{ text.assignment }}
                                   </p>
+
+                                </div>
+
+                              </div>
+                                <h6 class="mt-5">Cultural Fitment</h6>
+                              <ol>
+                                {% for q in text.behavioral_assessment %}
+                                <li class="mb-1">
+                                  {{ q }}
+                                </li>
+                                {% endfor %}
+                              </ol>
+
+                              <div class="card shadow-none bg-info-subtle">
+                                <div class="card-body">
+                                  <h6 class="card-title text-info">Behavioral Situation </h6>
+                                  <p class="card-text text-info">
+                                    {{ text.behavioral_question }}
+                                  </p>
+
                                 </div>
 
                               </div>

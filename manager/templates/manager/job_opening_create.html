@@ -264,6 +264,43 @@
                   {% endfor %}
                 {% endif %}
               </div>
+              <div class="col-md-12">
+                <hr class="my-0">
+                <p class="mt-1 mb-0" >Minimum Screening criteria for candidates</p>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_education_criteria">Education Criteria(%)
+                  <span>*</span>
+                </label>
+                <input type="number" name="education_criteria" value="{{ form.education_criteria.value|default_if_none:'50' }}" placeholder="50" id="id_education_criteria" min="0" class="form-control" required/>
+                {% if form.errors %}
+                  {% for error in form.education_criteria.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_experience_criteria">Experience Criteria(%)
+                  <span>*</span>
+                </label>
+                <input type="number" name="experience_criteria" value="{{ form.experience_criteria.value|default_if_none:'50' }}" placeholder="50" id="id_experience_criteria" min="0" class="form-control" required/>
+                {% if form.errors %}
+                  {% for error in form.experience_criteria.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_skills_criteria">Skills Criteria(%)
+                  <span>*</span>
+                </label>
+                <input type="number" name="skills_criteria" value="{{ form.skills_criteria.value|default_if_none:'50' }}" placeholder="50" id="id_skills_criteria" min="0" class="form-control" required/>
+                {% if form.errors %}
+                  {% for error in form.skills_criteria.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
 
               <div class="row mt-4">
                 <label class="form-label" for="job_description_field">Job Description</label>
