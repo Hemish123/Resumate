@@ -150,14 +150,20 @@ const excludedCandidateIds = new Set(
 // }
 
   // Render board dropdown
-  function renderBoardDropdown() {
+  function renderBoardDropdown(stage) {
+      let deleteOption = "";
+
+      if (stage !== "Initial Stage" && stage !== "Hired" && stage !== "Rejected" && stage !== "Applied") {
+        deleteOption =
+          "<a class='dropdown-item delete-board text-danger' href='javascript:void(0)'> <i class='ti ti-trash ti-xs me-1'></i> <span class='align-middle'>Delete</span></a>";
+      }
     return (
       "<div class='dropdown'>" +
       "<i class='dropdown-toggle ti ti-dots-vertical cursor-pointer' id='board-dropdown' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></i>" +
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='board-dropdown'>" +
-      "<a class='dropdown-item delete-board' href='javascript:void(0)'> <i class='ti ti-trash ti-xs' me-1></i> <span class='align-middle'>Delete</span></a>" +
       "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-edit ti-xs' me-1></i> <span class='align-middle'>Rename</span></a>" +
       "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-archive ti-xs' me-1></i> <span class='align-middle'>Archive</span></a>" +
+      deleteOption +
       '</div>' +
       '</div>'
     );
@@ -648,9 +654,10 @@ applyBoardColors();
       elem.addEventListener('mouseenter', function () {
         this.contentEditable = 'true';
       });
+      const boardTitle = elem.textContent.trim();
 
       // Appends delete icon with title
-      elem.insertAdjacentHTML('afterend', renderBoardDropdown());
+      elem.insertAdjacentHTML('afterend', renderBoardDropdown(boardTitle));
     });
   }
 
@@ -771,7 +778,8 @@ applyBoardColors();
       }
       if (kanbanBoardLastChild) {
         const header = kanbanBoardLastChild.querySelector('.kanban-title-board');
-        header.insertAdjacentHTML('afterend', renderBoardDropdown());
+        const boardTitle = header.textContent.trim();
+        header.insertAdjacentHTML('afterend', renderBoardDropdown(boardTitle));
 
         // To make newly added boards title editable
         kanbanBoardLastChild.querySelector('.kanban-title-board').addEventListener('mouseenter', function () {
