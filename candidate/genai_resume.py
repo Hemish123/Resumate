@@ -26,10 +26,14 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     client = OpenAI(api_key="sk-proj-bGFqRLy2avrcM5Sa7UPuT3BlbkFJ5hK2bKLzO2PBvbg7yuTx")
     content = """Your task is to parse resume into json format with following keys:
     str(average_tenure(i.e. 2 years)), str(current_tenure(i.e. 2 years)), 
-    skills_level(e.g.{'python': int(level(1-5))} grab all skills from resume), 
-    {projects_done({'project title' : 'str(project description and skills in that project)'})}, 
-    job_matching(dict with int(match)(0-100%)(match with respect to skills experience education in jd) and [reasons_for_fit]),
-    [personality_traits], [interview_questions](top 5 questions from job description), 
+    skills(e.g.{'front-end': ['html', 'javascript']} grab all skills(no speaking languages) from resume and in which categories it falls),
+    {projects_done({'project title' : {'description' : 'str(project description and skills in that project)', 'industry' : str(project in which industry)}})}, 
+    education_matching(dict with int(match)(0-100%)(match with respect to education in jd) and str(reason_for_fit)),
+    skills_matching(dict with int(match)(0-100%)(match with respect to skills in jd) and str(reason_for_fit)),
+    experience_matching(dict with int(match)(0-100%)(match with respect to experience in jd) and str(reason_for_fit)),
+    [personality_traits],str(behavioral_question(give one situation to know behavioural aspects)),
+    [behavioral_assessment](top 5 questions for behavioral assessment),
+     [interview_questions](top 5 questions from job description), 
     str(assignment) (technical assessment based on job description)
     """
 

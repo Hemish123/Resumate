@@ -27,10 +27,14 @@
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                         <h5 class="card-title">{{jobs.designation}}</h5>
                         <div>
-                            {% if jobs.active %}
-                              <span class="badge bg-primary ">Active</span>
+                            {% if jobs.is_expired %}
+                                <span class="badge bg-warning ">Expired</span>
                             {% else %}
-                                <span class="badge bg-danger ">Closed</span>
+                                {% if jobs.active %}
+                                  <span class="badge bg-primary ">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger ">Closed</span>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -60,6 +64,10 @@
                         </button>
                     </div>
                   </div>
+                <div class="d-flex justify-content-end mt-1">
+                    <small class="text-muted">Expires in : {{ jobs.days_remaining }} days</small>
+<!--                    <small class="text-muted">Expire date : {{ jobs.expiration_date }} </small>-->
+                </div>
             </div>
         </div>
     </div>

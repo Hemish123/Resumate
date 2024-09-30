@@ -3,12 +3,13 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 
 from candidate.models import Candidate
+from dashboard.models import CandidateStage, Stage
 from .models import ScreeningMetrics
 from django.contrib import messages
 from .forms import CategoryForm,ContactForm
 # from candidate.models import Resume
 from manager.models import JobOpening
-
+import json
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .resume_screening.extract_text import extractText
@@ -25,6 +26,7 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ContactForm
+from candidate.models import ResumeAnalysis
 
 def about(request):
     return render(request, 'screening/about.html', context={'title':'About'})
@@ -39,7 +41,17 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
-        context['candidates'] = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        selected_candidates = []
+        for c in candidates:
+            response_text = json.loads(ResumeAnalysis.objects.get(candidate=c, job_opening=job_opening).response_text)
+            print('response_text', response_text)
+            if response_text['experience_matching']['match'] >= job_opening.experience_criteria:
+                c.analysis_for_resume = response_text
+
+                selected_candidates.append(c)
+
+        context['candidates'] = selected_candidates
         context['job_opening'] = job_opening
         results = self.request.GET.get('results', '')
         selected_resume_ids = [int(id) for id in results.split(',') if id.isdigit()]
@@ -55,6 +67,26 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         # context['next'] = self.request.GET.get('next', reverse('parsing-home'))
 
         return context
+
+    def post(self, request, **kwargs):
+        id = self.kwargs.get('pk')
+        job_opening = JobOpening.objects.get(pk=id)
+        data = json.loads(request.body)
+        candidateId = data.get('candidateId')
+        action = data.get('action')
+        candidate = Candidate.objects.get(id=candidateId)
+        if action=='approve':
+            candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
+            stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
+            candidate_stage.stage = stage
+            candidate_stage.save()
+        elif action=='reject':
+            candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
+            stage = Stage.objects.get(name="Rejected", job_opening=job_opening)
+            candidate_stage.stage = stage
+            candidate_stage.save()
+        return JsonResponse({'status': 'success'}, status=200)
+
 
 # def resumes(request):
 #     return render(request,'screening/resumes.html',context={'title':'Resumes'})
