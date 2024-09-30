@@ -13,7 +13,7 @@
 </button>
 <div class="card">
     <div class="card-datatable p-5">
-        <h5 id="datatable-title" class="card-title mb-0">Screening Results</h5>
+        <h5 id="datatable-title" class="card-title mb-0">Screening Results for {{ job_opening.designation }}</h5>
 
         <table class="datatables-basic table">
               <thead>
@@ -29,18 +29,22 @@
               </thead>
               <tbody>
                 {% for candidate in candidates %}
-                <tr data-id="{{candidate.id}}">
+                <tr data-id="{{candidate.id}}" data-job_opening_id="{{job_opening.id}}">
                     <td>
-                        <button class="approve-btn" onclick="updateStatus({{ candidate.id }}, 'Initial')">✔️</button>
-                        <button class="reject-btn" onclick="updateStatus({{ candidate.id }}, 'Rejected')">❌</button>
+                        <button class="approve-btn btn btn-outline-success p-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Move to Initial Stage">
+                            <i class="ti ti-check"></i>
+                        </button>
+                        <button class="reject-btn btn btn-outline-danger p-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Reject">
+                            <i class="ti ti-x"></i>
+                        </button>
 
                     </td>
 
                     <td><a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
 
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ candidate.analysis_for_resume.experience_matching.match }}</td>
+                    <td>{{ candidate.analysis_for_resume.skills_matching.match }}</td>
+                    <td>{{ candidate.analysis_for_resume.education_matching.match }}</td>
 
                 </tr>
                 {% endfor %}
@@ -57,4 +61,5 @@
     <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
     <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
     <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
+    <script src="{% static 'dashboard/js/screening.js' %}"></script>
 {% endblock js %}

@@ -146,7 +146,8 @@ class StageAPIView(APIView):
         job_opening = JobOpening.objects.get(id=pk)
         if stageid:
             stage = Stage.objects.get(job_opening=job_opening, id=stageid)
-            stage.delete()
+            if (stage.name != 'Initial Stage') and (stage.name != 'Hired') and (stage.name != 'Applied') and (stage.name != 'Rejected'):
+                stage.delete()
         if candidateid:
             stage = Stage.objects.get(job_opening=job_opening, id=candidatestageid)
             candidate = CandidateStage.objects.get(stage=stage, id=candidateid)

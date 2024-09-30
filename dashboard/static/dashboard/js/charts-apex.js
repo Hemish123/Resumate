@@ -77,133 +77,205 @@
     return `rgb(${r}, ${g}, ${b})`;
   }
   // Get data from database
-  const horizontalBarChartEl = document.querySelector('#horizontalBarChart'),
-  data =  JSON.parse(horizontalBarChartEl.getAttribute('data-response')),
-  skills_level = data.skills_level,
-  transformedSkillsLevel = Object.fromEntries(
-    Object.entries(skills_level).map(([key, value]) => [key, parseInt(value, 10)])),
-  skills = Object.keys(transformedSkillsLevel),
-  skills_value = Object.values(transformedSkillsLevel),
-  categories = Array.from({ length: skills.length }, (_, i) => i + 1).reverse(),
-
-  barcolors = Array.from({ length: skills.length }, () => getRandomColor()),
-  horizontalBarChartConfig = {
-      chart: {
-        height: 500,
-        type: 'bar',
-        toolbar: {
-          show: false
-        }
-      },
-      plotOptions: {
-        bar: {
-          horizontal: true,
-          barHeight: '50%',
-          distributed: true,
-          startingShape: 'rounded',
-          borderRadius: 8
-        }
-      },
-      grid: {
-        strokeDashArray: 10,
-        borderColor: borderColor,
-        xaxis: {
-          lines: {
-            show: true
-          }
-        },
-        yaxis: {
-          lines: {
-            show: false
-          }
-        },
-        padding: {
-          top: -20,
-          bottom: -12
-        }
-      },
-       colors: barcolors,
-      fill: {
-        opacity: [1, 1, 1, 1, 1, 1, 1]
-      },
-      dataLabels: {
-        enabled: true,
-        style: {
-          colors: ['#fff'],
-          fontWeight: 400,
-          fontSize: '13px',
-          fontFamily: 'Public Sans'
-        },
-        formatter: function (val, opts) {
-          return skills[opts.dataPointIndex];
-        },
-        offsetX: 0,
-        dropShadow: {
-          enabled: false
-        }
-        },
-      labels: skills,
-      series: [
-        {
-          name: 'Level',
-          data: skills_value
-        }
-      ],
-      xaxis: {
-        categories: categories,
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px'
-          }
-        }
-      },
-      yaxis: {
-        max: 5,
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px'
-          }
-        }
-      },
-      tooltip: {
-        enabled: true,
-        style: {
-          fontSize: '12px'
-        },
-        onDatasetHover: {
-          highlightDataSeries: false
-        },
-        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-          return '<div class="px-3 py-2">' + '<span>Level : ' + series[seriesIndex][dataPointIndex] + '</span>' + '</div>';
-        }
-      },
-      legend: {
-        show: false
-      }
-    };
-
-  if (typeof horizontalBarChartEl !== undefined && horizontalBarChartEl !== null) {
-    const horizontalBarChart = new ApexCharts(horizontalBarChartEl, horizontalBarChartConfig);
-    horizontalBarChart.render();
-  }
+//  const horizontalBarChartEl = document.querySelector('#horizontalBarChart'),
+//  data =  JSON.parse(horizontalBarChartEl.getAttribute('data-response')),
+//  dotColor = document.querySelectorAll('[id^="dotColor-"]'),
+//  skills_level = data.skills_level;
+//  var transformedSkillsLevel = {},
+//  skills = [],
+//  skills_value = [],
+//  categories = [];
+////  transformedSkillsLevel = Object.fromEntries(
+////    Object.entries(skills_level).map(([key, value]) => [key, parseInt(value, 10)])),
+////  skills = Object.keys(transformedSkillsLevel),
+//
+//// Create a color map for subcategories
+//var subcategoryColors = {};
+//
+//// Generate a random color for each subcategory
+//Object.keys(skills_level).forEach(subcategory => {
+//  subcategoryColors[subcategory] = getRandomColor(); // Assign a unique color for each subcategory
+//});
+//  // Iterate over the nested dictionary
+//Object.entries(skills_level).forEach(([subcategory, skillsDict]) => {
+//  // Flatten the skills inside each subcategory and accumulate in transformedSkillsLevel
+//  Object.entries(skillsDict).forEach(([skill, value]) => {
+//    if (!transformedSkillsLevel[subcategory]) {
+//      transformedSkillsLevel[subcategory] = [];
+//    }
+//    transformedSkillsLevel[subcategory].push({
+//      skill: skill,
+//      value: parseInt(value, 10)  // Convert value to an integer
+//    });
+//    // Collect all unique skill names for categories if not already added
+//    if (!skills.includes(skill)) {
+//      skills.push(skill);
+//      skills_value.push(parseInt(value, 10));
+//    }
+//  });
+//  });
+////    const skills_value = Object.values(transformedSkillsLevel);
+//    categories = Array.from({ length: skills.length }, (_, i) => i + 1).reverse();
+//    // Create series data for ApexCharts based on subcategories
+//var seriesData = Object.entries(transformedSkillsLevel).map(([subcategory, skillsArray]) => {
+//  return {
+//    name: subcategory,  // Subcategory name (e.g., Frontend, Backend)
+//    data: skills.map(skill => {
+//      // Match the skill value, otherwise set to 0 if not found in the subcategory
+//      const skillObj = skillsArray.find(s => s.skill === skill);
+//      return skillObj ? skillObj.value : 0;
+//    })
+//  };
+//});
+//
+//
+//// Create the color array for the skills based on their subcategory color
+//var barcolors = skills.map(skill => {
+//  // Find the subcategory for this skill and assign its color
+//  for (let subcategory in transformedSkillsLevel) {
+//    if (transformedSkillsLevel[subcategory].some(s => s.skill === skill)) {
+//    const somecolor = subcategoryColors[subcategory];
+//        dotColor.forEach(element => {
+//          if (element.id === `dotColor-${subcategory}`) {
+//            element.classList.remove('text-primary');
+//            element.style.color = somecolor;
+//          }
+//        });
+//      return somecolor;
+//    }
+//  }
+//  return getRandomColor(); // Fallback in case something goes wrong
+//});
+//
+//
+//  const horizontalBarChartConfig = {
+//      chart: {
+//        height: 500,
+//        type: 'bar',
+//        stacked: true,  // Ensure bars are stacked (subcategories are grouped together)
+//        toolbar: {
+//          show: false
+//        }
+//      },
+//      plotOptions: {
+//        bar: {
+//          horizontal: false,
+////          barHeight: '50%',
+//          columnWidth: '50%',
+//          distributed: true,
+//          grouped: true,
+//          barGroupPadding: 0.3, // Spacing between groups (subcategories)
+//          startingShape: 'rounded',
+//          borderRadius: 8
+//        }
+//      },
+//      grid: {
+//        strokeDashArray: 10,
+//        borderColor: borderColor,
+//        xaxis: {
+//          lines: {
+//            show: true
+//          }
+//        },
+//        yaxis: {
+//          lines: {
+//            show: false
+//          }
+//        },
+//        padding: {
+//          top: -20,
+//          bottom: -12
+//        }
+//      },
+//       colors: barcolors,
+//      fill: {
+//        opacity: 1
+//      },
+//      dataLabels: {
+//        enabled: false,
+//        style: {
+//          colors: ['#fff'],
+//          fontWeight: 400,
+//          fontSize: '13px',
+//          fontFamily: 'Public Sans'
+//        },
+//        formatter: function (val, opts) {
+//          return skills[opts.dataPointIndex];
+//        },
+//        offsetX: 0,
+//        dropShadow: {
+//          enabled: false
+//        }
+//        },
+//      labels: skills,
+//      series: [
+//        {
+//          name: 'Level',
+//          data: skills_value
+//        }
+//      ],
+//      xaxis: {
+//        categories: skills,
+//        axisBorder: {
+//          show: false
+//        },
+//        axisTicks: {
+//          show: false
+//        },
+//        labels: {
+//          style: {
+//            colors: labelColor,
+//            fontSize: '13px'
+//          }
+//        }
+//      },
+//      yaxis: {
+//        max: 5,
+//        tickAmount: 5,  // Set tick amount to prevent duplicates
+//        labels: {
+//          style: {
+//            colors: labelColor,
+//            fontSize: '13px'
+//          }
+//        }
+//      },
+//      tooltip: {
+//        enabled: true,
+//        style: {
+//          fontSize: '12px'
+//        },
+//        onDatasetHover: {
+//          highlightDataSeries: false
+//        },
+//        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+//          return '<div class="px-3 py-2">' + '<span>Level : ' + series[seriesIndex][dataPointIndex] + '</span>' + '</div>';
+//        }
+//      },
+//      legend: {
+//        show: false
+//      }
+//    };
+//
+//  if (typeof horizontalBarChartEl !== undefined && horizontalBarChartEl !== null) {
+//    const horizontalBarChart = new ApexCharts(horizontalBarChartEl, horizontalBarChartConfig);
+//    horizontalBarChart.render();
+//  }
 
 
   // JobMatching Radial Bar Chart
   // --------------------------------------------------------------------
-  const jobMatchingChartEl = document.querySelector('#jobMatching'),
 
 
-    jobMatchingChartConfig = {
+
+  const experienceMatchingChartEl = document.querySelector('#experienceMatching'),
+  skillsMatchingChartEl = document.querySelector('#skillsMatching'),
+  educationMatchingChartEl = document.querySelector('#educationMatching');
+const data =  JSON.parse(experienceMatchingChartEl.getAttribute('data-response'));
+
+function createMatchingChartConfig(matchingData) {
+  return {
       chart: {
-        height: 100,
+        height: 200,
         sparkline: {
           enabled: true
         },
@@ -211,25 +283,26 @@
         type: 'radialBar'
       },
       colors: [config.colors.warning],
-      series: [data.job_matching.match],
+      series: [matchingData],
       plotOptions: {
         radialBar: {
           offsetY: 0,
           startAngle: -90,
           endAngle: 90,
           hollow: {
-            size: '70%'
+            size: '55%'
           },
-          track: {
-            strokeWidth: '45%',
-            background: borderColor
-          },
+//          track: {
+//            strokeWidth: '20%',
+//            background: borderColor
+//          },
+
           dataLabels: {
             name: {
               show: false
             },
             value: {
-              fontSize: '36px',
+              fontSize: '28px',
               color: headingColor,
               fontWeight: 500,
               offsetY: -5
@@ -252,16 +325,20 @@
           breakpoint: 1442,
           options: {
             chart: {
-              height: 300
+              height: 200
             },
             plotOptions: {
               radialBar: {
                 hollow: {
-                  size: '65%'
+                  size: '55%'
                 },
+//                track: {
+//                    strokeWidth: '25%',
+//                    background: borderColor
+//                },
                 dataLabels: {
                   value: {
-                    fontSize: '36px',
+                    fontSize: '28px',
                     offsetY: -1
                   }
                 }
@@ -278,15 +355,15 @@
             plotOptions: {
               radialBar: {
                 hollow: {
-                  size: '75%'
+                  size: '40%'
                 },
-                track: {
-                  strokeWidth: '50%'
-                },
+//                track: {
+//                  strokeWidth: '20%'
+//                },
                 dataLabels: {
                   value: {
                     fontSize: '26px'
-                  }
+                  },
                 }
               }
             }
@@ -301,7 +378,7 @@
             plotOptions: {
               radialBar: {
                 hollow: {
-                  size: '70%'
+                  size: '40%'
                 }
               }
             }
@@ -316,11 +393,11 @@
             plotOptions: {
               radialBar: {
                 hollow: {
-                  size: '70%'
+                  size: '40%'
                 },
                 dataLabels: {
                   value: {
-                    fontSize: '22px'
+                    fontSize: '18px'
                   }
                 }
               }
@@ -336,11 +413,11 @@
             plotOptions: {
               radialBar: {
                 hollow: {
-                  size: '60%'
+                  size: '35%'
                 },
                 dataLabels: {
                   value: {
-                    fontSize: '18px'
+                    fontSize: '14px'
                   }
                 }
               }
@@ -349,9 +426,23 @@
         }
       ]
     };
-  if (typeof jobMatchingChartEl !== undefined && jobMatchingChartEl !== null) {
-    const expensesRadialChart = new ApexCharts(jobMatchingChartEl, jobMatchingChartConfig);
+    }
+
+    // Creating the charts
+let jobMatchingChartConfig = createMatchingChartConfig(data.experience_matching.match);
+let educationMatchingChartConfig = createMatchingChartConfig(data.education_matching.match);
+let skillsMatchingChartConfig = createMatchingChartConfig(data.skills_matching.match);
+  if (typeof experienceMatchingChartEl !== undefined && experienceMatchingChartEl !== null) {
+    const expensesRadialChart = new ApexCharts(experienceMatchingChartEl, jobMatchingChartConfig);
     expensesRadialChart.render();
+  }
+  if (typeof educationMatchingChartEl !== undefined && educationMatchingChartEl !== null){
+    const educationRadialChart = new ApexCharts(educationMatchingChartEl, educationMatchingChartConfig);
+    educationRadialChart.render();
+  }
+  if (typeof skillsMatchingChartEl !== undefined && skillsMatchingChartEl !== null){
+    const skillsRadialChart = new ApexCharts(skillsMatchingChartEl, skillsMatchingChartConfig);
+    skillsRadialChart.render();
   }
 
 })();
@@ -398,8 +489,8 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
     activeTab.classList.remove('active');
 
 
-//            const chartContainer = document.getElementById("jobMatching");
-//
+//            const chartContainer = document.getElementById("horizontalBarChart");
+
 //            // Capture chart as image
 //            const chartCanvas = await html2canvas(chartContainer, { scale: 2 });
 //            const chartImgData = chartCanvas.toDataURL('image/png');
@@ -424,12 +515,17 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
                 const tabElement = document.getElementById(tabs[i]);
 
                 TabId.classList.add('active');
-                const tabContentClone = tabElement.cloneNode(true);
 
-                // Select the specific <div> element you want to remove
-                const unwantedDiv = tabContentClone.querySelector('.unwanted-div-class'); // Use the correct class or ID
-                if (unwantedDiv) {
-                    unwantedDiv.remove();
+
+                if (tabs[i] == 'skill-analysis') {
+                    const tabContentClone = tabElement.cloneNode(true);
+                    // Select the specific <div> element you want to remove
+                    const skillDiv = tabContentClone.querySelectorAll('.skillset'); // Use the correct class or ID
+                    // Loop through each selected element
+                    skillDiv.forEach(div => {
+                      div.classList.remove('col-md-3');  // Remove 'col-md-4' from each element
+                      div.classList.add('col-md-4');  // Add 'col-md-12' to each element
+                    });
                     pdfContent += '<div class="mt-5"></div>' + tabContentClone.innerHTML + '<div class="html2pdf__page-break"></div>'; // Store each tab's content in the array
 
                 }
@@ -458,6 +554,6 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
             await html2pdf().from(pdfContent).set(opt).save();
 
     document.querySelector(`[data-bs-target="${activeTabId}"]`).classList.add('active');
-    console.log('All PDFs saved.');
+
     });
  }
