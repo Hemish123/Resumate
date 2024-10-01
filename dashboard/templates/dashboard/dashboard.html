@@ -64,10 +64,12 @@
                         </button>
                     </div>
                   </div>
+                {% if not jobs.is_expired %}
                 <div class="d-flex justify-content-end mt-1">
                     <small class="text-muted">Expires in : {{ jobs.days_remaining }} days</small>
 <!--                    <small class="text-muted">Expire date : {{ jobs.expiration_date }} </small>-->
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -5,6 +5,7 @@
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+
 {% endblock css %}
 
 {% block content %}
@@ -148,8 +149,9 @@
                 </tr>
               </thead>
               <tbody>
+
                 {% for candidate in candidates %}
-                <tr data-id="{{candidate.id}}">
+                <tr data-id="{{candidate.id}}" data-new="{{ candidate.is_new }}">
                     <td></td>
                     <td>{{ candidate.id }}</td>
                     <td><a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
@@ -159,9 +161,10 @@
                     <td>{{candidate.location}}</td>
                     <td>{{candidate.experience}}</td>
                     <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
-                    <td>{{candidate.updated|date:"F j, Y"}}</td>
+                    <td>{{candidate.updated|date:"F j, h:m A"}}</td>
                 </tr>
                 {% endfor %}
+
               </tbody>
             </table>
     </div>

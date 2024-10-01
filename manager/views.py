@@ -61,7 +61,6 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             
             # Extract and process required skills
             required_skills = self.request.POST.get('requiredskills')
-            print('r', required_skills)
             if required_skills:
                 skills_list = json.loads(required_skills)
                 skills_string = ', '.join([skill['value'] for skill in skills_list])
