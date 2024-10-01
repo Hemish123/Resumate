@@ -57,7 +57,7 @@ $(function () {
           }
         },
         {
-          // For Checkboxes
+          // For id
           targets: 1,
           orderable: false,
           searchable: false,
@@ -82,6 +82,8 @@ $(function () {
           targets: 2,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
+              var rowElement = dt_basic_table.find('tbody tr').eq(meta.row); // Get the row element by index
+              var isNew = rowElement.attr('data-new'); // Get the data-new attribute
             var $user_img = full['avatar'],
               $name = full['name'];
 
@@ -115,9 +117,14 @@ $(function () {
               '<div class="d-flex flex-column">' +
               '<span class="emp_name text-truncate">' +
               $name.slice(start, end) +
-              '</span>' +
-              '</div>' +
-              '</div></a>';
+              '</span></div>';
+
+              if (isNew === 'True') {
+              $row_output +=
+                `<span class="ms-1 badge bg-label-success small">New</span>`;
+            }
+
+            $row_output += '</div></a>';
             return $row_output;
           }
         },
@@ -169,7 +176,8 @@ $(function () {
           }
         }
       ],
-      order: [[2, 'desc']],
+
+//      order: [[9, 'asc']],
       dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
       displayLength: 9,
       lengthMenu: [7, 10, 25, 50, 75, 100],
@@ -321,6 +329,7 @@ $(function () {
           ]
         }
       ],
+
 //      responsive: {
 //        details: {
 //          display: $.fn.dataTable.Responsive.display.modal({
