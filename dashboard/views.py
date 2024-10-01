@@ -72,7 +72,8 @@ class CandidateAPIView(APIView):
     serializer_class = CandidateSerializer
 
     def get(self, request):
-        candidates = Candidate.objects.filter(company=request.user.employee.company)
+        job_opening_id = request.GET.get('jobOpeningId')
+        candidates = Candidate.objects.filter(company=request.user.employee.company, job_openings__id=job_opening_id)
         if not candidates.exists():
             return Response({'detail': 'No candidates found.'}, status=status.HTTP_200_OK)
 
@@ -179,6 +180,7 @@ class StageView(LoginRequiredMixin, TemplateView):
 
         # Add data to the context
         context['job_opening'] = job_opening
+        print('employee', job_opening.assignemployee.all())
 
 
         # Add job description and job details to the context
