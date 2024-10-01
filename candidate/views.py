@@ -4,7 +4,6 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from screening.resume_screening.resume_screening import ResumeScreening
 
 from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
@@ -161,8 +160,9 @@ class CandidateCreateView(FormView):
             response_text = get_response(candidate.text_content, job_opening.designation,
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)
-            ResumeAnalysis.objects.create(response_text=response_text, candidate=candidate, job_opening=job_opening)
-
+            resume_analysis, _ = ResumeAnalysis.objects.get_or_create(candidate=candidate, job_opening=job_opening)
+            resume_analysis.response_text = response_text
+            resume_analysis.save()
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
@@ -257,17 +257,25 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
-        context['candidates'] = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company).order_by('-is_new')
         context['job_opening'] = job_opening
+        # relevant_candidates = []
+        # non_relevant_candidates = []
+        # for c in candidates:
+        #     response_text = json.loads(ResumeAnalysis.objects.get(candidate=c, job_opening=job_opening).response_text)
+        #     if response_text['skills_matching']['match'] >= 50:
+        #         relevant_candidates.append(c)
+        #     else :
+        #         non_relevant_candidates.append(c)
 
+        context['candidates'] = candidates
+
+        candidates.filter(is_new=True).update(is_new=False)
         return context
 
     def post(self, request, *args, **kwargs):
         id = self.kwargs.get('pk')
-        job_opening = JobOpening.objects.get(pk=id)
-        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
-        for c in candidates:
-            results = ResumeScreening(c.text_content)
+
         return redirect(reverse('screening', kwargs={'pk': id}))
 
 class CandidateDetailsView(LoginRequiredMixin, DetailView):

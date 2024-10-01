@@ -48,7 +48,7 @@ const excludedCandidateIds = new Set(
 
 
     const fetchCandidates = async () => {
-    const cresponse = await fetch('/candidate-api/');
+    const cresponse = await fetch(`/candidate-api/?jobOpeningId=${jobOpeningId}`);
     if (!cresponse.ok) {
       console.error('error', cresponse);
       return [];
@@ -220,14 +220,15 @@ const excludedCandidateIds = new Set(
     dragItems: true,
     boards: boards,
     dragBoards: true,
-    addItemButton: true,
+    addItemButton: false,
     buttonContent: '+ Add Item',
     itemAddOptions: {
-      enabled: true, // add a button to board for easy item creation
+      enabled: false, // add a button to board for easy item creation
       content: '+ Add New Item', // text or html content of the board button
       class: 'kanban-title-button btn', // default class of the button
       footer: false // position the button on footer
     },
+
     click: function (el) {
       let element = el;
       let title = element.getAttribute('data-eid')
@@ -256,7 +257,6 @@ const excludedCandidateIds = new Set(
       document.querySelector('#stageUpdate').addEventListener('submit', function() {
         document.querySelector('#candidateStageId').value = element.getAttribute('data-eid');
       });
-      console.log('stage', el.parentNode.parentNode.getAttribute('data-id'));
       const stageId = el.parentNode.parentNode.getAttribute('data-id');
       const stageSelect = document.querySelector('#stageSelect');
 
@@ -268,7 +268,6 @@ const excludedCandidateIds = new Set(
             if (option.value === stageId) {
                 option.setAttribute('selected', '');
                 option.setAttribute('data-select2-id', stageId);
-                console.log('d', option.textContent);
             }
         });
         $(stageSelect).trigger('change');
@@ -455,6 +454,9 @@ const excludedCandidateIds = new Set(
     }
   });
 
+
+
+
 // Apply background color to boards
 function applyBoardColors() {
         const boards = document.querySelectorAll('.kanban-board');
@@ -476,6 +478,7 @@ function applyBoardColors() {
       });
     }
   }
+
 });
 //        const lastBoard = boards[boards.length - 1]; // The last board
 //        lastBoard.style.backgroundColor = '#d6ffe1';

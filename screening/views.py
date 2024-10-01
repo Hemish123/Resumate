@@ -41,30 +41,34 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
-        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company)
+        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company, candidatestage__stage__name="Applied")
         selected_candidates = []
         for c in candidates:
             response_text = json.loads(ResumeAnalysis.objects.get(candidate=c, job_opening=job_opening).response_text)
-            print('response_text', response_text)
-            if response_text['experience_matching']['match'] >= job_opening.experience_criteria:
-                c.analysis_for_resume = response_text
+            if job_opening.min_experience == 0 :
+                if (response_text['education_matching']['match'] >= job_opening.education_criteria
+                    and response_text['skills_matching']['match'] >= job_opening.skills_criteria
+                ):
+                    c.analysis_for_resume = response_text
+                    selected_candidates.append(c)
+            else:
+                if (response_text['experience_matching']['match'] >= job_opening.experience_criteria
+                    and response_text['education_matching']['match'] >= job_opening.education_criteria
+                    and response_text['skills_matching']['match'] >= job_opening.skills_criteria
+                    ):
+                    c.analysis_for_resume = response_text
+                    selected_candidates.append(c)
 
-                selected_candidates.append(c)
-
+        selected_candidates.sort(
+            key=lambda c: (
+                c.analysis_for_resume['skills_matching']['match'],  # Primary: Skills (descending)
+                c.analysis_for_resume['experience_matching']['match'],  # Secondary: Experience (descending)
+                c.analysis_for_resume['education_matching']['match']  # Tertiary: Education (descending)
+            ),
+            reverse=True
+        )
         context['candidates'] = selected_candidates
         context['job_opening'] = job_opening
-        results = self.request.GET.get('results', '')
-        selected_resume_ids = [int(id) for id in results.split(',') if id.isdigit()]
-        # selected_resumes = Resume.objects.filter(id__in=selected_resume_ids).order_by('-updated_on')
-        # context['resume_list'] = selected_resumes
-
-        suggest = self.request.GET.get('suggest_resumes', '')
-        suggest_resume_ids = [int(id) for id in suggest.split(',') if id.isdigit()][:10]
-        # suggested_resumes = Resume.objects.filter(id__in=suggest_resume_ids).order_by('-updated_on')
-        # context['suggest_resume_list'] = suggested_resumes
-
-        # # Add next parameter for Go Back button
-        # context['next'] = self.request.GET.get('next', reverse('parsing-home'))
 
         return context
 

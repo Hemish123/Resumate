@@ -45,6 +45,7 @@ class Candidate(models.Model):
     text_content = models.TextField(default='')
     updated = models.DateTimeField(default=timezone.now)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='candidates', null=True)
+    is_new = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase
@@ -55,6 +56,7 @@ class Candidate(models.Model):
 
     def __str__(self):
         return self.name
+
 
     # def clean(self):
     #     super().clean()
@@ -78,4 +80,4 @@ class Candidate(models.Model):
 class ResumeAnalysis(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="analysis")
     job_opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE, null=True)
-    response_text = models.JSONField()
+    response_text = models.JSONField(null=True)
