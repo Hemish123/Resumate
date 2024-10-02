@@ -32,6 +32,7 @@ urlpatterns = [
     path('screening/', include('screening.urls')),
     path('', include('dashboard.urls')),
     path('manager/', include('manager.urls')),
+    path('notification/', include('notification.urls')),
     path('candidate/', include('candidate.urls')),
     path('adminuser/', include('adminuser.urls')),
     path('register/', user_views.register, name='register'),
