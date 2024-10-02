@@ -20,7 +20,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     model = JobOpening
     fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
               'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'min_experience',
-              'max_experience', 'education', 'content_type']
+              'max_experience', 'education', 'content_type', 'experience_criteria', 'skills_criteria',
+              'education_criteria']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
