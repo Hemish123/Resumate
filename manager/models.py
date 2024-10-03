@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import FileExtensionValidator, EmailValidator
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from twisted.python.usage import UsageError
+from django.contrib.auth.models import User
 from users.models import Employee, Company
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -61,6 +63,7 @@ class JobOpening(models.Model):
     experience_criteria = models.IntegerField(default=50)
     skills_criteria = models.IntegerField(default=50)
     education_criteria = models.IntegerField(default=50)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, default="1", related_name='jobopening')
 
     HIRING_FOR_CHOICES = [
         ('self', 'Hiring for self'),
@@ -85,7 +88,6 @@ class JobOpening(models.Model):
 
     @property
     def is_expired(self):
-        print('da', self.expiration_date)
         """Check if the job opening is expired."""
         return timezone.now() > self.expiration_date
 
