@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models.signals import post_save
 
 from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
@@ -123,10 +124,8 @@ class CandidateCreateView(FormView):
                 candidate.blog = form.cleaned_data['blog']
                 candidate.current_organization = form.cleaned_data['current_organization']
                 candidate.updated = timezone.now()
-                print('fd', candidate.contact)
                 # candidate.job_openings.add(job_opening)
             else:
-                print('se')
                 candidate = form.save(commit=False)
             resume = request.session.get('resume', None)
 
@@ -150,10 +149,12 @@ class CandidateCreateView(FormView):
             candidate.filename = file.name
             candidate.text_content = resume
             candidate.company = job_opening.company
+            candidate.job_opening_id_temp = job_opening.id
 
             candidate.save()
 
             candidate.job_openings.add(job_opening)
+
             self.candidate = candidate
             stage = Stage.objects.get(name='Applied', job_opening=job_opening)
             CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
