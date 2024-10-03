@@ -77,8 +77,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<!--    htmx websocket connection-->
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
 
@@ -89,7 +87,7 @@
     <script src="{% static 'dashboard/js/config.js' %}"></script>
   </head>
 
-  <body hx-ext="ws" ws-connect="/notification/notification">
+  <body>
   <!-- Preloader -->
     <div class="preloader">
       <div class="lds-ellipsis">
