@@ -39,16 +39,22 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         context['has_perm'] = has_perm
         self.request.session['previous_page'] = ''
 
+
         if self.request.user.is_superuser:
             job_posts = JobOpening.objects.all().order_by('-active')
 
             if job_posts.exists():
+                context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
+                                           job_posts}  # Count new applications
+
                 context['job_posts'] = job_posts
             else:
                 context['no_job_posts'] = 'No openings'
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active')
             if job_posts.exists():
+                context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
+                                                     job_posts}  # Count new applications
                 context['job_posts'] = job_posts
             else:
                 context['no_job_posts'] = 'No openings'
@@ -59,6 +65,9 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
                 job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active')
 
                 if job_posts.exists():
+                    context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job
+                                                         in
+                                                         job_posts}  # Count new applications
                     context['job_posts'] = job_posts
                 else :
                     context['no_job_posts'] = 'No assigned openings'

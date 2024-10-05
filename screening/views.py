@@ -42,6 +42,7 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
         candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company, candidatestage__stage__name="Applied")
+        candidates.filter(is_new=True).update(is_new=False)
         selected_candidates = []
         for c in candidates:
             response_text = json.loads(ResumeAnalysis.objects.get(candidate=c, job_opening=job_opening).response_text)
@@ -67,6 +68,7 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
             ),
             reverse=True
         )
+        self.selected_candidates = selected_candidates
         context['candidates'] = selected_candidates
         context['job_opening'] = job_opening
 
@@ -78,17 +80,27 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         data = json.loads(request.body)
         candidateId = data.get('candidateId')
         action = data.get('action')
-        candidate = Candidate.objects.get(id=candidateId)
-        if action=='approve':
-            candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
-            stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
-            candidate_stage.stage = stage
-            candidate_stage.save()
-        elif action=='reject':
-            candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
-            stage = Stage.objects.get(name="Rejected", job_opening=job_opening)
-            candidate_stage.stage = stage
-            candidate_stage.save()
+        if candidateId:
+            candidate = Candidate.objects.get(id=candidateId)
+            if action=='approve':
+                candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
+                stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
+                candidate_stage.stage = stage
+                candidate_stage.save()
+            elif action=='reject':
+                candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
+                stage = Stage.objects.get(name="Rejected", job_opening=job_opening)
+                candidate_stage.stage = stage
+                candidate_stage.save()
+        else:
+            if action=='approveall':
+                candidate_stage = CandidateStage.objects.filter(candidate=self.selected_candidates, stage__job_opening=job_opening)
+                stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
+                for c in candidate_stage:
+                    c.stage = stage
+                    c.save()
+
+
         return JsonResponse({'status': 'success'}, status=200)
 
 

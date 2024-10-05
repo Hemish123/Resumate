@@ -124,6 +124,7 @@ class CandidateCreateView(FormView):
                 candidate.blog = form.cleaned_data['blog']
                 candidate.current_organization = form.cleaned_data['current_organization']
                 candidate.updated = timezone.now()
+                candidate.is_new = True
                 # candidate.job_openings.add(job_opening)
             else:
                 candidate = form.save(commit=False)
@@ -271,7 +272,7 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
 
         context['candidates'] = candidates
 
-        candidates.filter(is_new=True).update(is_new=False)
+        # Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company, is_new=True).update(is_new=False)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -316,6 +317,8 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
         id = self.kwargs.get('pk')
         job_opening_id = self.request.GET.get('job_opening_id')
         candidate = Candidate.objects.get(id=id)
+        candidate.is_new = False
+        candidate.save()
         job_opening = candidate.job_openings.get(id=job_opening_id)
 
         if job_opening :
