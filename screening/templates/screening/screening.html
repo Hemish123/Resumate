@@ -13,8 +13,13 @@
 </button>
 <div class="card">
     <div class="card-datatable p-5">
-        <h5 id="datatable-title" class="card-title mb-0">Screening Results for {{ job_opening.designation }}</h5>
-
+        <div class="d-flex justify-content-between">
+            <h5 id="datatable-title" class="card-title mb-0">Screening Results for {{ job_opening.designation }}</h5>
+            <button class="approve-all-btn btn btn-outline-success p-2 mb-2 me-2" data-job_opening_id="{{ job_opening.id }}">
+                <i class="ti ti-check"></i>
+                Accept All
+            </button>
+        </div>
         <table class="datatables-basic table">
               <thead>
                 <tr>

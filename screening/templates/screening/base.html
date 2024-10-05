@@ -1,5 +1,6 @@
 {% extends "dashboard/theme.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block body %}
 
@@ -124,7 +125,7 @@
                     aria-expanded="false">
                     <span class="position-relative">
                       <i class="ti ti-bell ti-md"></i>
-                      <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                      <span id="notification-dot" class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end p-0">
@@ -132,37 +133,34 @@
                       <div class="dropdown-header d-flex align-items-center py-3">
                         <h6 class="mb-0 me-auto">Notification</h6>
                         <div class="d-flex align-items-center h6 mb-0">
-                          <span class="badge bg-label-primary me-2">8 New</span>
-                          <a
-                            href="javascript:void(0)"
-                            class="btn btn-text-secondary rounded-pill btn-icon dropdown-notifications-all"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Mark all as read"
-                            ><i class="ti ti-mail-opened text-heading"></i
-                          ></a>
+                          <span id="notification-count" class="badge bg-label-primary me-2">{{ notifications.count }} new</span>
+
                         </div>
                       </div>
                     </li>
                     <li class="dropdown-notifications-list scrollable-container">
                       <ul id="notification-dropdown" class="list-group list-group-flush">
+                        {% for n in notifications %}
                         <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                          <div class="d-flex">
+                          <div class="d-flex notification" data-timestamp="{{ n.created_at.isoformat }}">
                             <div class="flex-grow-1">
-                              <h6 class="small mb-1">Congratulation Lettie 🎉</h6>
-                              <small class="mb-1 d-block text-body">Won the monthly best seller gold badge</small>
-                              <small class="text-muted">1h ago</small>
+                              <h6 class="small mb-1">{{ n.message }}</h6>
+                              <small class="text-muted">{{ n.created_at|timesince_custom }}</small>
                             </div>
                             <div class="flex-shrink-0 dropdown-notifications-actions">
                               <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
+                                >
+                                {% if not n.read %}
+                                <span class="badge badge-dot"></span>
+                                {% endif %}
+                              </a>
                               <a href="javascript:void(0)" class="dropdown-notifications-archive"
                                 ><span class="ti ti-x"></span
                               ></a>
                             </div>
                           </div>
                         </li>
+                        {% endfor %}
 
                       </ul>
                     </li>

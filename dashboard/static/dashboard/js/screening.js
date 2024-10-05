@@ -1,6 +1,7 @@
 'use strict';
 
 const approveBtn = document.querySelectorAll(".approve-btn"),
+approveAll = document.querySelector(".approve-all-btn"),
 rejectBtn = document.querySelectorAll(".reject-btn");
 
 function getCookie(name) {
@@ -8,6 +9,31 @@ function getCookie(name) {
           const parts = value.split(`; ${name}=`);
           if (parts.length === 2) return parts.pop().split(';').shift();
         }
+
+
+if (approveAll){
+        approveAll.addEventListener('click', async(e) => {
+            const jobOpeningId = approveAll.getAttribute('data-job_opening_id');
+            const response = await fetch(`/screening/screening/${jobOpeningId}/`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({'action': 'approveall'})  // Convert the data to JSON format
+                  });
+
+                  const data = await response.json();  // Process the JSON response from the server
+                  if (data.status === 'success') {
+                  // Remove approve button and replace with "Approved!"
+                    const buttonCell = approveAll.parentElement;
+                    buttonCell.innerHTML = '<span class="text-success fw-bold">All Approved!</span>';
+                  } else {
+                    console.log('Failed to approve candidate', data.message);
+                  }
+
+        });
+}
 
 if (approveBtn){
     approveBtn.forEach(function(btn) {

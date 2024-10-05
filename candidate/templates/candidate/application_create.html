@@ -7,7 +7,11 @@
 {% endblock css %}
 
 {% block body %}
+
 <div class="content-wrapper">
+    {% if job_opening.is_expired %}
+        No longer Available
+    {% else %}
     <div class="preloader-container">
         <!-- We are making divisions, every div.
         represent a single roundabout balls -->
@@ -235,6 +239,7 @@
     </div>
 </div>
 </div>
+{% endif %}
 {% endblock body %}
 
 {% block js %}
