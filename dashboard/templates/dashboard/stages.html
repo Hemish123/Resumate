@@ -103,9 +103,11 @@
                 </div>
 
                 <!-- Kanban Wrapper -->
-                <div class="kanban-wrapper {% if not active %}kanban-disabled{% endif %}">
+                <div class="kanban-wrapper {% if not active %}kanban-disabled{% elif job_opening.is_expired %}kanban-disabled{% endif %}">
                   {% if not active %}
                     <div class="fs-5 badge bg-label-danger">Closed</div>
+                    {% elif job_opening.is_expired %}
+                    <div class="fs-5 badge bg-label-danger">Expired</div>
                   {% endif %}
                 </div>
 
@@ -316,7 +318,7 @@
                 </div>
               </div>
 
-              <div class="row mt-1 mb-12">
+              <div class="row mt-1 mb-12 {% if job_opening.is_expired %}kanban-disabled{% endif %}">
                 <div class="col-md-4 col-lg-3 {% if not active %}kanban-disabled{% endif %}">
                   <a href="{% url 'application-list' job_opening.id %}">
                       <div class="alert alert-info" role="alert">All Applications</div>

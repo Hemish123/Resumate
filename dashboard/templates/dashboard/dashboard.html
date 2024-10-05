@@ -48,14 +48,19 @@
                   <p class="card-text">
                       Open Positions : {{jobs.openings}}
                   </p>
-                    <div class="alert alert-info" role="alert">New Applications</div>
+                    {% for id, new_count in new_application_counts.items %}
+                        {% if id == jobs.id and new_count > 0 %}
+                            <div class="alert alert-info" role="alert">{{ new_count }} New Application{% if new_count > 1 %}s{% endif %}</div>
+                        {% endif %}
+                    {% endfor %}
 
 
 <!--              <a href="javascript:void(0)" class="card-link">Card link</a>-->
 <!--              <a href="javascript:void(0)" class="card-link">Another link</a>-->
                 </a>
                                                       <!-- Display the URL attractively using Bootstrap classes -->
-                  <div class="bg-light border rounded p-3 mt-3">
+                {% if not jobs.is_expired %}
+                <div class="bg-light border rounded p-2 mt-3">
                       <div class="d-flex align-items-center text-primary">
                         <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
 
@@ -64,7 +69,7 @@
                         </button>
                     </div>
                   </div>
-                {% if not jobs.is_expired %}
+
                 <div class="d-flex justify-content-end mt-1">
                     <small class="text-muted">Expires in : {{ jobs.days_remaining }} days</small>
 <!--                    <small class="text-muted">Expire date : {{ jobs.expiration_date }} </small>-->

@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from django.template.loader import get_template
+import json
 
 
 class NotificationConsumer(WebsocketConsumer):
@@ -21,14 +21,15 @@ class NotificationConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         # Leave room group
+
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name, self.channel_name
         )
         # Called when the socket closes
 
     def new_application(self, event):
-        html = get_template("notification/notification.html").render(
-            context={"message": event["message"]}
-        )
-        print('html', html)
-        self.send(text_data=html)
+
+        self.send(text_data=json.dumps({
+            'message': event['message'],
+            'time': event['time']
+        }))
