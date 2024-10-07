@@ -52,10 +52,16 @@
 
           <ul class="menu-inner py-1">
             <!-- Page -->
+            <li class="menu-item {% if request.path == '/dashboard/' %}active{% endif %}">
+              <a href="{% url 'home' %}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-smart-home"></i>
+                <div data-i18n="Page 1">Dashboard</div>
+              </a>
+            </li>
             <li class="menu-item {% if request.path == '/' %}active{% endif %}">
               <a href="{% url 'dashboard' %}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-smart-home"></i>
-                <div data-i18n="Page 1">Home</div>
+                <div data-i18n="Page 1">Job Openings</div>
               </a>
             </li>
             <li class="menu-item {% if request.path == '/candidate/candidate-list/' %}active{% endif %}">
