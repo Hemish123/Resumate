@@ -12,7 +12,7 @@ class NotificationListView(LoginRequiredMixin, ListView):
     context_object_name = 'notifications_list'
 
     def get_queryset(self):
-        # Filter notifications for the logged-in user and show only unread ones
+        # Filter notifications for the logged-in user and show only unread one
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 
     def get(self, request, *args, **kwargs):
