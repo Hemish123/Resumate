@@ -25,10 +25,42 @@ from django.utils.dateformat import DateFormat
 from collections import defaultdict
 
 
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'dashboard/home.html'
+    title = 'Dashboard'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        if self.request.user.is_superuser:
+            active_jobs = JobOpening.objects.filter(active=True)
+        elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
+            active_jobs = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
+        else:
+            employee = Employee.objects.get(user=self.request.user)
+            active_jobs = JobOpening.objects.filter(company=employee.company, assignemployee=employee, active=True)
+
+        active_jobs = [job for job in active_jobs if not job.is_expired]
+        candidate_applied = 0
+        candidates_hired = 0
+        candidates_in_review = 0
+        for job in active_jobs:
+            candidate_applied += job.candidate_set.count()
+            stage = Stage.objects.get(name='Hired', job_opening=job)
+            candidates_hired += CandidateStage.objects.filter(stage=stage).count()
+            stage_all = Stage.objects.filter(job_opening=job).exclude(name__in=['Hired', 'Rejected'])
+            candidates_in_review += CandidateStage.objects.filter(stage__in=stage_all).count()
+        active_jobs_count = len(active_jobs)
+        context['active_jobs'] = active_jobs_count
+        context['candidates_applied'] = candidate_applied
+        context['candidates_hired'] = candidates_hired
+        context['candidates_in_review'] = candidates_in_review
+        return context
+
 
 class DashbaordView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
-    title = 'Dashboard'
+    title = 'Job Openings'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
