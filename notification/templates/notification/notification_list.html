@@ -1,11 +1,13 @@
 {% extends "screening/base.html" %}
+{% load custom_filters %}
 
 {% block content %}
   <h5>Notifications</h5>
-  <ul>
+  <ul class="list-group">
     {% for notification in notifications_list %}
-      <li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
         {{ notification.message }}
+        <span class="text-muted">{{notification.created_at|timesince_custom}}</span>
       </li>
     {% endfor %}
   </ul>
