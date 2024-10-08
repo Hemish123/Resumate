@@ -270,7 +270,7 @@
   const experienceMatchingChartEl = document.querySelector('#experienceMatching'),
   skillsMatchingChartEl = document.querySelector('#skillsMatching'),
   educationMatchingChartEl = document.querySelector('#educationMatching');
-const data =  JSON.parse(experienceMatchingChartEl.getAttribute('data-response'));
+const data =  JSON.parse(skillsMatchingChartEl.getAttribute('data-response'));
 
 function createMatchingChartConfig(matchingData) {
   return {
@@ -429,17 +429,8 @@ function createMatchingChartConfig(matchingData) {
     }
 
     // Creating the charts
-let jobMatchingChartConfig = createMatchingChartConfig(data.experience_matching.match);
-let educationMatchingChartConfig = createMatchingChartConfig(data.education_matching.match);
 let skillsMatchingChartConfig = createMatchingChartConfig(data.skills_matching.match);
-  if (typeof experienceMatchingChartEl !== undefined && experienceMatchingChartEl !== null) {
-    const expensesRadialChart = new ApexCharts(experienceMatchingChartEl, jobMatchingChartConfig);
-    expensesRadialChart.render();
-  }
-  if (typeof educationMatchingChartEl !== undefined && educationMatchingChartEl !== null){
-    const educationRadialChart = new ApexCharts(educationMatchingChartEl, educationMatchingChartConfig);
-    educationRadialChart.render();
-  }
+
   if (typeof skillsMatchingChartEl !== undefined && skillsMatchingChartEl !== null){
     const skillsRadialChart = new ApexCharts(skillsMatchingChartEl, skillsMatchingChartConfig);
     skillsRadialChart.render();
