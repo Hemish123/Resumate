@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models.signals import post_save
+from rest_framework.views import APIView
+from django.db.models import Q
 
 from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
@@ -249,6 +251,39 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
 
         return context
+
+class ResumeListView(LoginRequiredMixin, TemplateView):
+    template_name = 'candidate/resume_list.html'
+    title = 'Resume Database'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+
+        return context
+
+
+class ResumeSearchView(LoginRequiredMixin, APIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q')
+        if query:
+            candidates = Candidate.objects.filter(
+                Q(text_content__icontains=query),
+                company=self.request.user.employee.company
+            )
+        else:
+            candidates = Candidate.objects.filter(company=self.request.user.employee.company)
+
+        results = []
+        for candidate in candidates:
+            results.append({
+                'filename': candidate.filename,
+                'resume_url': candidate.upload_resume.url,
+                'content': candidate.text_content[:100],  # Limit to 100 characters or customize
+                'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
+            })
+        return JsonResponse({'results': results})
 
 class ApplicationListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/application_list.html'
