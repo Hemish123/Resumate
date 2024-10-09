@@ -1,0 +1,59 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+{% endblock css %}
+
+{% block content %}
+<button onclick="window.history.back()" type="button" class="btn btn-outline-primary mb-2">
+    <span class="ti-xs ti ti-chevron-left me-2"></span>Back
+</button>
+<div class="card">
+    <div class="card-datatable p-5">
+        <div class="d-flex justify-content-between">
+            <h5 id="datatable-title" class="card-title mb-0">Resumes</h5>
+            <div class="d-flex justify-content-end mb-2">
+            <input id="search-input" class="form-control me-2"/>
+            <button id="search-button" class="btn btn-outline-success">
+                Search
+            </button>
+            </div>
+        </div>
+        <table class="table">
+              <thead>
+                <tr>
+                  <th>Resume</th>
+                <th>Content</th>
+                <th>Updated</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                {% for candidate in candidates %}
+                <tr data-id="{{candidate.id}}" data-job_opening_id="{{job_opening.id}}">
+
+                    <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{candidate.filename}}</a></td>
+
+                    <td>{{ candidate.text_content|truncatewords:10 }}</td>
+                    <td>{{ candidate.updated }}</td>
+
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<!--    <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>-->
+    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
+    <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
+    <script src="{% static 'dashboard/js/resume-list.js' %}"></script>
+{% endblock js %}

@@ -41,359 +41,646 @@
                         </button>
                       </div>
                     </div>
-                    <div class="card-body">
-                      <ul class="nav nav-tabs widget-nav-tabs pb-8 gap-10 mx-1 d-flex justify-content-center" role="tablist">
-                        <li class="nav-item">
-                          <a
-                            href="javascript:void(0);"
-                            class="nav-link btn active d-flex flex-column align-items-center justify-content-center"
-                            role="tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#job-matching"
-                            aria-controls="job-matching"
-                            aria-selected="true">
-                            <div class="badge bg-label-secondary rounded p-2">
-                              <i class="ti ti-click ti-md"></i>
-                            </div>
-                            <h6 class="tab-widget-title mb-0 mt-2">Job Matching</h6>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a
-                            href="javascript:void(0);"
-                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-                            role="tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#skill-analysis"
-                            aria-controls="skill-analysis"
-                            aria-selected="false">
-                            <div class="badge bg-label-secondary rounded p-2">
-                              <i class="ti ti-chart-bar ti-md"></i>
-                            </div>
-                            <h6 class="tab-widget-title mb-0 mt-2">Skills</h6>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a
-                            href="javascript:void(0);"
-                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-                            role="tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#personality"
-                            aria-controls="personality"
-                            aria-selected="false">
-                            <div class="badge bg-label-secondary rounded p-2">
-                              <i class="ti ti-user-check ti-md"></i>
-                            </div>
-                            <h6 class="tab-widget-title mb-0 mt-2">Behavioral</h6>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a
-                            href="javascript:void(0);"
-                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"
-                            role="tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#questions"
-                            aria-controls="questions"
-                            aria-selected="false">
-                            <div class="badge bg-label-secondary rounded p-2">
-                              <i class="ti ti-school ti-md"></i>
-                            </div>
-                            <h6 class="tab-widget-title mb-0 mt-2">Assessment</h6>
-                          </a>
-                        </li>
-                      </ul>
-                      <div class="tab-content p-0 ms-0 ms-sm-2" id="export-section">
-                        <div class="tab-pane fade show active" id="job-matching" role="tabpanel">
-                          <div class="mb-7">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                              <div>
-                                <h5 class="mb-1 mt-0 card-title">
-                                  Fit Forecast
-                                </h5>
-                                <p class="card-subtitle"> How {{ candidate.name }} {% if candidate.current_designation %} as {{ candidate.current_designation}} {% endif %} Measures Up to the Job Description
-                                  {% if role %} for {{ role }} {% endif %}</p>
-                              </div>
-                            </div>
-                            <div class="card-body">
-                              <div class="mb-6 ms-0 row me-6">
-                                  {% if text.experience_matching %}
-                                  <div class="col-sm-12 col-md-4 mt-2">
-                                    <div class="text-center">
-                                      <h6 class="mb-0">Experience</h6>
-                                    </div>
-                                    <div id="experienceMatching" data-response="{{ response_text }}"></div>
-                                    <div class="mt-3 text-center">
-                                      <small class="text-muted mt-3">experience match</small>
-                                    </div>
-                                  </div>
-                                  {% endif %}
-                                  {% if text.skills_matching %}
-                                  <div class="col-sm-12 col-md-4 mt-2">
-                                    <div class="text-center">
-                                      <h6 class="mb-0">Skills</h6>
-                                    </div>
-                                    <div id="skillsMatching" data-response="{{ response_text }}"></div>
-                                    <div class="mt-3 text-center">
-                                      <small class="text-muted mt-3">skills match</small>
-                                    </div>
-                                  </div>
-                                  {% endif %}
-                                  {% if text.education_matching %}
-                                  <div class="col-sm-12 col-md-4 mt-2">
-                                    <div class="text-center">
-                                      <h6 class="mb-0">Education</h6>
-                                    </div>
-                                    <div id="educationMatching"></div>
-                                    <div class="mt-3 text-center">
-                                      <small class="text-muted mt-3">education match</small>
-                                    </div>
-                                  </div>
-                                {% endif %}
-                              </div>
-                              <div class="mt-3">
-                                <h5>Highlights of {{ candidate.name }}'s Fit for the Role </h5>
+                    <div class="card-body" id="export-section">
+                      <div class="row justify-content-center">
+                          <div class="col-md-4">
+                              <div class="card mb-4 border-0"> <!-- Added border-0 here -->
+                                  <div class="card-body">
 
-                                <p>Experience : {{ candidate.experience }} years</p>
+                                      <!-- Skills Matching Section -->
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-check-circle fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Skills Matching</h5>
+                                      </div>
 
-                                  {% if text.skills_matching.reason_for_fit %}
-                                <p>Skills : {{ text.skills_matching.reason_for_fit }}</p>
-                                {% endif %}
-                                  {% if candidate.education %}
-                                <p>Education : {{ candidate.education }}</p>
-                                {% endif %}
-                              </div>
-                              <div class="mt-3">
-                                {% if text.cocurricular_activities %}
-                                <h5>Co-Curricular Activities</h5>
+                                      <!-- Canvas for Chart.js -->
+                                      <canvas id="skillsMatchChart" class="my-3" style="max-width: 400px; max-height: 200px;"></canvas>
+                                      <p class="text-muted"><strong>Reason for Fit:</strong> {{ text.skills_matching.reason_for_fit }}</p>
 
-                                  {% for c in text.cocurricular_activities %}
-                                    <p>{{ c }}</p>
-                                  {% endfor %}
-                                {% endif %}
-                              </div>
-                              <div class="mt-3">
-                                {% if text.projects_done %}
-                                <h5>Projects Done </h5>
-                                <ol>
-                                  {% for title, details in text.projects_done.items %}
-                                  <li class="mb-1"><span class="fw-bold">{{ title }} : </span><span class="card-text">{{ details.description }}</span>
-                                  <div>
-                                      <span class="fw-bold">Industry : </span><span class="card-text">{{ details.industry }}</span>
+                                      <!-- Skills Section -->
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-cogs fa-2x text-primary me-3"></i>
+                                          <h5 class="card-title mb-0">Skills</h5>
+                                      </div>
+                                      <div class="table-responsive">
+                                          <table class="table table-striped">
+                                              <thead class="table-primary">
+                                                  <tr>
+                                                      <th>Category</th>
+                                                      <th>Skills</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody>
+                                                  {% for category, skills in text.skills.items %}
+                                                  <tr>
+                                                      <td><span class="badge bg-primary text-light">{{ category|capfirst }}</span></td>
+                                                      <td>{{ skills|join:", " }}</td>
+                                                  </tr>
+                                                  {% endfor %}
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                      <!-- Certifications Section -->
+                                      <div class="row">
+                                          <div class="col-md-12">
+                                              <div class="card border-0">
+                                                  <div class="card-body">
+                                                      <div class="d-flex align-items-center mb-3">
+                                                          <i class="fas fa-certificate fa-2x text-primary me-3"></i>
+                                                          <h5 class="card-title mb-0 fw-bold mb-2">Certifications</h5>
+                                                      </div>
+                                                      <div class="row">
+                                                          {% for certification in text.certifications %}
+                                                          <div class="col-12 mb-3"> <!-- Use col-12 for full width -->
+                                                              <div class="d-flex align-items-start">
+                                                                  <i class="fas fa-bookmark text-success me-2 mt-2"></i>
+                                                                  <div>
+                                                                      <span class="fw-bold">{{ certification }}</span>
+                                                                      <div class="text-muted">{{ certification.issuer }} - {{ certification.date }}</div>
+                                                                  </div>
+                                                              </div>
+                                                          </div>
+                                                          {% endfor %}
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+
                                   </div>
-                                  </li>
-                                  {% endfor %}
-                                </ol>
-                                {% endif %}
                               </div>
-                            </div>
                           </div>
-                        </div>
-                        <div class="tab-pane fade" id="skill-analysis" role="tabpanel">
-                          <div class=" mb-6">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                              <div>
-                                <h5 class="mb-1 mt-0 card-title">Skill Set of {{ candidate.name }}</h5>
-                              </div>
-                            </div>
-<!--                            <div class="card-body row g-3">-->
-<!--                                <div class="col-sm-12 col-md-8">-->
-                                  {% if text.skills %}
-                                    <div class="row g-3">
-                                        {% for category, skills in text.skills.items %}
-                                        <div class="col-xs-12 col-sm-6 col-md-3 skillset">
-                                            <div class="card-body p-0 pb-2 border border-primary rounded">
-                                            <h5 class="card-title mx-0 my-6 p-2 bg-primary text-white text-center">{{ category|upper }}</h5>
 
-                                            {% for s in skills %}
-                                                <p class="card-text text-center">{{ s }}</p>
-                                            {% endfor %}
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-<!--                                </div>-->
+                          <div class="col-md-4 text-center">
+                              <h2 class="mb-3 fw-bold text-primary">{{ candidate.name }}</h2>
+                              <h4 class="mb-3 text-primary">{{ candidate.designation }}</h4>
 
-<!--                            </div>-->
-                          </div>
-                        </div>
-                        <div class="tab-pane fade" id="personality" role="tabpanel">
-                          <div class="mb-7">
-                            <div class="card-body">
-                              {% if "none" not in text.current_tenure|lower or "none" not in text.average_tenure|lower %}
-
-                                <div class="mx-2 gap-4 gap-sm-0 d-flex flex-wrap justify-content-between align-items-center">
-                                  <div class="">
-                                    <div class="d-flex gap-2 align-items-center">
-                                      <div class="badge rounded bg-label-info p-1">
-                                        <i class="ti ti-clock-hour-3"></i>
-                                      </div>
-                                      <h6 class="mb-0 fw-normal">Total Experience</h6>
-                                    </div>
-                                    <h4 class="my-2 ms-2">{{ candidate.experience }} years</h4>
-                                  </div>
-                                  <div class="">
-                                    <div class="d-flex gap-2 align-items-center">
-                                      <div class="badge rounded bg-label-info p-1">
-                                        <i class="ti ti-clock-hour-3"></i>
-                                      </div>
-                                      <h6 class="mb-0 fw-normal">Current Tenure</h6>
-                                    </div>
-                                    <h4 class="my-2 ms-2">{{ text.current_tenure }}</h4>
-                                  </div>
-                                  <div class="">
-                                    <div class="d-flex gap-2 align-items-center">
-                                      <div class="badge rounded bg-label-info p-1"><i class="ti ti-clock-hour-3"></i></div>
-                                      <h6 class="mb-0 fw-normal">Average Tenure</h6>
-                                    </div>
-                                    <h4 class="my-2 ms-2">{{ text.average_tenure }}</h4>
-                                  </div>
-                                </div>
-                                <div class="">
-                                    {% if stable %}
-                                    <div class="card shadow-none bg-primary-subtle">
-                                      <div class="card-body">
-                                        <p class="card-text text-primary">
-                                          The tenure history reflects a strong sense of stability,
-                                          with consistent and long-term positions.
-                                          This indicates a solid commitment and reliability in
-                                          maintaining role over extended periods.
-                                        </p>
-                                      </div>
-                                    </div>
-                                    {% elif candidate.experience != 0 %}
-                                    <div class="card shadow-none bg-warning-subtle">
-                                      <div class="card-body">
-                                        <p class="card-text text-warning fs-6">
-                                        {{ candidate.name }}'s current tenure history suggests some instability,
-                                        with frequent changes or short-term positions.
-                                        This may indicate a lack of long-term commitment or potential challenges in maintaining
-                                        stability within a role.
-                                        </p>
-                                      </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-
-                              {% endif %}
-                              <h5 class="mb-1 mt-2 card-title">
-                               Unveiling Key Behavioral Traits
-                              </h5>
-                              <div class="mt-4">
-                                <div class="row">
-                                  {% for p in text.personality_traits %}
-                                  <div class="col-md-4">
-                                    <div class="d-flex align-items-center mb-2">
-                                      <div class="avatar me-4">
-                                          <span class="avatar-initial rounded bg-label-primary p-1">
-                                          {% if 'creative' in p|lower or 'innovative' in p|lower %}
-                                            <i class="ti ti-bulb ti-28px"></i>
-                                          {% elif 'friendly' in p|lower %}
-                                            <i class="ti ti-mood-smile ti-28px"></i>
-                                          {% elif 'organized' in p|lower %}
-                                            <i class="ti ti-calendar-month ti-28px"></i>
-                                          {% elif 'detail' in p|lower %}
-                                            <i class="ti ti-list-search ti-28px"></i>
-                                          {% elif 'adapt' in p|lower %}
-                                            <i class="ti ti-arrow-autofit-width ti-28px"></i>
-                                          {% elif 'analytic' in p|lower %}
-                                            <i class="ti ti-chart-line ti-28px"></i>
-                                          {% elif 'leader' in p|lower %}
-                                            <i class="ti ti-chess-king ti-28px"></i>
-                                          {% elif 'empathetic' in p|lower %}
-                                            <i class="ti ti-heart ti-28px"></i>
-                                          {% elif 'strategic' in p|lower %}
-                                            <i class="ti ti-compass ti-28px"></i>
-                                          {% elif 'communicat' in p|lower %}
-                                            <i class="ti ti-message ti-28px"></i>
-                                          {% elif 'exceptional' in p|lower %}
-                                            <i class="ti ti-star ti-28px"></i>
-                                          {% elif 'motivated' in p|lower %}
-                                            <i class="ti ti-rocket ti-28px"></i>
-                                          {% elif 'collaborative' in p|lower or 'team' in p|lower %}
-                                            <i class="ti ti-route ti-28px"></i>
-                                          {% elif 'solv' in p|lower or 'learn' in p|lower %}
-                                            <i class="ti ti-brain ti-28px"></i>
-                                          {% elif 'goal' in p|lower %}
-                                            <i class="ti ti-target-arrow ti-28px"></i>
-                                          {% else %}
-                                            <i class="ti ti-sparkles ti-28px"></i>
-                                          {% endif %}
-                                          </span>
-
-                                      </div>
-                                      <h6 class="mb-0">{{ p|capfirst }}</h6>
-                                    </div>
-                                  </div>
-                                  {% endfor %}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="tab-pane fade" id="questions" role="tabpanel">
-                          <div class="mb-7">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                              <div>
-                                <h5 class="mb-1 mt-0 card-title">Key Questions and Assessments for Interviews </h5>
-                              </div>
-                            </div>
-                            <div class="card-body">
-                              <h6>Technical Assessment</h6>
-                              <ol>
-                                {% for q in text.interview_questions %}
-                                <li class="mb-1">
-                                  {{ q }}
-                                </li>
-                                {% endfor %}
-                              </ol>
-
-                              <div class="card shadow-none bg-info-subtle">
-                                <div class="card-body">
-                                  <h6 class="card-title text-info">Task </h6>
-                                  <p class="card-text text-info">
-                                    {{ text.assignment }}
+                              <div class="mb-3"> <!-- Removed d-flex to allow block elements -->
+                                  <p class="text-muted mb-3"> <!-- Added mb-1 for spacing between lines -->
+                                      <i class="fas fa-briefcase fa-lg text-primary me-2"></i>
+                                      <strong>Experience:</strong> {{ candidate.experience }} years
                                   </p>
-
-                                </div>
-
-                              </div>
-                                <h6 class="mt-5">Cultural Fitment</h6>
-                              <ol>
-                                {% for q in text.behavioral_assessment %}
-                                <li class="mb-1">
-                                  {{ q }}
-                                </li>
-                                {% endfor %}
-                              </ol>
-
-                              <div class="card shadow-none bg-info-subtle">
-                                <div class="card-body">
-                                  <h6 class="card-title text-info">Behavioral Situation </h6>
-                                  <p class="card-text text-info">
-                                    {{ text.behavioral_question }}
+                                  <p class="text-muted">
+                                      <i class="fas fa-graduation-cap fa-lg text-primary me-2"></i>
+                                      <strong>Education:</strong> {{ candidate.education }}
                                   </p>
-
-                                </div>
-
                               </div>
 
-                            </div>
-                          </div>
+                              <img src="{% static image_url %}" alt="Candidate Image" class="img-fluid mt-3" style="height: 480px; width: 480px;">
+
+                              <div class="card mb-4 border-0"> <!-- Added shadow for depth -->
+                                  <div class="card-body text-center"> <!-- Center the title -->
+                                      <h5 class="card-title mb-3 mt-5"><i class="fas fa-user-friends fa-lg text-primary me-2"></i>Personality Traits</h5> <!-- Bold title -->
+                                  </div>
+                                  <ul class="list-unstyled m-lg-auto"> <!-- Align list to the left with some margin -->
+                                      {% for trait in text.personality_traits %}
+                                      <li class="d-flex align-items-center mb-1"> <!-- Flex for icon alignment with bottom margin -->
+                                          <i class="fas fa-check-circle text-success me-2"></i> <!-- Green check circle -->
+                                          <span class="text-muted">{{ trait }}</span> <!-- Muted text for traits -->
+                                      </li>
+                                      {% endfor %}
+                                  </ul>
+                              </div>
 
                           </div>
-                        </div>
+
+                          <div class="col-md-4">
+                              <div class="card mb-4 border-0"> <!-- Added border-0 here -->
+                                  <div class="card-body">
+                                      <div class="card mb-4 border-0"> <!-- Added border-0 here -->
+                                          <div class="card-body">
+                                              <div class="d-flex align-items-center mb-3">
+                                                  <i class="fas fa-folder-open fa-lg text-primary me-2"></i>
+                                                  <h5 class="card-title mb-0">Projects</h5>
+                                              </div>
+                                              <ol class="mb-0"> <!-- Removed list-unstyled for automatic numbering -->
+                                                  {% for project, details in text.projects_done.items %}
+                                                  <li>
+                                                      <strong>{{ project }}:</strong> {{ details.description }}
+                                                      <div><strong>Industry:</strong> {{ details.industry }}</div> <!-- Industry on a new line -->
+
+                                                  </li>
+                                                  {% endfor %}
+                                              </ol>
+                                          </div>
+                                      </div>
+
+
+
+
+                                      <!-- Curricular Activities Section -->
+                                      <div class="card mb-4 border-0"> <!-- Added shadow for depth -->
+                                          <div class="card-body">
+                                              <!-- Achievements Title with Icon -->
+                                              <div class="d-flex align-items-center mb-4"> <!-- Added mb-4 for spacing below title -->
+                                                  <i class="fas fa-trophy fa-lg text-primary me-3"></i> <!-- Increased space between icon and text -->
+                                                  <h5 class="card-title mb-0 fw-bold">Achievements</h5> <!-- Made the title bold for emphasis -->
+                                              </div>
+                                              <!-- Achievements List -->
+                                              <ul class="list-unstyled">
+                                                  {% for activity in text.achievements %}
+                                                  <li class="mb-3"> <!-- Added mb-3 for spacing between achievements -->
+                                                      <div class="d-flex align-items-start"> <!-- Flex for better alignment -->
+                                                          <i class="fas fa-trophy text-success me-2 mt-1"></i> <!-- Trophy icon for achievements -->
+                                                          <strong class="text-muted">{{ activity.name }}</strong> <!-- Muted text for a subtle look -->
+                                                      </div>
+                                                  </li>
+                                                  {% endfor %}
+                                              </ul>
+                                          </div>
+                                      </div>
+
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                    <!-- New Row for Technical and Behavioral Sections -->
+                      <div class="row">
+                          <div class="col-md-3">
+                              <div class="card  border-0">
+                                  <div class="card-body">
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-comments fa-2x text-primary me-2"></i>
+                                          <h5 class="card-title mb-0 fw-bold">Technical Questions</h5>
+                                      </div>
+                                      <ul class="list-unstyled">
+                                          {% for question in text.interview_questions %}
+                                          <li class="mb-2">
+                                              <i class="fas fa-question-circle text-primary"></i>
+                                              <span class="text-muted">{{ question }}</span>
+                                          </li>
+                                          {% endfor %}
+                                      </ul>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div class="col-md-3">
+                              <div class="card border-0">
+                                  <div class="card-body">
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-tasks fa-2x text-primary me-2"></i>
+                                          <h5 class="card-title mb-0 fw-bold">Technical Task</h5>
+                                      </div>
+                                      <div class="d-flex justify-content-between"> <!-- Changed align-items to center -->
+                                          <i class="fas fa-clipboard-list text-primary me-2 mt-3 fa-lg"></i>
+                                          <p class="text-muted mb-0">{{ text.assignment }}</p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+
+
+                          <div class="col-md-3">
+                              <div class="card  border-0">
+                                  <div class="card-body">
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-comments fa-2x text-primary me-2"></i>
+                                          <h5 class="card-title mb-0 fw-bold">Behavioral Questions</h5>
+                                      </div>
+                                      <ul class="list-unstyled">
+                                          {% for assessment in text.behavioral_assessment %}
+                                          <li class="mb-2">
+                                              <i class="fas fa-question-circle text-primary"></i>
+                                              <span class="text-muted">{{ assessment }}</span>
+                                          </li>
+                                          {% endfor %}
+                                      </ul>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div class="col-md-3">
+                              <div class="card border-0">
+                                  <div class="card-body">
+                                      <div class="d-flex align-items-center mb-3">
+                                          <i class="fas fa-tasks fa-2x text-primary me-2"></i>
+                                          <h5 class="card-title mb-0 fw-bold">Behavioral Task</h5>
+                                      </div>
+                                      <div class="d-flex justify-content-between"> <!-- Changed align-items to center -->
+                                          <i class="fas fa-clipboard-list text-primary me-2 mt-3 fa-lg"></i>
+                                          <p class="text-muted mb-0">{{ text.behavioral_question }}</p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
 
+    <script>
+        const ctx = document.getElementById('skillsMatchChart').getContext('2d');
+        const matchPercentage = {{ response_text.skills_matching.match|default:0 }}; // Fetching the match percentage from your backend
 
+        const skillsMatchChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Match', 'No Match'],
+                datasets: [{
+                    data: [matchPercentage, 100 - matchPercentage], // Match percentage and remaining percentage
+                    backgroundColor: ['#4CAF50', '#e0e0e0'], // Colors for the matching section and no match section
+                    borderColor: ['#4CAF50', '#e0e0e0'], // Border colors
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%', // Makes it a doughnut shape with a hole in the center
+                plugins: {
+                    legend: {
+                        display: false // Hide legend
+                    },
+                    tooltip: {
+                        enabled: false // Disable tooltip if not needed
+                    }
+                }
+            },
+            plugins: [{
+                // Custom plugin to add text inside the doughnut chart
+                beforeDraw: function(chart) {
+                    var width = chart.width,
+                        height = chart.height,
+                        ctx = chart.ctx;
+
+                    ctx.restore();
+                    var fontSize = (height / 100).toFixed(2); // Dynamic font size
+                    ctx.font = fontSize + "em sans-serif"; // Set font
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "#000"; // Text color
+
+                    var text = matchPercentage + '%',
+                        textX = Math.round((width - ctx.measureText(text).width) / 2),
+                        textY = height / 2;
+
+                    ctx.fillText(text, textX, textY); // Render text
+                    ctx.save();
+                }
+            }]
+        });
+    </script>
+
+<!--                      <ul class="nav nav-tabs widget-nav-tabs pb-8 gap-10 mx-1 d-flex justify-content-center" role="tablist">-->
+<!--                        <li class="nav-item">-->
+<!--                          <a-->
+<!--                            href="javascript:void(0);"-->
+<!--                            class="nav-link btn active d-flex flex-column align-items-center justify-content-center"-->
+<!--                            role="tab"-->
+<!--                            data-bs-toggle="tab"-->
+<!--                            data-bs-target="#job-matching"-->
+<!--                            aria-controls="job-matching"-->
+<!--                            aria-selected="true">-->
+<!--                            <div class="badge bg-label-secondary rounded p-2">-->
+<!--                              <i class="ti ti-click ti-md"></i>-->
+<!--                            </div>-->
+<!--                            <h6 class="tab-widget-title mb-0 mt-2">Job Matching</h6>-->
+<!--                          </a>-->
+<!--                        </li>-->
+<!--                        <li class="nav-item">-->
+<!--                          <a-->
+<!--                            href="javascript:void(0);"-->
+<!--                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"-->
+<!--                            role="tab"-->
+<!--                            data-bs-toggle="tab"-->
+<!--                            data-bs-target="#skill-analysis"-->
+<!--                            aria-controls="skill-analysis"-->
+<!--                            aria-selected="false">-->
+<!--                            <div class="badge bg-label-secondary rounded p-2">-->
+<!--                              <i class="ti ti-chart-bar ti-md"></i>-->
+<!--                            </div>-->
+<!--                            <h6 class="tab-widget-title mb-0 mt-2">Skills</h6>-->
+<!--                          </a>-->
+<!--                        </li>-->
+<!--                        <li class="nav-item">-->
+<!--                          <a-->
+<!--                            href="javascript:void(0);"-->
+<!--                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"-->
+<!--                            role="tab"-->
+<!--                            data-bs-toggle="tab"-->
+<!--                            data-bs-target="#personality"-->
+<!--                            aria-controls="personality"-->
+<!--                            aria-selected="false">-->
+<!--                            <div class="badge bg-label-secondary rounded p-2">-->
+<!--                              <i class="ti ti-user-check ti-md"></i>-->
+<!--                            </div>-->
+<!--                            <h6 class="tab-widget-title mb-0 mt-2">Behavioral</h6>-->
+<!--                          </a>-->
+<!--                        </li>-->
+<!--                        <li class="nav-item">-->
+<!--                          <a-->
+<!--                            href="javascript:void(0);"-->
+<!--                            class="nav-link btn d-flex flex-column align-items-center justify-content-center"-->
+<!--                            role="tab"-->
+<!--                            data-bs-toggle="tab"-->
+<!--                            data-bs-target="#questions"-->
+<!--                            aria-controls="questions"-->
+<!--                            aria-selected="false">-->
+<!--                            <div class="badge bg-label-secondary rounded p-2">-->
+<!--                              <i class="ti ti-school ti-md"></i>-->
+<!--                            </div>-->
+<!--                            <h6 class="tab-widget-title mb-0 mt-2">Assessment</h6>-->
+<!--                          </a>-->
+<!--                        </li>-->
+<!--                      </ul>-->
+<!--                      <div class="tab-content p-0 ms-0 ms-sm-2" id="export-section">-->
+<!--                        <div class="tab-pane fade show active" id="job-matching" role="tabpanel">-->
+<!--                          <div class="mb-7">-->
+<!--                            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--                              <div>-->
+<!--                                <h5 class="mb-1 mt-0 card-title">-->
+<!--                                  Fit Forecast-->
+<!--                                </h5>-->
+<!--                                <p class="card-subtitle"> How {{ candidate.name }} {% if candidate.current_designation %} as {{ candidate.current_designation}} {% endif %} Measures Up to the Job Description-->
+<!--                                  {% if role %} for {{ role }} {% endif %}</p>-->
+<!--                              </div>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                              <div class="mb-6 ms-0 row me-6">-->
+<!--                                  {% if text.experience_matching %}-->
+<!--                                  <div class="col-sm-12 col-md-4 mt-2">-->
+<!--                                    <div class="text-center">-->
+<!--                                      <h6 class="mb-0">Experience</h6>-->
+<!--                                    </div>-->
+<!--                                    <div id="experienceMatching" data-response="{{ response_text }}"></div>-->
+<!--                                    <div class="mt-3 text-center">-->
+<!--                                      <small class="text-muted mt-3">experience match</small>-->
+<!--                                    </div>-->
+<!--                                  </div>-->
+<!--                                  {% endif %}-->
+<!--                                  {% if text.skills_matching %}-->
+<!--                                  <div class="col-sm-12 col-md-4 mt-2">-->
+<!--                                    <div class="text-center">-->
+<!--                                      <h6 class="mb-0">Skills</h6>-->
+<!--                                    </div>-->
+<!--                                    <div id="skillsMatching" data-response="{{ response_text }}"></div>-->
+<!--                                    <div class="mt-3 text-center">-->
+<!--                                      <small class="text-muted mt-3">skills match</small>-->
+<!--                                    </div>-->
+<!--                                  </div>-->
+<!--                                  {% endif %}-->
+<!--                                  {% if text.education_matching %}-->
+<!--                                  <div class="col-sm-12 col-md-4 mt-2">-->
+<!--                                    <div class="text-center">-->
+<!--                                      <h6 class="mb-0">Education</h6>-->
+<!--                                    </div>-->
+<!--                                    <div id="educationMatching"></div>-->
+<!--                                    <div class="mt-3 text-center">-->
+<!--                                      <small class="text-muted mt-3">education match</small>-->
+<!--                                    </div>-->
+<!--                                  </div>-->
+<!--                                {% endif %}-->
+<!--                              </div>-->
+<!--                              <div class="mt-3">-->
+<!--                                <h5>Highlights of {{ candidate.name }}'s Fit for the Role </h5>-->
+
+<!--                                <p>Experience : {{ candidate.experience }} years</p>-->
+
+<!--                                  {% if text.skills_matching.reason_for_fit %}-->
+<!--                                <p>Skills : {{ text.skills_matching.reason_for_fit }}</p>-->
+<!--                                {% endif %}-->
+<!--                                  {% if candidate.education %}-->
+<!--                                <p>Education : {{ candidate.education }}</p>-->
+<!--                                {% endif %}-->
+<!--                              </div>-->
+<!--                              <div class="mt-3">-->
+<!--                                {% if text.certifications %}-->
+<!--                                <h5>Certifications</h5>-->
+
+<!--                                  {% for c in text.certifications %}-->
+<!--                                    <p>{{ c }}</p>-->
+<!--                                  {% endfor %}-->
+<!--                                {% endif %}-->
+<!--                              </div>-->
+<!--                              <div class="mt-3">-->
+<!--                                {% if text.achievements %}-->
+<!--                                <h5>Achievements</h5>-->
+
+<!--                                  {% for c in text.achievements %}-->
+<!--                                    <p>{{ c }}</p>-->
+<!--                                  {% endfor %}-->
+<!--                                {% endif %}-->
+<!--                              </div>-->
+<!--                              <div class="mt-3">-->
+<!--                                {% if text.projects_done %}-->
+<!--                                <h5>Projects Done </h5>-->
+<!--                                <ol>-->
+<!--                                  {% for title, details in text.projects_done.items %}-->
+<!--                                  <li class="mb-1"><span class="fw-bold">{{ title }} : </span><span class="card-text">{{ details.description }}</span>-->
+<!--                                  <div>-->
+<!--                                      <span class="fw-bold">Industry : </span><span class="card-text">{{ details.industry }}</span>-->
+<!--                                  </div>-->
+<!--                                  </li>-->
+<!--                                  {% endfor %}-->
+<!--                                </ol>-->
+<!--                                {% endif %}-->
+<!--                              </div>-->
+<!--                            </div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        <div class="tab-pane fade" id="skill-analysis" role="tabpanel">-->
+<!--                          <div class=" mb-6">-->
+<!--                            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--                              <div>-->
+<!--                                <h5 class="mb-1 mt-0 card-title">Skill Set of {{ candidate.name }}</h5>-->
+<!--                              </div>-->
+<!--                            </div>-->
+<!--&lt;!&ndash;                            <div class="card-body row g-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <div class="col-sm-12 col-md-8">&ndash;&gt;-->
+<!--                                  {% if text.skills %}-->
+<!--                                    <div class="row g-3">-->
+<!--                                        {% for category, skills in text.skills.items %}-->
+<!--                                        <div class="col-xs-12 col-sm-6 col-md-3 skillset">-->
+<!--                                            <div class="card-body p-0 pb-2 border border-primary rounded">-->
+<!--                                            <h5 class="card-title mx-0 my-6 p-2 bg-primary text-white text-center">{{ category|upper }}</h5>-->
+
+<!--                                            {% for s in skills %}-->
+<!--                                                <p class="card-text text-center">{{ s }}</p>-->
+<!--                                            {% endfor %}-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        {% endfor %}-->
+<!--                                    </div>-->
+<!--                                    {% endif %}-->
+<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        <div class="tab-pane fade" id="personality" role="tabpanel">-->
+<!--                          <div class="mb-7">-->
+<!--                            <div class="card-body">-->
+<!--                              {% if "none" not in text.current_tenure|lower or "none" not in text.average_tenure|lower %}-->
+
+<!--                                <div class="mx-2 gap-4 gap-sm-0 d-flex flex-wrap justify-content-between align-items-center">-->
+<!--                                  <div class="">-->
+<!--                                    <div class="d-flex gap-2 align-items-center">-->
+<!--                                      <div class="badge rounded bg-label-info p-1">-->
+<!--                                        <i class="ti ti-clock-hour-3"></i>-->
+<!--                                      </div>-->
+<!--                                      <h6 class="mb-0 fw-normal">Total Experience</h6>-->
+<!--                                    </div>-->
+<!--                                    <h4 class="my-2 ms-2">{{ candidate.experience }} years</h4>-->
+<!--                                  </div>-->
+<!--                                  <div class="">-->
+<!--                                    <div class="d-flex gap-2 align-items-center">-->
+<!--                                      <div class="badge rounded bg-label-info p-1">-->
+<!--                                        <i class="ti ti-clock-hour-3"></i>-->
+<!--                                      </div>-->
+<!--                                      <h6 class="mb-0 fw-normal">Current Tenure</h6>-->
+<!--                                    </div>-->
+<!--                                    <h4 class="my-2 ms-2">{{ text.current_tenure }}</h4>-->
+<!--                                  </div>-->
+<!--                                  <div class="">-->
+<!--                                    <div class="d-flex gap-2 align-items-center">-->
+<!--                                      <div class="badge rounded bg-label-info p-1"><i class="ti ti-clock-hour-3"></i></div>-->
+<!--                                      <h6 class="mb-0 fw-normal">Average Tenure</h6>-->
+<!--                                    </div>-->
+<!--                                    <h4 class="my-2 ms-2">{{ text.average_tenure }}</h4>-->
+<!--                                  </div>-->
+<!--                                </div>-->
+<!--                                <div class="">-->
+<!--                                    {% if stable %}-->
+<!--                                    <div class="card shadow-none bg-primary-subtle">-->
+<!--                                      <div class="card-body">-->
+<!--                                        <p class="card-text text-primary">-->
+<!--                                          The tenure history reflects a strong sense of stability,-->
+<!--                                          with consistent and long-term positions.-->
+<!--                                          This indicates a solid commitment and reliability in-->
+<!--                                          maintaining role over extended periods.-->
+<!--                                        </p>-->
+<!--                                      </div>-->
+<!--                                    </div>-->
+<!--                                    {% elif candidate.experience != 0 %}-->
+<!--                                    <div class="card shadow-none bg-warning-subtle">-->
+<!--                                      <div class="card-body">-->
+<!--                                        <p class="card-text text-warning fs-6">-->
+<!--                                        {{ candidate.name }}'s current tenure history suggests some instability,-->
+<!--                                        with frequent changes or short-term positions.-->
+<!--                                        This may indicate a lack of long-term commitment or potential challenges in maintaining-->
+<!--                                        stability within a role.-->
+<!--                                        </p>-->
+<!--                                      </div>-->
+<!--                                    </div>-->
+<!--                                    {% endif %}-->
+<!--                                </div>-->
+
+<!--                              {% endif %}-->
+<!--                              <h5 class="mb-1 mt-2 card-title">-->
+<!--                               Unveiling Key Behavioral Traits-->
+<!--                              </h5>-->
+<!--                              <div class="mt-4">-->
+<!--                                <div class="row">-->
+<!--                                  {% for p in text.personality_traits %}-->
+<!--                                  <div class="col-md-4">-->
+<!--                                    <div class="d-flex align-items-center mb-2">-->
+<!--                                      <div class="avatar me-4">-->
+<!--                                          <span class="avatar-initial rounded bg-label-primary p-1">-->
+<!--                                          {% if 'creative' in p|lower or 'innovative' in p|lower %}-->
+<!--                                            <i class="ti ti-bulb ti-28px"></i>-->
+<!--                                          {% elif 'friendly' in p|lower %}-->
+<!--                                            <i class="ti ti-mood-smile ti-28px"></i>-->
+<!--                                          {% elif 'organized' in p|lower %}-->
+<!--                                            <i class="ti ti-calendar-month ti-28px"></i>-->
+<!--                                          {% elif 'detail' in p|lower %}-->
+<!--                                            <i class="ti ti-list-search ti-28px"></i>-->
+<!--                                          {% elif 'adapt' in p|lower %}-->
+<!--                                            <i class="ti ti-arrow-autofit-width ti-28px"></i>-->
+<!--                                          {% elif 'analytic' in p|lower %}-->
+<!--                                            <i class="ti ti-chart-line ti-28px"></i>-->
+<!--                                          {% elif 'leader' in p|lower %}-->
+<!--                                            <i class="ti ti-chess-king ti-28px"></i>-->
+<!--                                          {% elif 'empathetic' in p|lower %}-->
+<!--                                            <i class="ti ti-heart ti-28px"></i>-->
+<!--                                          {% elif 'strategic' in p|lower %}-->
+<!--                                            <i class="ti ti-compass ti-28px"></i>-->
+<!--                                          {% elif 'communicat' in p|lower %}-->
+<!--                                            <i class="ti ti-message ti-28px"></i>-->
+<!--                                          {% elif 'exceptional' in p|lower %}-->
+<!--                                            <i class="ti ti-star ti-28px"></i>-->
+<!--                                          {% elif 'motivated' in p|lower %}-->
+<!--                                            <i class="ti ti-rocket ti-28px"></i>-->
+<!--                                          {% elif 'collaborative' in p|lower or 'team' in p|lower %}-->
+<!--                                            <i class="ti ti-route ti-28px"></i>-->
+<!--                                          {% elif 'solv' in p|lower or 'learn' in p|lower %}-->
+<!--                                            <i class="ti ti-brain ti-28px"></i>-->
+<!--                                          {% elif 'goal' in p|lower %}-->
+<!--                                            <i class="ti ti-target-arrow ti-28px"></i>-->
+<!--                                          {% else %}-->
+<!--                                            <i class="ti ti-sparkles ti-28px"></i>-->
+<!--                                          {% endif %}-->
+<!--                                          </span>-->
+
+<!--                                      </div>-->
+<!--                                      <h6 class="mb-0">{{ p|capfirst }}</h6>-->
+<!--                                    </div>-->
+<!--                                  </div>-->
+<!--                                  {% endfor %}-->
+<!--                                </div>-->
+<!--                              </div>-->
+<!--                            </div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        <div class="tab-pane fade" id="questions" role="tabpanel">-->
+<!--                          <div class="mb-7">-->
+<!--                            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--                              <div>-->
+<!--                                <h5 class="mb-1 mt-0 card-title">Key Questions and Assessments for Interviews </h5>-->
+<!--                              </div>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                              <h6>Technical Assessment</h6>-->
+<!--                              <ol>-->
+<!--                                {% for q in text.interview_questions %}-->
+<!--                                <li class="mb-1">-->
+<!--                                  {{ q }}-->
+<!--                                </li>-->
+<!--                                {% endfor %}-->
+<!--                              </ol>-->
+
+<!--                              <div class="card shadow-none bg-info-subtle">-->
+<!--                                <div class="card-body">-->
+<!--                                  <h6 class="card-title text-info">Task </h6>-->
+<!--                                  <p class="card-text text-info">-->
+<!--                                    {{ text.assignment }}-->
+<!--                                  </p>-->
+
+<!--                                </div>-->
+
+<!--                              </div>-->
+<!--                                <h6 class="mt-5">Cultural Fitment</h6>-->
+<!--                              <ol>-->
+<!--                                {% for q in text.behavioral_assessment %}-->
+<!--                                <li class="mb-1">-->
+<!--                                  {{ q }}-->
+<!--                                </li>-->
+<!--                                {% endfor %}-->
+<!--                              </ol>-->
+
+<!--                              <div class="card shadow-none bg-info-subtle">-->
+<!--                                <div class="card-body">-->
+<!--                                  <h6 class="card-title text-info">Behavioral Situation </h6>-->
+<!--                                  <p class="card-text text-info">-->
+<!--                                    {{ text.behavioral_question }}-->
+<!--                                  </p>-->
+
+<!--                                </div>-->
+
+<!--                              </div>-->
+
+<!--                            </div>-->
+<!--                          </div>-->
+
+<!--                          </div>-->
+<!--                        </div>-->
+                      </div>
+                    </div>
+      </div>
   </div>
+
+
+
 </div>
+
 
 
 {% endblock content %}
