@@ -33,7 +33,8 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     [behavioral_assessment](top 5 questions for behavioral assessment),
      [interview_questions](top 5 questions from job description), 
     str(assignment) (technical assessment based on job description),
-    [cocurricular_activities](only if any mentioned in resume i.e. [Sports, Leadership, Charity])
+    [certifications](mentioned in resume),
+    [achievements]
     """
 
     response = client.chat.completions.create(

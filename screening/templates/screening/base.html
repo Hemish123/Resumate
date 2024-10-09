@@ -60,7 +60,7 @@
             </li>
             <li class="menu-item {% if request.path == '/' %}active{% endif %}">
               <a href="{% url 'dashboard' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-smart-home"></i>
+                <i class="menu-icon tf-icons ti ti-briefcase-2"></i>
                 <div data-i18n="Page 1">Job Openings</div>
               </a>
             </li>
@@ -68,6 +68,12 @@
               <a href="{% url 'candidate-list' %}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users-group"></i>
                 <div data-i18n="Page 2">Candidates</div>
+              </a>
+            </li>
+            <li class="menu-item {% if request.path == '/candidate/resume-list/' %}active{% endif %}">
+              <a href="{% url 'resume-list' %}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users-group"></i>
+                <div data-i18n="Page 2">Resumes</div>
               </a>
             </li>
             <li class="menu-item {% if request.path == '/calendar/' %}active{% endif %}">
