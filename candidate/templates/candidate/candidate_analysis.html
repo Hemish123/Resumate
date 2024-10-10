@@ -54,15 +54,18 @@
                                       </div>
 
                                       <!-- Canvas for Chart.js -->
-                                      <canvas id="skillsMatchChart" class="my-3" style="max-width: 400px; max-height: 200px;"></canvas>
-                                      <p class="text-muted"><strong>Reason for Fit:</strong> {{ text.skills_matching.reason_for_fit }}</p>
+                                      <canvas id="skillsMatchChart" data-response="{{ response_text }}" class="my-3" style="max-width: 400px; max-height: 200px;"></canvas>
+                                      <h6 class="mb-0">Reason for fit</h6>
+                                      <p class="">
+                                      {{ text.skills_matching.reason_for_fit }}
+                                      </p>
 
                                       <!-- Skills Section -->
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-cogs fa-2x text-primary me-3"></i>
+                                          <i class="fas fa-cogs fa-lg text-primary me-3"></i>
                                           <h5 class="card-title mb-0">Skills</h5>
                                       </div>
-                                      <div class="table-responsive">
+                                      <div class="table-responsive mb-3">
                                           <table class="table table-striped">
                                               <thead class="table-primary">
                                                   <tr>
@@ -73,7 +76,7 @@
                                               <tbody>
                                                   {% for category, skills in text.skills.items %}
                                                   <tr>
-                                                      <td><span class="badge bg-primary text-light">{{ category|capfirst }}</span></td>
+                                                      <td><span class="badge bg-primary">{{ category|capfirst }}</span></td>
                                                       <td>{{ skills|join:", " }}</td>
                                                   </tr>
                                                   {% endfor %}
@@ -81,117 +84,178 @@
                                           </table>
                                       </div>
                                       <!-- Certifications Section -->
-                                      <div class="row">
-                                          <div class="col-md-12">
-                                              <div class="card border-0">
-                                                  <div class="card-body">
-                                                      <div class="d-flex align-items-center mb-3">
-                                                          <i class="fas fa-certificate fa-2x text-primary me-3"></i>
-                                                          <h5 class="card-title mb-0 fw-bold mb-2">Certifications</h5>
-                                                      </div>
-                                                      <div class="row">
-                                                          {% for certification in text.certifications %}
-                                                          <div class="col-12 mb-3"> <!-- Use col-12 for full width -->
-                                                              <div class="d-flex align-items-start">
-                                                                  <i class="fas fa-bookmark text-success me-2 mt-2"></i>
-                                                                  <div>
-                                                                      <span class="fw-bold">{{ certification }}</span>
-                                                                      <div class="text-muted">{{ certification.issuer }} - {{ certification.date }}</div>
-                                                                  </div>
-                                                              </div>
-                                                          </div>
-                                                          {% endfor %}
-                                                      </div>
+
+                                      <div class="d-flex align-items-center my-3">
+                                          <i class="fas fa-certificate fa-lg text-primary me-3"></i>
+                                          <h5 class="card-title mb-0">Certifications</h5>
+                                      </div>
+                                          {% for certification in text.certifications %}
+                                              <div class="d-flex align-items-start mb-3">
+                                                  <i class="fas fa-bookmark text-info me-2 mt-1"></i>
+                                                  <div>
+                                                      <span class="">{{ certification }}</span>
                                                   </div>
                                               </div>
-                                          </div>
-                                      </div>
-
+                                          {% endfor %}
                                   </div>
                               </div>
                           </div>
 
-                          <div class="col-md-4 text-center">
-                              <h2 class="mb-3 fw-bold text-primary">{{ candidate.name }}</h2>
-                              <h4 class="mb-3 text-primary">{{ candidate.designation }}</h4>
+                          <div class="col-md-4 text-center mt-10">
+                              <h3 class="mb-3 fw-bold text-primary">{{ candidate.name }}</h3>
+                              <h5 class="mb-3">{{ candidate.current_designation }}</h5>
 
                               <div class="mb-3"> <!-- Removed d-flex to allow block elements -->
-                                  <p class="text-muted mb-3"> <!-- Added mb-1 for spacing between lines -->
+                                  <p class="mb-3"> <!-- Added mb-1 for spacing between lines -->
                                       <i class="fas fa-briefcase fa-lg text-primary me-2"></i>
                                       <strong>Experience:</strong> {{ candidate.experience }} years
                                   </p>
-                                  <p class="text-muted">
+                                  <p class="">
                                       <i class="fas fa-graduation-cap fa-lg text-primary me-2"></i>
                                       <strong>Education:</strong> {{ candidate.education }}
                                   </p>
                               </div>
 
-                              <img src="{% static image_url %}" alt="Candidate Image" class="img-fluid mt-3" style="height: 480px; width: 480px;">
+                              <img src="{% static 'dashboard/img/pages/candidate.png' %}" alt="Candidate Image" class="img-fluid mt-5" style="height: auto; width: 100%;">
 
                               <div class="card mb-4 border-0"> <!-- Added shadow for depth -->
-                                  <div class="card-body text-center"> <!-- Center the title -->
-                                      <h5 class="card-title mb-3 mt-5"><i class="fas fa-user-friends fa-lg text-primary me-2"></i>Personality Traits</h5> <!-- Bold title -->
-                                  </div>
-                                  <ul class="list-unstyled m-lg-auto"> <!-- Align list to the left with some margin -->
-                                      {% for trait in text.personality_traits %}
+                                      <div class="d-flex align-items-center justify-content-center mt-8">
+                                          <i class="fas fa-user-friends fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Behavioral Traits</h5>
+                                      </div>
+                                  <ul class="list-unstyled m-auto p-2"> <!-- Align list to the left with some margin -->
+                                      {% for p in text.personality_traits %}
                                       <li class="d-flex align-items-center mb-1"> <!-- Flex for icon alignment with bottom margin -->
-                                          <i class="fas fa-check-circle text-success me-2"></i> <!-- Green check circle -->
-                                          <span class="text-muted">{{ trait }}</span> <!-- Muted text for traits -->
+                                          {% if 'creative' in p|lower or 'innovative' in p|lower %}
+                                            <i class="ti ti-bulb text-info me-2 ti-24px"></i>
+                                          {% elif 'friendly' in p|lower %}
+                                            <i class="ti ti-mood-smile text-info me-2 ti-24px"></i>
+                                          {% elif 'organized' in p|lower %}
+                                            <i class="ti ti-calendar-month text-info me-2 ti-24px"></i>
+                                          {% elif 'detail' in p|lower %}
+                                            <i class="ti ti-list-search text-info me-2 ti-24px"></i>
+                                          {% elif 'adapt' in p|lower %}
+                                            <i class="ti ti-arrow-autofit-width text-info me-2 ti-24px"></i>
+                                          {% elif 'analytic' in p|lower %}
+                                            <i class="ti ti-chart-line text-info me-2 ti-24px"></i>
+                                          {% elif 'leader' in p|lower %}
+                                            <i class="ti ti-chess-king text-info me-2 ti-24px"></i>
+                                          {% elif 'empathetic' in p|lower %}
+                                            <i class="ti ti-heart text-info me-2 ti-24px"></i>
+                                          {% elif 'strategic' in p|lower %}
+                                            <i class="ti ti-compass text-info me-2 ti-24px"></i>
+                                          {% elif 'communicat' in p|lower %}
+                                            <i class="ti ti-message text-info me-2 ti-24px"></i>
+                                          {% elif 'exceptional' in p|lower %}
+                                            <i class="ti ti-star text-info me-2 ti-24px"></i>
+                                          {% elif 'motivated' in p|lower %}
+                                            <i class="ti ti-rocket text-info me-2 ti-24px"></i>
+                                          {% elif 'collaborative' in p|lower or 'team' in p|lower %}
+                                            <i class="ti ti-route text-info me-2 ti-24px"></i>
+                                          {% elif 'solv' in p|lower or 'learn' in p|lower %}
+                                            <i class="ti ti-brain text-info me-2 ti-24px"></i>
+                                          {% elif 'goal' in p|lower %}
+                                            <i class="ti ti-target-arrow text-info me-2 ti-24px"></i>
+                                          {% else %}
+                                            <i class="ti ti-sparkles text-info me-2 ti-24px"></i>
+                                          {% endif %}
+<!--                                          <i class="fas fa-check-circle text-info me-2"></i> &lt;!&ndash; Green check circle &ndash;&gt;-->
+                                          <span class="">{{ p }}</span> <!-- Muted text for traits -->
                                       </li>
                                       {% endfor %}
                                   </ul>
+                              </div>
+                              <div class="card p-2 mb-4 border-0">
+
+                                    <div class="d-flex gap-2 align-items-center ms-2">
+                                        <i class="ti ti-clock-hour-3-filled ti-24px text-primary"></i>
+                                      <h6 class="mb-0 fw-normal">Current Tenure</h6>
+                                        <p class="my-2 ms-2">{{ text.current_tenure }}</p>
+                                    </div>
+
+                                    <div class="d-flex gap-2 align-items-center ms-2">
+                                      <i class="ti ti-clock-hour-3-filled ti-24px text-primary"></i>
+                                      <h6 class="mb-0 fw-normal">Average Tenure</h6>
+                                        <p class="my-2 ms-2">{{ text.average_tenure }}</p>
+
+                                    </div>
+                                    {% if stable %}
+                                    <div class="card shadow-none bg-primary-subtle m-2">
+                                      <div class="card-body">
+                                        <p class="card-text text-primary">
+                                          The tenure history reflects a strong sense of stability,
+                                          with consistent and long-term positions.
+                                          This indicates a solid commitment and reliability in
+                                          maintaining role over extended periods.
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {% elif candidate.experience != 0 %}
+                                    <div class="card shadow-none bg-warning-subtle">
+                                      <div class="card-body">
+                                        <p class="card-text text-warning fs-6">
+                                        {{ candidate.name }}'s current tenure history suggests some instability,
+                                        with frequent changes or short-term positions.
+                                        This may indicate a lack of long-term commitment or potential challenges in maintaining
+                                        stability within a role.
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {% endif %}
                               </div>
 
                           </div>
 
                           <div class="col-md-4">
-                              <div class="card mb-4 border-0"> <!-- Added border-0 here -->
-                                  <div class="card-body">
-                                      <div class="card mb-4 border-0"> <!-- Added border-0 here -->
-                                          <div class="card-body">
-                                              <div class="d-flex align-items-center mb-3">
-                                                  <i class="fas fa-folder-open fa-lg text-primary me-2"></i>
-                                                  <h5 class="card-title mb-0">Projects</h5>
-                                              </div>
-                                              <ol class="mb-0"> <!-- Removed list-unstyled for automatic numbering -->
-                                                  {% for project, details in text.projects_done.items %}
-                                                  <li>
-                                                      <strong>{{ project }}:</strong> {{ details.description }}
-                                                      <div><strong>Industry:</strong> {{ details.industry }}</div> <!-- Industry on a new line -->
 
-                                                  </li>
-                                                  {% endfor %}
-                                              </ol>
+                              <div class="card mb-4 border-0"> <!-- Added border-0 here -->
+                                  {% if text.projects_done %}
+                                  <div class="card-body">
+
+                                          <div class="d-flex align-items-center mb-3">
+                                              <i class="fas fa-folder-open fa-lg text-primary me-2"></i>
+                                              <h5 class="card-title mb-0">Projects</h5>
                                           </div>
-                                      </div>
+                                          <ol class="mb-0"> <!-- Removed list-unstyled for automatic numbering -->
+                                              {% for project, details in text.projects_done.items %}
+                                              <li class="mb-1">
+                                                  <strong>{{ project }}:</strong> {{ details.description }}
+                                                  <div><strong>Industry:</strong> {{ details.industry }}</div> <!-- Industry on a new line -->
+
+                                              </li>
+                                              {% endfor %}
+                                          </ol>
+
+                                  </div>
+                                  {% endif %}
 
 
 
 
                                       <!-- Curricular Activities Section -->
-                                      <div class="card mb-4 border-0"> <!-- Added shadow for depth -->
-                                          <div class="card-body">
-                                              <!-- Achievements Title with Icon -->
-                                              <div class="d-flex align-items-center mb-4"> <!-- Added mb-4 for spacing below title -->
-                                                  <i class="fas fa-trophy fa-lg text-primary me-3"></i> <!-- Increased space between icon and text -->
-                                                  <h5 class="card-title mb-0 fw-bold">Achievements</h5> <!-- Made the title bold for emphasis -->
-                                              </div>
-                                              <!-- Achievements List -->
-                                              <ul class="list-unstyled">
-                                                  {% for activity in text.achievements %}
-                                                  <li class="mb-3"> <!-- Added mb-3 for spacing between achievements -->
-                                                      <div class="d-flex align-items-start"> <!-- Flex for better alignment -->
-                                                          <i class="fas fa-trophy text-success me-2 mt-1"></i> <!-- Trophy icon for achievements -->
-                                                          <strong class="text-muted">{{ activity.name }}</strong> <!-- Muted text for a subtle look -->
-                                                      </div>
-                                                  </li>
-                                                  {% endfor %}
-                                              </ul>
+                                  {% if text.achievements %}
+                                      <div class="card-body">
+                                          <!-- Achievements Title with Icon -->
+                                          <div class="d-flex align-items-center mb-4"> <!-- Added mb-4 for spacing below title -->
+                                              <i class="fas fa-trophy fa-lg text-primary me-3"></i> <!-- Increased space between icon and text -->
+                                              <h5 class="card-title mb-0">Achievements</h5> <!-- Made the title bold for emphasis -->
                                           </div>
+                                          <!-- Achievements List -->
+                                          <ul class="list-unstyled">
+                                              {% for activity in text.achievements %}
+                                              <li class="mb-3"> <!-- Added mb-3 for spacing between achievements -->
+                                                  <div class="d-flex align-items-start"> <!-- Flex for better alignment -->
+                                                      <i class="ti ti-military-award ti-24px text-info me-2 mt-1"></i> <!-- Trophy icon for achievements -->
+                                                      <span class="">{{ activity }}</span> <!-- Muted text for a subtle look -->
+                                                  </div>
+                                              </li>
+                                              {% endfor %}
+                                          </ul>
                                       </div>
+                                  {% endif %}
 
-                                  </div>
                               </div>
+
                           </div>
                       </div>
 
@@ -201,14 +265,14 @@
                               <div class="card  border-0">
                                   <div class="card-body">
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-comments fa-2x text-primary me-2"></i>
-                                          <h5 class="card-title mb-0 fw-bold">Technical Questions</h5>
+                                          <i class="fas fa-comments fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Technical Questions</h5>
                                       </div>
                                       <ul class="list-unstyled">
                                           {% for question in text.interview_questions %}
                                           <li class="mb-2">
                                               <i class="fas fa-question-circle text-primary"></i>
-                                              <span class="text-muted">{{ question }}</span>
+                                              <span class="">{{ question }}</span>
                                           </li>
                                           {% endfor %}
                                       </ul>
@@ -220,12 +284,12 @@
                               <div class="card border-0">
                                   <div class="card-body">
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-tasks fa-2x text-primary me-2"></i>
-                                          <h5 class="card-title mb-0 fw-bold">Technical Task</h5>
+                                          <i class="fas fa-tasks fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Technical Task</h5>
                                       </div>
                                       <div class="d-flex justify-content-between"> <!-- Changed align-items to center -->
                                           <i class="fas fa-clipboard-list text-primary me-2 mt-3 fa-lg"></i>
-                                          <p class="text-muted mb-0">{{ text.assignment }}</p>
+                                          <p class="mb-0">{{ text.assignment }}</p>
                                       </div>
                                   </div>
                               </div>
@@ -236,14 +300,14 @@
                               <div class="card  border-0">
                                   <div class="card-body">
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-comments fa-2x text-primary me-2"></i>
-                                          <h5 class="card-title mb-0 fw-bold">Behavioral Questions</h5>
+                                          <i class="fas fa-comments fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Behavioral Questions</h5>
                                       </div>
                                       <ul class="list-unstyled">
                                           {% for assessment in text.behavioral_assessment %}
                                           <li class="mb-2">
                                               <i class="fas fa-question-circle text-primary"></i>
-                                              <span class="text-muted">{{ assessment }}</span>
+                                              <span class="">{{ assessment }}</span>
                                           </li>
                                           {% endfor %}
                                       </ul>
@@ -255,12 +319,12 @@
                               <div class="card border-0">
                                   <div class="card-body">
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-tasks fa-2x text-primary me-2"></i>
-                                          <h5 class="card-title mb-0 fw-bold">Behavioral Task</h5>
+                                          <i class="fas fa-tasks fa-lg text-primary me-2"></i>
+                                          <h5 class="card-title mb-0">Behavioral Task</h5>
                                       </div>
                                       <div class="d-flex justify-content-between"> <!-- Changed align-items to center -->
                                           <i class="fas fa-clipboard-list text-primary me-2 mt-3 fa-lg"></i>
-                                          <p class="text-muted mb-0">{{ text.behavioral_question }}</p>
+                                          <p class="mb-0">{{ text.behavioral_question }}</p>
                                       </div>
                                   </div>
                               </div>
@@ -268,57 +332,6 @@
                       </div>
                     </div>
 
-
-    <script>
-        const ctx = document.getElementById('skillsMatchChart').getContext('2d');
-        const matchPercentage = {{ response_text.skills_matching.match|default:0 }}; // Fetching the match percentage from your backend
-
-        const skillsMatchChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Match', 'No Match'],
-                datasets: [{
-                    data: [matchPercentage, 100 - matchPercentage], // Match percentage and remaining percentage
-                    backgroundColor: ['#4CAF50', '#e0e0e0'], // Colors for the matching section and no match section
-                    borderColor: ['#4CAF50', '#e0e0e0'], // Border colors
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                cutout: '70%', // Makes it a doughnut shape with a hole in the center
-                plugins: {
-                    legend: {
-                        display: false // Hide legend
-                    },
-                    tooltip: {
-                        enabled: false // Disable tooltip if not needed
-                    }
-                }
-            },
-            plugins: [{
-                // Custom plugin to add text inside the doughnut chart
-                beforeDraw: function(chart) {
-                    var width = chart.width,
-                        height = chart.height,
-                        ctx = chart.ctx;
-
-                    ctx.restore();
-                    var fontSize = (height / 100).toFixed(2); // Dynamic font size
-                    ctx.font = fontSize + "em sans-serif"; // Set font
-                    ctx.textBaseline = "middle";
-                    ctx.fillStyle = "#000"; // Text color
-
-                    var text = matchPercentage + '%',
-                        textX = Math.round((width - ctx.measureText(text).width) / 2),
-                        textY = height / 2;
-
-                    ctx.fillText(text, textX, textY); // Render text
-                    ctx.save();
-                }
-            }]
-        });
-    </script>
 
 <!--                      <ul class="nav nav-tabs widget-nav-tabs pb-8 gap-10 mx-1 d-flex justify-content-center" role="tablist">-->
 <!--                        <li class="nav-item">-->
@@ -687,7 +700,8 @@
 
 {% block js %}
 
-    <script src="{% static 'dashboard/vendor/libs/apex-charts/apexcharts.js' %}"></script>
-    <script src="{% static 'dashboard/js/charts-apex.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/chartjs/chartjs.js' %}"></script>
+
+    <script src="{% static 'dashboard/js/analysis.js' %}"></script>
 
 {% endblock js %}
