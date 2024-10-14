@@ -56,14 +56,7 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
  if (exportbtn) {
  exportbtn.addEventListener("click", async function() {
 
- const chartContainer = document.getElementById("skillsMatchChart");
 
-// Capture chart as image
-const chartCanvas = await html2canvas(chartContainer, { scale: 2 });
-const chartImgData = chartCanvas.toDataURL('image/png');
-
-// Replace chart with image
-chartContainer.innerHTML = `<img src="${chartImgData}" style="width: 100%;"/>`;
 
             // Create an HTML element for exporting
 
@@ -74,25 +67,70 @@ chartContainer.innerHTML = `<img src="${chartImgData}" style="width: 100%;"/>`;
             const designation = exportbtn.getAttribute('data-des');
             const name = exportbtn.getAttribute('data-name');
             let pdfContent = `<img src="${imageurl}" alt="Descriptive text" width="100" height="auto">`
-                              + `<div class="text-center"><h4 class="mb-1">${name}</h4><h5>${designation}</h5></div>`          ;
+                              + `<div class="text-center mt-0"><h4 class="fw-bold text-primary my-0">${name}</h4><h6>${designation}</h6></div>`          ;
 
 
                 const tabElement = document.getElementById('export-section');
+                const chartContainer = document.getElementById("skillsMatchChart");
+
+                    // Capture chart as image
+                    const chartCanvas = await html2canvas(chartContainer, { scale: 2 });
+                    const chartImgData = chartCanvas.toDataURL('image/png');
 
 
                     const tabContentClone = tabElement.cloneNode(true);
+                    tabContentClone.style.margin = '0';           // Remove excessive margin
+                    tabContentClone.style.padding = '0';
 
+                    const clonedChartContainer = tabContentClone.querySelector("#skillsMatchChart"); // Chart in the cloned element
 
+                    if (clonedChartContainer){
+                        clonedChartContainer.parentNode.innerHTML = `<img src="${chartImgData}" style="width: 100%;"/>`;
 
-                    pdfContent += '<div class="mt-5"></div>' + tabContentClone.innerHTML + '<div class="html2pdf__page-break"></div>'; // Store each tab's content in the array
+                    }
 
-                console.log('Downloading..', tabElement);
+                        // Step 2: Reduce unnecessary spacing (CSS adjustments)
+                    const allText = tabContentClone.querySelectorAll('*');
+                    allText.forEach((el) => {
+                        el.style.margin = '0';           // Remove excessive margin
+                        el.style.padding = '0';          // Remove excessive padding
+                        if (el.tagName === 'H3'){
+                            el.remove();
+                        }
+                        else{
+                            el.style.fontSize = '12px';   // Reduce font size slightly
+
+                        }
+                    });
+
+                    // Reduce image sizes (Candidate image)
+                    const candidateImg = tabContentClone.querySelector("img");
+                    if (candidateImg) {
+                        candidateImg.style.maxWidth = '150px';  // Limit image width
+                        candidateImg.style.height = 'auto';     // Maintain aspect ratio
+                    }
+                    // Replace chart with image
+
+                    const newPageElement = tabContentClone.querySelector('#newpage');
+
+                    if (newPageElement) {
+                        // Create the page break div
+                        const pageBreakDiv = document.createElement('div');
+                        pageBreakDiv.classList.add('html2pdf__page-break');
+
+                        // Insert the page break before the specified element
+                        newPageElement.parentNode.insertBefore(pageBreakDiv, newPageElement);
+                    }
+
+                    pdfContent += tabContentClone.innerHTML; // Store each tab's content in the array
+
+                console.log('Downloading..', tabContentClone);
 
             const opt = {
-                margin: [20, 50, 50, 50],
+                margin: [20, 20, 20, 20],
                 filename: filename, // Save with one filename for the entire PDF
                 html2canvas: { scale: 2 },
-                jsPDF: { unit: 'pt', format: 'a4', orientation: 'landscape' }
+                jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
             };
 
             await html2pdf().from(pdfContent).set(opt).save();
