@@ -64,41 +64,24 @@
 
                                       <!-- Skills Section -->
                                       <div class="d-flex align-items-center mb-3">
-                                          <i class="fas fa-cogs fa-lg text-primary me-3"></i>
-                                          <h5 class="card-title mb-0">Skills</h5>
+                                        <i class="fas fa-cogs fa-lg text-primary me-3"></i>
+                                        <h5 class="card-title mb-0">Skills</h5>
                                       </div>
-                                      <div class="table-responsive mb-3">
-                                          <table class="table table-striped">
-                                              <thead class="table-primary">
-                                                  <tr>
-                                                      <th>Category</th>
-                                                      <th>Skills</th>
-                                                  </tr>
-                                              </thead>
-                                              <tbody>
-                                                  {% for category, skills in text.skills.items %}
-                                                  <tr>
-                                                      <td><span class="badge bg-primary">{{ category|capfirst }}</span></td>
-                                                      <td>{{ skills|join:", " }}</td>
-                                                  </tr>
-                                                  {% endfor %}
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                      <!-- Certifications Section -->
+                                    <div class="mb-3">
+                                        <ul class="list-group">
+                                            {% for category, skills in text.skills.items %}
+                                                <li class="list-group-item">
+                                                    <strong>{{ category|capfirst }}:</strong>
+                                                    <div class="mt-2">
+                                                        {% for skill in skills %}
+                                                            <span class="badge bg-primary me-1 mt-1">{{ skill }}</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
 
-                                      <div class="d-flex align-items-center my-3">
-                                          <i class="fas fa-certificate fa-lg text-primary me-3"></i>
-                                          <h5 class="card-title mb-0">Certifications</h5>
-                                      </div>
-                                          {% for certification in text.certifications %}
-                                              <div class="d-flex align-items-start mb-3">
-                                                  <i class="fas fa-bookmark text-info me-2 mt-1"></i>
-                                                  <div>
-                                                      <span class="">{{ certification }}</span>
-                                                  </div>
-                                              </div>
-                                          {% endfor %}
                                   </div>
                               </div>
                           </div>
@@ -232,7 +215,21 @@
                                   {% endif %}
 
 
-
+                                    <!-- Certifications Section -->
+                                  <div class="card-body">
+                                      <div class="d-flex align-items-center my-3">
+                                          <i class="fas fa-certificate fa-lg text-primary me-3"></i>
+                                          <h5 class="card-title mb-0">Certifications</h5>
+                                      </div>
+                                          {% for certification in text.certifications %}
+                                              <div class="d-flex align-items-start mb-3">
+                                                  <i class="fas fa-bookmark text-info me-2 mt-1"></i>
+                                                  <div>
+                                                      <span class="">{{ certification }}</span>
+                                                  </div>
+                                              </div>
+                                          {% endfor %}
+                                  </div>
 
                                       <!-- Curricular Activities Section -->
                                   {% if text.achievements %}
