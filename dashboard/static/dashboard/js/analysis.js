@@ -66,7 +66,7 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
             const imageurl = exportbtn.getAttribute('data-imageurl');
             const designation = exportbtn.getAttribute('data-des');
             const name = exportbtn.getAttribute('data-name');
-            let pdfContent = `<img src="${imageurl}" alt="Descriptive text" width="100" height="auto">`
+            let pdfContent = `<img src="${imageurl}" alt="Descriptive text" width="75" height="auto">`
                               + `<div class="text-center mt-0"><h4 class="fw-bold text-primary my-0">${name}</h4><h6>${designation}</h6></div>`          ;
 
 
@@ -92,13 +92,24 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
                         // Step 2: Reduce unnecessary spacing (CSS adjustments)
                     const allText = tabContentClone.querySelectorAll('*');
                     allText.forEach((el) => {
-                        el.style.margin = '0';           // Remove excessive margin
-                        el.style.padding = '0';          // Remove excessive padding
+
                         if (el.tagName === 'H3'){
                             el.remove();
                         }
+                        else if (el.tagName === 'H5') {
+                            el.style.fontSize = '16px';
+                            el.style.margin = '0';           // Remove excessive margin
+                            el.style.padding = '0';          // Remove excessive padding
+                        }
+                        else if (el.className !== 'badge bg-primary me-1 mt-1') {
+                            el.style.fontSize = '14px';   // Reduce font size slightly
+                            el.style.margin = '0';           // Remove excessive margin
+                            el.style.padding = '0';          // Remove excessive padding
+                        }
                         else{
-                            el.style.fontSize = '12px';   // Reduce font size slightly
+                            el.style.fontSize = '14px';   // Reduce font size slightly
+                            el.style.margin = '0';           // Remove excessive margin
+                            el.style.padding = '0';          // Remove excessive padding
 
                         }
                     });
