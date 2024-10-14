@@ -36,7 +36,7 @@
                                 id="exportbtn"
                                 data-name="{{ candidate.name }}"
                                 data-des="{{ job_opening.designation }}"
-                                data-imageurl="{% static 'parser/img/jmslogo.png' %}">
+                                data-imageurl="{% static 'dashboard/img/icons/jmslogo.png' %}">
                           <span class="ti ti-file-export ti-xs me-2"></span>Export
                         </button>
                       </div>
@@ -54,8 +54,10 @@
                                       </div>
 
                                       <!-- Canvas for Chart.js -->
+                                      <div>
                                       <canvas id="skillsMatchChart" data-response="{{ response_text }}" class="my-3" style="max-width: 400px; max-height: 200px;"></canvas>
-                                      <h6 class="mb-0">Reason for fit</h6>
+                                      </div>
+                                          <h6 class="mb-0">Reason for fit</h6>
                                       <p class="">
                                       {{ text.skills_matching.reason_for_fit }}
                                       </p>
@@ -260,7 +262,7 @@
                       </div>
 
                     <!-- New Row for Technical and Behavioral Sections -->
-                      <div class="row">
+                      <div class="row" id="newpage">
                           <div class="col-md-3">
                               <div class="card  border-0">
                                   <div class="card-body">
