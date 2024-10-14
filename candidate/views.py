@@ -23,6 +23,7 @@ import os, json, re
 from django.conf import settings
 from .genai_resume import get_response
 from .forms import CandidateForm
+from notification.models import Notification
 
 # Create your views here.
 class CandidateCreateView(FormView):
@@ -157,6 +158,15 @@ class CandidateCreateView(FormView):
             candidate.save()
 
             candidate.job_openings.add(job_opening)
+
+            message = candidate.name + " applied for " + job_opening.designation
+            employees = job_opening.assignemployee.all()
+            for e in employees:
+                Notification.objects.create(user_id=e.user.id, message=message)
+
+            manager = job_opening.created_by
+            if manager:
+                Notification.objects.create(user_id=manager.id, message=message)
 
             self.candidate = candidate
             stage = Stage.objects.get(name='Applied', job_opening=job_opening)

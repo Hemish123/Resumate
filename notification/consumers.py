@@ -27,7 +27,7 @@ class NotificationConsumer(WebsocketConsumer):
         )
         # Called when the socket closes
 
-    def new_application(self, event):
+    def send_message(self, event):
 
         self.send(text_data=json.dumps({
             'message': event['message'],
