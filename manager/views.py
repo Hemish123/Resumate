@@ -12,6 +12,7 @@ from dashboard.models import Stage
 from .forms import JobOpeningForm
 from django.views.generic.edit import FormView
 from candidate.resume_parsing.extract_text import extractText
+from notification.models import Notification
 
 import json
 
@@ -59,6 +60,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
             file = form.cleaned_data['jobdescription']
+            employees = form.cleaned_data['assignemployee']
             
             # Extract and process required skills
             required_skills = self.request.POST.get('requiredskills')
@@ -79,6 +81,10 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
              
             # Save the job opening and create default stages
             job_opening.save()
+            message = "New Job Opening " + job_opening.designation + " assigned to you"
+            for e in employees:
+                Notification.objects.create(user_id=e.user.id, message=message)
+
             if file and not jd_content:
                 jd_content = extractText(job_opening.jobdescription.path)
                 job_opening.jd_content = jd_content
