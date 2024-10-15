@@ -24,12 +24,16 @@ radioInputs.forEach(radioInput => {
 // select option for hiring
 const hiringFor = document.querySelectorAll('input[name="hiring_for"]');
 const clientSelected = document.getElementById('client_selected');
+if (clientSelected){
 const idClientInput = clientSelected.querySelector('#id_client'); // Use querySelector to find the input element
+
+}
 
 
 let selectedValue = '';  // Initialize a variable to hold the selected value
 
 // Loop through each 'hiring_for' radio button to find the checked one
+if (hiringFor && clientSelected){
 hiringFor.forEach((input) => {
     if (input.checked) {  // If the radio button is checked
         selectedValue = input.value;  // Get the value of the checked radio button
@@ -57,5 +61,7 @@ hiringFor.forEach(radioInput => {
     }
   });
 });
+}
+
 
 
