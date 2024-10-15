@@ -60,9 +60,7 @@ class JobOpening(models.Model):
     content_type = models.CharField(blank=True, max_length=10, choices=[('file', 'File'), ('text', 'Text')])  # Choice for content type
     active = models.BooleanField(default=True)
     expires = models.IntegerField(default=21)
-    experience_criteria = models.IntegerField(default=50)
     skills_criteria = models.IntegerField(default=50)
-    education_criteria = models.IntegerField(default=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default="1", related_name='jobopening')
 
     HIRING_FOR_CHOICES = [

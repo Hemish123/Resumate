@@ -20,7 +20,7 @@ $(function () {
       cb(matches);
     };
   };
-  fetch('../../static/dashboard/json/education.json')
+  fetch('../../../static/dashboard/json/education.json')
         .then(response => response.json())
         .then(data => {
             // Check if data is a plain array
