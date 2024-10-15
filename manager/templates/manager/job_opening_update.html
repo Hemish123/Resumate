@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.css' %}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 
 
 {% endblock css %}
@@ -23,31 +25,20 @@
 
           <div class="col-md-6">
             <div class="row g-6">
-              {% if clients %}
+
               <div class="col-md-6">
-
-                  <label class="form-label" for="id_client">Client
-                    <span>*</span>
-                  </label>
-                  <select id="id_client" name="client" required class="select2 form-select" data-allow-clear="true">
-                    <option value=""></option>
-                    {% for org in clients %}
-
-                      <option value="{{ org.id }}" {% if form.client.value == org.id %}selected{% endif %}>{{ org }}</option>
-
-                    {% endfor %}
-
-
-                  </select>
-                  {% if form.errors %}
-                    {% for error in form.client.errors %}
-                      <div class="error-message text-danger">{{ error }}</div>
-                    {% endfor %}
-                  {% endif %}
-
-
+                <label class="form-label" for="id_active">Opening Status :
+                <input name="active" class="form-check-input ms-2" type="checkbox" id="id_active" {% if form.active.value %}checked{% endif %} />
+                <span class="custom-option-header">
+                  <span class="h6 mb-1">Active</span>
+                </span>
+                </label>
+                {% if form.errors %}
+                  {% for error in form.active.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
               </div>
-              {% endif %}
               <div class="col-md-6">
                 <label class="form-label" for="id_designation">Designation
                   <span>*</span>
@@ -86,6 +77,30 @@
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                 {% endif %}
+              </div>
+              <div class="col-sm-5 col-md-6">
+                    <label class="form-label" for="id_min_experience">Minimum Experience</label><span>*</span>
+                    <input type="number" placeholder="0"
+                           value="{{ form.min_experience.value|default_if_none:'' }}" name="min_experience" id="id_min_experience" class="form-control w-50">
+
+              </div>
+              <div class="col-sm-5 col-md-6">
+                  <label class="form-label" for="id_max_experience">Maximum Experience</label><span>*</span>
+                  <input type="number" placeholder="1"
+                         value="{{ form.max_experience.value|default_if_none:'' }}" name="max_experience" id="id_max_experience" class="form-control w-50">
+
+              </div>
+
+              <div class="col-sm-5 col-md-6">
+                  <label class="form-label" for="id_education">Education</label>
+                  <input
+                  id="id_education"
+                  name="education"
+                  type="text"
+                  class="form-control typeahead"
+                  placeholder="Education"
+                  value="{% if form.education.value %}{{ form.education.value }}{% endif %}"
+                  />
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="id_job_mode">Mode of Job
@@ -129,25 +144,43 @@
                   {% endfor %}
                 {% endif %}
               </div>
+<!--               <div class="col-md-6">-->
+<!--                <label for="id_requiredskills" class="form-label">Required Skills-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>-->
+<!--                  <option value=""></option>-->
+<!--                  {% for skill in skills %}-->
+
+<!--                    <option value="{{ skill }}" {% if form.requiredskills.value == skill %}selected{% endif %}>{{ skill }}</option>-->
+
+<!--                  {% endfor %}-->
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.requiredskills.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+
               <div class="col-md-6">
-                <label for="id_requiredskills" class="form-label">Required Skills
-                  <span>*</span>
-                </label>
-                <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>
-
-                  {% for skill in skills %}
-
-                    <option value="{{ skill }}" {% if skill in form.requiredskills.value  %}selected{% endif %}>{{ skill }}</option>
-
-                  {% endfor %}
-
-                </select>
+                <label for="id_requiredskills" class="form-label">Required Skills <span>*</span></label>
+                <input
+                    id="id_requiredskills"
+                    name="requiredskills"
+                    class="form-control"
+                    placeholder="Select skills"
+                    value="{% if form.requiredskills.value %}{{ form.requiredskills.value}}{% endif %}"
+                    required
+                />
                 {% if form.errors %}
-                  {% for error in form.requiredskills.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
+                    {% for error in form.requiredskills.errors %}
+                        <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
                 {% endif %}
               </div>
+
               <div class="col-md-6">
                 <label class="form-label" for="id_assignemployee">Assign Recruiter
                   <span>*</span>
@@ -167,19 +200,43 @@
                   {% endfor %}
                 {% endif %}
               </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_active">Opening Status :
-                <input name="active" class="form-check-input ms-2" type="checkbox" id="id_active" {% if form.active.value %}checked{% endif %} />
-                <span class="custom-option-header">
-                  <span class="h6 mb-1">Active</span>
-                </span>
+
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_assignemployee">Assign Recruiter-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>-->
+<!--                  <option value=""></option>-->
+<!--                  {% for employee in choices %}-->
+
+<!--                    <option value="{{ employee.id }}" {% if form.assignemployee.value == employee.id %}selected{% endif %}>{{ employee }}</option>-->
+
+<!--                  {% endfor %}-->
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.assignemployee.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+              <div class="col-md-12">
+                <hr class="my-0">
+                <p class="mt-1 mb-0" >Minimum Screening criteria for candidates</p>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="id_skills_criteria">Skills Criteria(%)
+                  <span>*</span>
                 </label>
+                <input type="number" name="skills_criteria" value="{{ form.skills_criteria.value|default_if_none:'50' }}" placeholder="50" id="id_skills_criteria" min="0" class="form-control" required/>
                 {% if form.errors %}
-                  {% for error in form.active.errors %}
+                  {% for error in form.skills_criteria.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                 {% endif %}
               </div>
+
               <div class="row mt-4">
                 <label class="form-label" for="job_description_field">Job Description</label>
                 <div class="col-md-6" id="job_description_field">
@@ -224,44 +281,298 @@
               </div>
             </div>
           </div>
+
           <div class="col-md-6 select2-primary">
-            <div class="border p-4" id="section-block">
-              <div class="mb-6" id="default_area" >
-                <h4 class="text-center m-10">Choose option for Job Description</h4>
-              </div>
-              <div class="mb-6" id="text_input" >
-                <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>
-                <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6">{{ form.jd_content.value|default_if_none:'' }}</textarea>
-                {% if form.errors %}
-                  {% for error in form.jd_content.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="mb-6" id="file_upload">
-                <div class="card-body needsclick dropzone" id="dropzone">
-                    <div class="needsclick dz-message" id="dropzone-basic">
-                      Drop files here or click to upload
-                    </div>
-                  <span id="selected-filename">No file chosen</span>
-                    <div class="fallback">
-                      <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />
-                    </div>
+            <div class="row g-6">
+              <div class="col-md-12 border p-4" id="section-block">
+                <div class="mb-6" id="default_area" >
+                  <h4 class="text-center m-10">Choose option for Job Description</h4>
                 </div>
-                {% if form.errors %}
-                  {% for error in form.jobdescription.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+                <div class="mb-6" id="text_input" >
+                  <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>
+                  <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6">{{ form.jd_content.value|default_if_none:'' }}</textarea>
+                  {% if form.errors %}
+                    {% for error in form.jd_content.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="mb-6" id="file_upload">
+                  <div class="card-body needsclick dropzone d-none d-md-block" id="dropzone">
+                      <div class="needsclick dz-message" id="dropzone-basic">
+                        Drop files here or click to upload
+                      </div>
+                    <div class="text-center">
+                      <span id="selected-filename">No file chosen</span>
+                    </div>
+<!--                      <div class="fallback">-->
+<!--                        <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />-->
+<!--                      </div>-->
+                  </div>
+                  <div class="d-sm-block d-md-none">
+                      <input class="form-control" id="fileInput" accept=".pdf, .docx, .txt, .doc" name="jobdescription" type="file" />
+                  </div>
+                  {% if form.errors %}
+                    {% for error in form.jobdescription.errors %}
+                      <div class="error-message text-danger">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
               </div>
+
             </div>
           </div>
-        </div>
 
         <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Update</button>
+          <button type="submit" class="btn btn-primary me-4">Submit</button>
         </div>
       </form>
+
+<!--      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">-->
+<!--        {% csrf_token %}-->
+<!--        <div class="row g-6">-->
+
+<!--          <div class="col-md-6">-->
+<!--            <div class="row g-6">-->
+<!--              {% if clients %}-->
+<!--              <div class="col-md-6">-->
+
+<!--                  <label class="form-label" for="id_client">Client-->
+<!--                    <span>*</span>-->
+<!--                  </label>-->
+<!--                  <select id="id_client" name="client" required class="select2 form-select" data-allow-clear="true">-->
+<!--                    <option value=""></option>-->
+<!--                    {% for org in clients %}-->
+
+<!--                      <option value="{{ org.id }}" {% if form.client.value == org.id %}selected{% endif %}>{{ org }}</option>-->
+
+<!--                    {% endfor %}-->
+
+
+<!--                  </select>-->
+<!--                  {% if form.errors %}-->
+<!--                    {% for error in form.client.errors %}-->
+<!--                      <div class="error-message text-danger">{{ error }}</div>-->
+<!--                    {% endfor %}-->
+<!--                  {% endif %}-->
+
+
+<!--              </div>-->
+<!--              {% endif %}-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_designation">Designation-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select name="designation" id="id_designation" class="select2 form-select" required data-allow-clear="true">-->
+<!--                  <option value=""></option>-->
+<!--                  {% for key, value in data.items %}-->
+<!--                    <optgroup label="{{ key }}">-->
+<!--                        {% for choice in value %}-->
+<!--                              <option value="{{ choice }}" {% if form.designation.value == choice %}selected{% endif %}>{{ choice }}</option>-->
+<!--                          {% endfor %}-->
+<!--                      </optgroup>-->
+<!--                  {% endfor %}-->
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.designation.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_job_type">Job Type-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select id="id_job_type" name="job_type" required class="select2 form-select" data-allow-clear="true">-->
+<!--                  <option value=""></option>-->
+<!--                  {% for value, label in form.fields.job_type.choices %}-->
+
+<!--                    <option value="{{ value }}" {% if form.job_type.value == value %}selected{% endif %}>{{ label }}</option>-->
+
+<!--                  {% endfor %}-->
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.job_type.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_job_mode">Mode of Job-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select id="id_job_mode" name="job_mode" required class="select2 form-select" data-allow-clear="true">-->
+<!--                  <option value=""></option>-->
+<!--                  {% for value, label in form.fields.job_mode.choices %}-->
+
+<!--                    <option value="{{ value }}" {% if form.job_mode.value == value %}selected{% endif %}>{{ label }}</option>-->
+
+<!--                  {% endfor %}-->
+
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.job_mode.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_openings">Openings-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <input type="number" name="openings" value="{{ form.openings.value|default_if_none:'' }}" placeholder="0" id="id_openings" min="0" class="form-control" required/>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.openings.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_budget">Budget (in LPA)-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <input type="number" step="any" name="budget" value="{{ form.budget.value|default_if_none:'' }}" placeholder="0" id="id_budget" min="0" class="form-control" required/>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.budget.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label for="id_requiredskills" class="form-label">Required Skills-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>-->
+
+<!--                  {% for skill in skills %}-->
+
+<!--                    <option value="{{ skill }}" {% if skill in form.requiredskills.value  %}selected{% endif %}>{{ skill }}</option>-->
+
+<!--                  {% endfor %}-->
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.requiredskills.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_assignemployee">Assign Recruiter-->
+<!--                  <span>*</span>-->
+<!--                </label>-->
+<!--                <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>-->
+
+<!--                  {% for employee in choices %}-->
+
+<!--                    <option value="{{ employee.id }}" {% if employee.id in form.assignemployee.value %}selected{% endif %}>{{ employee }}</option>-->
+
+<!--                  {% endfor %}-->
+
+<!--                </select>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.assignemployee.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="col-md-6">-->
+<!--                <label class="form-label" for="id_active">Opening Status :-->
+<!--                <input name="active" class="form-check-input ms-2" type="checkbox" id="id_active" {% if form.active.value %}checked{% endif %} />-->
+<!--                <span class="custom-option-header">-->
+<!--                  <span class="h6 mb-1">Active</span>-->
+<!--                </span>-->
+<!--                </label>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.active.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--              <div class="row mt-4">-->
+<!--                <label class="form-label" for="job_description_field">Job Description</label>-->
+<!--                <div class="col-md-6" id="job_description_field">-->
+<!--                  <div class="form-check custom-option custom-option-basic">-->
+<!--                    <label class="form-check-label custom-option-content" for="id_content_type">-->
+<!--                      <input-->
+<!--                        name="content_type"-->
+
+<!--                        class="form-check-input"-->
+<!--                        type="radio"-->
+<!--                        value="file"-->
+<!--                        id="id_content_type"-->
+<!--                        {% if form.content_type.value == "file" %}checked{% endif %}-->
+<!--                         />-->
+<!--                      <span class="custom-option-header">-->
+<!--                        <span class="h6 mb-0">Upload File</span>-->
+<!--                      </span>-->
+<!--                    </label>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--                <div class="col-md-6">-->
+<!--                  <div class="form-check custom-option custom-option-basic">-->
+<!--                    <label class="form-check-label custom-option-content" for="customRadioTemp2">-->
+<!--                      <input-->
+<!--                        name="content_type"-->
+<!--                        class="form-check-input"-->
+<!--                        type="radio"-->
+<!--                        value="text"-->
+<!--                        id="customRadioTemp2"-->
+<!--                      {% if form.content_type.value == "text" %}checked{% endif %} />-->
+<!--                      <span class="custom-option-header">-->
+<!--                        <span class="h6 mb-0">Write Text</span>-->
+<!--                      </span>-->
+<!--                    </label>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.content_type.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                  {% endif %}-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="col-md-6 select2-primary">-->
+<!--            <div class="border p-4" id="section-block">-->
+<!--              <div class="mb-6" id="default_area" >-->
+<!--                <h4 class="text-center m-10">Choose option for Job Description</h4>-->
+<!--              </div>-->
+<!--              <div class="mb-6" id="text_input" >-->
+<!--                <label for="exampleFormControlTextarea1" class="form-label">Write Job Description</label>-->
+<!--                <textarea name="jd_content" class="form-control" id="exampleFormControlTextarea1" rows="6">{{ form.jd_content.value|default_if_none:'' }}</textarea>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.jd_content.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                  {% endif %}-->
+<!--              </div>-->
+<!--              <div class="mb-6" id="file_upload">-->
+<!--                <div class="card-body needsclick dropzone" id="dropzone">-->
+<!--                    <div class="needsclick dz-message" id="dropzone-basic">-->
+<!--                      Drop files here or click to upload-->
+<!--                    </div>-->
+<!--                  <span id="selected-filename">No file chosen</span>-->
+<!--                    <div class="fallback">-->
+<!--                      <input id="fileInput" accept=".pdf, .docx, .txt, .doc" class="d-none" name="jobdescription" type="file" />-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                {% if form.errors %}-->
+<!--                  {% for error in form.jobdescription.errors %}-->
+<!--                    <div class="error-message text-danger">{{ error }}</div>-->
+<!--                  {% endfor %}-->
+<!--                {% endif %}-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        <div class="pt-6">-->
+<!--          <button type="submit" class="btn btn-primary me-4">Update</button>-->
+<!--        </div>-->
+<!--      </form>-->
     </div>
   </div>
 </div>
@@ -278,9 +589,13 @@
     <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+    <script src="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-typeahead.js' %}"></script>
 <!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
     <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
     <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
+    <script src="{% static 'dashboard/js/forms-tagify.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 
 
 

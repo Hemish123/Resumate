@@ -221,7 +221,6 @@ class StageView(LoginRequiredMixin, TemplateView):
 
         # Add data to the context
         context['job_opening'] = job_opening
-        print('employee', job_opening.assignemployee.all())
 
 
         # Add job description and job details to the context
