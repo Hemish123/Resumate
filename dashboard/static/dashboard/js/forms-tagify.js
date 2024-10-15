@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('../../static/dashboard/json/skills.json')
+    fetch('../../../static/dashboard/json/skills.json')
         .then(response => response.json())
         .then(data => {
             // Check if data is a plain array

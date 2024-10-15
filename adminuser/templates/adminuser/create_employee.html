@@ -21,10 +21,37 @@
       <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row g-6">
-            {{ form|crispy }}
-            <div class="pt-6 mt-0">
-              <button type="submit" class="btn btn-primary me-4">Submit</button>
+<!--            {{ form|crispy }}-->
+
+                <div id="div_id_email" class="form-group">
+                    <label for="id_email" class="">
+                        Email address
+                    </label>
+                    <div>
+                        <input type="email" name="email" maxlength="254" class="emailinput form-control" id="id_email" required>
+                    </div>
+                </div>
+                <div id="div_id_groups" class="form-group">
+                    <label for="id_groups" class="">
+                        Groups
+                    </label>
+                <div>
+                    <select name="groups" class="selectmultiple select2 form-select form-control" required aria-describedby="id_groups_helptext" id="id_groups" multiple="">
+                        <option value="1">admin</option>
+                        <option value="2">manager</option>
+                        <option value="3">recruiter</option>
+
+                    </select>
+                    <small id="hint_id_groups" class="form-text text-muted">
+                        The groups this user belongs to. A user will get all permissions granted to each of their groups.
+                    </small>
+                </div>
             </div>
+
+            <div class="pt-6 mt-0">
+              <button type="submit" class="btn btn-primary me-4 waves-effect waves-light">Submit</button>
+            </div>
+
         </div>
       </form>
     </div>

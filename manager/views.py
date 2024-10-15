@@ -21,8 +21,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     model = JobOpening
     fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
               'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'min_experience',
-              'max_experience', 'education', 'content_type', 'experience_criteria', 'skills_criteria',
-              'education_criteria']
+              'max_experience', 'education', 'content_type', 'skills_criteria']
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
@@ -99,8 +98,9 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         
 class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = JobOpening
-    fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
-              'requiredskills', 'jobdescription', 'assignemployee', 'active']
+    fields = ['designation', 'openings', 'budget', 'job_type', 'job_mode',
+              'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'min_experience',
+              'max_experience', 'education', 'content_type', 'skills_criteria', 'active']
     template_name = "manager/job_opening_update.html"
     title = "Job-Opening-Update"
     permission_required = 'manager.change_jobopening'  # Replace with actual permission codename
@@ -133,8 +133,11 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def form_valid(self, form):
         if self.request.POST:
             job_opening = form.save(commit=False)
-            client = form.cleaned_data['client']
+            client = job_opening.client
+            jd_content = form.cleaned_data['jd_content']
+            file = form.cleaned_data['jobdescription']
             designation = form.cleaned_data['designation']
+            employees = form.cleaned_data['assignemployee']
             required_skills = self.request.POST.get('requiredskills')
             if required_skills:
                 skills_list = json.loads(required_skills)
@@ -149,6 +152,16 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.company, designation=designation).exists():
                     form.add_error('designation', 'opening already exists')
                     return self.form_invalid(form)
+
+            message = "New Job Opening " + job_opening.designation + " assigned to you"
+            for e in employees:
+                if not Notification.objects.filter(user_id=e.user.id, message=message).exists():
+                    Notification.objects.create(user_id=e.user.id, message=message)
+
+            if file and not jd_content:
+                jd_content = extractText(job_opening.jobdescription.path)
+                job_opening.jd_content = jd_content
+
             messages.success(self.request, message='Opening updated successfully!')
 
             return super().form_valid(form)
