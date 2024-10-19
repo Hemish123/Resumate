@@ -23,6 +23,7 @@ from django.db.models import Max
 import json
 from django.utils.dateformat import DateFormat
 from collections import defaultdict
+from .microsoft_graph_api import get_access_token
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
