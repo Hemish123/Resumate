@@ -28,7 +28,7 @@ class CandidateStage(models.Model):
 class Event(models.Model):
     title = models.CharField(max_length=100)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='interviews')
-    interviewer = models.CharField(max_length=100)
+    interviewer = models.JSONField()
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     description = models.TextField(blank=True, null=True)
@@ -41,6 +41,12 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, user=None, **kwargs):
+        super().save(*args, **kwargs)  # Call the original save method
+        if user:  # If a user is provided, you can create the meeting here if needed
+            # Create the Teams meeting
+            create_teams_meeting_for_event(self, user)
 
     class Meta:
         ordering = ['-start_datetime']
