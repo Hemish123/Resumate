@@ -24,10 +24,9 @@ def get_access_token():
 import requests
 
 
-
-def create_teams_meeting(event_title, event_date, attendees):
+def create_teams_meeting(user, event_title, event_start, event_end, attendees):
     access_token = get_access_token()
-    url = "https://graph.microsoft.com/v1.0/me/onlineMeetings"
+    url = f"https://graph.microsoft.com/v1.0/users/me/onlineMeetings"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -35,12 +34,12 @@ def create_teams_meeting(event_title, event_date, attendees):
     }
 
     body = {
-        "startDateTime": event_date,  # Format: '2023-10-19T14:30:00Z'
-        "endDateTime": event_date,  # Add proper end time
+        "startDateTime": event_start + "Z",  # Format: '2023-10-19T14:30:00Z'
+        "endDateTime": event_end + "Z",  # Add proper end time
         "subject": event_title,
         "participants": {
             "attendees": [
-                {"identity": {"userPrincipalName": attendees}} for attendee in attendees
+                {"identity": {"userPrincipalName": attendee}} for attendee in attendees
             ]
         }
     }
@@ -51,5 +50,5 @@ def create_teams_meeting(event_title, event_date, attendees):
         meeting_data = response.json()
         return meeting_data["joinUrl"]  # Returns the Teams meeting URL
     else:
-        print("Error creating meeting:", response.json())
+        print("Error creating meeting:", response.status_code, response.json())
         return None

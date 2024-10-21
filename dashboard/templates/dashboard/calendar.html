@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/fullcalendar/fullcalendar.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/flatpickr/flatpickr.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/css/pages/app-calendar.css' %}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+
 {% endblock css %}
 
 {% block content %}
@@ -185,8 +187,8 @@
                   placeholder="https://www.google.com" />
               </div>
               <div class="mb-5">
-                <label class="form-label" for="interviewer">Interviewer Name</label><span>*</span>
-                <input name="interviewer" class="form-control" id="interviewer"/>
+                <label class="form-label" for="interviewer">Attendees</label><span>*</span>
+                <input name="interviewer" class="form-control" id="interviewer" placeholder="demo@gmail.com, interview@gmail.com"/>
               </div>
               <div class="mb-5 select2-primary">
                 <label class="form-label" for="eventGuests">Candidate</label><span>*</span>
@@ -266,6 +268,7 @@
     <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
 
     <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 
 <!--    <script src="{% static 'dashboard/js/app-calendar-events.js' %}"></script>-->
     <script src="{% static 'dashboard/js/app-calendar.js' %}"></script>

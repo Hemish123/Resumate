@@ -50,6 +50,20 @@ document.addEventListener('DOMContentLoaded', function () {
       filterInput = [].slice.call(document.querySelectorAll('.input-filter'));
 //      inlineCalendar = document.querySelector('.inline-calendar');
 
+
+    if (interviewer){
+        new Tagify(interviewer, {
+            pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/, // Email validation pattern
+            delimiters: ", ",  // Allows adding emails with a comma or space
+            enforceWhitelist: false,  // Allow users to enter emails freely
+            maxTags: Infinity,  // Allow as many emails as necessary
+            dropdown: {
+                enabled: 1, // Show suggestions after one character input
+                maxItems: 5
+            }
+        });
+    }
+
     function updateEventBadgeColors(){
         document.querySelectorAll('[id^="upcoming_event_"]').forEach(badge => {
         badge.classList.add({facetoface: 'bg-label-primary', telephonic: 'bg-label-success', virtual: 'bg-label-info'}[badge.dataset.interview_type] || 'bg-label-primary');
@@ -389,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
         interviewer: {
           validators: {
             notEmpty: {
-              message: 'Please enter interviewer name '
+              message: 'Please enter interviewer email '
             }
           }
         },
