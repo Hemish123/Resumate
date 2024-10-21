@@ -24,6 +24,7 @@ from django.conf import settings
 from .genai_resume import get_response
 from .forms import CandidateForm
 from notification.models import Notification
+from dashboard.utils import send_success_email 
 
 # Create your views here.
 class CandidateCreateView(FormView):
@@ -156,6 +157,8 @@ class CandidateCreateView(FormView):
             candidate.job_opening_id_temp = job_opening.id
 
             candidate.save()
+
+            send_success_email(candidate, job_opening)
 
             candidate.job_openings.add(job_opening)
 
