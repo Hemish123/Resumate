@@ -24,6 +24,7 @@ import json
 from django.utils.dateformat import DateFormat
 from collections import defaultdict
 from .microsoft_graph_api import get_access_token
+from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -319,6 +320,11 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         jobopening_id = data.get('designation')
         designation = JobOpening.objects.get(id=jobopening_id)
         interviewer = data.get('interviewer')
+        # Parse the JSON string into a Python list of dictionaries
+        attendees_list = json.loads(interviewer)
+
+        # Extract email addresses from the 'value' key of each dictionary
+        email_list = [attendee['value'] for attendee in attendees_list]
         date_str = data.get('date')
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time_str = data.get('start_time')
@@ -338,7 +344,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             event = Event.objects.get(id=id)
             event.title = title
             event.candidate = candidate
-            event.interviewer = interviewer
+            event.interviewer = email_list
             event.interview_url = interview_url
             event.start_datetime = start_datetime
             event.end_datetime = end_datetime
@@ -351,7 +357,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
             event = Event.objects.create(
                 title=title,
                 candidate=candidate,
-                interviewer=interviewer,
+                interviewer=email_list,
                 interview_url=interview_url,
                 start_datetime=start_datetime,
                 end_datetime=end_datetime,
@@ -381,6 +387,18 @@ class CalendarView(LoginRequiredMixin, TemplateView):
                     "location": event.location
                 }
             }
+        event_title = event.title
+        event_start = event.start_datetime.isoformat()
+        event_end = event.end_datetime.isoformat()
+        candidate = event.candidate
+        interviewer = event.interviewer
+        attendees = [candidate.email]
+        attendees.extend(interviewer)
+        meeting_url = create_teams_meeting(request.user, event_title, event_start, event_end, attendees)
+
+        if meeting_url:
+            # You can save the meeting URL to the event or send an email
+            print(f"Meeting created: {meeting_url}")
         # Return a success response
         return JsonResponse({'status': 'success', 'event_data': event_data})
 
