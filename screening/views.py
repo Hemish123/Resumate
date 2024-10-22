@@ -47,14 +47,12 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         for c in candidates:
             response_text = json.loads(ResumeAnalysis.objects.get(candidate=c, job_opening=job_opening).response_text)
             if job_opening.min_experience == 0 :
-                if (response_text['education_matching']['match'] >= job_opening.education_criteria
-                    and response_text['skills_matching']['match'] >= job_opening.skills_criteria
+                if (response_text['skills_matching']['match'] >= job_opening.skills_criteria
                 ):
                     c.analysis_for_resume = response_text
                     selected_candidates.append(c)
             else:
-                if (response_text['experience_matching']['match'] >= job_opening.experience_criteria
-                    and response_text['education_matching']['match'] >= job_opening.education_criteria
+                if (c.experience >= job_opening.min_experience
                     and response_text['skills_matching']['match'] >= job_opening.skills_criteria
                     ):
                     c.analysis_for_resume = response_text
@@ -63,8 +61,7 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
         selected_candidates.sort(
             key=lambda c: (
                 c.analysis_for_resume['skills_matching']['match'],  # Primary: Skills (descending)
-                c.analysis_for_resume['experience_matching']['match'],  # Secondary: Experience (descending)
-                c.analysis_for_resume['education_matching']['match']  # Tertiary: Education (descending)
+                c.experience,  # Secondary: Experience (descending)
             ),
             reverse=True
         )
