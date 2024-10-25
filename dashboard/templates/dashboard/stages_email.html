@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Stage Update</title>
+</head>
+
+<body style="font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" align="center">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <table width="650px" cellpadding="0" cellspacing="0" align="center" style="background: linear-gradient(135deg, #74ebd5, #ACB6E5); border-radius: 15px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); padding: 40px; max-width: 100%;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="border-bottom: 2px solid #3498db; padding-bottom: 20px;">
+                            <h1 style="color: #3498db; font-size: 28px; margin: 0;">Interview Stage Update</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td align="left" style="padding: 30px 0;">
+                            <p style="font-size: 18px; color: #333; line-height: 1.6; margin: 0;">Dear <strong>{{ candidate.name }}</strong>,</p>
+                            <p style="font-size: 16px; color: #555; line-height: 1.8; margin: 15px 0;">We are pleased to inform you that you have advanced to the <strong>{{ current_stage.name }}</strong> stage of the interview process for the <strong>{{ job_opening.title }}</strong> position at our company.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Interview Details -->
+                    <tr>
+                        <td align="center" style="background-color: #eaf3fb; border-radius: 10px; padding: 20px; margin-bottom: 30px; border: 2px solid #3498db;">
+                            <p style="color: #2c3e50; font-size: 16px; line-height: 1.8; margin: 0;">Your next interview is scheduled on <strong>{{ next_stage.date }}</strong> at <strong>{{ next_stage.time }}</strong>.</p>
+                            <p style="color: #2c3e50; font-size: 16px; line-height: 1.8; margin: 10px 0;">Location: <strong>{{ next_stage.location }}</strong></p>
+                            <p style="color: #2c3e50; font-size: 16px; line-height: 1.8; margin: 0;">Please be prepared for this round, which will focus on <strong>{{ next_stage.details }}</strong>.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding-top: 30px;">
+                            <p style="font-size: 16px; color: #333;">We appreciate your time and effort throughout this process and are looking forward to your next steps in the interview.</p>
+                            <p style="font-size: 16px; color: #333; margin-top: 10px;">Best regards,</p>
+                            <p style="font-size: 16px; color: #333; margin-top: 5px;"><strong>HR Team</strong></p>
+                        </td>
+                    </tr>
+
+                    <!-- Company Info -->
+                    <tr>
+                        <td align="center" style="background-color: #f4f4f4; border-top: 2px solid #3498db; padding: 20px; margin-top: 30px;">
+                            <p style="font-size: 14px; color: #333;">
+                                <strong>Company Name:</strong>
+                                {% if job_opening.client %}
+                                    <span style="color: #555; font-weight: 500;">{{ job_opening.client }}</span>
+                                {% else %}
+                                    <span style="color: #555; font-weight: 500;">{{ job_opening.company }}</span>
+                                {% endif %}
+                            </p>
+                            <p style="font-size: 14px; color: #555;">
+                                <strong>Contact Person:</strong> Jane Smith
+                            </p>
+                            <p style="font-size: 14px; color: #555;">
+                                <strong>Phone:</strong> +123 456 7890
+                            </p>
+                            <p style="font-size: 14px; color: #555;">
+                                <strong>Email:</strong> hr@company.com
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
