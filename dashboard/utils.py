@@ -4,8 +4,6 @@ from django.template.loader import render_to_string
 from recruit_management.settings import EMAIL_HOST_USER
 from django.core.mail import EmailMultiAlternatives
 
-
-
 def send_success_email(candidate, job_opening):
     print('in', candidate, job_opening)
     emailOfSender = EMAIL_HOST_USER
@@ -14,6 +12,8 @@ def send_success_email(candidate, job_opening):
         'candidate': candidate,
         'job_opening': job_opening
     })
+
+    
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
                                           to=[candidate.email, ], reply_to=[emailOfSender, ])
     emailMessage.attach_alternative(message, "text/html")
