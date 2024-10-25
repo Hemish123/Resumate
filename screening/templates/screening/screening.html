@@ -26,9 +26,8 @@
                   <th>Actions</th>
                   <th>Name</th>
 
-                <th>Experience (%)</th>
+                <th>Experience (years)</th>
                 <th>Skills (%)</th>
-                <th>Education (%)</th>
 
                 </tr>
               </thead>
@@ -47,9 +46,8 @@
 
                     <td><a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}">{{candidate.name}}</a></td>
 
-                    <td>{{ candidate.analysis_for_resume.experience_matching.match }}</td>
+                    <td>{{ candidate.experience }}</td>
                     <td>{{ candidate.analysis_for_resume.skills_matching.match }}</td>
-                    <td>{{ candidate.analysis_for_resume.education_matching.match }}</td>
 
                 </tr>
                 {% endfor %}
