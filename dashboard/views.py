@@ -25,6 +25,7 @@ from django.utils.dateformat import DateFormat
 from collections import defaultdict
 from .microsoft_graph_api import get_access_token
 from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
+from .utils import send_hired_email, send_rejected_email, send_stage_change_email
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -72,7 +73,6 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         has_perm = self.request.user.groups.filter(permissions__codename='add_jobopening').exists()
         context['has_perm'] = has_perm
         self.request.session['previous_page'] = ''
-
 
         if self.request.user.is_superuser:
             job_posts = JobOpening.objects.all().order_by('-active')
@@ -164,13 +164,25 @@ class StageAPIView(APIView):
     def put(self, request, *args, **kwargs):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
-
+        job_opening_id = self.kwargs.get('pk')
+        job_opening = JobOpening.objects.get(id=job_opening_id)
         if stage_id:
             stage = Stage.objects.get(id=stage_id)
             for item in order:
                 candidate_stage_id = item.get('id')
                 candidate_order = item.get('order')
                 CandidateStage.objects.filter(id=candidate_stage_id).update(order=candidate_order, stage=stage)
+
+                # send email to candidate
+                candidate_stage = CandidateStage.objects.get(id=candidate_stage_id)
+                candidate = candidate_stage.candidate
+                if stage.name == 'Hired':
+                    send_hired_email(candidate, job_opening)
+                elif stage.name == 'Rejected':
+                    send_rejected_email(candidate, job_opening)
+                else :
+                    send_stage_change_email(candidate, job_opening)
+
         else:
             for item in order[:-1]:
                 stage_id = item.get('id')
