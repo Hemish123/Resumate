@@ -18,8 +18,8 @@
                                         <tbody>
                                             <tr>
                                                 <td width="100%" align="center" valign="top" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
-                                                    <h2 style="color: #007bff; font-size: 32px; margin-bottom: 15px; line-height: 1.4; text-align: center;">Congratulations <strong>Hilary Lambert!</strong></h2>
-                                                    <p style="color: #555; font-size: 18px; line-height: 1.8; margin: 15px 0; text-align: center;">We are thrilled to inform you that you have been selected for the position. Welcome to the team!</p>
+                                                    <h2 style="color: #007bff; font-size: 32px; margin-bottom: 15px; line-height: 1.4; text-align: center;">Congratulations <strong>{{ candidate.name }}!</strong></h2>
+                                                    <p style="color: #555; font-size: 18px; line-height: 1.8; margin: 15px 0; text-align: center;">We are thrilled to inform you that you have been selected for the {{ job_opening.designation }} position at {% if job_opening.client %} {{ job_opening.client }} {% else %} {{ job_opening.company }} {% endif %}. Welcome to the team!</p>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -30,23 +30,23 @@
                             <tr>
                                 <td align="left">
                                     <h2 style="text-align: left; color: #007bff;">Welcome aboard!</h2>
-                                    <div style="overflow: auto;">
+                                    <div>
                                         <!-- Left Box -->
-                                        <div style="width: 48%; float: left; text-align: center;">
-                                            <table cellpadding="0" cellspacing="0" width="100%">
-                                                <tbody>
-                                                    <tr>
-                                                        <td align="center" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, border-color 0.3s ease;">
-                                                            <p><strong>Start Date:</strong></p>
-                                                            <p>Monday, November 25th</p>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+<!--                                        <div style="width: 48%; float: left; text-align: center;">-->
+<!--                                            <table cellpadding="0" cellspacing="0" width="100%">-->
+<!--                                                <tbody>-->
+<!--                                                    <tr>-->
+<!--                                                        <td align="center" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, border-color 0.3s ease;">-->
+<!--                                                            <p><strong>Start Date:</strong></p>-->
+<!--                                                            <p>Monday, November 25th</p>-->
+<!--                                                        </td>-->
+<!--                                                    </tr>-->
+<!--                                                </tbody>-->
+<!--                                            </table>-->
+<!--                                        </div>-->
 
                                         <!-- Right Box -->
-                                        <div style="width: 48%; float: left; margin-left: 4%; text-align: center;">
+                                        <div style="width: 100%; float: left; margin-left: 0%; text-align: center;">
                                             <table cellpadding="0" cellspacing="0" width="100%">
                                                 <tbody>
                                                     <tr>
