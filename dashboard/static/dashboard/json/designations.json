@@ -1,61 +1,40 @@
-{
-  "Software Development":["Front-End Developer","Back-End Developer","Full Stack Developer","Mobile App Developer","Software Tester / QA Engineer","DevOps Engineer",
+
+["Front-End Developer","Back-End Developer","Full Stack Developer","Mobile App Developer","Software Tester / QA Engineer","DevOps Engineer",
   "UI / FrontEnd Developer","Python Developer",".NET Developer","Android developer","React Native Developer","Angular Developer","React Developer","NodeJS Developer",
-  "Flutter developer","IOS developer"],
+  "Flutter developer","IOS developer",
+"Cloud Engineer","Systems Engineer",
 
-  "Systems and Network Administration":["Cloud Engineer","Systems Engineer"],
+"Data Engineer","Data Analyst","Business Intelligence (BI) Analyst","Machine Learning Engineer","Artificial Intelligence (AI) Specialist",
+  "Big Data Engineer","Data Mining Engineer","Deep Learning Engineer",
 
-  "Data and Analytics ":["Data Engineer","Data Analyst","Business Intelligence (BI) Analyst","Machine Learning Engineer","Artificial Intelligence (AI) Specialist",
-  "Big Data Engineer","Data Mining Engineer","Deep Learning Engineer"],
+"Business Analyst","Scrum Master",
 
-  "Project and Product Management":["Business Analyst","Scrum Master"],
-     
-  "Web Development and Design":["Web Developer","Web Designer","UX/UI Designer"],
+"Web Developer","Web Designer","UX/UI Designer",
 
-  "cloud":["Azure Cloud","AWS DATA ENGINEER","Cloud Architect"],
+"Azure Cloud","AWS DATA ENGINEER","Cloud Architect",
 
-  "Cybersecurity": ["Cybersecurity Analyst", "Information Security Specialist", "Security Operations Center (SOC) Analyst", "Penetration Tester (Ethical Hacker)", "Security Architect"],
+"Cybersecurity Analyst", "Information Security Specialist", "Security Operations Center (SOC) Analyst", "Penetration Tester (Ethical Hacker)", "Security Architect",
 
-  "Database Management": ["Database Administrator (DBA)", "Database Engineer", "SQL Developer", "NoSQL Developer", "Oracle Database Administrator"],
+"Database Administrator (DBA)", "Database Engineer", "SQL Developer", "NoSQL Developer", "Oracle Database Administrator",
+"IT Support Specialist", "Help Desk Technician", "Technical Support Engineer", "IT Service Manager", "Desktop Support Technician",
+"AI Developer", "Robotic Process Automation (RPA) Developer", "NLP Engineer", "Automation Engineer",
+"SAP Consultant", "Oracle ERP Consultant", "Salesforce Developer", "ERP Analyst",
+"Game Developer", "Game Designer", "Unity Developer", "Unreal Engine Developer",
+"SEO Specialist", "Digital Marketing Strategist", "Social Media Manager", "Content Marketing Specialist",
+"Blockchain Developer", "Blockchain Architect", "Smart Contract Developer", "Cryptocurrency Analyst",
+"Embedded Systems Engineer", "IoT Developer", "Firmware Engineer", "IoT Solutions Architect",
+"Automation Tester", "Manual QA Tester", "Quality Assurance Manager", "Test Automation Engineer",
+"HR Manager", "Recruitment Specialist", "Talent Acquisition Specialist", "HR Coordinator", "HR Business Partner", "Compensation and Benefits Manager",
+"Sales Manager", "Marketing Manager", "Business Development Executive", "Account Manager", "Sales Executive", "Digital Marketing Specialist", "Content Writer",
+"Customer Service Representative", "Customer Success Manager", "Support Specialist", "Call Center Agent", "Client Relations Specialist",
+"Accountant", "Financial Analyst", "Accounts Payable Specialist", "Auditor", "Bookkeeper", "Payroll Specialist",
+"Office Manager", "Administrative Assistant", "Executive Assistant", "Receptionist", "Data Entry Clerk",
+"Legal Advisor", "Compliance Officer", "Paralegal", "Contract Administrator", "Corporate Counsel",
+"Logistics Coordinator", "Supply Chain Manager", "Procurement Specialist", "Inventory Manager", "Warehouse Supervisor",
+"Operations Manager", "Operations Coordinator", "Project Coordinator", "Office Operations Assistant",
+"Training Coordinator", "Learning and Development Specialist", "Corporate Trainer", "Instructional Designer",
+"Graphic Designer", "Content Creator", "Copywriter", "Art Director", "Video Editor", "Illustrator",
+"PR Manager", "Communications Specialist", "Media Relations Specialist", "Public Affairs Officer",
 
-  "IT Support and Services": ["IT Support Specialist", "Help Desk Technician", "Technical Support Engineer", "IT Service Manager", "Desktop Support Technician"],
-
-  "Artificial Intelligence and Automation": ["AI Developer", "Robotic Process Automation (RPA) Developer", "NLP Engineer", "Automation Engineer"],
-
-  "Enterprise Solutions and ERP": ["SAP Consultant", "Oracle ERP Consultant", "Salesforce Developer", "ERP Analyst"],
-
-  "Game Development": ["Game Developer", "Game Designer", "Unity Developer", "Unreal Engine Developer"],
-
-  "Digital Marketing and SEO": ["SEO Specialist", "Digital Marketing Strategist", "Social Media Manager", "Content Marketing Specialist"],
-
-  "Blockchain and Cryptocurrency": ["Blockchain Developer", "Blockchain Architect", "Smart Contract Developer", "Cryptocurrency Analyst"],
-
-  "Embedded Systems and IoT": ["Embedded Systems Engineer", "IoT Developer", "Firmware Engineer", "IoT Solutions Architect"],
-
-  "Quality Assurance and Automation": ["Automation Tester", "Manual QA Tester", "Quality Assurance Manager", "Test Automation Engineer"],
-
-  "Human Resources": ["HR Manager", "Recruitment Specialist", "Talent Acquisition Specialist", "HR Coordinator", "HR Business Partner", "Compensation and Benefits Manager"],
-
-  "Sales and Marketing": ["Sales Manager", "Marketing Manager", "Business Development Executive", "Account Manager", "Sales Executive", "Digital Marketing Specialist", "Content Writer"],
-
-  "Customer Support": ["Customer Service Representative", "Customer Success Manager", "Support Specialist", "Call Center Agent", "Client Relations Specialist"],
-
-  "Finance and Accounting": ["Accountant", "Financial Analyst", "Accounts Payable Specialist", "Auditor", "Bookkeeper", "Payroll Specialist"],
-
-  "Administration": ["Office Manager", "Administrative Assistant", "Executive Assistant", "Receptionist", "Data Entry Clerk"],
-
-  "Legal and Compliance": ["Legal Advisor", "Compliance Officer", "Paralegal", "Contract Administrator", "Corporate Counsel"],
-
-  "Supply Chain and Logistics": ["Logistics Coordinator", "Supply Chain Manager", "Procurement Specialist", "Inventory Manager", "Warehouse Supervisor"],
-
-  "Operations": ["Operations Manager", "Operations Coordinator", "Project Coordinator", "Office Operations Assistant"],
-
-  "Training and Development": ["Training Coordinator", "Learning and Development Specialist", "Corporate Trainer", "Instructional Designer"],
-
-  "Creative and Design": ["Graphic Designer", "Content Creator", "Copywriter", "Art Director", "Video Editor", "Illustrator"],
-
-  "Public Relations and Communications": ["PR Manager", "Communications Specialist", "Media Relations Specialist", "Public Affairs Officer"],
-
-  "Product and Service Management": ["Product Manager", "Service Delivery Manager", "Product Marketing Manager"]
-
-}
+"Product Manager", "Service Delivery Manager", "Product Marketing Manager",
+"Golang developer"]

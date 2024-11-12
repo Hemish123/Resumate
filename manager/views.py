@@ -43,8 +43,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context['clients'] = Client.objects.filter(company=self.request.user.company)
 
         # Load JSON data for designations and skills
-        with open("dashboard/static/dashboard/json/designations.json") as f:
-            context['data'] = json.load(f)
+        # with open("dashboard/static/dashboard/json/designations.json") as f:
+        #     context['data'] = json.load(f)
 
         with open("dashboard/static/dashboard/json/skills.json") as f:
             context['skills'] = json.load(f)

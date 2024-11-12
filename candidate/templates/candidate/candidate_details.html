@@ -56,6 +56,14 @@
     <a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ job_opening.id }}" type="button" class="btn btn-outline-primary mx-2">
         <span class="ti-xs ti ti-report-analytics me-2"></span>Get Analysis
     </a>
+    {% else %}
+        {% for opening in candidate.job_openings.all %}
+            <a href="{% url 'candidate-analysis' candidate.id %}?job_opening_id={{ opening.id }}" type="button" class="btn btn-outline-primary mx-2">
+                <span class="ti-xs ti ti-report-analytics me-2"></span>Get Analysis for {{ opening }}
+            </a>
+        {% empty %}
+
+        {% endfor %}
     {% endif %}
     </div>
     <div class=" mx-7 mt-7 badge bg-label-primary">

@@ -22,6 +22,15 @@
         {% csrf_token %}
         <div class="row g-6">
 <!--            {{ form|crispy }}-->
+            {% if form.errors %}
+
+                {% for field, errors in form.errors.items %}
+                      {% for error in errors %}
+                          <div class="error-message text-danger">{{ error }}</div>
+                      {% endfor %}
+                  {% endfor %}
+
+            {% endif %}
 
                 <div id="div_id_email" class="form-group">
                     <label for="id_email" class="">
