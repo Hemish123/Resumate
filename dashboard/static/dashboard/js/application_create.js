@@ -1,5 +1,9 @@
 
 const fileInput = document.getElementById("fileInput");
+const form_field = document.getElementById("parse_data");
+if (form_field){
+    form_field.style.display = "none";
+}
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
@@ -31,6 +35,7 @@ fileInput.addEventListener('change', function(event) {
         .then(data => {
             if (data.success) {
             document.querySelector('.preloader-container').style.display = 'none';
+            form_field.style.display = "block";
 //                alert('success!');
                 // Populate form fields with parsed data
                 document.querySelector('input[name="name"]').value = data.parsed_data.name;
