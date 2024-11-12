@@ -24,7 +24,8 @@ from django.conf import settings
 from .genai_resume import get_response
 from .forms import CandidateForm
 from notification.models import Notification
-from dashboard.utils import send_success_email 
+from dashboard.utils import send_success_email, new_application_email
+
 
 # Create your views here.
 class CandidateCreateView(FormView):
@@ -166,6 +167,8 @@ class CandidateCreateView(FormView):
             employees = job_opening.assignemployee.all()
             for e in employees:
                 Notification.objects.create(user_id=e.user.id, message=message)
+                site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
+                new_application_email(candidate, job_opening, e, site_url)
 
             manager = job_opening.created_by
             if manager:

@@ -107,16 +107,24 @@
                 <label class="form-label" for="id_designation">Designation
                   <span>*</span>
                 </label>
-                <select name="designation" id="id_designation" class="select2 form-select" required data-allow-clear="true">
-                  <option value=""></option>
-                  {% for key, value in data.items %}
-                    <optgroup label="{{ key }}">
-                        {% for choice in value %}
-                              <option value="{{ choice }}" {% if form.designation.value == choice %}selected{% endif %}>{{ choice }}</option>
-                          {% endfor %}
-                      </optgroup>
-                  {% endfor %}
-                </select>
+                <input
+                  id="id_designation"
+                  name="designation"
+                  type="text"
+                  class="form-control typeahead"
+                  placeholder="Designation"
+                  value="{% if form.designation.value %}{{ form.designation.value }}{% endif %}"
+                  />
+<!--                <select name="designation" id="id_designation" class="select2 form-select" required data-allow-clear="true">-->
+<!--                  <option value=""></option>-->
+<!--                  {% for key, value in data.items %}-->
+<!--                    <optgroup label="{{ key }}">-->
+<!--                        {% for choice in value %}-->
+<!--                              <option value="{{ choice }}" {% if form.designation.value == choice %}selected{% endif %}>{{ choice }}</option>-->
+<!--                          {% endfor %}-->
+<!--                      </optgroup>-->
+<!--                  {% endfor %}-->
+<!--                </select>-->
                 {% if form.errors %}
                   {% for error in form.designation.errors %}
                     <div class="error-message text-danger">{{ error }}</div>

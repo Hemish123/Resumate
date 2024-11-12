@@ -28,6 +28,34 @@ def create_teams_meeting(user, event_title, event_start, event_end, attendees):
     access_token = get_access_token()
     url = f"https://graph.microsoft.com/v1.0/users/me/onlineMeetings"
 
+    # headers = {
+    #     "Authorization": f"Bearer {access_token}",
+    #     "Content-Type": "application/json"
+    # }
+    #
+    # body = {
+    #     "subject" : event_title,
+    #     "body" : {
+    #         # html or text
+    #         'contentType': 'html',
+    #         'content': "Meeting Details"
+    #     },
+    #     "start":{
+    #         "dateTime": event_start,  # Format: '2023-10-19T14:30:00'
+    #         "timeZone": 'Asia/Kolkata'
+    #     },
+    #     "end":{
+    #         "dateTime": event_end,  # Format: '2023-10-19T14:30:00'
+    #         "timeZone": 'Asia/Kolkata'
+    #     },
+    #
+    #     "attendees": [
+    #         {"emailAddress": {"address": attendee}, 'type': 'required'} for attendee in attendees
+    #     ],
+    #     "isOnlineMeeting": True,
+    #     "onlineMeetingProvider": "teamsForBusiness"
+    #
+    # }
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
@@ -45,6 +73,7 @@ def create_teams_meeting(user, event_title, event_start, event_end, attendees):
     }
 
     response = requests.post(url, json=body, headers=headers)
+    print(response.json())
 
     if response.status_code == 201:
         meeting_data = response.json()
