@@ -16,7 +16,7 @@ def today():
     return timezone.now().date()
 
 class Candidate(models.Model):
-    job_openings = models.ManyToManyField(JobOpening, blank=True)
+    job_openings = models.ManyToManyField(JobOpening, blank=True, null=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(validators=[EmailValidator])
     contact = models.CharField(max_length=255)
