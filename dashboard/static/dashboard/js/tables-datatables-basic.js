@@ -189,6 +189,15 @@ $(function () {
       },
       buttons: [
         {
+            text: '<i class="ti ti-user-plus  ti-xs me-sm-1"></i><span class="d-none d-sm-inline-block">Import</span>',
+            className: 'btn btn-primary me-4 waves-effect waves-light border-none',
+            action: function (e, dt, node, config) {
+              // Define the action you want to perform when the button is clicked
+              // For example, redirect to an "Add Candidate" form page
+              window.location.href = "/candidate/add-candidate-form/";
+            }
+          },
+        {
           extend: 'collection',
           className: 'btn btn-label-primary dropdown-toggle me-4 waves-effect waves-light border-none',
           text: '<i class="ti ti-file-export ti-xs me-sm-1"></i> <span class="d-none d-sm-inline-block">Export</span>',
