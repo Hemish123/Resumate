@@ -22,10 +22,80 @@ from django.core.files.base import ContentFile
 import os, json, re
 from django.conf import settings
 from .genai_resume import get_response
-from .forms import CandidateForm
+from .forms import CandidateForm, CandidateImportForm
 from notification.models import Notification
 from dashboard.utils import send_success_email, new_application_email
+import csv
 
+class CandidateImportView(LoginRequiredMixin, FormView):
+    template_name = "candidate/candidate_import.html"
+    title = "Import Candidates"
+    form_class = CandidateImportForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+
+        if form.is_valid():
+            file = form.cleaned_data['upload_file']
+
+            decoded_file = file.read().decode('utf-8').splitlines()
+            reader = csv.reader(decoded_file)
+
+            # Skipping the header row (optional)
+            next(reader, None)
+
+            for row in reader:
+                Candidate.objects.create(
+                    name=row[0],
+                    current_designation=row[1],
+                    contact=row[2],
+                    email=row[3],
+                    location=row[4],
+                    experience=row[5]
+                )
+            messages.success(request, "Candidates imported successfully.")
+            return redirect('candidate-list')
+            # candidate, created = Candidate.objects.get_or_create(email=email)
+            # if Candidate.objects.filter(email=email).exists():
+            #     candidate = Candidate.objects.get(email=email)
+            #     candidate.name = form.cleaned_data['name']
+            #     candidate.contact = form.cleaned_data['contact']
+            #     candidate.location = form.cleaned_data['location']
+            #     candidate.education = form.cleaned_data['education']
+            #     candidate.current_designation = form.cleaned_data['current_designation']
+            #     candidate.experience = form.cleaned_data['experience']
+            #     candidate.linkedin = form.cleaned_data['linkedin']
+            #     candidate.github = form.cleaned_data['github']
+            #     candidate.portfolio = form.cleaned_data['portfolio']
+            #     candidate.blog = form.cleaned_data['blog']
+            #     candidate.current_organization = form.cleaned_data['current_organization']
+            #     candidate.updated = timezone.now()
+            #     # candidate.job_openings.add(job_opening)
+            # else:
+            #     candidate = form.save(commit=False)
+            #
+            #
+            #
+            #
+            # del request.session['resume']
+            # file = request.FILES.get('upload_resume')
+            #
+            # candidate.save()
+            # self.candidate = candidate
+            #
+            #
+            # # Process the final submission after user reviews the parsed data
+            # return self.form_valid(form)
+            # return self.get_success_url()
+
+        else:
+            return self.form_invalid(form)
 
 # Create your views here.
 class CandidateCreateView(FormView):
