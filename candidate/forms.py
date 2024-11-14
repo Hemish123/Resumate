@@ -1,6 +1,8 @@
 from django import forms
 from .models import Candidate
 
+class CandidateImportForm(forms.Form):
+    file = forms.FileField()
 
 # class UploadForms(forms.ModelForm):
 #     class Meta:

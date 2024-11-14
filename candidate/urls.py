@@ -1,13 +1,14 @@
 from django.urls import path
 from . import views
 from .views import (CandidateCreateView, CandidateListView,
-                    CandidateDetailsView, CandidateUpdateView,
+                    CandidateDetailsView, CandidateUpdateView, CandidateImportView,
                     CandidateDeleteView, ApplicationSuccessView, ResumeListView, ResumeSearchView,
                     CandidateAnalysisView, ApplicationListView)
 
 urlpatterns = [
     path('application-create/<int:pk>/', CandidateCreateView.as_view(), name='application_create'),
     path('candidate-list/', CandidateListView.as_view(), name='candidate-list'),
+    path('add-candidate-form/', CandidateImportView.as_view(), name='candidate-import'),
     path('resume-list/', ResumeListView.as_view(), name='resume-list'),
     path('resume-search/', ResumeSearchView.as_view(), name='resume-search'),
     path('candidate-details/<int:pk>/', CandidateDetailsView.as_view(), name='candidate-details'),
