@@ -44,20 +44,24 @@ class CandidateImportView(LoginRequiredMixin, FormView):
         if form.is_valid():
             file = form.cleaned_data['upload_file']
 
-            decoded_file = file.read().decode('utf-8').splitlines()
+            try:
+                # Attempt decoding with a fallback encoding
+                decoded_file = file.read().decode('utf-8', errors='replace').splitlines()
+            except UnicodeDecodeError:
+                # Fallback to a lenient encoding
+                decoded_file = file.read().decode('latin1').splitlines()
             reader = csv.reader(decoded_file)
 
             # Skipping the header row (optional)
-            next(reader, None)
-
+            # next(reader, None)
             for row in reader:
                 Candidate.objects.create(
                     name=row[0],
-                    current_designation=row[1],
-                    contact=row[2],
-                    email=row[3],
+                    current_designation=row[3],
+                    contact=row[1],
+                    email=row[2],
                     location=row[4],
-                    experience=row[5]
+                    company=request.user.company
                 )
             messages.success(request, "Candidates imported successfully.")
             return redirect('candidate-list')
