@@ -32,6 +32,8 @@ class Candidate(models.Model):
     current_organization = models.CharField(max_length=255, blank=True, null=True)
     current_ctc = models.FloatField(max_length=255, blank=True, default=0)
     current_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
+
+
     expected_ctc = models.FloatField(max_length=255, blank=True, default=0)
     expected_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
     offer_in_hand = models.FloatField(max_length=255, blank=True, default=0)
