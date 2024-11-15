@@ -13,8 +13,13 @@
             <!-- Content -->
 
   <div class="container-xxl flex-grow-1 container-p-y">
-    <form>
+    <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
+        {% if form.errors %}
+                  {% for error in form.upload_file.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% endif %}
         <div class="card-body needsclick dropzone" id="dropzone">
             <p class="text-muted m-2">upload file in .csv or .xlsx format only.</p>
             <div class="needsclick dz-message" id="dropzone-basic">
@@ -24,6 +29,9 @@
             <div class="fallback">
               <input id="fileInput" accept=".csv, .xlsx" class="d-none" name="upload_file" type="file" />
             </div>
+        </div>
+        <div class="pt-6">
+          <button type="submit" class="btn btn-primary me-4">Submit</button>
         </div>
     </form>
 
