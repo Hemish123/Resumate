@@ -34,15 +34,46 @@
                                 </button>
                                 <ul class="dropdown-menu">
                                   <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">
-                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Add to Job Opening</a>
+                                    <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#shareOpening">
+                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Share Job Opening</a>
                                   </li>
                                   <li>
                                     <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
                                         <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
                                   </li>
                                 </ul>
-                                  <!-- Modal -->
+                                 <!--Job opening share Modal -->
+                                <div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="shareOpeningLabel">Share Job Opening</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                            <div class="modal-body">
+                                                <form id="shareJobOpeningForm" method="post" enctype="multipart/form-data" action="{% url 'share_job_opening' %}">
+                                                    {% csrf_token %}
+
+                                                     <div class="mb-3">
+                                                        <label for="jobOpening" class="form-label">Select Job Opening</label>
+                                                        <select class="form-select" id="jobOpening" name="job_opening" required>
+                                                            <option value="" disabled selected>Select a job opening</option>
+                                                            {% for job in job_openings %}
+                                                            <option value="{{ job.id }}">{{ job.designation }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                     </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">Send Email</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                  <!--Delete Modal -->
                                 <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                       <div class="modal-content">
