@@ -24,7 +24,7 @@ from django.conf import settings
 from .genai_resume import get_response
 from .forms import CandidateForm, CandidateImportForm
 from notification.models import Notification
-from dashboard.utils import send_success_email, new_application_email
+from dashboard.utils import send_success_email, new_application_email, send_job_opening_email
 import csv
 
 class CandidateImportView(LoginRequiredMixin, FormView):
@@ -53,13 +53,13 @@ class CandidateImportView(LoginRequiredMixin, FormView):
             reader = csv.reader(decoded_file)
 
             # Skipping the header row (optional)
-            # next(reader, None)
+            next(reader, None)
             for row in reader:
                 Candidate.objects.create(
                     name=row[0],
-                    current_designation=row[3],
                     contact=row[1],
                     email=row[2],
+                    current_designation=row[3],
                     location=row[4],
                     company=request.user.company
                 )
@@ -339,8 +339,22 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
+
+class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
+    def post(self, request, *args, **kwargs):
+        ids = request.POST.get('ids[]')  # Get list of IDs from POST data
+        job_opening_id = request.POST.get('job_opening_id')
+        job_opening = JobOpening.objects.get(id=job_opening_id)
+        print(ids, job_opening_id)
+        if ids:
+            ids = [int(id) for id in ids.split(',')]
+            for id in ids:
+                candidate = Candidate.objects.get(id=id)
+                send_job_opening_email(candidate, job_opening)
+        return JsonResponse({'status': 'success'})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'

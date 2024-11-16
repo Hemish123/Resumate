@@ -549,6 +549,37 @@ function getSelectedIds() {
 
   });
 
+  $('#shareJobOpeningForm').on('submit', function(e) {
+    e.preventDefault();  // Prevent default form submission
+   var idsToShare = getSelectedIds();
+   var selectedJobOpening = $('#jobOpening').val(); // Get the selected job opening ID
+
+    if (idsToShare.length > 0) {
+    // Send AJAX request to delete rows
+    $.ajax({
+      url: $(this).attr('action'),  // Replace with your delete endpoint
+      method: 'POST',
+      data: {
+        'ids[]': idsToShare,
+        'job_opening_id': selectedJobOpening,  // Include job opening ID
+
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
+      },
+      success: function(response) {
+        // On success, remove rows from DataTable
+
+        $('.dt-checkboxes-select-all input').prop('checked', false);
+        $('#shareOpening').modal('hide');
+      },
+      error: function(xhr, status, error) {
+        console.error('Error sending mail:', status, error);
+        // Optionally, show an error message to the user
+      }
+    });
+  }
+
+  });
+
 }
 });
 

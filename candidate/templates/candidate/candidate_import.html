@@ -13,6 +13,49 @@
             <!-- Content -->
 
   <div class="container-xxl flex-grow-1 container-p-y">
+      <div class="border m-2">
+          <p class="m-1">Upload file in following Format only.</p>
+          <table class="table bg-light">
+              <thead>
+              <tr>
+                  <th scope="col">
+                      Name
+                  </th>
+                  <th scope="col">
+                      Contact
+                  </th>
+                  <th scope="col">
+                      Email
+                  </th>
+                  <th scope="col">
+                      Designation
+                  </th>
+                  <th scope="col">
+                      Location
+                  </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                  <th scope="row">
+                    John Doe
+                  </th>
+                  <th>
+                    982392****
+                  </th>
+                  <th>
+                    Johndoe@gmail.com
+                  </th>
+                  <th>
+                    Python Developer
+                  </th>
+                  <th>
+                    Ahmedabad
+                  </th>
+              </tr>
+              </tbody>
+          </table>
+      </div>
     <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         {% if form.errors %}
