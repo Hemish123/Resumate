@@ -513,6 +513,7 @@ $(function () {
 // Function to get selected IDs
 function getSelectedIds() {
     var selectedIds = [];
+    updateSelectedRows();
     selectedIds.push(selectedRows.map(row => row.id));  // Add the ID to the array
 
     return selectedIds;
@@ -567,7 +568,8 @@ function getSelectedIds() {
       },
       success: function(response) {
         // On success, remove rows from DataTable
-
+        dt_basic.rows('.selected').nodes().to$().find('input[type="checkbox"]').prop('checked', false);
+        dt_basic.rows().nodes().to$().removeClass('selected');
         $('.dt-checkboxes-select-all input').prop('checked', false);
         $('#shareOpening').modal('hide');
       },
