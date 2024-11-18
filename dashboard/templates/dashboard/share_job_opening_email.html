@@ -30,9 +30,8 @@
                                 </tr>
                                 <tr>
                                     <td align="center" style="font-size: 1rem; color: #555; padding-bottom: 20px;">
-                                        <p><span style="color: #444; font-weight: 600;">Required Skills : </span>{{ job_opening.required_skills }}</p>
-                                        <p><span style="color: #444; font-weight: 600;">Minimum Experience : </span>{{ job_opening.min_experience }}</p>
-                                        <p><span style="color: #444; font-weight: 600;">Maximum Experience : </span>{{ job_opening.max_experience }}</p>
+                                        <p><span style="color: #444; font-weight: 600;">Required Skills : </span>{% for skill in required_skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                                        <p><span style="color: #444; font-weight: 600;">Required Experience : </span>{{ job_opening.min_experience }} - {{ job_opening.max_experience }} years</p>
                                         <p><span style="color: #444; font-weight: 600;">Education : </span>{{ job_opening.education }}</p>
                                         <p><span style="color: #444; font-weight: 600;">Job Type : </span>{{ job_opening.job_type }}</p>
                                         <p><span style="color: #444; font-weight: 600;">Work Mode : </span>{{ job_opening.job_mode }}</p>
@@ -40,7 +39,7 @@
                                 </tr>
                                 <tr>
                                     <td align="center" style="font-size: 1rem; color: #555; padding-bottom: 20px;">
-                                        <a href="http://{{ site_url }}/application-create/{{ job_opening.id }}">Apply Now</a>
+                                        <a href="http://{{ site_url }}/candidate/application-create/{{ job_opening.id }}">Apply Now</a>
                                     </td>
                                 </tr>
 

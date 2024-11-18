@@ -136,15 +136,15 @@ class CandidateCreateView(FormView):
             context['job_description_text'] = job_opening.jd_content
 
         context['title'] = self.title
-        try:
-            if self.request.user.is_superuser or self.request.user.groups.filter(
-                    name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-                context['choices'] = JobOpening.objects.all()
-            else :
-                employee = Employee.objects.get(user=self.request.user)
-                context['choices'] = JobOpening.objects.filter(assignemployee=employee)
-        except Employee.DoesNotExist:
-            context['choices'] = JobOpening.objects.all()
+        # try:
+        #     if self.request.user.is_superuser or self.request.user.groups.filter(
+        #             name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
+        #         context['choices'] = JobOpening.objects.all()
+        #     else :
+        #         employee = Employee.objects.get(user=self.request.user)
+        #         context['choices'] = JobOpening.objects.filter(assignemployee=employee)
+        # except Employee.DoesNotExist:
+        #     context['choices'] = JobOpening.objects.all()
         # context['clients'] = Client.objects.all()
 
         return context
@@ -347,13 +347,14 @@ class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
         job_opening_id = request.POST.get('job_opening_id')
+        print('id : ', ids, job_opening_id)
         job_opening = JobOpening.objects.get(id=job_opening_id)
-        print(ids, job_opening_id)
         if ids:
             ids = [int(id) for id in ids.split(',')]
             for id in ids:
                 candidate = Candidate.objects.get(id=id)
-                send_job_opening_email(candidate, job_opening)
+                site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
+                send_job_opening_email(candidate, job_opening, site_url)
         return JsonResponse({'status': 'success'})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
@@ -364,6 +365,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
 
@@ -382,6 +384,7 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
         results = []
         for candidate in candidates:
             results.append({
+                'id': candidate.id,
                 'filename': candidate.filename,
                 'resume_url': candidate.upload_resume.url,
                 'content': candidate.text_content[:100],  # Limit to 100 characters or customize

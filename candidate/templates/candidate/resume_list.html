@@ -16,34 +16,112 @@
         <div class="d-flex justify-content-between">
             <h5 id="datatable-title" class="card-title mb-0">Resumes</h5>
             <div class="d-flex justify-content-end mb-2">
-            <input id="search-input" class="form-control me-2"/>
-            <button id="search-button" class="btn btn-outline-success">
-                Search
-            </button>
+                <input id="search-input" class="form-control me-2" />
+                <button id="search-button" class="btn btn-outline-success">
+                    Search
+                </button>
             </div>
         </div>
-        <table class="table">
-              <thead>
+        <div class="btn-group" id="dropdown-icon-demo">
+            <button
+              type="button"
+              id="actioncheck"
+              class="btn btn-outline-primary dropdown-toggle ms-4"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+               Action
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#shareOpening">
+                    <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Share Job Opening</a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+                    <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
+              </li>
+            </ul>
+             <!--Job opening share Modal -->
+            <div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="shareOpeningLabel">Share Job Opening</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                        <div class="modal-body">
+                            <form id="shareJobOpeningForm" method="post" enctype="multipart/form-data" action="{% url 'share_job_opening' %}">
+                                {% csrf_token %}
+
+                                 <div class="mb-3">
+                                    <label for="jobOpening" class="form-label">Select Job Opening</label>
+                                    <select class="form-select" id="jobOpening" name="job_opening" required>
+                                        <option value="" disabled selected>Select a job opening</option>
+                                        {% for job in job_openings %}
+                                        <option value="{{ job.id }}">{{ job.designation }}</option>
+                                        {% endfor %}
+                                    </select>
+                                 </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">Send Email</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+              <!--Delete Modal -->
+            <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Are you sure you want to delete selected candidates?</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                        Close
+                      </button>
+                        <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
+                          {% csrf_token %}
+                          <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <table id="resume-table" class="table">
+            <thead>
                 <tr>
-                  <th>Resume</th>
-                <th>Content</th>
-                <th>Updated</th>
-
+                    <th><input type="checkbox" id="select-all" /></th>
+                    <th>Resume</th>
+                    <th>Content</th>
+                    <th>Updated</th>
                 </tr>
-              </thead>
-              <tbody>
+            </thead>
+            <tbody>
                 {% for candidate in candidates %}
-                <tr data-id="{{candidate.id}}" data-job_opening_id="{{job_opening.id}}">
-
-                    <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{candidate.filename}}</a></td>
-
+                {% if candidate.upload_resume %}
+                <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
+                    <td><input type="checkbox" class="row-checkbox" /></td>
+                    <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{ candidate.filename }}</a></td>
                     <td>{{ candidate.text_content|truncatewords:10 }}</td>
                     <td>{{ candidate.updated }}</td>
-
                 </tr>
+                {% endif %}
                 {% endfor %}
-              </tbody>
-            </table>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -56,4 +134,5 @@
     <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
     <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
     <script src="{% static 'dashboard/js/resume-list.js' %}"></script>
+
 {% endblock js %}
