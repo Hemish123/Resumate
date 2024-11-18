@@ -104,12 +104,14 @@ def new_application_email(candidate, job_opening, e, site_url):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_job_opening_email(candidate, job_opening):
+def send_job_opening_email(candidate, job_opening, site_url):
     emailOfSender = EMAIL_HOST_USER
     subject = f'Apply for {job_opening.designation} at {job_opening.company}!'
-    message = render_to_string('dashboard/new_application_email.html', {
+    message = render_to_string('dashboard/share_job_opening_email.html', {
         'candidate': candidate,
-        'job_opening': job_opening
+        'job_opening': job_opening,
+        'required_skills' : job_opening.requiredskills.split(','),
+        'site_url': site_url
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
