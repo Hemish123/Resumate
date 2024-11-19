@@ -35,18 +35,17 @@ $(document).ready(function() {
         const checkboxes = document.querySelectorAll(".row-checkbox");
         const bulkAction = document.getElementById("shareJobOpeningForm");
 
-        // Select/Deselect all checkboxes
-        selectAll.addEventListener("change", function () {
-            checkboxes.forEach((checkbox) => {
-                checkbox.checked = selectAll.checked;
-            });
-            toggleBulkActionButton();
-        });
+    // Select all checkboxes
+    $(document).on('change', '#select-all', function () {
+        const isChecked = $(this).is(':checked');
+        $('.row-checkbox').prop('checked', isChecked); // Update all row checkboxes
+        toggleBulkActionButton();
+    });
 
-        // Toggle bulk action button based on selected rows
-        checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener("change", toggleBulkActionButton);
-        });
+    // Toggle bulk action button based on row checkboxes
+    $(document).on('change', '.row-checkbox', function () {
+        toggleBulkActionButton();
+    });
 
         function toggleBulkActionButton() {
             const anyChecked = Array.from(checkboxes).some((checkbox) => checkbox.checked);
@@ -59,9 +58,10 @@ $(document).ready(function() {
         checkboxes.forEach((checkbox) => {
     console.log('Checkbox checked:', checkbox.checked, 'Row ID:', checkbox.closest('tr').dataset.id);
 });
-            const selectedIds = Array.from(checkboxes)
-                .filter((checkbox) => checkbox.checked)
-                .map((checkbox) => checkbox.closest("tr").dataset.id);
+                    const selectedIds = $('.row-checkbox:checked').map(function () {
+                        return $(this).closest('tr').data('id');
+                    }).get(); // Use `.get()` to retrieve an array of IDs
+
             console.log('d', selectedIds);
             if (selectedIds.length) {
                var selectedJobOpening = $('#jobOpening').val(); // Get the selected job opening ID
@@ -77,9 +77,8 @@ $(document).ready(function() {
                   },
                   success: function(response) {
                     // On success, remove rows from DataTable
-                    dt_basic.rows('.selected').nodes().to$().find('input[type="checkbox"]').prop('checked', false);
-                    dt_basic.rows().nodes().to$().removeClass('selected');
-                    $('.dt-checkboxes-select-all input').prop('checked', false);
+                    $('.row-checkbox').prop('checked', false); // Uncheck individual checkboxes
+                    $('#select-all').prop('checked', false);
                     $('#shareOpening').modal('hide');
                   },
                   error: function(xhr, status, error) {
