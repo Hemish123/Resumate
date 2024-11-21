@@ -14,7 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-
+from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.helpers import complete_social_login
 
 @logout_required
 def register(request):
@@ -38,6 +39,15 @@ class CustomLoginView(LoginView):
         if request.user.is_authenticated:
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        # Add Microsoft app data to the context for the template
+        context = super().get_context_data(**kwargs)
+        try:
+            context['microsoft_app'] = SocialApp.objects.get(provider='microsoft')
+        except SocialApp.DoesNotExist:
+            context['microsoft_app'] = None
+        return context
 
     def get_success_url(self):
         user = self.request.user
