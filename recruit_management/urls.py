@@ -29,6 +29,7 @@ from users.views import (UserDetailView, SettingsView, CustomLoginView,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('screening/', include('screening.urls')),
     path('', include('dashboard.urls')),
     path('manager/', include('manager.urls')),
