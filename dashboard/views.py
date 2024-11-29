@@ -58,11 +58,16 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['candidates_applied'] = candidate_applied
         context['candidates_hired'] = candidates_hired
         context['candidates_in_review'] = candidates_in_review
+
+         # Fetch recent job openings
+        recent_openings = JobOpening.objects.order_by('-updated_on')[:4]
+        context['recent_openings'] = recent_openings
+
         return context
 
 
 class DashbaordView(LoginRequiredMixin, TemplateView):
-    template_name = 'dashboard/dashboard.html'
+    template_name = 'dashboard/dashboard2.html'
     title = 'Job Openings'
 
     def get_context_data(self, **kwargs):
