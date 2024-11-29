@@ -2,86 +2,185 @@
 {% load static %}
 
 {% block content %}
-<div class="row g-6">
-<div class="col-lg-3 col-sm-6">
-  <div class="card card-border-shadow-primary h-100">
-    <div class="card-body">
-      <div class="d-flex align-items-center mb-2">
-        <div class="avatar me-4">
-          <span class="avatar-initial rounded bg-label-primary"
-            ><i class="ti ti-briefcase-2 ti-28px"></i
-          ></span>
+<style>
+  /* Card hover effect */
+  .hover-scale-up:hover {
+    transform: scale(1.05); /* Slightly enlarge the card on hover */
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
+
+  /* Custom styling for job cards */
+  .card {
+    border-radius: 15px;
+    background-color: #fff;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+  }
+
+  .card-body {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Job image and details section */
+  .me-4 {
+    margin-right: 1.5rem;
+  }
+
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .fw-bold {
+    font-weight: bold;
+  }
+
+  .fs-18 {
+    font-size: 1.125rem;
+  }
+</style>
+
+<div class="row">
+  <div class="col-12">
+    <div class="box rounded-3 bg-gradient-primary">
+      <div class="box-body  pe-0 ps-lg-50 ps-15 py-4">
+        <div class="row align-items-center">
+          <div class="col-12 col-lg-8">
+            <h1 class="fs-40 text-white welcome-text ms-4">Welcome, {{ user.first_name|capfirst }} {{ user.last_name|capfirst }}!</h1>
+            <p class="text-white mb-0 fs-20 welcome-text ms-4">
+              Every application tells a story; let’s help you find the next chapter.
+            </p>
+          </div>
+          <div class="col-12 col-lg-4 text-center">
+            <img
+              src="https://eduadmin-template.multipurposethemes.com/bs5/images/svg-icon/color-svg/custom-15.svg"
+              alt="Welcome Image"
+              class="img-fluid"
+            />
+          </div>
         </div>
-        <h4 class="mb-0">{{ active_jobs }}</h4>
       </div>
-      <p class="mb-1">Active Job Openings</p>
-<!--      <p class="mb-0">-->
-<!--        <span class="text-heading fw-medium me-2">+18.2%</span>-->
-<!--        <small class="text-muted">than last week</small>-->
-<!--      </p>-->
     </div>
   </div>
-</div>
-<div class="col-lg-3 col-sm-6">
-  <div class="card card-border-shadow-warning h-100">
-    <div class="card-body">
-      <div class="d-flex align-items-center mb-2">
-        <div class="avatar me-4">
-          <span class="avatar-initial rounded bg-label-info"
-            ><i class="ti ti-users-group ti-28px"></i
-          ></span>
-        </div>
-        <h4 class="mb-0">{{ candidates_applied }}</h4>
-      </div>
-      <p class="mb-1">Candidates Applied</p>
-<!--      <p class="mb-0">-->
-<!--        <span class="text-heading fw-medium me-2">-8.7%</span>-->
-<!--        <small class="text-muted">than last week</small>-->
-<!--      </p>-->
-    </div>
-  </div>
-</div>
-<div class="col-lg-3 col-sm-6">
-  <div class="card card-border-shadow-danger h-100">
-    <div class="card-body">
-      <div class="d-flex align-items-center mb-2">
-        <div class="avatar me-4">
-          <span class="avatar-initial rounded bg-label-success"
-            ><i class="ti ti-check ti-28px"></i
-          ></span>
-        </div>
-        <h4 class="mb-0">{{ candidates_hired }}</h4>
-      </div>
-      <p class="mb-1">Hired</p>
-<!--      <p class="mb-0">-->
-<!--        <span class="text-heading fw-medium me-2">+4.3%</span>-->
-<!--        <small class="text-muted">than last week</small>-->
-<!--      </p>-->
-    </div>
-  </div>
-</div>
-<div class="col-lg-3 col-sm-6">
-  <div class="card card-border-shadow-info h-100">
-    <div class="card-body">
-      <div class="d-flex align-items-center mb-2">
-        <div class="avatar me-4">
-          <span class="avatar-initial rounded bg-label-warning"><i class="ti ti-clock ti-28px"></i></span>
-        </div>
-        <h4 class="mb-0">{{ candidates_in_review }}</h4>
-      </div>
-      <p class="mb-1">In Review</p>
-<!--      <p class="mb-0">-->
-<!--        <span class="text-heading fw-medium me-2">-2.5%</span>-->
-<!--        <small class="text-muted">than last week</small>-->
-<!--      </p>-->
-    </div>
-  </div>
-</div>
 </div>
 
+<div class="row g-4 mt-4">
+  <div class="col-lg-3 col-sm-6">
+    <div class="card h-100 border-0 shadow-sm hover-scale-up">
+      <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+        <div class="mb-3">
+          <img src="{% static 'dashboard/img/dashboard_img/job opening.png' %}" class="img-fluid img-sm" alt="Active Jobs">
+        </div>
+        <h4 class="fw-bold text-truncate text-dark">{{ active_jobs }}</h4>
+        <p class="text-muted mb-0">Active Job Openings</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card h-100 border-0 shadow-sm hover-scale-up">
+      <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+        <div class="mb-3">
+          <img src="{% static 'dashboard/img/dashboard_img/candidate applied.png' %}" class="img-fluid img-sm" alt="Candidates Applied">
+        </div>
+        <h4 class="fw-bold text-truncate text-dark">{{ candidates_applied }}</h4>
+        <p class="text-muted mb-0">Candidates Applied</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card h-100 border-0 shadow-sm hover-scale-up">
+      <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+        <div class="mb-3">
+          <img src="{% static 'dashboard/img/dashboard_img/hire.png' %}" class="img-fluid img-sm" alt="Candidates Hired">
+        </div>
+        <h4 class="fw-bold text-truncate text-dark">{{ candidates_hired }}</h4>
+        <p class="text-muted mb-0">Hired</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card h-100 border-0 shadow-sm hover-scale-up">
+      <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+        <div class="mb-3">
+          <img src="{% static 'dashboard/img/dashboard_img/inreview.png' %}" class="img-fluid img-sm" alt="In Review">
+        </div>
+        <h4 class="fw-bold text-truncate text-dark">{{ candidates_in_review }}</h4>
+        <p class="text-muted mb-0">In Review</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container mt-4">
+  <!-- Flex container to keep both "Recent Openings" and "View All Jobs" on the same line -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-left text-dark mb-0">Recent Openings</h3>
+    <a href="{% url 'dashboard' %}" class="text-primary fw-bold">View All Openings</a>
+  </div>
 
+  <div class="row col-12">
+    {% for job in recent_openings %}
+    <div class="col-md-12 mb-4">
+      <div class="card shadow-sm border-0 rounded-lg hover-scale-up">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <!-- Left section with image and job details -->
+          <div class="d-flex align-items-center">
+            <div class="d-flex flex-column">
+              <a href="#" class="text-dark fw-bold mb-1 fs-18 hover-primary">{{ job.designation }}</a>
+              <span class="text-muted fs-14">{{ job.company }}, {{ job.updated_on|date:"F j, Y" }}</span>
+            </div>
+          </div>
+
+          
+
+          <!-- Right section with job status and duration -->
+          <div>
+            <h5 class="m-0 text-dark">Open Positions: {{ job.openings }}</h5>
+            <p class="m-0 text-muted fs-14">Expires in: {{ job.days_remaining }} days</p>
+            
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="box rounded-3 bg-black">
+      <div class="box-body pe-0 ps-lg-50 ps-15 py-4">
+        <div class="row align-items-center">
+          <!-- Left Section: ResuMate Box -->
+          <div class="col-12 col-lg-8 d-flex align-items-center">
+            <div class="content">
+              <h5 class="text-white ms-4">ResuMate</h5>
+              <h3 class="mt-25 fw-500 text-white ms-4">Upgrade to Pro</h3>
+              <p class="text-fade ms-4">Get 1 Month Free on Annual Subscription and Explore More.</p>
+              <div class="mt-4">
+                <button class="btn btn-success waves-effect rounded-5 px-25 ms-4">Get Access</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Section: Book Image -->
+          <div class="col-12 col-lg-4 text-center d-flex justify-content-center align-items-center">
+            <img src="{% static 'dashboard/img/dashboard_img/book-3.png' %}" alt="Book Image" class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
 
 {% block js %}
+<script>
+  // Add any JavaScript code here if needed for interactivity or animations
+</script>
 {% endblock js %}

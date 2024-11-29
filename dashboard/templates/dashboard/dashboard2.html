@@ -3,6 +3,100 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+{% if has_perm %}
+<a href="{% url 'job-opening' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Opening
+</a>
+<!-- <a href="{% url 'create-employee' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Employee
+</a> -->
+<!-- <a href="{% url 'create-client' %}" type="button" class="btn btn-outline-primary">
+    <span class="ti-xs ti ti-plus me-2"></span>New Client
+</a> -->
+{% endif %}
+
+<div class="row mt-1 mb-12 g-6">
+{% if job_posts %}
+{% for jobs in job_posts %}
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card mb-6">
+            <div class="card-body">
+
+                <a href="{% url 'job-process' jobs.id %}">
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <h5 class="card-title">{{jobs.designation}}</h5>
+                        <div>
+                            {% if jobs.is_expired %}
+                                <span class="badge bg-warning ">Expired</span>
+                            {% else %}
+                                {% if jobs.active %}
+                                  <span class="badge bg-primary ">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger ">Closed</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-subtitle mt-2 mb-4">
+                        {% if jobs.client %}
+                        {{jobs.client}}
+                        {% else %}
+                        {{jobs.company}}
+                        {% endif %}
+                    </div>
+                  <p class="card-text">
+                      Open Positions : {{jobs.openings}}
+                  </p>
+                    {% for id, new_count in new_application_counts.items %}
+                        {% if id == jobs.id and new_count > 0 %}
+                            <div class="alert alert-info" role="alert">{{ new_count }} New Application{% if new_count > 1 %}s{% endif %}</div>
+                        {% endif %}
+                    {% endfor %}
+
+
+<!--              <a href="javascript:void(0)" class="card-link">Card link</a>-->
+<!--              <a href="javascript:void(0)" class="card-link">Another link</a>-->
+                </a>
+                                                      <!-- Display the URL attractively using Bootstrap classes -->
+                {% if not jobs.is_expired %}
+                <div class="bg-light border rounded p-2 mt-3">
+                      <div class="d-flex align-items-center text-primary">
+                        <a href="{% url 'application_create' jobs.id %}" target="_blank" id="applicationCreateUrl{{jobs.id}}" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
+
+                      <button class="btn btn-link text-primary ml-2" data-url="{{ request.build_absolute_uri|slice:':-1' }}{% url 'application_create' jobs.id %}" id="copyButton" title="Copy to clipboard">
+                            <i class="ti ti-copy"></i>
+                        </button>
+                    </div>
+                  </div>
+
+                <div class="d-flex justify-content-end mt-1">
+                    <small class="text-muted">Expires in : {{ jobs.days_remaining }} days</small>
+<!--                    <small class="text-muted">Expire date : {{ jobs.expiration_date }} </small>-->
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
+    {% elif no_job_posts %}
+        {{ no_job_posts }}
+    {% endif %}
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+{% endblock js %}
+
+
+{% extends "screening/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
 <div class="d-flex justify-content-between mb-4">
     <!-- "New Opening" Button aligned to the right -->
     <div>
