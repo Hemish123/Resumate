@@ -1,133 +1,92 @@
-<!-- 
-
-<div class="card">
-    <div class="container">
-      <h2>Welcome to ResuMate</h2>
-      <p>At ResuMate, we're redefining the way you find your perfect match in the job market. As a new player in the industry, we're dedicated to continuously improving our platform to offer you the most seamless and efficient hiring experience possible.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="container">
-      <h2>Our Mission</h2>
-      <p>At ResuMate, our mission is clear: to simplify the hiring process by helping employers find their ideal candidates effortlessly. We understand the challenges of traditional hiring methods and aim to provide a solution that is tailored to your specific needs.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="container">
-      <h2>Tailored Screening Process</h2>
-      <p>Unlike other platforms, we offer a unique screening process based on the role you're hiring for. Simply select the role you want to hire for, and our advanced algorithms will do the rest, analyzing resumes with precision to identify the most qualified candidates for your position. Whether you're hiring for a software developer, marketing manager, or customer service representative, we've got you covered.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="container">
-      <h2>Continuous Improvement</h2>
-      <p>As a new platform, we're constantly evolving and improving to better serve you. We welcome your feedback and suggestions as we work tirelessly to enhance our features and functionality. Our team is committed to staying ahead of the curve, leveraging the latest technology to ensure that you have access to the best talent and opportunities on the market.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="container">
-      <h2>Join Us on Our Journey</h2>
-      <p>We may be new, but we're passionate about making a difference in the world of hiring. Join us on our journey as we strive to redefine the future of recruitment. If you're an employer looking to build your dream team, ResuMate is here to support you every step of the way.</p>
-    </div>
-  </div>
-  <p class="thanks">Thank you for choosing ResuMate. Together, let's build a brighter future.</p>
-
-    
-
- -->
-
 {% extends "screening/base.html" %}
 {% block content %}
+{% load static %}
 
 <!-- Hero Section -->
-<div class="hero-section text-center mb-4">
-  <div class="overlay">
-    <h1 class="display-4 text-white">Welcome to ResuMate</h1>
-    <p class="lead text-white">Redefining the hiring experience</p>
-  </div>
+<div class="hero-section text-center" style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('{% static 'screening/images/about_img/hero.jpg' %}') no-repeat center center / cover; padding: 120px 20px;">
+  <h1 class="display-4 text-white fw-bold">Welcome to ResuMate</h1>
+  <p class="lead text-white">Redefining the hiring experience</p>
 </div>
-<div class="container">
-  
 
+<div class="container">
   <!-- Mission Section -->
-  <div class="row mb-4" >
-    <div class="col-lg-12">
-      <div class="card  border-0">
-        <div class="card-body  text-dark" style="background-color: #C4DFE6;">
-          <div class="row">
-            <div class="col-md-3 text-center">
-              <i class="bi bi-people-fill display-1"></i>
+  <section class="py-5">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-md-0">
+        <img class="img-fluid " loading="lazy" src="{% static 'screening/images/about_img/1.png' %}" alt="Our Mission">
+      </div>
+      <div class="col-md-6">
+        <h2 class="mb-4 fw-bold text-primary">Our Mission</h2>
+        <p class="lead text-secondary">At <span class="text-info fw-bold">ResuMate</span>, our mission is clear: to simplify the hiring process by helping employers find their ideal candidates effortlessly.</p>
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-search text-info display-5 me-3"></i>
+              <div>
+                <h5 class="fw-bold">Effortless Hiring</h5>
+                <p class="text-secondary">Streamlining the hiring process to save time and resources.</p>
+              </div>
             </div>
-            <div class="col-md-9">
-              <h2 class="card-title">Our Mission</h2>
-              <p class="card-text">At ResuMate, our mission is clear: to simplify the hiring process by helping employers find their ideal candidates effortlessly. We understand the challenges of traditional hiring methods and aim to provide a solution that is tailored to your specific needs.</p>
+          </div>
+          <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-person-check-fill text-info display-5 me-3"></i>
+              <div>
+                <h5 class="fw-bold">Ideal Candidates</h5>
+                <p class="text-secondary">Helping employers connect with the best talent for their needs.</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Tailored Screening Process Section -->
-  <div class="row mb-4">
-    <div class="col-lg-12">
-      <div class="card  border-0">
-        <div class="card-body  text-dark" style="background-color: #97BC62;">
-          <div class="row">
-            <div class="col-md-3 text-center">
-              <i class="bi bi-funnel-fill display-1"></i>
-            </div>
-            <div class="col-md-9">
-              <h2 class="card-title">Tailored Screening Process</h2>
-              <p class="card-text">Unlike other platforms, we offer a unique screening process based on the role you're hiring for. Simply select the role you want to hire for, and our advanced algorithms will do the rest, analyzing resumes with precision to identify the most qualified candidates for your position. Whether you're hiring for a software developer, marketing manager, or customer service representative, we've got you covered.</p>
-            </div>
-          </div>
-        </div>
+  <section class="py-5 bg-light rounded-3 shadow">
+    <div class="row align-items-center">
+      <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+        <img class="img-fluid" loading="lazy" src="{% static 'screening/images/2.png' %}" alt="Tailored Screening Process">
+      </div>
+      <div class="col-md-6 order-md-1">
+        <h2 class="mb-4 fw-bold text-primary ms-5">Tailored Screening Process</h2>
+        <p class="lead text-secondary ms-5">Unlike other platforms, we offer a unique screening process based on the role you're hiring for.</p>
+        <p class="text-secondary ms-5">Simply select the role you want to hire for, and our advanced algorithms will analyze resumes with precision to identify the most qualified candidates for your position.</p>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Continuous Improvement Section -->
-  <div class="row mb-4">
-    <div class="col-lg-12">
-      <div class="card border-0">
-        <div class="card-body text-dark" style="background-color: #DBCC95;">
-          <div class="row">
-            <div class="col-md-3 text-center">
-              <i class="bi bi-bar-chart-line-fill display-1"></i>
-            </div>
-            <div class="col-md-9">
-              <h2 class="card-title">Continuous Improvement</h2>
-              <p class="card-text">As a new platform, we're constantly evolving and improving to better serve you. We welcome your feedback and suggestions as we work tirelessly to enhance our features and functionality. Our team is committed to staying ahead of the curve, leveraging the latest technology to ensure that you have access to the best talent and opportunities on the market.</p>
-            </div>
-          </div>
-        </div>
+  <section class="py-5">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <img class="img-fluid " loading="lazy" src="{% static 'screening/images/about_img/3.png' %}" alt="Continuous Improvement">
+      </div>
+      <div class="col-md-6">
+        <h2 class="mb-4 fw-bold text-primary">Continuous Improvement</h2>
+        <p class="lead text-secondary">As a new platform, we're constantly evolving and improving to better serve you.</p>
+        <p class="text-secondary">We welcome your feedback and suggestions as we work tirelessly to enhance our features and functionality.</p>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Join Us on Our Journey Section -->
-  <div class="row mb-4">
-    <div class="col-lg-12">
-      <div class="card  border-0">
-        <div class="card-body text-dark" style="background-color: #CD8D7A;">
-          <div class="row">
-            <div class="col-md-3 text-center">
-              <i class="bi bi-people-fill display-1"></i> <!-- Change to the icon you prefer -->
-            </div>
-            <div class="col-md-9">
-              <h2 class="card-title">Join Us on Our Journey</h2>
-              <p class="card-text">We may be new, but we're passionate about making a difference in the world of hiring. Join us on our journey as we strive to redefine the future of recruitment. If you're an employer looking to build your dream team, ResuMate is here to support you every step of the way.</p>
-            </div>
-          </div>
-        </div>
+  <section class="py-5 bg-light rounded-3 shadow">
+    <div class="row align-items-center">
+      <div class="col-md-6 order-md-2 mb-4 mb-md-0 my-2">
+        <img class="img-fluid ms-5" loading="lazy" src="{% static 'screening/images/about_img/4.png' %}" alt="Join Us" >
+      </div>
+      <div class="col-md-6 order-md-1">
+        <h2 class="mb-4 fw-bold text-primary ms-5">Join Us on Our Journey</h2>
+        <p class="lead text-secondary ms-5">We may be new, but we're passionate about making a difference in the world of hiring.</p>
+        <p class="text-secondary ms-5">Join us on our journey as we strive to redefine the future of recruitment. If you're an employer looking to build your dream team, <span class="fw-bold text-info">ResuMate</span> is here to support you every step of the way.</p>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Thank You Section -->
-  <div class="col-lg-12 mb-4">
-    <p class="thanks text-center display-12" style="font-size: 20px; font-weight:200">Thank you for choosing ResuMate. Together, let's build a brighter future.</p>
+  <div class="text-center py-4">
+    <p class="text-secondary fs-5">Thank you for choosing <span class="text-info fw-bold">ResuMate</span>. Together, let's build a brighter future.</p>
   </div>
 </div>
 
