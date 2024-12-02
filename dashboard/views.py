@@ -67,7 +67,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
 
 class DashbaordView(LoginRequiredMixin, TemplateView):
-    template_name = 'dashboard/dashboard2.html'
+    template_name = 'dashboard/dashboard.html'
     title = 'Job Openings'
 
     def get_context_data(self, **kwargs):
