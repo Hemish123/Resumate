@@ -85,6 +85,7 @@
             <div class="col-12 list-view-item" data-job-id="{{ jobs.id }}" style="display: none;">
                 <div class="card mb-3">
                     <div class="card-body">
+                        <a href="{% url 'job-process' jobs.id %}">
                         <div class="d-flex justify-content-between">
                             <h5 class="card-title">{{ jobs.designation }}</h5>
                             <div>
@@ -114,6 +115,7 @@
                                 <div class="alert alert-info" role="alert">{{ new_count }} New Application{% if new_count > 1 %}s{% endif %}</div>
                             {% endif %}
                         {% endfor %}
+                        </a>
                         {% if not jobs.is_expired %}
                             <div class="bg-light border rounded p-2 mt-3">
                                 <div class="d-flex align-items-center text-primary">
