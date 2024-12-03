@@ -54,45 +54,40 @@
                                         We will update you shortly regarding the next steps.
                                     </td>
                                 </tr>
-<!--                                <tr>-->
-<!--                                    <td>-->
-<!--                                        <table align="center" cellpadding="10" cellspacing="0" width="100%" style="background-color: #e0e0e0; border-radius: 10px; border: 2px solid #007bff; color: #007bff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); margin-top: 20px;">-->
-<!--                                            <tr>-->
-<!--                                                <td align="center" style="font-size: 1.2rem; font-weight: 600; padding-bottom: 15px;">-->
-<!--                                                    Company Information-->
-<!--                                                </td>-->
-<!--                                            </tr>-->
-<!--                                            <tr>-->
-<!--                                                <td align="center" style="color: #333;">-->
-<!--                                                    <strong>Company Name:</strong> -->
-<!--                                                    {% if job_opening.client %}-->
-<!--                                                        <span style="color: #555; font-weight: 500;">{{ job_opening.client }}</span>-->
-<!--                                                    {% else %}-->
-<!--                                                        <span style="color: #555; font-weight: 500;">{{ job_opening.company }}</span>-->
-<!--                                                    {% endif %}-->
-<!--                                                </td>-->
-<!--                                            </tr>-->
-<!--                                            <tr>-->
-<!--                                                <td align="center" style="color: #333;">-->
-<!--                                                    <strong>Contact Person:</strong>-->
-<!--                                                    <span style="color: #555; font-weight: 500;">Jane Smith</span>-->
-<!--                                                </td>-->
-<!--                                            </tr>-->
-<!--                                            <tr>-->
-<!--                                                <td align="center" style="color: #333;">-->
-<!--                                                    <strong>Phone:</strong>-->
-<!--                                                    <span style="color: #555; font-weight: 500;">+123 456 7890</span>-->
-<!--                                                </td>-->
-<!--                                            </tr>-->
-<!--                                            <tr>-->
-<!--                                                <td align="center" style="color: #333;">-->
-<!--                                                    <strong>Email:</strong>-->
-<!--                                                    <span style="color: #555; font-weight: 500;">jms@jmsadvisory.com</span>-->
-<!--                                                </td>-->
-<!--                                            </tr>-->
-<!--                                        </table>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
+                                <tr>
+                                    <td>
+                                        <table align="center" cellpadding="10" cellspacing="0" width="100%" style="background-color: #e0e0e0; border-radius: 10px; border: 2px solid #007bff; color: #007bff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); margin-top: 20px;">
+                                            <tr>
+                                                <td align="center" style="font-size: 1.2rem; font-weight: 600; padding-bottom: 15px;">
+                                                    Company Information
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="color: #333;">
+                                                    <strong>Company Name:</strong>
+                                                    {% if job_opening.client %}
+                                                        <span style="color: #555; font-weight: 500;">{{ job_opening.client }}</span>
+                                                    {% else %}
+                                                        <span style="color: #555; font-weight: 500;">{{ job_opening.company }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="color: #333;">
+                                                    <strong>Contact Person:</strong>
+                                                    <span style="color: #555; font-weight: 500;">{{ job_opening.assignemployee.first.user.first_name|capfirst }} {{ job_opening.assignemployee.first.user.last_name|capfirst }}</span>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td align="center" style="color: #333;">
+                                                    <strong>Email:</strong>
+                                                    <span style="color: #555; font-weight: 500;">{{ job_opening.assignemployee.first.user.email }}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
                             </table>
                         </td>
                     </tr>

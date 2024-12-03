@@ -354,7 +354,7 @@ class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
             for id in ids:
                 candidate = Candidate.objects.get(id=id)
                 site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
-                send_job_opening_email(candidate, job_opening, site_url)
+                send_job_opening_email(request.user, candidate, job_opening, site_url)
         return JsonResponse({'status': 'success'})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
