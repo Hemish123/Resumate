@@ -508,6 +508,22 @@ applyBoardColors();
     order: index + 1
   }));
 
+    // Show the modal to confirm sending an email
+  const shouldSendEmail = await new Promise((resolve) => {
+    const confirmEmailModal = new bootstrap.Modal(document.getElementById('confirmEmailModal'));
+    confirmEmailModal.show();
+
+    document.getElementById('confirmSendEmail').addEventListener('click', () => {
+      confirmEmailModal.hide();
+      resolve(true); // User confirmed to send email
+    });
+
+    document.querySelector('.btn-secondary').addEventListener('click', () => {
+      confirmEmailModal.hide();
+      resolve(false); // User declined to send email
+    });
+  });
+
   try {
     // Send the order array to the backend
     const response = await fetch(`/stage-api/${jobOpeningId}/`, {
@@ -516,7 +532,11 @@ applyBoardColors();
         'Content-Type': 'application/json',
         'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included for security
       },
-      body: JSON.stringify({'order': item_order, 'stage_id': stageId})
+      body: JSON.stringify({
+      'order': item_order,
+      'stage_id': stageId,
+      'send_email': shouldSendEmail // Include email confirmation flag
+      })
     });
 
     if (!response.ok) {

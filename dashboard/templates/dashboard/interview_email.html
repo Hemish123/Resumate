@@ -19,7 +19,7 @@
                                             <tr>
                                                 <td width="100%" align="center" valign="top" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
                                                     <h2 style="color: #007bff; font-size: 32px; margin-bottom: 15px; line-height: 1.4; text-align: left;">Hello <strong>{{candidate.name}},</strong></h2>
-                                                    <p style="color: #555; font-size: 18px; line-height: 1.8; margin: 15px 0; text-align: center;">We are excited to invite you to an interview for the position you applied for at our company. Below are the details for your interview:</p>
+                                                    <p style="color: #555; font-size: 18px; line-height: 1.8; margin: 15px 0; text-align: center;">We are excited to invite you to an interview for the position of {{ event.designation.designation }} you applied for at our company {{ event.company }}. Below are the details for your interview:</p>
                                                     
                                                 </td>
                                             </tr>
@@ -43,8 +43,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td align="center" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, border-color 0.3s ease;">
-                                                            <p><strong>Wednesday, November 20th</strong></p>
-                                                            <p>at 11:00 AM</p>
+                                                            <p><strong>{{ event.start_datetime|date:"d m, h:i A" }}</strong></p>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -62,8 +61,8 @@
                                                     </tr>
                                                     <tr>
                                                         <td align="center" style="background-color: #e8f4fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, border-color 0.3s ease;">
-                                                            <p>Approximate duration:</p>
-                                                            <p><strong>2 hours</strong></p>
+                                                            <p>Location:</p>
+                                                            <p><strong>{{ event.location }}</strong></p>
                                                         </td>
                                                     </tr>
                                                 </tbody>

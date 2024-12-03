@@ -25,7 +25,7 @@ from django.utils.dateformat import DateFormat
 from collections import defaultdict
 from .microsoft_graph_api import get_access_token
 from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
-from .utils import send_hired_email, send_rejected_email, send_stage_change_email
+from .utils import send_hired_email, send_rejected_email, send_stage_change_email, send_interview_email
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -169,6 +169,7 @@ class StageAPIView(APIView):
     def put(self, request, *args, **kwargs):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
+        send_email = request.data.get('send_email', False)  # New flag
         job_opening_id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(id=job_opening_id)
         if stage_id:
@@ -181,12 +182,13 @@ class StageAPIView(APIView):
                 # send email to candidate
                 candidate_stage = CandidateStage.objects.get(id=candidate_stage_id)
                 candidate = candidate_stage.candidate
-                if stage.name == 'Hired':
-                    send_hired_email(candidate, job_opening)
-                elif stage.name == 'Rejected':
-                    send_rejected_email(candidate, job_opening)
-                else :
-                    send_stage_change_email(candidate, job_opening)
+                if send_email:
+                    if stage.name == 'Hired':
+                        send_hired_email(request.user, candidate, job_opening)
+                    elif stage.name == 'Rejected':
+                        send_rejected_email(request.user, candidate, job_opening)
+                    else :
+                        send_stage_change_email(request.user, candidate, job_opening, stage)
 
         else:
             for item in order[:-1]:
@@ -335,6 +337,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         candidate_id = data.get('candidate')
         candidate = Candidate.objects.get(id=candidate_id)
         jobopening_id = data.get('designation')
+
         designation = JobOpening.objects.get(id=jobopening_id)
         interviewer = data.get('interviewer')
         # Parse the JSON string into a Python list of dictionaries
@@ -411,11 +414,12 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         interviewer = event.interviewer
         attendees = [candidate.email]
         attendees.extend(interviewer)
-        meeting_url = create_teams_meeting(request.user, event_title, event_start, event_end, attendees)
+        send_interview_email(request.user, candidate, designation, event)
+        # meeting_url = create_teams_meeting(request.user, event_title, event_start, event_end, attendees)
 
-        if meeting_url:
-            # You can save the meeting URL to the event or send an email
-            print(f"Meeting created: {meeting_url}")
+        # if meeting_url:
+        #     # You can save the meeting URL to the event or send an email
+        #     print(f"Meeting created: {meeting_url}")
         # Return a success response
         return JsonResponse({'status': 'success', 'event_data': event_data})
 

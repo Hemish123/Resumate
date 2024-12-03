@@ -5,7 +5,6 @@ from recruit_management.settings import EMAIL_HOST_USER
 from django.core.mail import EmailMultiAlternatives
 
 def send_success_email(candidate, job_opening):
-    print('in', candidate, job_opening)
     emailOfSender = EMAIL_HOST_USER
     subject = 'Application submitted successfully!'
     message = render_to_string('dashboard/success_email.html', {
@@ -20,13 +19,13 @@ def send_success_email(candidate, job_opening):
     emailMessage.send(fail_silently=False)
 
 
-def send_stage_change_email(candidate, job_opening):
-    print('in', candidate, job_opening)
-    emailOfSender = EMAIL_HOST_USER
+def send_stage_change_email(user, candidate, job_opening, stage):
+    emailOfSender = user.email
     subject = 'Application status!'
     message = render_to_string('dashboard/stages_email.html', {
         'candidate': candidate,
-        'job_opening': job_opening
+        'job_opening': job_opening,
+        'stage': stage
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
@@ -34,9 +33,8 @@ def send_stage_change_email(candidate, job_opening):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_hired_email(candidate, job_opening):
-    print('in', candidate, job_opening)
-    emailOfSender = EMAIL_HOST_USER
+def send_hired_email(user, candidate, job_opening):
+    emailOfSender = user.email
     subject = 'Congratulations!'
     message = render_to_string('dashboard/congratulations_email.html', {
         'candidate': candidate,
@@ -48,9 +46,8 @@ def send_hired_email(candidate, job_opening):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_rejected_email(candidate, job_opening):
-    print('in', candidate, job_opening)
-    emailOfSender = EMAIL_HOST_USER
+def send_rejected_email(user, candidate, job_opening):
+    emailOfSender = user.email
     subject = 'Application status!'
     message = render_to_string('dashboard/reject_email.html', {
         'candidate': candidate,
@@ -62,13 +59,13 @@ def send_rejected_email(candidate, job_opening):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_interview_email(candidate, job_opening):
-    print('in', candidate, job_opening)
-    emailOfSender = EMAIL_HOST_USER
+def send_interview_email(user, candidate, job_opening, event):
+    emailOfSender = user.email
     subject = 'Interview update!'
     message = render_to_string('dashboard/interview_email.html', {
         'candidate': candidate,
-        'job_opening': job_opening
+        'job_opening': job_opening,
+        'event': event
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
@@ -76,9 +73,8 @@ def send_interview_email(candidate, job_opening):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_thankyou_email(candidate, job_opening):
-    print('in', candidate, job_opening)
-    emailOfSender = EMAIL_HOST_USER
+def send_thankyou_email(user, candidate, job_opening):
+    emailOfSender = user.email
     subject = 'Thank You!'
     message = render_to_string('dashboard/thanks_email.html', {
         'candidate': candidate,
@@ -104,8 +100,8 @@ def new_application_email(candidate, job_opening, e, site_url):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
-def send_job_opening_email(candidate, job_opening, site_url):
-    emailOfSender = EMAIL_HOST_USER
+def send_job_opening_email(user, candidate, job_opening, site_url):
+    emailOfSender = user.email
     subject = f'Apply for {job_opening.designation} at {job_opening.company}!'
     message = render_to_string('dashboard/share_job_opening_email.html', {
         'candidate': candidate,
