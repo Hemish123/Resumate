@@ -37,11 +37,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         if self.request.user.is_superuser:
             active_jobs = JobOpening.objects.filter(active=True)
+            # Fetch recent job openings
+            recent_openings = active_jobs.order_by('-updated_on')[:4]
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             active_jobs = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
+            # Fetch recent job openings
+            recent_openings = active_jobs.order_by('-updated_on')[:4]
         else:
             employee = Employee.objects.get(user=self.request.user)
             active_jobs = JobOpening.objects.filter(company=employee.company, assignemployee=employee, active=True)
+            # Fetch recent job openings
+            recent_openings = active_jobs.order_by('-updated_on')[:4]
 
         active_jobs = [job for job in active_jobs if not job.is_expired]
         candidate_applied = 0
@@ -59,8 +65,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['candidates_hired'] = candidates_hired
         context['candidates_in_review'] = candidates_in_review
 
-         # Fetch recent job openings
-        recent_openings = JobOpening.objects.order_by('-updated_on')[:4]
+
         context['recent_openings'] = recent_openings
 
         return context
@@ -80,7 +85,7 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
         self.request.session['previous_page'] = ''
 
         if self.request.user.is_superuser:
-            job_posts = JobOpening.objects.all().order_by('-active')
+            job_posts = JobOpening.objects.all().order_by('-active', '-updated_on')
 
             if job_posts.exists():
                 context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
@@ -90,7 +95,7 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
             else:
                 context['no_job_posts'] = 'No openings'
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
-            job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active')
+            job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active', '-updated_on')
             if job_posts.exists():
                 context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
                                                      job_posts}  # Count new applications
@@ -101,7 +106,7 @@ class DashbaordView(LoginRequiredMixin, TemplateView):
             employee = Employee.objects.get(user=self.request.user)
 
             try:
-                job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active')
+                job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active', '-updated_on')
 
                 if job_posts.exists():
                     context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job
