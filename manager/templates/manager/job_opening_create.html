@@ -15,18 +15,18 @@
 
 {% block body %}
 
-<div class="content-wrapper">
+<div class="content-wrapper bg-img">
             <!-- Content -->
 
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">New Job Opening</h5>
+  <div class="container-xxl container-p-y d-flex justify-content-center">
+    <div class="card mb-6 w-50">
+      <h5 class="card-header text-center">New Job Opening</h5>
       <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row g-6">
 
-          <div class="col-md-6">
-            <div class="row g-6">
+<!--          <div class="col-md-12">-->
+<!--            <div class="row g-6">-->
 
 <!--              <div class="col-md-6" id="hiring_for_select">-->
 <!--                <div class="form-check custom-option custom-option-basic">-->
@@ -150,20 +150,20 @@
                   {% endfor %}
                 {% endif %}
               </div>
-              <div class="col-sm-5 col-md-6">
+              <div class="col-md-6">
                     <label class="form-label" for="id_min_experience">Minimum Experience</label><span>*</span>
                     <input type="number" placeholder="0"
                            value="{{ form.min_experience.value|default_if_none:'' }}" name="min_experience" id="id_min_experience" class="form-control w-50">
 
               </div>
-              <div class="col-sm-5 col-md-6">
+              <div class="col-md-6">
                   <label class="form-label" for="id_max_experience">Maximum Experience</label><span>*</span>
                   <input type="number" placeholder="1"
                          value="{{ form.max_experience.value|default_if_none:'' }}" name="max_experience" id="id_max_experience" class="form-control w-50">
 
               </div>
 
-              <div class="col-sm-5 col-md-6">
+              <div class="col-md-6">
                   <label class="form-label" for="id_education">Education</label>
                   <input
                   id="id_education"
@@ -277,7 +277,7 @@
                 <p class="mt-1 mb-0" >Minimum Screening criteria for candidates</p>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-12">
                 <label class="form-label" for="id_skills_criteria">Skills Criteria(%)
                   <span>*</span>
                 </label>
@@ -331,8 +331,8 @@
 <!--                  {% endfor %}-->
 <!--                  {% endif %}-->
 <!--              </div>-->
-            </div>
-          </div>
+<!--            </div>-->
+<!--          </div>-->
 
 <!--          <div class="col-md-6 select2-primary">-->
 <!--            <div class="row g-6">-->
@@ -373,7 +373,7 @@
 <!--              </div>-->
 
 <!--            </div>-->
-<!--          </div>-->
+          </div>
 
         <div class="pt-6">
           <button type="submit" class="btn btn-primary me-4">Submit</button>

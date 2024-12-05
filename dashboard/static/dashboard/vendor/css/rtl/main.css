@@ -123,3 +123,10 @@
 .app-kanban .kanban-wrapper .kanban-container .kanban-board .kanban-title-button {
     margin-top : -2rem !important;
 }
+
+.bg-img {
+    background-image: url('/static/dashboard/img/pages/job_opening_background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
