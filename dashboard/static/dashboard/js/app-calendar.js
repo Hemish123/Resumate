@@ -51,6 +51,36 @@ document.addEventListener('DOMContentLoaded', function () {
 //      inlineCalendar = document.querySelector('.inline-calendar');
 
 
+    // Select the interview type dropdown and the fields
+    const interviewTypeField = document.getElementById("eventLabel");
+    const interviewURLField = document.getElementById("eventURL").closest(".mb-5");
+    const locationField = document.getElementById("eventLocation").closest(".mb-5");
+
+    // Function to toggle fields based on interview type
+    const toggleFields = () => {
+        const selectedType = interviewTypeField.value;
+
+        if (selectedType === "facetoface") {
+            // Show Location, hide Interview URL
+            locationField.style.display = "block";
+            interviewURLField.style.display = "none";
+        } else if (selectedType === "virtual") {
+            // Show Interview URL, hide Location
+            interviewURLField.style.display = "block";
+            locationField.style.display = "none";
+        } else if (selectedType === "telephonic") {
+            // Hide both fields
+            interviewURLField.style.display = "block";
+            locationField.style.display = "none";
+        }
+    };
+
+    // Initialize fields on page load
+    toggleFields();
+
+    // Add event listener for changes
+    interviewTypeField.addEventListener("change", toggleFields);
+
     if (interviewer){
         new Tagify(interviewer, {
             pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/, // Email validation pattern

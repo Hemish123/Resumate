@@ -32,10 +32,10 @@ class Event(models.Model):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     description = models.TextField(blank=True, null=True)
-    location = models.CharField(max_length=256)
+    location = models.URLField(blank=True, null=True)
     choices = [('facetoface', 'Face to face'), ('virtual', 'Virtual'), ('telephonic', 'Telephonic')]
     interview_type = models.CharField(max_length=100, choices=choices)
-    interview_url = models.URLField()
+    interview_url = models.URLField(blank=True, null=True)
     designation = models.ForeignKey(JobOpening, on_delete=models.CASCADE, related_name='interviews')
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
