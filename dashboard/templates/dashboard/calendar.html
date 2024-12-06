@@ -178,12 +178,21 @@
 <!--                </div>-->
 <!--              </div>-->
               <div class="mb-5">
-                <label class="form-label" for="eventURL">Interview URL</label>
+                <label class="form-label" for="eventURL">Interview URL</label><span>*</span>
                 <input
                   type="url"
                   class="form-control"
                   id="eventURL"
                   name="interview_url"
+                  placeholder="https://www.google.com" />
+              </div>
+              <div class="mb-5">
+                <label class="form-label" for="eventLocation">Location URL</label><span>*</span>
+                <input
+                  type="url"
+                  class="form-control"
+                  id="eventLocation"
+                  name="location"
                   placeholder="https://www.google.com" />
               </div>
               <div class="mb-5">
@@ -214,15 +223,7 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="mb-5">
-                <label class="form-label" for="eventLocation">Location</label><span>*</span>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="eventLocation"
-                  name="location"
-                  placeholder="Enter Location" />
-              </div>
+
               <div class="mb-5">
                 <label class="form-label" for="eventDescription">Description</label>
                 <textarea class="form-control" name="description" id="eventDescription"></textarea>
