@@ -73,6 +73,19 @@ def send_interview_email(user, candidate, job_opening, event):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
+def send_schedule_interview_email(user, employee, event):
+    emailOfSender = user.email
+    subject = 'Interview scheduled!'
+    message = render_to_string('dashboard/interview_schedule_email.html', {
+        'employee': employee,
+        'event': event
+    })
+
+    emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
+                                          to=[employee, ], reply_to=[emailOfSender, ])
+    emailMessage.attach_alternative(message, "text/html")
+    emailMessage.send(fail_silently=False)
+
 def send_thankyou_email(user, candidate, job_opening):
     emailOfSender = user.email
     subject = 'Thank You!'

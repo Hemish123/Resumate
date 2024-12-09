@@ -25,7 +25,8 @@ from django.utils.dateformat import DateFormat
 from collections import defaultdict
 from .microsoft_graph_api import get_access_token
 from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
-from .utils import send_hired_email, send_rejected_email, send_stage_change_email, send_interview_email
+from .utils import send_hired_email, send_rejected_email, send_stage_change_email, send_interview_email, \
+    send_schedule_interview_email
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -420,6 +421,8 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         attendees = [candidate.email]
         attendees.extend(interviewer)
         send_interview_email(request.user, candidate, designation, event)
+        for e in email_list:
+            send_schedule_interview_email(request.user, e, event)
         # meeting_url = create_teams_meeting(request.user, event_title, event_start, event_end, attendees)
 
         # if meeting_url:
