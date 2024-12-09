@@ -51,35 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
 //      inlineCalendar = document.querySelector('.inline-calendar');
 
 
-    // Select the interview type dropdown and the fields
-    const interviewTypeField = document.getElementById("eventLabel");
-    const interviewURLField = document.getElementById("eventURL").closest(".mb-5");
-    const locationField = document.getElementById("eventLocation").closest(".mb-5");
 
-    // Function to toggle fields based on interview type
-    const toggleFields = () => {
-        const selectedType = interviewTypeField.value;
-
-        if (selectedType === "facetoface") {
-            // Show Location, hide Interview URL
-            locationField.style.display = "block";
-            interviewURLField.style.display = "none";
-        } else if (selectedType === "virtual") {
-            // Show Interview URL, hide Location
-            interviewURLField.style.display = "block";
-            locationField.style.display = "none";
-        } else if (selectedType === "telephonic") {
-            // Hide both fields
-            interviewURLField.style.display = "block";
-            locationField.style.display = "none";
-        }
-    };
-
-    // Initialize fields on page load
-    toggleFields();
-
-    // Add event listener for changes
-    interviewTypeField.addEventListener("change", toggleFields);
 
     if (interviewer){
         new Tagify(interviewer, {
@@ -391,6 +363,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Modify sidebar toggler
     modifyToggler();
 
+
+
+
     const eventForm = document.getElementById('eventForm');
     const fv = FormValidation.formValidation(eventForm, {
       fields: {
@@ -454,7 +429,14 @@ document.addEventListener('DOMContentLoaded', function () {
         location: {
           validators: {
             notEmpty: {
-              message: 'Please enter location '
+              message: 'Please enter location URL '
+            }
+          }
+        },
+        interview_url: {
+          validators: {
+            notEmpty: {
+              message: 'Please provide an interview URL '
             }
           }
         }
@@ -483,6 +465,78 @@ document.addEventListener('DOMContentLoaded', function () {
         // if fields are invalid
         isFormValid = false;
       });
+
+    // Select the interview type dropdown and the fields
+    const interviewTypeField = document.getElementById("eventLabel");
+    const interviewURLField = document.getElementById("eventURL").closest(".mb-5");
+    const locationField = document.getElementById("eventLocation").closest(".mb-5");
+
+    // Helper function to check if a field is already registered
+    const isFieldRegistered = (fieldName) => {
+      return fv.getFields().hasOwnProperty(fieldName);
+    };
+
+    // Function to toggle fields based on interview type
+    const toggleFields = () => {
+        const selectedType = interviewTypeField.value;
+
+        // Reset the validators for location and interview_url
+      // Remove fields safely
+      if (isFieldRegistered("location")) {
+        fv.removeField("location");
+      }
+      if (isFieldRegistered("interview_url")) {
+        fv.removeField("interview_url");
+      }
+
+      // Add validation based on the selected interview type
+
+        if (selectedType === "facetoface") {
+            // Show Location, hide Interview URL
+            locationField.style.display = "block";
+            interviewURLField.style.display = "none";
+            fv.addField('location', {
+              validators: {
+                notEmpty: {
+                  message: 'Please enter location '
+                }
+              }
+            });
+            if (isFieldRegistered("interview_url")) {
+                fv.removeField("interview_url");
+              }
+        } else if (selectedType === "virtual") {
+            // Show Interview URL, hide Location
+            interviewURLField.style.display = "block";
+            locationField.style.display = "none";
+            fv.addField('interview_url', {
+              validators: {
+                notEmpty: {
+                  message: 'Please provide an interview URL '
+                }
+              }
+            });
+            if (isFieldRegistered("location")) {
+                fv.removeField("location");
+              }
+        } else if (selectedType === "telephonic") {
+            // Hide both fields
+            interviewURLField.style.display = "block";
+            locationField.style.display = "none";
+            if (isFieldRegistered("location")) {
+                fv.removeField("location");
+              }
+              if (isFieldRegistered("interview_url")) {
+                fv.removeField("interview_url");
+              }
+        }
+    };
+
+    // Initialize fields on page load
+    toggleFields();
+
+    // Add event listener for changes
+    interviewTypeField.addEventListener("change", toggleFields);
 
     // Sidebar Toggle Btn
     if (btnToggleSidebar) {
