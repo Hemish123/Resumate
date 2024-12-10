@@ -32,6 +32,7 @@
                 </tr>
               </thead>
               <tbody>
+              {% if candidates %}
                 {% for candidate in candidates %}
                 <tr data-id="{{candidate.id}}" data-job_opening_id="{{job_opening.id}}">
                     <td>
@@ -51,6 +52,11 @@
 
                 </tr>
                 {% endfor %}
+              {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No candidates match minimum experience of {{ job_opening.min_experience }} years, or required matching skills criteria >= {{ job_opening.skills_criteria }}%.</td>
+                </tr>
+              {% endif %}
               </tbody>
             </table>
     </div>

@@ -38,7 +38,8 @@ boards = stages.map(stage => ({
       contact: candidateStage.candidate.contact,
       email: candidateStage.candidate.email,
       feedback:candidateStage.candidate.feedback,
-      candidateId: candidateStage.candidate.id  // Store candidate ID here
+      candidateId: candidateStage.candidate.id,  // Store candidate ID here
+      responseText: candidateStage.candidate.analysis?.specific_value
 
     }))
   }));
@@ -162,7 +163,6 @@ const excludedCandidateIds = new Set(
       "<i class='dropdown-toggle ti ti-dots-vertical cursor-pointer' id='board-dropdown' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></i>" +
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='board-dropdown'>" +
       "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-edit ti-xs' me-1></i> <span class='align-middle'>Rename</span></a>" +
-      "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-archive ti-xs' me-1></i> <span class='align-middle'>Archive</span></a>" +
       deleteOption +
       '</div>' +
       '</div>'
@@ -174,8 +174,6 @@ const excludedCandidateIds = new Set(
       "<div class='dropdown kanban-tasks-item-dropdown'>" +
       "<i class='dropdown-toggle ti ti-dots-vertical' id='kanban-tasks-item-dropdown' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></i>" +
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='kanban-tasks-item-dropdown'>" +
-      "<a class='dropdown-item' href='javascript:void(0)'>Copy task link</a>" +
-      "<a class='dropdown-item' href='javascript:void(0)'>Duplicate task</a>" +
       "<a class='dropdown-item delete-task text-danger' href='javascript:void(0)'>Delete</a>" +
       '</div>' +
       '</div>'
@@ -202,14 +200,15 @@ const excludedCandidateIds = new Set(
 
   // Render footer
   function renderFooter(comments) {
-    return (
-      "<div class='d-flex justify-content-between align-items-center flex-wrap mt-2'>" +
-      "<div class='d-flex'><span class='d-flex align-items-center ms-2'><i class='ti ti-message-2 me-1'></i>" +
-      '<span> ' +
-      comments +
-      ' </span>' +
-      '</span></div>' +
-      '</div>'
+    return (`
+    <div class="d-flex justify-content-between align-items-center flex-wrap mt-2 p-2 border-top">
+      <div class="d-flex align-items-center">
+        <i class="ti ti-circle-check-filled text-success me-1"></i>
+        <span class="text-muted">Skills Match: </span>
+        <span class="fw-bold text-primary ms-1">${comments}%</span>
+      </div>
+    </div>
+  `
     );
   }
   // Init kanban
@@ -237,7 +236,9 @@ const excludedCandidateIds = new Set(
         contact = element.getAttribute('data-contact'),
         email = element.getAttribute('data-email'),
         feedback = element.getAttribute('data-feedback'),
+        response_text = element.getAttribute('data-responseText'),
         candidateId = element.getAttribute('data-candidateId');
+        console.log('res', response_text);
 
 //        console.log('f', feedback);
 //        dateObj = new Date(),
@@ -621,12 +622,12 @@ applyBoardColors();
 
 //      }
       if (
-        el.getAttribute('data-feedback') !== 'undefined'
+        el.getAttribute('data-responseText') !== 'undefined'
       ) {
         el.insertAdjacentHTML(
           'beforeend',
           renderFooter(
-            el.getAttribute('data-feedback')
+            el.getAttribute('data-responseText')
 
           )
         );
