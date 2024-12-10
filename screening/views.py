@@ -27,6 +27,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ContactForm
 from candidate.models import ResumeAnalysis
+from dashboard.utils import send_stage_change_email
+
 
 def about(request):
     return render(request, 'screening/about.html', context={'title':'About'})
@@ -84,6 +86,8 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
                 stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
                 candidate_stage.stage = stage
                 candidate_stage.save()
+                send_stage_change_email(request.user, candidate, job_opening, stage)
+
             elif action=='reject':
                 candidate_stage = CandidateStage.objects.get(candidate=candidate, stage__job_opening=job_opening)
                 stage = Stage.objects.get(name="Rejected", job_opening=job_opening)
@@ -96,7 +100,7 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
                 for c in candidate_stage:
                     c.stage = stage
                     c.save()
-
+                    send_stage_change_email(request.user, c, job_opening, stage)
 
         return JsonResponse({'status': 'success'}, status=200)
 
