@@ -10,7 +10,7 @@ import pytz
 from manager.models import JobOpening
 from users.models import Employee
 from .models import Stage, CandidateStage
-from candidate.models import Candidate
+from candidate.models import Candidate, ResumeAnalysis
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,7 +27,7 @@ from .microsoft_graph_api import get_access_token
 from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
 from .utils import send_hired_email, send_rejected_email, send_stage_change_email, send_interview_email, \
     send_schedule_interview_email
-
+from django.db.models import Prefetch
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/home.html'
@@ -145,7 +145,19 @@ class StageAPIView(APIView):
             Stage.objects.create(job_opening_id=job_opening_id, name='Hired', order=10)
             stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')  # Refresh queryset after creating stage
 
-        serializer = self.serializer_class(stages, many=True)
+        # Optimize queries by prefetching related data
+        stages = stages.prefetch_related(
+            Prefetch(
+                'candidatestage_set__candidate',
+                queryset=Candidate.objects.prefetch_related(
+                    Prefetch(
+                        'analysis',
+                        queryset=ResumeAnalysis.objects.filter(job_opening_id=job_opening_id)
+                    )
+                )
+            )
+        )
+        serializer = self.serializer_class(stages, many=True, context={'job_opening_id': job_opening_id})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
