@@ -66,7 +66,9 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
             const imageurl = exportbtn.getAttribute('data-imageurl');
             const designation = exportbtn.getAttribute('data-des');
             const name = exportbtn.getAttribute('data-name');
-            let pdfContent = `<img src="${imageurl}" alt="Descriptive text" width="75" height="auto">`
+            let pdfContent = `<div class="d-flex justify-content-between"><img src="${imageurl}" alt="Descriptive text" width="75" height="auto">`
+                              + `<a href="https://www.jmsadvisory.in" class="ms-2 text-primary" target="_blank" style="text-decoration: none;">www.jmsadvisory.in</a></div>`
+
                               + `<div class="text-center mt-0"><h4 class="fw-bold text-primary my-0">${name}</h4><h6>${designation}</h6></div>`          ;
 
 
