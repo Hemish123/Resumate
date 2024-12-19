@@ -82,7 +82,7 @@ def send_schedule_interview_email(user, employee, event):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[employee, ], reply_to=[emailOfSender, ])
+                                          to=[employee , ], reply_to=[emailOfSender, ])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
