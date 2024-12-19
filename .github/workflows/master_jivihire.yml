@@ -35,6 +35,9 @@ jobs:
         env:
           SECRET: ${{ secrets.SECRET }}
           AZURE_POSTGRESQL_CONNECTIONSTRING: ${{ secrets.AZURE_POSTGRESQL_CONNECTIONSTRING }}
+          CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
 
 
 
