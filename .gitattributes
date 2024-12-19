@@ -1,3 +1,2 @@
 screening/resume_parsing/model-best/transformer/model filter=lfs diff=lfs merge=lfs -text
 candidate/resume_parsing/model-best/transformer/model filter=lfs diff=lfs merge=lfs -text
-
