@@ -12,9 +12,9 @@ from manager.models import JobOpening
 import json
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .resume_screening.extract_text import extractText
-from .resume_screening.resume_screening import ResumeScreening
-from .resume_screening.suggestions import GiveSuggestion
+# from .resume_screening.extract_text import extractText
+# from .resume_screening.resume_screening import ResumeScreening
+# from .resume_screening.suggestions import GiveSuggestion
 from datetime import datetime
 from random import randint
 from django.http import JsonResponse
@@ -302,35 +302,35 @@ class AnalyticsTemplateView(LoginRequiredMixin, TemplateView):
         context['colors'] = colors
         return context
 
-def ScreenResume(resumes, category_value, user):
-    results = []
-    suggest_resume = []
-    count_resume = 0
-    screen_time = 0
-    for resume in resumes:
-        text = resume.text_content
-        screen_starttime = datetime.now()
-        result = ResumeScreening(text)
-        screen_endtime = datetime.now()
-        screen_time = screen_endtime - screen_starttime
-        if result['category'] == category_value:
-            results.append(str(resume.id))
-            count_resume += 1
-        else:
-            similar_roles = GiveSuggestion(category_value)
-            suggest_resume += [str(resume.id) for role in similar_roles if result['category'] == role]
-
-    suggest_resume = suggest_resume[:10]
-
-    if results:
-        today = datetime.now().date()
-        screening_metrics, _ = ScreeningMetrics.objects.get_or_create(date=today,
-                                                                      for_role=category_value,
-                                                                      user=user)
-        screening_metrics.total_resumes_processed += count_resume
-        screening_metrics.total_screening_time += screen_time
-        screening_metrics.save()
-    return results, suggest_resume
+# def ScreenResume(resumes, category_value, user):
+#     results = []
+#     suggest_resume = []
+#     count_resume = 0
+#     screen_time = 0
+#     for resume in resumes:
+#         text = resume.text_content
+#         screen_starttime = datetime.now()
+#         result = ResumeScreening(text)
+#         screen_endtime = datetime.now()
+#         screen_time = screen_endtime - screen_starttime
+#         if result['category'] == category_value:
+#             results.append(str(resume.id))
+#             count_resume += 1
+#         else:
+#             similar_roles = GiveSuggestion(category_value)
+#             suggest_resume += [str(resume.id) for role in similar_roles if result['category'] == role]
+#
+#     suggest_resume = suggest_resume[:10]
+#
+#     if results:
+#         today = datetime.now().date()
+#         screening_metrics, _ = ScreeningMetrics.objects.get_or_create(date=today,
+#                                                                       for_role=category_value,
+#                                                                       user=user)
+#         screening_metrics.total_resumes_processed += count_resume
+#         screening_metrics.total_screening_time += screen_time
+#         screening_metrics.save()
+#     return results, suggest_resume
 
 class ContactUsView(FormView):
     template_name = 'screening/contactus.html'
