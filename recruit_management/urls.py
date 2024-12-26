@@ -27,7 +27,7 @@ from users.views import (UserDetailView, SettingsView, CustomLoginView,
                          ClientDeleteView, EmployeeUpdateView)
 
 
-urlpatterns = [
+urlpatterns = ([
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('screening/', include('screening.urls')),
@@ -57,7 +57,8 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('verification/', include('verify_email.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
+               + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
