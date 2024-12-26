@@ -1,0 +1,132 @@
+.btn-outline-whatsapp {
+  color: #00d941;
+  border-color: #00d941;
+  background: transparent;
+}
+
+.btn-outline-whatsapp.waves-effect .waves-ripple {
+  background: radial-gradient(rgba(90, 255, 28, 0.2) 0, rgba(90, 255, 28, 0.3) 40%, rgba(90, 255, 28, 0.4) 50%, rgba(90, 255, 28, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+}
+
+.btn-outline-whatsapp:hover {
+  color: #3ce000;
+  background-color: #edffd9 !important;
+  border-color: #3ce000;
+}
+
+.btn-check:focus + .btn-outline-whatsapp, .btn-outline-whatsapp:focus {
+  color: #3ce000;
+  background-color: #edffd9 !important;
+  border-color: #3ce000;
+}
+
+.btn-check:checked + .btn-outline-whatsapp, .btn-check:active + .btn-outline-whatsapp, .btn-outline-whatsapp:active, .btn-outline-whatsapp.active, .btn-outline-whatsapp.dropdown-toggle.show {
+  color: #3ce000 !important;
+  background-color: #edffd9 !important;
+  border-color: #3ce000 !important;
+}
+
+.btn-outline-mail {
+  color: #9000e3;
+  border-color: #9000e3;
+  background: transparent;
+}
+
+.btn-outline-mail.waves-effect .waves-ripple {
+  background: radial-gradient(rgba(179, 45, 252, 0.2) 0, rgba(179, 45, 252, 0.3) 40%, rgba(179, 45, 252, 0.4) 50%, rgba(179, 45, 252, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+}
+
+.btn-outline-mail:hover {
+  color: #9000e3;
+  background-color: #f1e1fa !important;
+  border-color: #9000e3;
+}
+
+.btn-check:focus + .btn-outline-mail, .btn-outline-mail:focus {
+  color: #9000e3;
+  background-color: #f1e1fa !important;
+  border-color: #9000e3;
+}
+
+.btn-check:checked + .btn-outline-mail, .btn-check:active + .btn-outline-mail, .btn-outline-mail:active, .btn-outline-mail.active, .btn-outline-mail.dropdown-toggle.show {
+  color: #9000e3 !important;
+  background-color: #f1e1fa !important;
+  border-color: #9000e3 !important;
+}
+
+.btn-outline-phone {
+  color: #007ebd;
+  border-color: #007ebd;
+  background: transparent;
+}
+
+.btn-outline-phone.waves-effect .waves-ripple {
+  background: radial-gradient(rgba(32, 180, 250, 0.2) 0, rgba(32, 180, 250, 0.3) 40%, rgba(32, 180, 250, 0.4) 50%, rgba(32, 180, 250, 0.5) 60%, rgba(255, 255, 255, 0) 70%);
+}
+
+.btn-outline-phone:hover {
+  color: #007ebd;
+  background-color: #e3f6ff !important;
+  border-color: #007ebd;
+}
+
+.btn-check:focus + .btn-outline-phone, .btn-outline-phone:focus {
+  color: #007ebd;
+  background-color: #e3f6ff !important;
+  border-color: #007ebd;
+}
+
+.btn-check:checked + .btn-outline-phone, .btn-check:active + .btn-outline-phone, .btn-outline-phone:active, .btn-outline-phone.active, .btn-outline-phone.dropdown-toggle.show {
+  color: #007ebd !important;
+  background-color: #e3f6ff !important;
+  border-color: #007ebd !important;
+}
+
+.kanban-disabled {
+     pointer-events: none;
+     opacity: 0.5;
+     position: relative;
+}
+
+.kanban-disabled > .badge {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 1em 1em;
+    width : 100%;
+    font-size: 0.9em;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    z-index: 10;
+    opacity: 1;
+}
+
+#section-block {
+    height : 100%;
+}
+
+.kanban-board {
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.kanban-board:last-child {
+    background-color: #d6ffe1;
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.kanban-board:last-child > * {
+    background-color: #d6ffe1;
+    padding : 0.5%;
+    border-radius : 10px;
+}
+.app-kanban .kanban-wrapper .kanban-container .kanban-board .kanban-title-button {
+    margin-top : -2rem !important;
+}
+
+.bg-img {
+    background-image: url('/static/dashboard/img/pages/job_opening_background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}

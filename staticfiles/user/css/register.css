@@ -1,0 +1,30 @@
+/* Add this CSS to your existing CSS file or create a new one */
+
+/* Suggestions style */
+.form-text.text-muted {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+  
+  /* Button style */
+  /* .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  } */
+  
+  /* Input field style */
+  .form-control {
+    border-color: #ced4da;
+  }
+  
+  /* Input field focus style */
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  }
+  
