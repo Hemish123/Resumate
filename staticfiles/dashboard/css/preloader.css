@@ -1,0 +1,123 @@
+/* Preloader Styles */
+.preloader-container {
+  position : absolute;
+  top : 0;
+  left : 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.8); /* Dark background with slight transparency */
+  flex-direction : column;
+  align-items: center;
+  justify-content: center;
+  display : none;
+}
+
+.stars-container {
+  position: absolute;
+   top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 1; /* Behind the text but above the background */
+}
+
+/* Text styling */
+.preloader-container .text-white {
+  position: relative; /* Relative to overlay above stars */
+  z-index: 2; /* Above the stars */
+  margin-bottom: 20px; /* Space between text blocks */
+  text-align: center;
+  font-size: 1.2rem; /* Adjust as needed */
+  line-height: 1.4; /* Increase line height for readability */
+
+}
+
+/* Dots container */
+.loading-dots {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; /* Adjust the size of the dots */
+}
+
+/* Individual dot styling */
+.dot {
+  margin: 0 2px;
+  animation: fadeInOut 2.5s infinite both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Keyframes for text fade-in and fade-out */
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.content-wrapper.has-preloader {
+  position: relative; /* Position relative to contain the preloader */
+}
+
+/* Star styling */
+.star {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #ffff38 40%, transparent 60%);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: twinkle 2s infinite ease-in-out, glint 1.5s infinite linear;
+}
+
+/* Position stars at random locations */
+.star:nth-child(1) { top: 30%; left: 25%; animation-delay: 0s; }
+.star:nth-child(2) { top: 20%; left: 40%; animation-delay: 0.4s; }
+.star:nth-child(3) { top: 35%; left: 55%; animation-delay: 0.8s; }
+.star:nth-child(4) { top: 54%; left: 20%; animation-delay: 1.2s; }
+.star:nth-child(5) { top: 55%; left: 60%; animation-delay: 1.6s; }
+.star:nth-child(6) { top: 40%; left: 40%; animation-delay: 0.2s; }
+.star:nth-child(7) { top: 60%; left: 35%; animation-delay: 0.6s; }
+
+
+
+/* Keyframes for twinkle effect with reappearance */
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* Keyframes for glint effect */
+@keyframes glint {
+  0% {
+    background: radial-gradient(circle, #fcfc58 40%, transparent 60%);
+  }
+  50% {
+    background: radial-gradient(circle, #ffff38 20%, transparent 50%);
+  }
+  100% {
+    background: radial-gradient(circle, #fcfc58 40%, transparent 60%);
+  }
+}
+/* Animation to randomize star positions */
+@key
