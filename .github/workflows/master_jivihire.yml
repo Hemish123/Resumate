@@ -40,8 +40,8 @@ jobs:
         run: |
            unzip model-best.zip -d ./model-best
 
-      - name: Run collectstatic
-        run: python manage.py collectstatic --noinput
+#      - name: Run collectstatic
+#        run: python manage.py collectstatic --noinput
         env:
           SECRET: ${{ secrets.SECRET }}
           AZURE_POSTGRESQL_CONNECTIONSTRING: ${{ secrets.AZURE_POSTGRESQL_CONNECTIONSTRING }}
