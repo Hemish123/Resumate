@@ -44,7 +44,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         print(group)
         user.groups.add(group)
 
-        company = self.request.user.company
+        company = self.request.user.employee.company
 
         employee = Employee.objects.create(user=user, company=company)  # Don't save employee yet (for OneToOneField)
         employee.save()
