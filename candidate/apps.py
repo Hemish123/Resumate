@@ -10,7 +10,10 @@ class CandidateConfig(AppConfig):
         # Load the model when the application is ready
 
         # Path to your model after extracting
-        path = os.path.join(os.getcwd(), "model-best", "model-best")
+        if settings.DEBUG :
+            path = os.path.join(settings.BASE_DIR, 'candidate/resume_parsing/model-best')
+        else:
+            path = os.path.join(os.getcwd(), "model-best", "model-best")
         # path = os.path.join(settings.BASE_DIR, 'candidate/resume_parsing/model-best')
         print(path)
         self.nlp = spacy.load(path)
