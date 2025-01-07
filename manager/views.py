@@ -39,8 +39,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['choices'] = Employee.objects.filter(company=self.request.user.company)
-        context['clients'] = Client.objects.filter(company=self.request.user.company)
+        context['choices'] = Employee.objects.filter(company=self.request.user.employee.company)
+        context['clients'] = Client.objects.filter(company=self.request.user.employee.company)
 
         # Load JSON data for designations and skills
         # with open("dashboard/static/dashboard/json/designations.json") as f:
@@ -54,7 +54,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     def form_valid(self, form):
         if self.request.POST:
             job_opening = form.save(commit=False)
-            job_opening.company = self.request.user.company
+            job_opening.company = self.request.user.employee.company
             client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
@@ -70,11 +70,11 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             
             # Check if the job opening already exists
             if client :
-                if JobOpening.objects.filter(company=self.request.user.company, client=client, designation=designation).exists():
+                if JobOpening.objects.filter(company=self.request.user.employee.company, client=client, designation=designation).exists():
                     form.add_error('client', 'Opening already exists')
                     return self.form_invalid(form)
             else:
-                if JobOpening.objects.filter(company=self.request.user.company ,designation=designation).exists():
+                if JobOpening.objects.filter(company=self.request.user.employee.company ,designation=designation).exists():
                     form.add_error('designation', 'Opening already exists')
                     return self.form_invalid(form)
              
@@ -116,9 +116,9 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['choices'] = Employee.objects.filter(company=self.request.user.company)
+        context['choices'] = Employee.objects.filter(company=self.request.user.employee.company)
         if self.object.hiring_for == "client":
-            context['clients'] = Client.objects.filter(company=self.request.user.company)
+            context['clients'] = Client.objects.filter(company=self.request.user.employee.company)
         with open("dashboard/static/dashboard/json/designations.json") as f:
             data = json.load(f)
 
@@ -145,11 +145,11 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 job_opening.requiredskills = skills_string
 
             if client :
-                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.company, client=client, designation=designation).exists():
+                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, client=client, designation=designation).exists():
                     form.add_error('client', 'opening already exists')
                     return self.form_invalid(form)
             else:
-                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.company, designation=designation).exists():
+                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, designation=designation).exists():
                     form.add_error('designation', 'opening already exists')
                     return self.form_invalid(form)
 
@@ -197,7 +197,7 @@ class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         client = form.save(commit=False)
-        client.company = self.request.user.company
+        client.company = self.request.user.employee.company
         client.save()
         messages.success(self.request, message='Client created successfully!')
         return super().form_valid(form)

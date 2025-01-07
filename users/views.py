@@ -238,8 +238,8 @@ class EmployeeListView(LoginRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['employees'] = Employee.objects.filter(company=self.request.user.company)
-        context['clients'] = Client.objects.filter(company=self.request.user.company)[:5]
+        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company)
+        context['clients'] = Client.objects.filter(company=self.request.user.employee.company)[:5]
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
         context['has_perm2'] = has_perm2
         return context

@@ -61,7 +61,7 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                     email=row[2],
                     current_designation=row[3],
                     location=row[4],
-                    company=request.user.company
+                    company=request.user.employee.company
                 )
             messages.success(request, "Candidates imported successfully.")
             return redirect('candidate-list')
