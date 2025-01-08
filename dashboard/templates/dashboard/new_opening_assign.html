@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Application Submitted Successfully</title>
+</head>
+
+<body style="font-family: 'Roboto', sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <table align="center" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" width="600" style="background: linear-gradient(135deg, #74ebd5, #ACB6E5); border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); border: 2px solid #e0e0e0;">
+                    <tr>
+                        <td align="center">
+                            <table cellpadding="0" cellspacing="0" width="100%">
+                                <!-- <tr>
+                                    <td align="center" style="padding-bottom: 20px;">
+                                        <table cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td align="center" style="width: 80px; height: 80px; background: linear-gradient(135deg, #28a745, #85e085); border-radius: 50%; box-shadow: 0 10px 20px rgba(40, 167, 69, 0.5);">
+                                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M20 6L9 17l-5-5" />
+                                                    </svg>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="font-size: 2rem; color: #007bff; font-weight: 700; padding-bottom: 15px;">
+                                        Success!
+                                    </td>
+                                </tr> -->
+                                <tr>
+                                    <td align="center" style="font-size: 1.5rem; font-weight: 600; color: #3498db; padding-bottom: 20px;">
+                                        Hello {{ employee.user.first_name|capfirst }} {{ employee.user.last_name|capfirst }}!
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="font-size: 1rem; color: #555; padding-bottom: 20px;">
+                                        You are assigned to new Job Opening <span style="color: #28a745; font-weight: 600;">{{ job_opening.designation }}</span>.
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
