@@ -1,4 +1,4 @@
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/notification/');
+    const socket = new WebSocket('wss://' + window.location.host + '/ws/notification/');
     let notificationDot = document.getElementById('notification-dot');
     let notificationCount = document.getElementById("notification-count");
         // Extract the current count from the notification count element
