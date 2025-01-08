@@ -98,7 +98,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         
 class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = JobOpening
-    fields = ['designation', 'openings', 'budget', 'job_type', 'job_mode',
+    fields = ['client', 'designation', 'openings', 'budget', 'job_type', 'job_mode',
               'requiredskills', 'jobdescription', 'assignemployee', 'jd_content', 'min_experience',
               'max_experience', 'education', 'content_type', 'skills_criteria', 'active']
     template_name = "manager/job_opening_update.html"
