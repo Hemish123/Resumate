@@ -127,3 +127,17 @@ def send_job_opening_email(user, candidate, job_opening, site_url):
                                           to=[candidate.email, ], reply_to=[emailOfSender, ])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+def new_opening_email(job_opening, e):
+    emailOfSender = EMAIL_HOST_USER
+    subject = 'New Opening assigned to you!'
+    message = render_to_string('dashboard/new_application_email.html', {
+        'employee': e,
+        'job_opening': job_opening,
+
+    })
+
+    emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
+                                          to=[e.user.email, ], reply_to=[emailOfSender, ])
+    emailMessage.attach_alternative(message, "text/html")
+    emailMessage.send(fail_silently=False)

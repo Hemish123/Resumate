@@ -6,6 +6,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+
+from dashboard.utils import new_opening_email
 from .models import JobOpening, Client
 from users.models import Employee
 from dashboard.models import Stage
@@ -83,6 +85,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             message = "New Job Opening " + job_opening.designation + " assigned to you"
             for e in employees:
                 Notification.objects.create(user_id=e.user.id, message=message)
+                new_opening_email(job_opening, e)
 
             if file and not jd_content:
                 jd_content = extractText(job_opening.jobdescription.path)
@@ -157,6 +160,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             for e in employees:
                 if not Notification.objects.filter(user_id=e.user.id, message=message).exists():
                     Notification.objects.create(user_id=e.user.id, message=message)
+                    new_opening_email(job_opening, e)
 
             if file and not jd_content:
                 jd_content = extractText(job_opening.jobdescription.path)
