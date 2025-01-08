@@ -362,17 +362,18 @@
                       <div class="card-body p-4">
                           <!-- Job Information Section -->
                           <div class="border rounded p-3">
-                              {% if job_description_file %}
-                                  <p><strong>Job Description:</strong> 
-                                      <a href="{{ job_description_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">{{ job_description_file.url }}</a>
-                                  </p>
-                              {% elif job_description_text %}
-                                  <p><strong>Job Description:</strong> {{ job_description_text }}</p>
-                              {% else %}
-                                  <p><strong>Job Description:</strong> Not provided</p>
-                              {% endif %}
-                              <p><strong>Job Type:</strong> {{ job_type }}</p>
-                              <p><strong>Job Mode:</strong> {{ job_mode }}</p>
+                              <div class="d-flex justify-content-start">
+                                  <p class="me-5"><strong>Required Experience:</strong> {{ job_opening.min_experience }} to {{ job_opening.max_experience }} years</p>
+                                  <p><strong>Education:</strong> {{ job_opening.education }}</p>
+                              </div>
+                              <div class="d-flex justify-content-start">
+                                  <p class="me-5"><strong>Skills Criteria:</strong> {{ job_opening.skills_criteria }}%</p>
+                                <p><strong>Openings:</strong> {{ job_opening.openings }}</p>
+                              </div>
+                              <div class="d-flex justify-content-start">
+                                  <p class="me-5"><strong>Job Type:</strong> {{ job_type }}</p>
+                                  <p><strong>Job Mode:</strong> {{ job_mode }}</p>
+                              </div>
                           </div>
                       </div>
                   </div>
