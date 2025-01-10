@@ -232,6 +232,7 @@ class CandidateCreateView(FormView):
             candidate.job_opening_id_temp = job_opening.id
 
             candidate.save()
+            print(candidate.upload_resume.url)
 
             send_success_email(candidate, job_opening)
 
