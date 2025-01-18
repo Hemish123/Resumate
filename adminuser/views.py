@@ -41,7 +41,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
         group = Group.objects.get(pk=selected_group_id)
         # group = form.cleaned_data['group']  # Replace 'admin' with your actual group name
-        print(group)
+
         user.groups.add(group)
 
         company = self.request.user.employee.company

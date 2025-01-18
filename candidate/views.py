@@ -232,7 +232,7 @@ class CandidateCreateView(FormView):
             candidate.job_opening_id_temp = job_opening.id
 
             candidate.save()
-            print(candidate.upload_resume.url)
+            print("media url : ", candidate.upload_resume.url)
 
             send_success_email(candidate, job_opening)
 
@@ -348,7 +348,7 @@ class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
         job_opening_id = request.POST.get('job_opening_id')
-        print('id : ', ids, job_opening_id)
+
         job_opening = JobOpening.objects.get(id=job_opening_id)
         if ids:
             ids = [int(id) for id in ids.split(',')]
@@ -443,7 +443,7 @@ class CandidateDeleteView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         
         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
-        print(ids)  
+
         if ids:
             ids = [int(id) for id in ids.split(',')]
             Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
@@ -473,7 +473,7 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
         text = json.loads(response_text)
         context['text'] = text
         stable = False
-        print(response_text)
+
         if text.get('average_tenure') and "year" in text.get('average_tenure'):
             match = re.search(r'\d+', text.get('average_tenure'))
             if match:

@@ -73,7 +73,7 @@ def create_teams_meeting(user, event_title, event_start, event_end, attendees):
     }
 
     response = requests.post(url, json=body, headers=headers)
-    print(response.json())
+
 
     if response.status_code == 201:
         meeting_data = response.json()

@@ -277,7 +277,7 @@ class StageView(LoginRequiredMixin, TemplateView):
 
         stage_id = request.POST.get('stage')
         candidate_stage_id = request.POST.get('candidateStageId')
-        print('s', stage_id, candidate_stage_id)
+
         order = CandidateStage.objects.filter(stage_id=stage_id).aggregate(Max('order'))['order__max'] or 0
 
         # stageid = request.data.get('stage_id')

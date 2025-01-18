@@ -1,7 +1,7 @@
 import string
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from recruit_management.settings import EMAIL_HOST_USER
+from recruit_management.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from django.core.mail import EmailMultiAlternatives
 
 def send_success_email(candidate, job_opening):

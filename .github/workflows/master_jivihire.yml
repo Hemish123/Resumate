@@ -63,6 +63,7 @@ jobs:
           path: |
             release.zip
             !venv/
+          retention-days: 7
 
   deploy:
     runs-on: ubuntu-latest

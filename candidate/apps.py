@@ -15,5 +15,5 @@ class CandidateConfig(AppConfig):
         else:
             path = os.path.join(os.getcwd(), "model-best", "model-best")
         # path = os.path.join(settings.BASE_DIR, 'candidate/resume_parsing/model-best')
-        print(path)
+
         self.nlp = spacy.load(path)
