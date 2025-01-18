@@ -72,7 +72,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class DashbaordView(LoginRequiredMixin, TemplateView):
+class JobOpeningView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     title = 'Job Openings'
 
