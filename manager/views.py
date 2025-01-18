@@ -208,7 +208,7 @@ class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def get_success_url(self):
         previous_page = self.request.session.get('previous_page')
-        print('r', previous_page)
+
         if previous_page and ('job-opening-create' in previous_page):
             self.request.session['previous_page'] = ''
             return reverse_lazy('job-opening')

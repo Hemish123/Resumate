@@ -62,7 +62,7 @@ def parse_data(text):
     email = re.findall(r"([^@|\s]+@[^@]+\.[^@|\s]+)", text)
     if len(email) :
         parsed_data['email'] = email[0].split()[0].strip(';')
-    print('parsed', parsed_data)
+    print('parsed : ', parsed_data)
     return parsed_data
 
 
