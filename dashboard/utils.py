@@ -131,7 +131,7 @@ def send_job_opening_email(user, candidate, job_opening, site_url):
 def new_opening_email(job_opening, e):
     emailOfSender = EMAIL_HOST_USER
     subject = 'New Opening assigned to you!'
-    message = render_to_string('dashboard/new_application_email.html', {
+    message = render_to_string('dashboard/new_opening_assign.html', {
         'employee': e,
         'job_opening': job_opening,
 

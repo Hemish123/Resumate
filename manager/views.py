@@ -27,7 +27,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     template_name = "manager/job_opening_create.html"
     title = "Job-Opening"
     permission_required = 'manager.add_jobopening'  # Replace with actual permission codename
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('job-opening')
 
     def has_permission(self):
         # Override has_permission to consider inherited group permissions
@@ -109,7 +109,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     permission_required = 'manager.change_jobopening'  # Replace with actual permission codename
 
     def get_success_url(self):
-        return reverse_lazy('dashboard')
+        return reverse_lazy('job-opening')
 
     def has_permission(self):
         # Override has_permission to consider inherited group permissions
@@ -172,7 +172,7 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
 
 class JobOpeningDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = JobOpening
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('job-opening')
     permission_required = 'manager.delete_jobopening'
 
     def has_permission(self):
@@ -212,7 +212,7 @@ class ClientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         if previous_page and ('job-opening-create' in previous_page):
             self.request.session['previous_page'] = ''
             return reverse_lazy('job-opening')
-        return reverse_lazy('dashboard')
+        return reverse_lazy('job-opening')
 
 class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Client
