@@ -187,22 +187,22 @@
                 </li>
                 <!--/ Notification -->
                 <!-- User -->
-                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <li class="nav-item navbar-dropdown dropdown-user dropdown me-3 me-xl-2">
                   <a
-                    class="nav-link dropdown-toggle hide-arrow p-0"
+                    class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);"
                     data-bs-toggle="dropdown">
-                    <div class="avatar">
-                      <i class="fa-solid fa-user text-primary fa-2x rounded-circle"></i>
-                    </div>
+
+                      <i class="ti ti-user-filled ti-md text-primary"></i>
+
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
                       <a class="dropdown-item mt-0" href="#">
                         <div class="d-flex align-items-center">
                           <div class="flex-shrink-0 me-2">
-                            <div class="avatar">
-                              <i class="fa-solid fa-user text-primary rounded-circle"></i>
+                            <div class="avatar h-auto">
+                              <i class="ti ti-user-filled ti-xl text-primary rounded-circle"></i>
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -215,24 +215,24 @@
                     <li>
                       <div class="dropdown-divider my-1 mx-n2"></div>
                     </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="ti ti-user me-3 ti-md"></i><span class="align-middle">My Profile</span>
-                      </a>
-                    </li>
-                    <li>
+<!--                    <li>-->
+<!--                      <a class="dropdown-item" href="#">-->
+<!--                        <i class="ti ti-user me-3 ti-md"></i><span class="align-middle">My Profile</span>-->
+<!--                      </a>-->
+<!--                    </li>-->
+<!--                    <li>-->
                       <a class="dropdown-item" href="{% url 'users-settings' %}">
                         <i class="ti ti-settings-2 me-3 ti-md"></i><span class="align-middle">Settings</span>
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item disabled" href="#">
                         <span class="d-flex align-items-center align-middle">
                           <i class="flex-shrink-0 ti ti-file-dollar me-3 ti-md"></i>
                           <span class="flex-grow-1 align-middle">Billing</span>
-                          <span class="flex-shrink-0 badge bg-danger d-flex align-items-center justify-content-center"
-                            >4</span
-                          >
+<!--                          <span class="flex-shrink-0 badge bg-danger d-flex align-items-center justify-content-center"-->
+<!--                            ></span-->
+<!--                          >-->
                         </span>
                       </a>
                     </li>
