@@ -80,6 +80,7 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['user'] = self.request.user
+        # context['url'] =
         # Access permission details (optional)
         has_perm = self.request.user.groups.filter(permissions__codename='add_jobopening').exists()
         context['has_perm'] = has_perm
@@ -89,6 +90,10 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
             job_posts = JobOpening.objects.all().order_by('-active', '-updated_on')
 
             if job_posts.exists():
+                for job in job_posts:
+                    if job.is_expired:
+                        job.active = False
+                        job.save()
                 context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
                                            job_posts}  # Count new applications
 
@@ -98,6 +103,10 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active', '-updated_on')
             if job_posts.exists():
+                for job in job_posts:
+                    if job.is_expired:
+                        job.active = False
+                        job.save()
                 context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job in
                                                      job_posts}  # Count new applications
                 context['job_posts'] = job_posts
@@ -110,6 +119,10 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
                 job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active', '-updated_on')
 
                 if job_posts.exists():
+                    for job in job_posts:
+                        if job.is_expired:
+                            job.active = False
+                            job.save()
                     context['new_application_counts'] = {job.id: job.candidate_set.filter(is_new=True).count() for job
                                                          in
                                                          job_posts}  # Count new applications
@@ -291,7 +304,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
-        context['designation'] = JobOpening.objects.filter(company=self.request.user.employee.company)
+        context['designation'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
         events = Event.objects.filter(company=self.request.user.employee.company).order_by('start_datetime')
         # Create a nested dictionary to group events by year and month
         grouped_events = {}

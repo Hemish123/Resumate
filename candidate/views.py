@@ -250,8 +250,10 @@ class CandidateCreateView(FormView):
                 Notification.objects.create(user_id=manager.id, message=message)
 
             self.candidate = candidate
-            stage = Stage.objects.get(name='Applied', job_opening=job_opening)
-            CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
+            stages = Stage.objects.filter(job_opening=job_opening)
+            if not CandidateStage.objects.filter(candidate=candidate, stage__in=stages).exists():
+                stage = Stage.objects.get(name='Applied', job_opening=job_opening)
+                CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
             response_text = get_response(candidate.text_content, job_opening.designation,
                                          job_opening.requiredskills, str(job_opening.min_experience),
                                          str(job_opening.max_experience), job_opening.education)

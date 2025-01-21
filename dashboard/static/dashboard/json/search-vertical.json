@@ -13,17 +13,17 @@
     {
       "name": "Candidates",
       "icon": "ti-users-group",
-      "url": "/candidate-list/"
+      "url": "/candidate/candidate-list/"
     },
     {
       "name": "Resumes",
       "icon": "ti-users-group",
-      "url": "/resume-list/"
+      "url": "/candidate/resume-list/"
     },
     {
       "name": "About",
       "icon": "ti-app-window",
-      "url": "/about/"
+      "url": "/screening/about/"
     },
     {
       "name": "Settings",
