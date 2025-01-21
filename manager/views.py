@@ -76,7 +76,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                     form.add_error('client', 'Opening already exists')
                     return self.form_invalid(form)
             else:
-                if JobOpening.objects.filter(company=self.request.user.employee.company ,designation=designation).exists():
+                if JobOpening.objects.filter(company=self.request.user.employee.company ,designation=designation, active=True).exists():
                     form.add_error('designation', 'Opening already exists')
                     return self.form_invalid(form)
              

@@ -124,9 +124,11 @@
                 <!-- Kanban Wrapper -->
                 <div class="kanban-wrapper {% if not active %}kanban-disabled{% elif job_opening.is_expired %}kanban-disabled{% endif %}">
                   {% if not active %}
-                    <div class="fs-5 badge bg-label-danger">Closed</div>
-                    {% elif job_opening.is_expired %}
+                    {% if job_opening.is_expired %}
                     <div class="fs-5 badge bg-label-danger">Expired</div>
+                    {% else %}
+                    <div class="fs-5 badge bg-label-danger">Closed</div>
+                    {% endif %}
                   {% endif %}
                 </div>
 

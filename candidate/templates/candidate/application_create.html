@@ -28,6 +28,8 @@
     <div class="card mb-6 shadow-lg border-light">
         <h3 class="card-header bg-primary text-white text-center py-3">Apply for {{ job_opening.designation }}</h3>
         <div class="card-body">
+            {% if job_opening.active %}
+
             <div class="row">
                 <!-- Job Information Section -->
                 <div class="col-lg-3 my-4">
@@ -235,6 +237,9 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+            Sorry, we are not hiring for this position now!
+            {% endif %}
         </div>
     </div>
 </div>
