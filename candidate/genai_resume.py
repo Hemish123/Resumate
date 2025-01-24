@@ -38,24 +38,17 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
                    "skills required : " + skills_string +
                     "min experience : " + min_experience +
                     "max experience : " + max_experience +
-                    "required education : " + education}],
-        max_tokens=800,
-        temperature=0.7,
-        top_p=0.95,
-        frequency_penalty=0,
-        presence_penalty=0,
-        stop=None,
-        stream=False
+                    "required education : " + education}]
     )
 
-    total_tokens = response.usage.total_tokens
-    prompt_tokens = response.usage.prompt_tokens
-    completion_tokens = response.usage.completion_tokens
-    # response = get_response(" ")
-    # print(response)
-    print("total : ", total_tokens)
-    print("prompt : ", prompt_tokens)
-    print("complete : ", completion_tokens)
+    # total_tokens = response.usage.total_tokens
+    # prompt_tokens = response.usage.prompt_tokens
+    # completion_tokens = response.usage.completion_tokens
+    # # response = get_response(" ")
+    # # print(response)
+    # print("total : ", total_tokens)
+    # print("prompt : ", prompt_tokens)
+    # print("complete : ", completion_tokens)
 
 
     return response.choices[0].message.content
