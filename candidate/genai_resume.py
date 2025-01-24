@@ -48,14 +48,16 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
         stream=False
     )
 
+    total_tokens = response.usage.total_tokens
+    prompt_tokens = response.usage.prompt_tokens
+    completion_tokens = response.usage.completion_tokens
+    # response = get_response(" ")
+    # print(response)
+    print("total : ", total_tokens)
+    print("prompt : ", prompt_tokens)
+    print("complete : ", completion_tokens)
+
 
     return response.choices[0].message.content
 
-# total_tokens = response.usage.total_tokens
-# prompt_tokens = response.usage.prompt_tokens
-# completion_tokens = response.usage.completion_tokens
-# response = get_response(" ")
-# print(response)
-# print("total : ", total_tokens)
-# print("prompt : ", prompt_tokens)
-# print("complete : ", completion_tokens)
+
