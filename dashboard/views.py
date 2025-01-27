@@ -80,7 +80,6 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['user'] = self.request.user
-        # context['url'] =
         # Access permission details (optional)
         has_perm = self.request.user.groups.filter(permissions__codename='add_jobopening').exists()
         context['has_perm'] = has_perm
