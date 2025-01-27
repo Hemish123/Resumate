@@ -25,7 +25,6 @@ def parse_data(text):
             break
 
     for ent in nlp_text.ents:
-        print(ent.text, ' -----> ', ent.label_)
         if ent.label_ == 'Name' and not parsed_data.get('name'):
             parsed_data['name'] = ent.text
         elif ent.label_ == 'Designation' and not parsed_data.get('designation'):
@@ -62,7 +61,6 @@ def parse_data(text):
     email = re.findall(r"([^@|\s]+@[^@]+\.[^@|\s]+)", text)
     if len(email) :
         parsed_data['email'] = email[0].split()[0].strip(';')
-    print('parsed : ', parsed_data)
     return parsed_data
 
 

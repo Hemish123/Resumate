@@ -341,7 +341,7 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
@@ -367,7 +367,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context

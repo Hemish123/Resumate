@@ -147,14 +147,15 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 skills_string = ', '.join([skill['value'] for skill in skills_list])
                 job_opening.requiredskills = skills_string
 
-            if client :
-                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, client=client, designation=designation).exists():
-                    form.add_error('client', 'opening already exists')
-                    return self.form_invalid(form)
-            else:
-                if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, designation=designation).exists():
-                    form.add_error('designation', 'opening already exists')
-                    return self.form_invalid(form)
+            # if client :
+            #     if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, client=client, designation=designation).exists():
+            #         form.add_error('client', 'opening already exists')
+            #         return self.form_invalid(form)
+            # else:
+            #     if JobOpening.objects.exclude(id=job_opening.id).filter(company=self.request.user.employee.company, designation=designation).exists():
+            #         form.add_error('designation', 'opening already exists')
+            #         print('de')
+            #         return self.form_invalid(form)
 
             message = "New Job Opening " + job_opening.designation + " assigned to you"
             for e in employees:
