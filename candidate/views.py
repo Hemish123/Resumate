@@ -110,7 +110,10 @@ class CandidateCreateView(FormView):
     title = "Application"
 
     def get_success_url(self):
-        return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': self.candidate.pk})
+        if self.request.user.is_authenticated:
+            return reverse_lazy('candidate-analysis', kwargs={'pk': self.candidate.pk})
+        else:
+            return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': self.candidate.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -260,6 +263,8 @@ class CandidateCreateView(FormView):
             resume_analysis, _ = ResumeAnalysis.objects.get_or_create(candidate=candidate, job_opening=job_opening)
             resume_analysis.response_text = response_text
             resume_analysis.save()
+
+
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
