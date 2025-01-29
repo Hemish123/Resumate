@@ -9,6 +9,7 @@ autobahn==24.4.2
 Automat==24.8.1
 azure-core==1.31.0
 azure-identity==1.19.0
+azure-storage-blob==12.24.1
 beautifulsoup4==4.12.3
 blinker==1.8.2
 blis==0.7.11
@@ -38,6 +39,7 @@ django-cors-headers==4.3.1
 django-crispy-forms==2.3
 django-email-verification==0.3.3
 django-phonenumber-field==8.0.0
+django-storages==1.14.4
 Django-Verify-Email==2.0.3
 djangorestframework==3.15.2
 doc2text==0.2.4
@@ -61,6 +63,7 @@ hyperlink==21.0.0
 idna==3.7
 importlib_metadata==8.4.0
 incremental==24.7.2
+isodate==0.7.2
 itsdangerous==2.2.0
 Jinja2==3.1.4
 jiter==0.5.0
@@ -147,7 +150,7 @@ pytz==2024.2
 pywhatkit==5.4
 PyYAML==6.0.1
 qrcode==7.4.2
-redis==5.1.0
+redis==5.2.1
 regex==2023.12.25
 requests==2.32.3
 safetensors==0.4.2
