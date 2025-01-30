@@ -111,7 +111,7 @@ class CandidateCreateView(FormView):
 
     def get_success_url(self):
         if self.request.user.is_authenticated:
-            return reverse_lazy('candidate-analysis', kwargs={'pk': self.candidate.pk})
+            return reverse_lazy('candidate-analysis', kwargs={'pk': self.candidate.pk}) + f"?job_opening_id={self.kwargs['pk']}"
         else:
             return reverse_lazy('application_success', kwargs={'pk1': self.kwargs['pk'], 'pk2': self.candidate.pk})
 
@@ -171,9 +171,16 @@ class CandidateCreateView(FormView):
             temp_file = ContentFile(file_content, resume_file.name)
 
             path = default_storage.save('resume/' + resume_file.name, temp_file)
-            full_file_path = os.path.join(settings.MEDIA_ROOT, path)
+            # Download from Azure and write to a local file
+            # Define a temporary local path
+            local_temp_path = f"/tmp/{resume_file.name}"
+
+            # Download from Azure and write to a local file
+            with open(local_temp_path, "wb") as f:
+                f.write(default_storage.open(path).read())
+            # full_file_path = os.path.join(settings.MEDIA_ROOT, path)
             # file_path = resume_file.path
-            extractedText = extractText(full_file_path)
+            extractedText = extractText(local_temp_path)
             default_storage.delete(path)
             if extractedText.strip() == "" :
                 form.add_error('upload_resume', (resume_file.name + ' cannot be parsed'))

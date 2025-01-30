@@ -139,8 +139,25 @@ if DEBUG:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    # MEDIA_ROOT = BASE_DIR.joinpath('media')
     # MEDIA_URL = '/media/'
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+        "default": {
+            "BACKEND": "storages.backends.azure_storage.AzureStorage",
+            "OPTIONS": {
+                "account_name": os.environ["AZURE_ACCOUNT_NAME"],
+                "account_key": os.environ["AZURE_ACCOUNT_KEY"],
+                "azure_container": "media",
+            },
+        }
+    }
+
+    MEDIA_ROOT = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/media/"
+
+    MEDIA_URL = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/media/"
+
 
 
 
@@ -148,10 +165,6 @@ else:
     CONNECTION_STRING = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
     conn_str_params = {pair.split('=')[0]: pair.split('=')[1] for pair in CONNECTION_STRING.split(' ')}
     DATABASES = {
-        # 'default': {
-        #     'ENGINE': 'django.db.backends.sqlite3',
-        #     'NAME': BASE_DIR / 'db.sqlite3',
-        # }
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': conn_str_params['dbname'],
@@ -161,28 +174,20 @@ else:
         }
     }
     # azure media storage
-    # STORAGES = {
-    #     "staticfiles": {
-    #         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    #     },
-    #     "default": {
-    #         "BACKEND": "storages.backends.azure_storage.AzureStorage",
-    #         "OPTIONS": {
-    #             "account_name": os.environ["AZURE_ACCOUNT_NAME"],
-    #             "account_key": os.environ["AZURE_ACCOUNT_KEY"],
-    #             "container_name": os.environ["AZURE_CONTAINER_NAME"],
-    #         },
-    #     }
-    # }
-
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = "/home/site/wwwroot/media/"
-    # Media files (served with Azure Storage)
-    # DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
-    # AZURE_ACCOUNT_NAME = os.environ["AZURE_ACCOUNT_NAME"]
-    # AZURE_ACCOUNT_KEY = os.environ["AZURE_ACCOUNT_KEY"]
-    # AZURE_CONTAINER_NAME = "media"
-    # MEDIA_URL = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/{os.environ['AZURE_CONTAINER_NAME']}/media/"
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+        "default": {
+            "BACKEND": "storages.backends.azure_storage.AzureStorage",
+            "OPTIONS": {
+                "account_name": os.environ["AZURE_ACCOUNT_NAME"],
+                "account_key": os.environ["AZURE_ACCOUNT_KEY"],
+                "azure_container": "media",
+            },
+        }
+    }
+    MEDIA_URL = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/media/"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
