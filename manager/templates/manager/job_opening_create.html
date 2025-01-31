@@ -89,11 +89,13 @@
 
 <!--                  </select>-->
 
-<!--                  {% if form.errors %}-->
-<!--                    {% for error in form.client.errors %}-->
-<!--                      <div class="error-message text-danger">{{ error }}</div>-->
-<!--                    {% endfor %}-->
-<!--                  {% endif %}-->
+                   {% if form.non_field_errors %}
+                        <div class="error-message text-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 <!--                </div>-->
 <!--                <div class="col-md-2 mt-6">-->
 <!--                  <button data-bs-toggle="tooltip"-->

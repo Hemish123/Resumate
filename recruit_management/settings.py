@@ -139,26 +139,8 @@ if DEBUG:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    # MEDIA_URL = '/media/'
-    STORAGES = {
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-        "default": {
-            "BACKEND": "storages.backends.azure_storage.AzureStorage",
-            "OPTIONS": {
-                "account_name": os.environ["AZURE_ACCOUNT_NAME"],
-                "account_key": os.environ["AZURE_ACCOUNT_KEY"],
-                "azure_container": "media",
-            },
-        }
-    }
-
-    MEDIA_ROOT = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/media/"
-
-    MEDIA_URL = f"https://{os.environ['AZURE_ACCOUNT_NAME']}.blob.core.windows.net/media/"
-
-
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 else:

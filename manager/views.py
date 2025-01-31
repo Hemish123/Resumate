@@ -43,7 +43,6 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context['title'] = self.title
         context['choices'] = Employee.objects.filter(company=self.request.user.employee.company)
         context['clients'] = Client.objects.filter(company=self.request.user.employee.company)
-
         # Load JSON data for designations and skills
         # with open("dashboard/static/dashboard/json/designations.json") as f:
         #     context['data'] = json.load(f)
@@ -56,12 +55,21 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     def form_valid(self, form):
         if self.request.POST:
             job_opening = form.save(commit=False)
+
+            # for demo account
+            if self.request.user.employee.company.name == "demo":
+                if len(JobOpening.objects.filter(created_by=self.request.user)) >= 3:
+                    form.add_error(None, 'You can not create more than 3 job openings!')
+                    return self.form_invalid(form)
+            #
+
             job_opening.company = self.request.user.employee.company
             client = form.cleaned_data['client']
             designation = form.cleaned_data['designation']
             jd_content = form.cleaned_data['jd_content']
             file = form.cleaned_data['jobdescription']
             employees = form.cleaned_data['assignemployee']
+            job_opening.created_by = self.request.user
             
             # Extract and process required skills
             required_skills = self.request.POST.get('requiredskills')

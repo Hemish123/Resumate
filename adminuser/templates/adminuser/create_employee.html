@@ -46,9 +46,14 @@
                     </label>
                 <div>
                     <select name="groups" class="selectmultiple select2 form-select form-control" required aria-describedby="id_groups_helptext" id="id_groups" multiple="">
+                        {% if request.user.employee.company.name == "demo" %}
+                        <option value="2">manager</option>
+                        <option value="3">recruiter</option>
+                        {% else %}
                         <option value="1">admin</option>
                         <option value="2">manager</option>
                         <option value="3">recruiter</option>
+                        {% endif %}
 
                     </select>
                     <small id="hint_id_groups" class="form-text text-muted">
