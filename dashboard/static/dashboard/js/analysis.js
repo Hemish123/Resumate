@@ -103,10 +103,10 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
                             el.style.margin = '0';           // Remove excessive margin
                             el.style.padding = '0';          // Remove excessive padding
                         }
-                        else if (el.className !== 'badge bg-primary me-1 mt-1') {
+                        else if (el.className == 'badge bg-primary me-1 mt-1') {
                             el.style.fontSize = '14px';   // Reduce font size slightly
                             el.style.margin = '0';           // Remove excessive margin
-                            el.style.padding = '0';          // Remove excessive padding
+                            el.style.padding = '5px';          // Remove excessive padding
                         }
                         else{
                             el.style.fontSize = '14px';   // Reduce font size slightly
@@ -114,7 +114,20 @@ const filename = exportbtn.getAttribute('data-name') + '.pdf';
                             el.style.padding = '0';          // Remove excessive padding
 
                         }
+
+
                     });
+
+                    const colDivs = tabContentClone.querySelectorAll("#newpage .col-md-3");
+                        const hr = document.createElement("hr");
+
+                        if (colDivs){
+                            colDivs.forEach(div => {
+                                div.classList.replace("col-md-3", "col-md-5");
+                                div.style.margin = '5px';
+                                div.style.padding = '5px';
+                            });
+                        }
 
                     // Reduce image sizes (Candidate image)
                     const candidateImg = tabContentClone.querySelector("img");
