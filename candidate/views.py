@@ -242,7 +242,6 @@ class CandidateCreateView(FormView):
             candidate.job_opening_id_temp = job_opening.id
 
             candidate.save()
-            print("media url : ", candidate.upload_resume.url)
 
             send_success_email(candidate, job_opening)
 
@@ -276,7 +275,6 @@ class CandidateCreateView(FormView):
             # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
             # return self.get_success_url()
-
 
         else:
             return self.form_invalid(form)

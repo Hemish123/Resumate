@@ -57,8 +57,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             job_opening = form.save(commit=False)
 
             # for demo account
-            if self.request.user.employee.company.name == "demo":
-                if len(JobOpening.objects.filter(created_by=self.request.user)) >= 3:
+            if self.request.user.employee.company.name != "JMS Advisory":
+                if len(JobOpening.objects.filter(company=self.request.user.employee.company)) >= 3:
                     form.add_error(None, 'You can not create more than 3 job openings!')
                     return self.form_invalid(form)
             #

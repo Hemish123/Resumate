@@ -29,6 +29,23 @@ from .utils import send_hired_email, send_rejected_email, send_stage_change_emai
     send_schedule_interview_email
 from django.db.models import Prefetch
 
+
+
+def email_action(request, candidate_id, action):
+    candidate = get_object_or_404(Candidate, id=candidate_id)
+
+    if action == "approve":
+        print("approved")
+        # candidate.status = "approved"
+    elif action == "reject":
+        print("rejected")
+        # candidate.status = "rejected"
+    else:
+        return JsonResponse({"error": "Invalid action"}, status=400)
+
+    # candidate.save()
+    return JsonResponse({"success": f"Candidate {action}d successfully."})
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/home.html'
     title = 'Dashboard'

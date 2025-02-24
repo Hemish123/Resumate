@@ -28,6 +28,8 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     [achievements]
     """
 
+
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         response_format={

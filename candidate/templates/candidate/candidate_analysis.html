@@ -71,12 +71,16 @@
                                         <ul class="list-group">
                                             {% for category, skills in text.skills.items %}
                                                 <li class="list-group-item">
+                                                    {% if skills %}
                                                     <strong>{{ category|capfirst }}:</strong>
                                                     <div class="mt-2">
                                                         {% for skill in skills %}
                                                             <span class="badge bg-primary me-1 mt-1">{{ skill }}</span>
                                                         {% endfor %}
                                                     </div>
+                                                    {% else %}
+                                                    <strong>{{ category|capfirst }}</strong>
+                                                    {% endif %}
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -88,7 +92,9 @@
 
                           <div class="col-md-4 text-center mt-10">
                               <h3 class="mb-3 fw-bold text-primary">{{ candidate.name }}</h3>
+                              {% if candidate.current_designation %}
                               <h5 class="mb-3">{{ candidate.current_designation }}</h5>
+                              {% endif %}
 
                               <div class="mb-3"> <!-- Removed d-flex to allow block elements -->
                                   <p class="mb-3"> <!-- Added mb-1 for spacing between lines -->
@@ -216,8 +222,9 @@
 
 
                                     <!-- Certifications Section -->
+                                  {% if text.certifications %}
                                   <div class="card-body">
-                                      {% if text.certifications %}
+
                                       <div class="d-flex align-items-center my-3">
                                           <i class="fas fa-certificate fa-lg text-primary me-3"></i>
                                           <h5 class="card-title mb-0">Certifications</h5>
@@ -230,8 +237,9 @@
                                                   </div>
                                               </div>
                                           {% endfor %}
-                                      {% endif %}
+
                                   </div>
+                                  {% endif %}
 
                                       <!-- Curricular Activities Section -->
                                   {% if text.achievements %}

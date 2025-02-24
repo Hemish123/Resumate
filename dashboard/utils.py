@@ -1,8 +1,9 @@
-import string
+import string, json
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from recruit_management.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from django.core.mail import EmailMultiAlternatives
+from candidate.models import ResumeAnalysis
 
 def send_success_email(candidate, job_opening):
     emailOfSender = EMAIL_HOST_USER
@@ -102,10 +103,17 @@ def send_thankyou_email(user, candidate, job_opening):
 def new_application_email(candidate, job_opening, e, site_url):
     emailOfSender = EMAIL_HOST_USER
     subject = 'New Application!'
+    approve_url = f"{site_url}/candidate/action/{candidate.id}/approve/"
+    reject_url = f"{site_url}/candidate/action/{candidate.id}/reject/"
+    response_text = ResumeAnalysis.objects.get(candidate=candidate, job_opening=job_opening).response_text
+    text = json.loads(response_text)
     message = render_to_string('dashboard/new_application_email.html', {
         'candidate': candidate,
         'job_opening': job_opening,
-        'site_url': site_url
+        'site_url': site_url,
+        'approve_url': approve_url,
+        'reject_url': reject_url,
+        'text': text
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,

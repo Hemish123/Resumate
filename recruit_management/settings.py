@@ -221,7 +221,7 @@ STATIC_ROOT = '/home/site/wwwroot/static/staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-SITE_ID = 1  # Make sure to set this
+SITE_ID = 2  # Make sure to set this
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'

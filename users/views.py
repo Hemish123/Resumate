@@ -24,18 +24,16 @@ def register(request):
 
         if user_create.is_valid():
             email = user_create.cleaned_data.get('email').lower()
-            if not email.endswith("@jmsadvisory.in"):
-                user_create.add_error('email', "This email is not valid! Only JMS Advisory's employees can register!")
-            else:
-                messages.success(request, f'Check your email and verify using link sent in your email')
-                # send link to mail and save user if link verified
-                # inactive_user = send_verification_email(request, user_create)
-                user = user_create.save()  # Don't save to the database yet
-                # user.is_active = False  # Set user as inactive until email verification
 
-                admin_group = Group.objects.get(name='admin')  # Replace 'admin' with your actual group name
+            messages.success(request, f'Check your email and verify using link sent in your email')
+            # send link to mail and save user if link verified
+            # inactive_user = send_verification_email(request, user_create)
+            user = user_create.save()  # Don't save to the database yet
+            # user.is_active = False  # Set user as inactive until email verification
 
-                user.groups.add(admin_group)
+            admin_group = Group.objects.get(name='admin')  # Replace 'admin' with your actual group name
+
+            user.groups.add(admin_group)
 
     else:
         user_create = UserRegisterForm()

@@ -35,6 +35,17 @@
                                     </td>
                                 </tr> -->
                                 <tr>
+                                    <td align="center" style="padding-bottom: 20px;">
+
+                                        <a href="http://{{ approve_url }}" style="display: inline-block; padding: 10px 15px; border: 2px solid green; color: green; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                                            ✅ Approve</a>
+                                        <a href="http://{{ reject_url }}" style="display: inline-block; padding: 10px 15px; border: 2px solid red; color: red; text-decoration: none; border-radius: 5px; font-weight: bold; margin-left: 10px;">
+                                            ❌ Reject</a>
+
+                                    </td>
+                                </tr>
+                                <tr>
+
                                     <td align="center" style="font-size: 1.5rem; font-weight: 600; color: #3498db; padding-bottom: 20px;">
                                         New Application received for {{ job_opening.designation }}!
                                     </td>
@@ -45,8 +56,16 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <td align="center" style="font-size: 2rem; color: #555; padding-bottom: 20px;">
+                                        Candidate Score : {{ text.skills_matching.match }}%
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td align="center" style="font-size: 1rem; color: #555; padding-bottom: 20px;">
-                                        <a href="http://{{ site_url }}/candidate/candidate-analysis/{{ candidate.id }}?job_opening_id={{ job_opening.id }}">Candidate Analysis</a>
+                                        <a href="http://{{ site_url }}/candidate/candidate-analysis/{{ candidate.id }}?job_opening_id={{ job_opening.id }}"
+                                           style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                                            📊 Candidate Analysis
+                                        </a>
                                     </td>
                                 </tr>
 
