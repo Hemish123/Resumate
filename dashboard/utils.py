@@ -15,7 +15,7 @@ def send_success_email(candidate, job_opening):
 
     
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -30,7 +30,7 @@ def send_stage_change_email(user, candidate, job_opening, stage):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -43,7 +43,7 @@ def send_hired_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -56,7 +56,7 @@ def send_rejected_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -70,7 +70,7 @@ def send_interview_email(user, candidate, job_opening, event):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -83,7 +83,7 @@ def send_schedule_interview_email(user, employee, event):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[employee , ], reply_to=[emailOfSender, ])
+                                          to=[employee , ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -96,7 +96,7 @@ def send_thankyou_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -117,7 +117,7 @@ def new_application_email(candidate, job_opening, e, site_url):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[e.user.email, ], reply_to=[emailOfSender, ])
+                                          to=[e.user.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -132,7 +132,7 @@ def send_job_opening_email(user, candidate, job_opening, site_url):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=[emailOfSender, ])
+                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
@@ -146,6 +146,6 @@ def new_opening_email(job_opening, e):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[e.user.email, ], reply_to=[emailOfSender, ])
+                                          to=[e.user.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)

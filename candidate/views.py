@@ -61,6 +61,7 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                     email=row[2],
                     current_designation=row[3],
                     location=row[4],
+                    experience=row[5],
                     company=request.user.employee.company
                 )
             messages.success(request, "Candidates imported successfully.")
@@ -351,7 +352,9 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
+        # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
@@ -377,7 +380,9 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
+        # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context

@@ -396,17 +396,19 @@ $(function () {
 
       }
       updateSelectedRows();
+
     });
 
         // Handle "Select All" checkbox
     $('.dt-checkboxes-select-all input').on('change', function () {
       var checked = $(this).prop('checked');
-      dt_basic.rows().nodes().to$().find('input[type="checkbox"]').prop('checked', checked);
+      // select only filtered rows
+      dt_basic.rows({ search: 'applied' }).nodes().to$().find('input[type="checkbox"]').prop('checked', checked);
       if (checked) {
-        dt_basic.rows().nodes().to$().addClass('selected');
+        dt_basic.rows({ search: 'applied' }).nodes().to$().addClass('selected');
       }
       else {
-        dt_basic.rows().nodes().to$().removeClass('selected');
+        dt_basic.rows({ search: 'applied' }).nodes().to$().removeClass('selected');
       }
       updateSelectedRows();
     });
@@ -515,7 +517,7 @@ function getSelectedIds() {
     var selectedIds = [];
     updateSelectedRows();
     selectedIds.push(selectedRows.map(row => row.id));  // Add the ID to the array
-
+    console.log('ids: ', selectedIds);
     return selectedIds;
 }
 
