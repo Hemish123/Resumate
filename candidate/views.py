@@ -44,32 +44,31 @@ class CandidateImportView(LoginRequiredMixin, FormView):
         if form.is_valid():
             file = form.cleaned_data['upload_file']
             skip = 0
-            expen=0
             if file.name.endswith('.xlsx'):
                 workbook = openpyxl.load_workbook(file)
                 sheet = workbook.active
 
                 for row in sheet.iter_rows(min_row=2, values_only=True):  # Skipping header
                     if all(row):  # Check if row is not empty
+                        email = row[2].lower() if isinstance(row[2], str) else None
+                        if email:
+                            if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
+                                try:
+                                    experience = int(row[5])
+                                except (ValueError, TypeError):
+                                    experience = 0
 
-                        if not Candidate.objects.filter(email=row[2].lower(), company=request.user.employee.company).exists():
-                            try:
-                                experience = int(row[5])
-                            except (ValueError, TypeError):
-                                experience = 0
-                                expen += 1
-
-                            Candidate.objects.create(
-                                name=row[0],
-                                contact=row[1],
-                                email=row[2],
-                                current_designation=row[3],
-                                location=row[4],
-                                experience=experience,
-                                company=request.user.employee.company
-                            )
-                        else:
-                            skip += 1
+                                Candidate.objects.create(
+                                    name=row[0],
+                                    contact=row[1],
+                                    email=row[2],
+                                    current_designation=row[3],
+                                    location=row[4],
+                                    experience=experience,
+                                    company=request.user.employee.company
+                                )
+                            else:
+                                skip += 1
                     else:
                         skip += 1
 
@@ -84,28 +83,28 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                 # Skipping the header row (optional)
                 next(reader, None)
                 for row in reader:
-                    if not Candidate.objects.filter(email=row[2].lower(),
-                                                    company=request.user.employee.company).exists():
-                        try:
-                            experience = int(row[5])
-                        except (ValueError, TypeError):
-                            experience = 0
-                            expen += 1
+                    email = row[2].lower() if isinstance(row[2], str) else None
+                    if email:
+                        if not Candidate.objects.filter(email=email,
+                                                        company=request.user.employee.company).exists():
+                            try:
+                                experience = int(row[5])
+                            except (ValueError, TypeError):
+                                experience = 0
 
-                        Candidate.objects.create(
-                            name=row[0],
-                            contact=row[1],
-                            email=row[2],
-                            current_designation=row[3],
-                            location=row[4],
-                            experience=experience,
-                            company=request.user.employee.company
-                        )
+                            Candidate.objects.create(
+                                name=row[0],
+                                contact=row[1],
+                                email=row[2],
+                                current_designation=row[3],
+                                location=row[4],
+                                experience=experience,
+                                company=request.user.employee.company
+                            )
 
             else:
                 messages.error(request, "Invalid file format! Please upload CSV or Excel file.")
                 return redirect('candidate-list')
-            print("skipped : ", skip, "skipped experience : ", expen)
             messages.success(request, f"Candidates imported successfully. skipped: {skip}")
             return redirect('candidate-list')
 
