@@ -25,7 +25,7 @@ from .genai_resume import get_response
 from .forms import CandidateForm, CandidateImportForm
 from notification.models import Notification
 from dashboard.utils import send_success_email, new_application_email, send_job_opening_email
-import csv
+import csv, openpyxl
 
 class CandidateImportView(LoginRequiredMixin, FormView):
     template_name = "candidate/candidate_import.html"
@@ -43,61 +43,71 @@ class CandidateImportView(LoginRequiredMixin, FormView):
 
         if form.is_valid():
             file = form.cleaned_data['upload_file']
+            skip = 0
+            expen=0
+            if file.name.endswith('.xlsx'):
+                workbook = openpyxl.load_workbook(file)
+                sheet = workbook.active
 
-            try:
-                # Attempt decoding with a fallback encoding
-                decoded_file = file.read().decode('utf-8', errors='replace').splitlines()
-            except UnicodeDecodeError:
-                # Fallback to a lenient encoding
-                decoded_file = file.read().decode('latin1').splitlines()
-            reader = csv.reader(decoded_file)
+                for row in sheet.iter_rows(min_row=2, values_only=True):  # Skipping header
+                    if all(row):  # Check if row is not empty
 
-            # Skipping the header row (optional)
-            next(reader, None)
-            for row in reader:
-                Candidate.objects.create(
-                    name=row[0],
-                    contact=row[1],
-                    email=row[2],
-                    current_designation=row[3],
-                    location=row[4],
-                    experience=row[5],
-                    company=request.user.employee.company
-                )
-            messages.success(request, "Candidates imported successfully.")
+                        if not Candidate.objects.filter(email=row[2].lower(), company=request.user.employee.company).exists():
+                            try:
+                                experience = int(row[5])
+                            except (ValueError, TypeError):
+                                experience = 0
+                                expen += 1
+
+                            Candidate.objects.create(
+                                name=row[0],
+                                contact=row[1],
+                                email=row[2],
+                                current_designation=row[3],
+                                location=row[4],
+                                experience=experience,
+                                company=request.user.employee.company
+                            )
+                        else:
+                            skip += 1
+                    else:
+                        skip += 1
+
+            elif file.name.endswith('.csv'):
+                try:
+                    # Attempt decoding with a fallback encoding
+                    decoded_file = file.read().decode('utf-8', errors='ignore').splitlines()
+                except UnicodeDecodeError:
+                    # Fallback to a lenient encoding
+                    decoded_file = file.read().decode('latin1').splitlines()
+                reader = csv.reader(decoded_file)
+                # Skipping the header row (optional)
+                next(reader, None)
+                for row in reader:
+                    if not Candidate.objects.filter(email=row[2].lower(),
+                                                    company=request.user.employee.company).exists():
+                        try:
+                            experience = int(row[5])
+                        except (ValueError, TypeError):
+                            experience = 0
+                            expen += 1
+
+                        Candidate.objects.create(
+                            name=row[0],
+                            contact=row[1],
+                            email=row[2],
+                            current_designation=row[3],
+                            location=row[4],
+                            experience=experience,
+                            company=request.user.employee.company
+                        )
+
+            else:
+                messages.error(request, "Invalid file format! Please upload CSV or Excel file.")
+                return redirect('candidate-list')
+            print("skipped : ", skip, "skipped experience : ", expen)
+            messages.success(request, f"Candidates imported successfully. skipped: {skip}")
             return redirect('candidate-list')
-            # candidate, created = Candidate.objects.get_or_create(email=email)
-            # if Candidate.objects.filter(email=email).exists():
-            #     candidate = Candidate.objects.get(email=email)
-            #     candidate.name = form.cleaned_data['name']
-            #     candidate.contact = form.cleaned_data['contact']
-            #     candidate.location = form.cleaned_data['location']
-            #     candidate.education = form.cleaned_data['education']
-            #     candidate.current_designation = form.cleaned_data['current_designation']
-            #     candidate.experience = form.cleaned_data['experience']
-            #     candidate.linkedin = form.cleaned_data['linkedin']
-            #     candidate.github = form.cleaned_data['github']
-            #     candidate.portfolio = form.cleaned_data['portfolio']
-            #     candidate.blog = form.cleaned_data['blog']
-            #     candidate.current_organization = form.cleaned_data['current_organization']
-            #     candidate.updated = timezone.now()
-            #     # candidate.job_openings.add(job_opening)
-            # else:
-            #     candidate = form.save(commit=False)
-            #
-            #
-            #
-            #
-            # del request.session['resume']
-            # file = request.FILES.get('upload_resume')
-            #
-            # candidate.save()
-            # self.candidate = candidate
-            #
-            #
-            # # Process the final submission after user reviews the parsed data
-            # return self.form_valid(form)
-            # return self.get_success_url()
 
         else:
             return self.form_invalid(form)
@@ -247,6 +257,12 @@ class CandidateCreateView(FormView):
             send_success_email(candidate, job_opening)
 
             candidate.job_openings.add(job_opening)
+            response_text = get_response(candidate.text_content, job_opening.designation,
+                                         job_opening.requiredskills, str(job_opening.min_experience),
+                                         str(job_opening.max_experience), job_opening.education)
+            resume_analysis, _ = ResumeAnalysis.objects.get_or_create(candidate=candidate, job_opening=job_opening)
+            resume_analysis.response_text = response_text
+            resume_analysis.save()
 
             message = candidate.name + " applied for " + job_opening.designation
             employees = job_opening.assignemployee.all()
@@ -264,12 +280,7 @@ class CandidateCreateView(FormView):
             if not CandidateStage.objects.filter(candidate=candidate, stage__in=stages).exists():
                 stage = Stage.objects.get(name='Applied', job_opening=job_opening)
                 CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
-            response_text = get_response(candidate.text_content, job_opening.designation,
-                                         job_opening.requiredskills, str(job_opening.min_experience),
-                                         str(job_opening.max_experience), job_opening.education)
-            resume_analysis, _ = ResumeAnalysis.objects.get_or_create(candidate=candidate, job_opening=job_opening)
-            resume_analysis.response_text = response_text
-            resume_analysis.save()
+
 
 
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
@@ -353,7 +364,7 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
-        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company).order_by('updated')
 
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
