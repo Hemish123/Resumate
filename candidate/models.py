@@ -20,7 +20,7 @@ class Candidate(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(validators=[EmailValidator])
     contact = models.CharField(max_length=255)
-    location = models.CharField(max_length=255, blank=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     linkedin = models.URLField(max_length=255, blank=True, null=True)
     github = models.URLField(max_length=255, blank=True, null=True)

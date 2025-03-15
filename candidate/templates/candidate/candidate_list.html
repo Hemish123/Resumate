@@ -160,7 +160,7 @@
                 </div>
 
 
-        <table class="datatables-basic table">
+        <table class="datatables-basic table table-striped">
               <thead>
                 <tr>
                   <th></th>
@@ -175,22 +175,23 @@
                   <th>Updated</th>
                 </tr>
               </thead>
-              <tbody>
-                {% for candidate in candidates %}
-                <tr data-id="{{candidate.id}}">
-                    <td></td>
-                    <td>{{ candidate.id }}</td>
-                    <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>
-                    <td>{{candidate.current_designation}}</td>
-                    <td>{{candidate.contact}}</td>
-                    <td>{{candidate.email}}</td>
-                    <td>{{candidate.location}}</td>
-                    <td>{{candidate.experience}}</td>
-                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>
-                    <td>{{candidate.updated|date:"F j, Y"}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
+<!--              <tbody>-->
+<!--                {% for candidate in candidates %}-->
+
+<!--                <tr data-id="{{candidate.id}}">-->
+<!--                    <td></td>-->
+<!--                    <td>{{ candidate.id }}</td>-->
+<!--                    <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>-->
+<!--                    <td>{{candidate.current_designation}}</td>-->
+<!--                    <td>{{candidate.contact}}</td>-->
+<!--                    <td>{{candidate.email}}</td>-->
+<!--                    <td>{{candidate.location}}</td>-->
+<!--                    <td>{{candidate.experience}}</td>-->
+<!--                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>-->
+<!--                    <td>{{candidate.updated|date:"F j, Y"}}</td>-->
+<!--                </tr>-->
+<!--                {% endfor %}-->
+<!--              </tbody>-->
             </table>
     </div>
 </div>

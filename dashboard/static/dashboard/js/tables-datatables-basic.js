@@ -8,20 +8,41 @@ let fv, offCanvasEl;
 
 // datatable (jquery)
 $(function () {
-  var dt_basic_table = $('.datatables-basic'),
+    let startTime = performance.now();
+
+    var dt_basic_table = $('.datatables-basic'),
+
     dt_basic;
     var actions = $('#actioncheck');
 
 
   // DataTable with buttons
   // --------------------------------------------------------------------
-
+var selectedRows = '';
   if (dt_basic_table.length) {
     dt_basic = dt_basic_table.DataTable({
+        processing: true,
+        serverSide: true,    // Load data page-by-page
+        ajax: {
+        url: "/candidate/candidate-list-api/", // Update with your API endpoint
+        data: function(d) {
+            d.experience = $('#experience-input').val().trim(); // Send experience filter
+            d.status = $('.form-check-input:checked').map(function() { // Send status filter
+                return $(this).data('value');
+            }).get().join(',');
+        }
+        },  // API to fetch data
       columns: [
-        { data: '' },
+        { data: null, defaultContent: '' },
         { data: 'id' },
-        { data: 'name' },
+        { data: 'name'
+//        render: function (data, type, row) {
+//          return `<div class="d-flex justify-content-start align-items-center user-name">
+//          <div class="d-flex flex-column">
+//          <a href="/candidate/candidate-details/${row.id}">${data}</a></div>
+//          </div>`;
+//        }
+        },
         { data: 'designation' },
         { data: 'contact' },
         { data: 'email' },
@@ -85,11 +106,12 @@ $(function () {
               var rowElement = dt_basic_table.find('tbody tr').eq(meta.row); // Get the row element by index
               var isNew = rowElement.attr('data-new'); // Get the data-new attribute
             var $user_img = full['avatar'],
-              $name = full['name'];
+              $name = full['name'],
+              $id = full['id'],
 
-//              $post = full['post'];
+              $post = full['post'];
             if ($user_img) {
-              // For Avatar image
+//               For Avatar image
               var $output =
                 '<img src="' + assetsPath + 'img/avatars/' + $user_img + '" alt="Avatar" class="rounded-circle">';
             } else {
@@ -101,13 +123,15 @@ $(function () {
               var end = $name.lastIndexOf('<'),
                 $initials = $name.slice(start, end).split(' ').slice(0,2).map(function(part) {
                   return part.charAt(0);
-                }).join('').toUpperCase();
-                var $link = $name.slice(0,start);
+                }).join('').toUpperCase(),
+//                 $link = $name.slice(0,start);
               $output = '<span class="avatar-initial rounded-circle bg-label-' + $state + '">' + $initials + '</span>';
             }
             // Creates full output for row
             var $row_output =
-                `${$link}` +
+                `<a href="/candidate/candidate-details/` +
+                $id +
+                `">` +
               `<div class="d-flex justify-content-start align-items-center user-name">` +
               '<div class="avatar-wrapper">' +
               '<div class="avatar me-2">' +
@@ -116,7 +140,7 @@ $(function () {
               '</div>' +
               '<div class="d-flex flex-column">' +
               '<span class="emp_name text-truncate">' +
-              $name.slice(start, end) +
+              $name +
               '</span></div>';
 
               if (isNew === 'True') {
@@ -135,6 +159,7 @@ $(function () {
         {
           // status
           targets: 8,
+          orderable: false,
           render: function (data, type, full, meta) {
             var $status_number = full['status'];
             var stages = $status_number.toLowerCase().split(' ');
@@ -179,8 +204,9 @@ $(function () {
 
       order: [[9, 'desc']],
       dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-      displayLength: 9,
+      displayLength: 10,
       lengthMenu: [7, 10, 25, 50, 75, 100],
+      deferRender: true,  // Render only visible rows first
       language: {
         paginate: {
           next: '<i class="ti ti-chevron-right ti-sm"></i>',
@@ -197,191 +223,169 @@ $(function () {
               window.location.href = "/candidate/add-candidate-form/";
             }
           },
-        {
-          extend: 'collection',
-          className: 'btn btn-label-primary dropdown-toggle me-4 waves-effect waves-light border-none',
-          text: '<i class="ti ti-file-export ti-xs me-sm-1"></i> <span class="d-none d-sm-inline-block">Export</span>',
-          buttons: [
-            {
-              extend: 'print',
-              text: '<i class="ti ti-printer me-1" ></i>Print',
-              className: 'dropdown-item',
-              exportOptions: {
-                columns: [3, 4, 5, 6, 7],
-                // prevent avatar to be display
-                format: {
-                  body: function (inner, coldex, rowdex) {
-                    if (inner.length <= 0) return inner;
-                    var el = $.parseHTML(inner);
-                    var result = '';
-                    $.each(el, function (index, item) {
-                      if (item.classList !== undefined && item.classList.contains('user-name')) {
-                        result = result + item.lastChild.firstChild.textContent;
-                      } else if (item.innerText === undefined) {
-                        result = result + item.textContent;
-                      } else result = result + item.innerText;
-                    });
-                    return result;
-                  }
-                }
-              },
-              customize: function (win) {
-                //customize print view for dark
-                $(win.document.body)
-                  .css('color', config.colors.headingColor)
-                  .css('border-color', config.colors.borderColor)
-                  .css('background-color', config.colors.bodyBg);
-                $(win.document.body)
-                  .find('table')
-                  .addClass('compact')
-                  .css('color', 'inherit')
-                  .css('border-color', 'inherit')
-                  .css('background-color', 'inherit');
-              }
-            },
-            {
-              extend: 'csv',
-              text: '<i class="ti ti-file-text me-1" ></i>Csv',
-              className: 'dropdown-item',
-              exportOptions: {
-                columns: [3, 4, 5, 6, 7],
-                // prevent avatar to be display
-                format: {
-                  body: function (inner, coldex, rowdex) {
-                    if (inner.length <= 0) return inner;
-                    var el = $.parseHTML(inner);
-                    var result = '';
-                    $.each(el, function (index, item) {
-                      if (item.classList !== undefined && item.classList.contains('user-name')) {
-                        result = result + item.lastChild.firstChild.textContent;
-                      } else if (item.innerText === undefined) {
-                        result = result + item.textContent;
-                      } else result = result + item.innerText;
-                    });
-                    return result;
-                  }
-                }
-              }
-            },
-            {
-              extend: 'excel',
-              text: '<i class="ti ti-file-spreadsheet me-1"></i>Excel',
-              className: 'dropdown-item',
-              exportOptions: {
-                columns: [3, 4, 5, 6, 7],
-                // prevent avatar to be display
-                format: {
-                  body: function (inner, coldex, rowdex) {
-                    if (inner.length <= 0) return inner;
-                    var el = $.parseHTML(inner);
-                    var result = '';
-                    $.each(el, function (index, item) {
-                      if (item.classList !== undefined && item.classList.contains('user-name')) {
-                        result = result + item.lastChild.firstChild.textContent;
-                      } else if (item.innerText === undefined) {
-                        result = result + item.textContent;
-                      } else result = result + item.innerText;
-                    });
-                    return result;
-                  }
-                }
-              }
-            },
-            {
-              extend: 'pdf',
-              text: '<i class="ti ti-file-description me-1"></i>Pdf',
-              className: 'dropdown-item',
-              exportOptions: {
-                columns: [3, 4, 5, 6, 7],
-                // prevent avatar to be display
-                format: {
-                  body: function (inner, coldex, rowdex) {
-                    if (inner.length <= 0) return inner;
-                    var el = $.parseHTML(inner);
-                    var result = '';
-                    $.each(el, function (index, item) {
-                      if (item.classList !== undefined && item.classList.contains('user-name')) {
-                        result = result + item.lastChild.firstChild.textContent;
-                      } else if (item.innerText === undefined) {
-                        result = result + item.textContent;
-                      } else result = result + item.innerText;
-                    });
-                    return result;
-                  }
-                }
-              }
-            },
-            {
-              extend: 'copy',
-              text: '<i class="ti ti-copy me-1" ></i>Copy',
-              className: 'dropdown-item',
-              exportOptions: {
-                columns: [3, 4, 5, 6, 7],
-                // prevent avatar to be display
-                format: {
-                  body: function (inner, coldex, rowdex) {
-                    if (inner.length <= 0) return inner;
-                    var el = $.parseHTML(inner);
-                    var result = '';
-                    $.each(el, function (index, item) {
-                      if (item.classList !== undefined && item.classList.contains('user-name')) {
-                        result = result + item.lastChild.firstChild.textContent;
-                      } else if (item.innerText === undefined) {
-                        result = result + item.textContent;
-                      } else result = result + item.innerText;
-                    });
-                    return result;
-                  }
-                }
-              }
-            }
-          ]
-        }
+//        {
+//          extend: 'collection',
+//          className: 'btn btn-label-primary dropdown-toggle me-4 waves-effect waves-light border-none',
+//          text: '<i class="ti ti-file-export ti-xs me-sm-1"></i> <span class="d-none d-sm-inline-block">Export</span>',
+//          buttons: [
+//            {
+//              extend: 'print',
+//              text: '<i class="ti ti-printer me-1" ></i>Print',
+//              className: 'dropdown-item',
+//              exportOptions: {
+//                columns: [3, 4, 5, 6, 7],
+//                // prevent avatar to be display
+//                format: {
+//                  body: function (inner, coldex, rowdex) {
+//                    if (inner.length <= 0) return inner;
+//                    var el = $.parseHTML(inner);
+//                    var result = '';
+//                    $.each(el, function (index, item) {
+//                      if (item.classList !== undefined && item.classList.contains('user-name')) {
+//                        result = result + item.lastChild.firstChild.textContent;
+//                      } else if (item.innerText === undefined) {
+//                        result = result + item.textContent;
+//                      } else result = result + item.innerText;
+//                    });
+//                    return result;
+//                  }
+//                }
+//              },
+//              customize: function (win) {
+//                //customize print view for dark
+//                $(win.document.body)
+//                  .css('color', config.colors.headingColor)
+//                  .css('border-color', config.colors.borderColor)
+//                  .css('background-color', config.colors.bodyBg);
+//                $(win.document.body)
+//                  .find('table')
+//                  .addClass('compact')
+//                  .css('color', 'inherit')
+//                  .css('border-color', 'inherit')
+//                  .css('background-color', 'inherit');
+//              }
+//            },
+//            {
+//              extend: 'csv',
+//              text: '<i class="ti ti-file-text me-1" ></i>Csv',
+//              className: 'dropdown-item',
+//              exportOptions: {
+//                columns: [3, 4, 5, 6, 7],
+//                // prevent avatar to be display
+//                format: {
+//                  body: function (inner, coldex, rowdex) {
+//                    if (inner.length <= 0) return inner;
+//                    var el = $.parseHTML(inner);
+//                    var result = '';
+//                    $.each(el, function (index, item) {
+//                      if (item.classList !== undefined && item.classList.contains('user-name')) {
+//                        result = result + item.lastChild.firstChild.textContent;
+//                      } else if (item.innerText === undefined) {
+//                        result = result + item.textContent;
+//                      } else result = result + item.innerText;
+//                    });
+//                    return result;
+//                  }
+//                }
+//              }
+//            },
+//            {
+//              extend: 'excel',
+//              text: '<i class="ti ti-file-spreadsheet me-1"></i>Excel',
+//              className: 'dropdown-item',
+//              exportOptions: {
+//                columns: [3, 4, 5, 6, 7],
+//                // prevent avatar to be display
+//                format: {
+//                  body: function (inner, coldex, rowdex) {
+//                    if (inner.length <= 0) return inner;
+//                    var el = $.parseHTML(inner);
+//                    var result = '';
+//                    $.each(el, function (index, item) {
+//                      if (item.classList !== undefined && item.classList.contains('user-name')) {
+//                        result = result + item.lastChild.firstChild.textContent;
+//                      } else if (item.innerText === undefined) {
+//                        result = result + item.textContent;
+//                      } else result = result + item.innerText;
+//                    });
+//                    return result;
+//                  }
+//                }
+//              }
+//            },
+//            {
+//              extend: 'pdf',
+//              text: '<i class="ti ti-file-description me-1"></i>Pdf',
+//              className: 'dropdown-item',
+//              exportOptions: {
+//                columns: [3, 4, 5, 6, 7],
+//                // prevent avatar to be display
+//                format: {
+//                  body: function (inner, coldex, rowdex) {
+//                    if (inner.length <= 0) return inner;
+//                    var el = $.parseHTML(inner);
+//                    var result = '';
+//                    $.each(el, function (index, item) {
+//                      if (item.classList !== undefined && item.classList.contains('user-name')) {
+//                        result = result + item.lastChild.firstChild.textContent;
+//                      } else if (item.innerText === undefined) {
+//                        result = result + item.textContent;
+//                      } else result = result + item.innerText;
+//                    });
+//                    return result;
+//                  }
+//                }
+//              }
+//            },
+//            {
+//              extend: 'copy',
+//              text: '<i class="ti ti-copy me-1" ></i>Copy',
+//              className: 'dropdown-item',
+//              exportOptions: {
+//                columns: [3, 4, 5, 6, 7],
+//                // prevent avatar to be display
+//                format: {
+//                  body: function (inner, coldex, rowdex) {
+//                    if (inner.length <= 0) return inner;
+//                    var el = $.parseHTML(inner);
+//                    var result = '';
+//                    $.each(el, function (index, item) {
+//                      if (item.classList !== undefined && item.classList.contains('user-name')) {
+//                        result = result + item.lastChild.firstChild.textContent;
+//                      } else if (item.innerText === undefined) {
+//                        result = result + item.textContent;
+//                      } else result = result + item.innerText;
+//                    });
+//                    return result;
+//                  }
+//                }
+//              }
+//            }
+//          ]
+//        }
       ],
 
-//      responsive: {
-//        details: {
-//          display: $.fn.dataTable.Responsive.display.modal({
-//            header: function (row) {
-//              var data = row.data();
-//              return 'Details of ' + data['name'];
-//            }
-//          }),
-//          type: 'column',
-//          renderer: function (api, rowIdx, columns) {
-//            var data = $.map(columns, function (col, i) {
-//              return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
-//                ? '<tr data-dt-row="' +
-//                    col.rowIndex +
-//                    '" data-dt-column="' +
-//                    col.columnIndex +
-//                    '">' +
-//                    '<td>' +
-//                    col.title +
-//                    ':' +
-//                    '</td> ' +
-//                    '<td>' +
-//                    col.data +
-//                    '</td>' +
-//                    '</tr>'
-//                : '';
-//            }).join('');
-//
-//            return data ? $('<table class="table"/><tbody />').append(data) : false;
-//          }
-//        }
-//      },
       initComplete: function (settings, json) {
       var header = $('.card-header');
         $('.card-header').after('<hr class="my-0">');
         actions.prop('disabled', true);
     }
     });
+    let endTime = performance.now();
+    console.log(`Execution time: ${(endTime - startTime).toFixed(2)} ms`);
     // Select the title element from the DOM
     var titleElement = $('#datatable-title').detach();
 
     // Insert the title into the target div
     $('div.head-label').html(titleElement);
+
+      // Trigger table reload on filter change
+  $('#experience-input, .form-check-input').on('input', function () {
+    dt_basic.ajax.reload();
+  });
+  $('#filter-status').on('change', '.form-check-input', function () {
+    dt_basic.ajax.reload();
+  });
 
 
         // Event handler for individual checkboxes
@@ -396,6 +400,7 @@ $(function () {
 
       }
       updateSelectedRows();
+      getSelectedIds();
 
     });
 
@@ -404,6 +409,7 @@ $(function () {
       var checked = $(this).prop('checked');
       // select only filtered rows
       dt_basic.rows({ search: 'applied' }).nodes().to$().find('input[type="checkbox"]').prop('checked', checked);
+
       if (checked) {
         dt_basic.rows({ search: 'applied' }).nodes().to$().addClass('selected');
       }
@@ -411,10 +417,10 @@ $(function () {
         dt_basic.rows({ search: 'applied' }).nodes().to$().removeClass('selected');
       }
       updateSelectedRows();
+      getSelectedIds();
     });
     
 
-var selectedRows = '';
     function updateSelectedRows() {
       // Get all selected rows
       selectedRows = dt_basic.rows('.selected').data().toArray();
@@ -437,7 +443,7 @@ $(function () {
     var comparatorText = $(this).text(); // Get the text of the selected item
     $('#experience-input').val(comparator + ' '); // Set the comparator in the input field
     $('#experience-input').data('comparator', comparator); // Store comparator in data attribute
-    filterCandidatesByExperience(); // Apply filter immediately after selection
+//    filterCandidatesByExperience(); // Apply filter immediately after selection
   });
 
    // Set default comparator if none is selected
@@ -446,10 +452,6 @@ $(function () {
     $('#experience-input').val(' '); // Default to "="
   }
 
-  // Handle Experience filter input
-  $('#experience-input').on('input', function () {
-    filterCandidatesByExperience(); // Apply filter when input changes
-  });
 
   // Append filter inputs to the filter container
   var filterHTML = $('#filter-container');
@@ -457,57 +459,6 @@ $(function () {
   filterline.after(filterHTML).after('<hr class="my-0">');
   filterHTML.show();
 
-  // Handle Status filter
-  $('#filter-status').on('change', '.form-check-input', function () {
-    var filterPattern = applyFilters();
-    dt_basic.column(8).search(filterPattern, true, false).draw();
-});
-
-  // Function to filter candidates based on experience
-  function filterCandidatesByExperience() {
-    var comparator = $('#experience-input').data('comparator') || '';
-    var experienceValue = $('#experience-input').val().replace(comparator, '').trim();
-
-    if (comparator && experienceValue !== '') {
-      dt_basic.draw(); // Trigger the DataTable to redraw
-    } else {
-      dt_basic.search('').draw(); // Clear search if no comparator or value
-    }
-  }
-
-  // DataTables custom search function for experience
-  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    var comparator = $('#experience-input').data('comparator') || '=';
-    var experienceValue = $('#experience-input').val().replace(comparator, '').trim();
-    var experience = parseFloat(data[7]) || 0; // Assuming experience is in the 7th column (index 6)
-
-    if (comparator && experienceValue !== '') {
-      experienceValue = parseFloat(experienceValue);
-      switch (comparator) {
-        case '<':
-          return experience < experienceValue;
-        case '>':
-          return experience > experienceValue;
-        case '=':
-          return experience == experienceValue;
-        default:
-          return true;
-      }
-    }
-    return true;
-  });
-
-  // Collect selected checkboxes' values for status filter
-  function applyFilters() {
-    let selectedValues = [];
-    $('.form-check-input:checked').each(function () {
-      selectedValues.push($(this).data('value'));
-    });
-    var filterPattern = selectedValues.length > 0 ? selectedValues.join('|') : '';
-
-    // Convert array to a regex pattern for DataTables search
-    return filterPattern;
-  }
 });
 
 
@@ -577,6 +528,22 @@ function getSelectedIds() {
       },
       error: function(xhr, status, error) {
         console.error('Error sending mail:', status, error);
+        $('#shareOpening').modal('hide');
+
+          // Show Django style message dynamically
+//        let message = "Email id may not be correct! Please check all email id and try again.";
+//        let tags = "danger"; // For error messages, use 'danger' | For success, use 'success'
+//
+//        // Append message using the same structure
+//        $('#messages').html(`
+//          <div class="messages alert alert-danger" data-tags="${tags}" data-message="${message}">
+//            ${message}
+//          </div>
+//        `);
+        // Automatically hide message after 3 seconds
+//        setTimeout(function () {
+//          $('.messages').fadeOut('slow');
+//        }, 6000);
         // Optionally, show an error message to the user
       }
     });

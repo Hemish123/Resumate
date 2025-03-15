@@ -49,7 +49,8 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                 sheet = workbook.active
 
                 for row in sheet.iter_rows(min_row=2, values_only=True):  # Skipping header
-                    if all(row):  # Check if row is not empty
+                    name, contact, email1, *rest = row  # Unpack first three columns into name, email, contact
+                    if name and ('@' in str(email1).strip()) and (len(str(contact))>=10):   # Check if row is not empty
                         email = row[2].lower() if isinstance(row[2], str) else None
                         if email:
                             if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
@@ -57,7 +58,11 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                                     experience = int(row[5])
                                 except (ValueError, TypeError):
                                     experience = 0
-
+                                #
+                                # if not row[3]:
+                                #     row[3] = None
+                                # if not row[4]:
+                                #     row[4] = None
                                 Candidate.objects.create(
                                     name=row[0],
                                     contact=row[1],
@@ -69,6 +74,8 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                                 )
                             else:
                                 skip += 1
+                        else:
+                            skip += 1
                     else:
                         skip += 1
 
@@ -101,6 +108,11 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                                 experience=experience,
                                 company=request.user.employee.company
                             )
+                            print('candidate')
+                        else:
+                            skip += 1
+                    else:
+                        skip += 1
 
             else:
                 messages.error(request, "Invalid file format! Please upload CSV or Excel file.")
@@ -355,6 +367,106 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
             messages.success(self.request, message='Candidate updated successfully!')
             return super().form_valid(form)
 
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+
+def candidate_list_api(request):
+    # Get search term and filters from request
+    search_value = request.GET.get('search[value]', '').strip()
+    experience_filter = request.GET.get('experience', '').strip()
+    status_filter = request.GET.getlist('status')  # List of selected statuses
+    candidates = Candidate.objects.filter(company=request.user.employee.company).order_by('-updated')
+
+    # Get column index and sorting direction from request
+    order_column_index = request.GET.get('order[0][column]', None)
+    order_dir = request.GET.get('order[0][dir]', 'asc')
+
+    # Define mapping of DataTables column index to model field names
+    column_mapping = {
+        "0": "",
+        "1": "id",
+        "2": "name",
+        "3": "current_designation",
+        "4": "contact",
+        "5": "email",
+        "6": "location",
+        "7": "experience",
+        "9": "updated",
+    }
+
+    # Apply sorting if valid column index is provided
+    if order_column_index in column_mapping:
+        order_field = column_mapping[order_column_index]
+        if order_dir == 'desc':
+            order_field = f"-{order_field}"  # Add "-" for descending order
+        candidates = candidates.order_by(order_field)
+
+
+    # Apply search filter
+    if search_value:
+        candidates = candidates.filter(
+            Q(name__icontains=search_value) |
+            Q(email__icontains=search_value) |
+            Q(contact__icontains=search_value) |
+            Q(location__icontains=search_value) |
+            Q(current_designation__icontains=search_value)
+        )
+
+    # Apply experience filter
+    if experience_filter:
+        try:
+            if experience_filter.isdigit():
+                candidates = candidates.filter(experience=int(experience_filter))
+            else:
+                comparator, exp_value = experience_filter.split()
+                exp_value = float(exp_value)
+                if comparator == '<':
+                    candidates = candidates.filter(experience__lt=exp_value)
+                elif comparator == '>':
+                    candidates = candidates.filter(experience__gt=exp_value)
+                elif comparator == '=':
+                    candidates = candidates.filter(experience=exp_value)
+        except ValueError:
+            pass  # Ignore invalid input
+
+    status_filter = request.GET.get('status')  # Get the raw string
+
+    if status_filter:
+        status_filter = status_filter.split(',')  # Convert it into a list
+        status_filter = [s.strip() for s in status_filter if s]  # Remove spaces & empty values
+
+    # Apply status filter
+    if status_filter:
+        candidates = candidates.filter(candidatestage__stage__name__in=status_filter).distinct()
+
+    # candidates = candidates.order_by('-updated')
+    paginator = Paginator(candidates, request.GET.get('length', len(candidates)))
+    page = request.GET.get('start', 0)
+    page_number = (int(page) // paginator.per_page) + 1
+    data = []  # Initialize empty list
+
+    for c in paginator.page(page_number):
+        status = ', '.join([stage.stage.name for stage in c.candidatestage_set.all()])
+        data.append(
+            {
+                'id': c.id,
+                'name': c.name,
+                'designation': c.current_designation,
+                'email': c.email,
+                'contact': c.contact,
+                'location': c.location,
+                'experience': c.experience,
+                'status': status,
+                'updated': c.updated.strftime('%d-%m-%Y %H:%M')
+            })
+
+    return JsonResponse({
+        'draw': int(request.GET.get('draw', 1)),
+        'recordsTotal': Candidate.objects.filter(company=request.user.employee.company).count(),
+        'recordsFiltered': candidates.count(),
+        'data': data
+    })
+
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
     title = 'Candidate Database'
@@ -364,7 +476,6 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
         context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company).order_by('updated')
-
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
@@ -378,9 +489,14 @@ class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
         if ids:
             ids = [int(id) for id in ids.split(',')]
             for id in ids:
-                candidate = Candidate.objects.get(id=id)
-                site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
-                send_job_opening_email(request.user, candidate, job_opening, site_url)
+                try:
+                    candidate = Candidate.objects.get(id=id)
+                    site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
+                    send_job_opening_email(request.user, candidate, job_opening, site_url)
+                except Exception as e:
+                    messages.error(self.request, message='There was an error!')
+                    return JsonResponse({'status': 'error', 'message': str(e)})
+
         return JsonResponse({'status': 'success'})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):

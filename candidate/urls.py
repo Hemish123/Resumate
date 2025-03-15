@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import (CandidateCreateView, CandidateListView,
+from .views import (CandidateCreateView, CandidateListView, candidate_list_api,
                     CandidateDetailsView, CandidateUpdateView, CandidateImportView, ShareJobOpeningView,
                     CandidateDeleteView, ApplicationSuccessView, ResumeListView, ResumeSearchView,
                     CandidateAnalysisView, ApplicationListView)
@@ -8,6 +8,8 @@ from .views import (CandidateCreateView, CandidateListView,
 urlpatterns = [
     path('application-create/<int:pk>/', CandidateCreateView.as_view(), name='application_create'),
     path('candidate-list/', CandidateListView.as_view(), name='candidate-list'),
+    path('candidate-list-api/', candidate_list_api, name='candidate_list_api'),
+
     path('share-job-opening/', ShareJobOpeningView.as_view(), name='share_job_opening'),
     path('add-candidate-form/', CandidateImportView.as_view(), name='candidate-import'),
     path('resume-list/', ResumeListView.as_view(), name='resume-list'),
