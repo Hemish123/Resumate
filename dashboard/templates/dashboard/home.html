@@ -138,7 +138,8 @@
 
           <!-- Right section with job status and duration -->
           <div>
-            <h5 class="m-0 text-dark">Open Positions: {{ job.openings }}</h5>
+            <p class="m-0 card-text">Open Positions: {{ job.openings }}</p>
+            <p class="m-0 card-text">No. of Applicants: {{ job.candidate_set.count }}</p>
             <p class="m-0 text-muted fs-14">Expires in: {{ job.days_remaining }} days</p>
             
           </div>

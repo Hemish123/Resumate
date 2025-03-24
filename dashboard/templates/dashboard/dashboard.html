@@ -58,6 +58,9 @@
                             <p class="card-text">
                                 Open Positions: {{ jobs.openings }}
                             </p>
+                            <p class="card-text">
+                                No. of Applicants: {{ jobs.candidate_set.count }}
+                            </p>
                             {% for id, new_count in new_application_counts.items %}
                                 {% if id == jobs.id and new_count > 0 %}
                                     <div class="alert alert-info" role="alert">{{ new_count }} New Application{% if new_count > 1 %}s{% endif %}</div>
@@ -110,6 +113,9 @@
                         <p class="card-text">
                             Open Positions: {{ jobs.openings }}
                         </p>
+                            <p class="card-text">
+                                No. of Applicants: {{ jobs.candidate_set.count }}
+                            </p>
                         {% for id, new_count in new_application_counts.items %}
                             {% if id == jobs.id and new_count > 0 %}
                                 <div class="alert alert-info" role="alert">{{ new_count }} New Application{% if new_count > 1 %}s{% endif %}</div>

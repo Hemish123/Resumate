@@ -507,7 +507,7 @@ function getSelectedIds() {
     e.preventDefault();  // Prevent default form submission
    var idsToShare = getSelectedIds();
    var selectedJobOpening = $('#jobOpening').val(); // Get the selected job opening ID
-
+    $('#shareOpening').modal('hide');
     if (idsToShare.length > 0) {
     // Send AJAX request to delete rows
     $.ajax({
@@ -524,11 +524,11 @@ function getSelectedIds() {
         dt_basic.rows('.selected').nodes().to$().find('input[type="checkbox"]').prop('checked', false);
         dt_basic.rows().nodes().to$().removeClass('selected');
         $('.dt-checkboxes-select-all input').prop('checked', false);
-        $('#shareOpening').modal('hide');
+//        $('#shareOpening').modal('hide');
       },
       error: function(xhr, status, error) {
         console.error('Error sending mail:', status, error);
-        $('#shareOpening').modal('hide');
+//        $('#shareOpening').modal('hide');
 
           // Show Django style message dynamically
 //        let message = "Email id may not be correct! Please check all email id and try again.";

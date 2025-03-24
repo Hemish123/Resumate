@@ -374,7 +374,6 @@ def candidate_list_api(request):
     # Get search term and filters from request
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
-    status_filter = request.GET.getlist('status')  # List of selected statuses
     candidates = Candidate.objects.filter(company=request.user.employee.company).order_by('-updated')
 
     # Get column index and sorting direction from request
@@ -475,7 +474,7 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
-        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company).order_by('updated')
+        # context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company).order_by('updated')
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
         return context
