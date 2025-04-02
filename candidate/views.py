@@ -529,12 +529,13 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 query_filter &= Q(text_content__icontains=keyword)
             candidates = Candidate.objects.filter(
                 query_filter,
-                company=self.request.user.employee.company
+                company=self.request.user.employee.company,
+                upload_resume__isnull=False
             )
-            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).count()}'
+            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company, upload_resume__isnull=False).count()}'
 
         else:
-            candidates = Candidate.objects.filter(company=self.request.user.employee.company)
+            candidates = Candidate.objects.filter(company=self.request.user.employee.company, upload_resume__isnull=False)
             counts = f'Total {candidates.count()} resumes'
 
         results = []
