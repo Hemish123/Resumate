@@ -403,12 +403,16 @@ def candidate_list_api(request):
 
     # Apply search filter
     if search_value:
+        keywords = [word.strip() for word in search_value.replace(',', ' ').split() if word.strip()]
+        query_filter = Q()
+        for keyword in keywords:
+            query_filter &= (Q(name__icontains=keyword) |
+            Q(email__icontains=keyword) |
+            Q(contact__icontains=keyword) |
+            Q(location__icontains=keyword) |
+            Q(current_designation__icontains=keyword))
         candidates = candidates.filter(
-            Q(name__icontains=search_value) |
-            Q(email__icontains=search_value) |
-            Q(contact__icontains=search_value) |
-            Q(location__icontains=search_value) |
-            Q(current_designation__icontains=search_value)
+            query_filter
         )
 
     # Apply experience filter
@@ -506,7 +510,9 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
-        context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company)
+        candidates = Candidate.objects.filter(company=self.request.user.employee.company)
+        context['candidates'] = candidates
+        context['counts'] = f"Total {candidates.count()} resumes"
 
         context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
 
@@ -515,14 +521,21 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 
 class ResumeSearchView(LoginRequiredMixin, APIView):
     def get(self, request, *args, **kwargs):
-        query = request.GET.get('q')
+        query = request.GET.get('q').strip()
         if query:
+            keywords = [word.strip() for word in query.replace(',', ' ').split() if word.strip()]
+            query_filter = Q()
+            for keyword in keywords:
+                query_filter &= Q(text_content__icontains=keyword)
             candidates = Candidate.objects.filter(
-                Q(text_content__icontains=query),
+                query_filter,
                 company=self.request.user.employee.company
             )
+            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).count()}'
+
         else:
             candidates = Candidate.objects.filter(company=self.request.user.employee.company)
+            counts = f'Total {candidates.count()} resumes'
 
         results = []
         for candidate in candidates:
@@ -533,7 +546,7 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 'content': candidate.text_content[:100],  # Limit to 100 characters or customize
                 'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
             })
-        return JsonResponse({'results': results})
+        return JsonResponse({'results': results, 'counts': counts})
 
 class ApplicationListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/application_list.html'

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $('#search-button').on('click', function() {
+function searchResumes() {
         var query = $('#search-input').val();
 
         $.ajax({
@@ -8,7 +8,9 @@ $(document).ready(function() {
             data: { 'q': query },
             success: function(data) {
                 var results = data.results;
+                var counts = data.counts;
                 var tableBody = $('table tbody');
+                var countDiv = $('#count');
                 tableBody.empty();  // Clear the existing rows
 
                 if (results.length > 0) {
@@ -21,14 +23,27 @@ $(document).ready(function() {
                                   '</tr>';
                         tableBody.append(row);
                     });
+                    countDiv.html('<div id="count" class="m-2 mt-4"><p>' + counts + '</p></div>');
+
                 } else {
-                    tableBody.append('<tr><td colspan="3">No results found</td></tr>');
+                    tableBody.append('<tr><td colspan="4">No results found</td></tr>');
+                    countDiv.html('<div id="count">' + counts + '</div>');
                 }
             },
             error: function(xhr, status, error) {
                 console.log('Error:', error);
             }
         });
+    }
+    $('#search-button').on('click', function() {
+       searchResumes();
+    });
+        // Search on Enter key press inside the search input
+    $('#search-input').on('keypress', function(event) {
+        if (event.which === 13) {  // 13 is the Enter key
+            event.preventDefault();  // Prevent form submission (if inside a form)
+            searchResumes();
+        }
     });
 
     const selectAll = document.getElementById("select-all");
