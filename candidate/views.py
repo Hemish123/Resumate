@@ -510,7 +510,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
-        candidates = Candidate.objects.filter(company=self.request.user.employee.company)
+        candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="")
         context['candidates'] = candidates
         context['counts'] = f"Total {candidates.count()} resumes"
 
@@ -532,10 +532,10 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 company=self.request.user.employee.company,
                 upload_resume__isnull=False
             )
-            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company, upload_resume__isnull=False).count()}'
+            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").count()}'
 
         else:
-            candidates = Candidate.objects.filter(company=self.request.user.employee.company, upload_resume__isnull=False)
+            candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="")
             counts = f'Total {candidates.count()} resumes'
 
         results = []
