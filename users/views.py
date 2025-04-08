@@ -25,7 +25,7 @@ def register(request):
         if user_create.is_valid():
             email = user_create.cleaned_data.get('email').lower()
 
-            messages.success(request, f'Check your email and verify using link sent in your email')
+            # messages.success(request, f'Check your email and verify using link sent in your email')
             # send link to mail and save user if link verified
             # inactive_user = send_verification_email(request, user_create)
             user = user_create.save()  # Don't save to the database yet
@@ -34,6 +34,7 @@ def register(request):
             admin_group = Group.objects.get(name='admin')  # Replace 'admin' with your actual group name
 
             user.groups.add(admin_group)
+            return redirect('login')
 
     else:
         user_create = UserRegisterForm()
