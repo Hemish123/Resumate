@@ -160,7 +160,8 @@
                     <label class="form-label" for="id_min_experience">Minimum Experience</label><span>*</span>
                     <input type="number" placeholder="0"
                            value="{{ form.min_experience.value|default_if_none:'' }}" name="min_experience" id="id_min_experience" class="form-control w-50">
-                    {% for error in form.min_experience.errors %}
+                {% if form.errors %}
+                  {% for error in form.min_experience.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
                 {% endif %}
@@ -169,6 +170,7 @@
                   <label class="form-label" for="id_max_experience">Maximum Experience</label><span>*</span>
                   <input type="number" placeholder="1"
                          value="{{ form.max_experience.value|default_if_none:'' }}" name="max_experience" id="id_max_experience" class="form-control w-50">
+              {% if form.errors %}
                   {% for error in form.max_experience.errors %}
                     <div class="error-message text-danger">{{ error }}</div>
                   {% endfor %}
