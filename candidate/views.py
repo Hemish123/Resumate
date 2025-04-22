@@ -26,6 +26,8 @@ from .forms import CandidateForm, CandidateImportForm
 from notification.models import Notification
 from dashboard.utils import send_success_email, new_application_email, send_job_opening_email
 import csv, openpyxl
+from django.db.models import Prefetch
+
 
 class CandidateImportView(LoginRequiredMixin, FormView):
     template_name = "candidate/candidate_import.html"
@@ -371,18 +373,17 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 
 def candidate_list_api(request):
-    # Get search term and filters from request
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
-    candidates = Candidate.objects.filter(company=request.user.employee.company).order_by('-updated')
+    status_filter = request.GET.get('status', '').strip()
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 10))
+    draw = int(request.GET.get('draw', 1))
 
-    # Get column index and sorting direction from request
-    order_column_index = request.GET.get('order[0][column]', None)
-    order_dir = request.GET.get('order[0][dir]', 'asc')
-
-    # Define mapping of DataTables column index to model field names
+    # Sorting
+    order_column_index = request.GET.get('order[0][column]', '9')
+    order_dir = request.GET.get('order[0][dir]', 'desc')
     column_mapping = {
-        "0": "",
         "1": "id",
         "2": "name",
         "3": "current_designation",
@@ -392,83 +393,187 @@ def candidate_list_api(request):
         "7": "experience",
         "9": "updated",
     }
+    sort_field = column_mapping.get(order_column_index, 'updated')
+    if order_dir == 'desc':
+        sort_field = f"-{sort_field}"
 
-    # Apply sorting if valid column index is provided
-    if order_column_index in column_mapping:
-        order_field = column_mapping[order_column_index]
-        if order_dir == 'desc':
-            order_field = f"-{order_field}"  # Add "-" for descending order
-        candidates = candidates.order_by(order_field)
+    # Prefetch related CandidateStage objects
+    candidatestage_queryset = Prefetch(
+        'candidatestage_set',
+        queryset=CandidateStage.objects.select_related('stage').only('stage__name')
+    )
 
+    # Base QuerySet
+    base_queryset = Candidate.objects.filter(company=request.user.employee.company).prefetch_related(candidatestage_queryset).only(
+        'id', 'name', 'current_designation', 'email', 'contact',
+        'location', 'experience', 'updated', 'company_id'
+    ).order_by(sort_field)
 
-    # Apply search filter
+    total_records = base_queryset.count()
+
+    # Apply filters
+    filters = Q()
+
     if search_value:
-        keywords = [word.strip() for word in search_value.replace(',', ' ').split() if word.strip()]
-        query_filter = Q()
+        keywords = [word.strip() for word in search_value.replace(',', ' ').split()]
         for keyword in keywords:
-            query_filter &= (Q(name__icontains=keyword) |
-            Q(email__icontains=keyword) |
-            Q(contact__icontains=keyword) |
-            Q(location__icontains=keyword) |
-            Q(current_designation__icontains=keyword))
-        candidates = candidates.filter(
-            query_filter
-        )
+            filters &= (
+                Q(name__icontains=keyword) |
+                Q(email__icontains=keyword) |
+                Q(contact__icontains=keyword) |
+                Q(location__icontains=keyword) |
+                Q(current_designation__icontains=keyword)
+            )
 
-    # Apply experience filter
     if experience_filter:
         try:
             if experience_filter.isdigit():
-                candidates = candidates.filter(experience=int(experience_filter))
+                filters &= Q(experience=int(experience_filter))
             else:
                 comparator, exp_value = experience_filter.split()
                 exp_value = float(exp_value)
                 if comparator == '<':
-                    candidates = candidates.filter(experience__lt=exp_value)
+                    filters &= Q(experience__lt=exp_value)
                 elif comparator == '>':
-                    candidates = candidates.filter(experience__gt=exp_value)
+                    filters &= Q(experience__gt=exp_value)
                 elif comparator == '=':
-                    candidates = candidates.filter(experience=exp_value)
+                    filters &= Q(experience=exp_value)
         except ValueError:
-            pass  # Ignore invalid input
-
-    status_filter = request.GET.get('status')  # Get the raw string
+            pass
 
     if status_filter:
-        status_filter = status_filter.split(',')  # Convert it into a list
-        status_filter = [s.strip() for s in status_filter if s]  # Remove spaces & empty values
+        status_list = [s.strip() for s in status_filter.split(',') if s.strip()]
+        filters &= Q(candidatestage__stage__name__in=status_list)
 
-    # Apply status filter
-    if status_filter:
-        candidates = candidates.filter(candidatestage__stage__name__in=status_filter).distinct()
+    filtered_queryset = base_queryset.filter(filters).distinct()
+    records_filtered = filtered_queryset.count()
 
-    # candidates = candidates.order_by('-updated')
-    paginator = Paginator(candidates, request.GET.get('length', len(candidates)))
-    page = request.GET.get('start', 0)
-    page_number = (int(page) // paginator.per_page) + 1
-    data = []  # Initialize empty list
+    # Slice QuerySet (pagination)
+    candidates = filtered_queryset[start:start + length]
 
-    for c in paginator.page(page_number):
+    # Build data
+    data = []
+    for c in candidates:
+        # Create the 'status' string by joining all related stages
         status = ', '.join([stage.stage.name for stage in c.candidatestage_set.all()])
-        data.append(
-            {
-                'id': c.id,
-                'name': c.name,
-                'designation': c.current_designation,
-                'email': c.email,
-                'contact': c.contact,
-                'location': c.location,
-                'experience': c.experience,
-                'status': status,
-                'updated': c.updated.strftime('%d-%m-%Y %H:%M')
-            })
+        data.append({
+            'id': c.id,
+            'name': c.name,
+            'designation': c.current_designation,
+            'email': c.email,
+            'contact': c.contact,
+            'location': c.location,
+            'experience': c.experience,
+            'status': status or '',
+            'updated': c.updated.strftime('%d-%m-%Y %H:%M')
+        })
 
     return JsonResponse({
-        'draw': int(request.GET.get('draw', 1)),
-        'recordsTotal': Candidate.objects.filter(company=request.user.employee.company).count(),
-        'recordsFiltered': candidates.count(),
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': records_filtered,
         'data': data
     })
+
+
+    # # Get search term and filters from request
+    # search_value = request.GET.get('search[value]', '').strip()
+    # experience_filter = request.GET.get('experience', '').strip()
+    # # candidates = Candidate.objects.filter(company=request.user.employee.company).order_by('-updated')
+    #
+    # # Get column index and sorting direction from request
+    # order_column_index = request.GET.get('order[0][column]', None)
+    # order_dir = request.GET.get('order[0][dir]', 'asc')
+    #
+    # # Define mapping of DataTables column index to model field names
+    # column_mapping = {
+    #     "0": "",
+    #     "1": "id",
+    #     "2": "name",
+    #     "3": "current_designation",
+    #     "4": "contact",
+    #     "5": "email",
+    #     "6": "location",
+    #     "7": "experience",
+    #     "9": "updated",
+    # }
+    #
+    # # Apply sorting if valid column index is provided
+    # if order_column_index in column_mapping:
+    #     order_field = column_mapping[order_column_index]
+    #     if order_dir == 'desc':
+    #         order_field = f"-{order_field}"  # Add "-" for descending order
+    #     candidates = candidates.order_by(order_field)
+    #
+    #
+    # # Apply search filter
+    # if search_value:
+    #     keywords = [word.strip() for word in search_value.replace(',', ' ').split() if word.strip()]
+    #     query_filter = Q()
+    #     for keyword in keywords:
+    #         query_filter &= (Q(name__icontains=keyword) |
+    #         Q(email__icontains=keyword) |
+    #         Q(contact__icontains=keyword) |
+    #         Q(location__icontains=keyword) |
+    #         Q(current_designation__icontains=keyword))
+    #     candidates = candidates.filter(
+    #         query_filter
+    #     )
+    #
+    # # Apply experience filter
+    # if experience_filter:
+    #     try:
+    #         if experience_filter.isdigit():
+    #             candidates = candidates.filter(experience=int(experience_filter))
+    #         else:
+    #             comparator, exp_value = experience_filter.split()
+    #             exp_value = float(exp_value)
+    #             if comparator == '<':
+    #                 candidates = candidates.filter(experience__lt=exp_value)
+    #             elif comparator == '>':
+    #                 candidates = candidates.filter(experience__gt=exp_value)
+    #             elif comparator == '=':
+    #                 candidates = candidates.filter(experience=exp_value)
+    #     except ValueError:
+    #         pass  # Ignore invalid input
+    #
+    # status_filter = request.GET.get('status')  # Get the raw string
+    #
+    # if status_filter:
+    #     status_filter = status_filter.split(',')  # Convert it into a list
+    #     status_filter = [s.strip() for s in status_filter if s]  # Remove spaces & empty values
+    #
+    # # Apply status filter
+    # if status_filter:
+    #     candidates = candidates.filter(candidatestage__stage__name__in=status_filter).distinct()
+    #
+    # # candidates = candidates.order_by('-updated')
+    # paginator = Paginator(candidates, request.GET.get('length', len(candidates)))
+    # page = request.GET.get('start', 0)
+    # page_number = (int(page) // paginator.per_page) + 1
+    # data = []  # Initialize empty list
+    #
+    # for c in paginator.page(page_number):
+    #     status = ', '.join([stage.stage.name for stage in c.candidatestage_set.all()])
+    #     data.append(
+    #         {
+    #             'id': c.id,
+    #             'name': c.name,
+    #             'designation': c.current_designation,
+    #             'email': c.email,
+    #             'contact': c.contact,
+    #             'location': c.location,
+    #             'experience': c.experience,
+    #             'status': status,
+    #             'updated': c.updated.strftime('%d-%m-%Y %H:%M')
+    #         })
+    #
+    # return JsonResponse({
+    #     'draw': int(request.GET.get('draw', 1)),
+    #     'recordsTotal': Candidate.objects.filter(company=request.user.employee.company).count(),
+    #     'recordsFiltered': candidates.count(),
+    #     'data': data
+    # })
 
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
@@ -479,7 +584,7 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
         # context['candidates'] = Candidate.objects.filter(company=self.request.user.employee.company).order_by('updated')
-        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
+        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
 
         return context
 
@@ -511,10 +616,10 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
         candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="")
-        context['candidates'] = candidates
+        context['candidates'] = candidates.order_by('-updated')
         context['counts'] = f"Total {candidates.count()} resumes"
 
-        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company)
+        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
 
         return context
 
@@ -531,11 +636,11 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 query_filter,
                 company=self.request.user.employee.company,
                 upload_resume__isnull=False
-            )
+            ).order_by('-updated')
             counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").count()}'
 
         else:
-            candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="")
+            candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").order_by('-updated')
             counts = f'Total {candidates.count()} resumes'
 
         results = []
