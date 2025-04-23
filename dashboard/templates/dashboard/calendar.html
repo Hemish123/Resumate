@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/flatpickr/flatpickr.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/css/pages/app-calendar.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 
 {% endblock css %}
 
@@ -202,13 +207,13 @@
               <div class="mb-5 select2-primary">
                 <label class="form-label" for="eventGuests">Candidate</label><span>*</span>
                 <select
-                  class="select2 form-select"
+                  class=" form-select"
                   id="eventGuests"
                   name="candidate"
                   >
-                  {% for c in candidates %}
-                  <option value="{{c.id}}">{{c.name}}</option>
-                  {% endfor %}
+<!--                  {% for c in candidates %}-->
+<!--                  <option value="{{c.id}}">{{c.name}}</option>-->
+<!--                  {% endfor %}-->
                 </select>
               </div>
               <div class="mb-5 select2-primary">
@@ -261,6 +266,36 @@
 {% endblock content %}
 
 {% block js %}
+<script>
+     $(document).ready(function () {
+    $('#eventGuests').select2({
+  dropdownParent: $('#addEventSidebar'),  // 👈 important line
+  placeholder: 'Search Candidate',
+  minimumInputLength: 2,
+  ajax: {
+    url: '/ajax/candidates/',
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term
+      };
+    },
+    processResults: function (data) {
+      return {
+        results: data.map(c => ({
+          id: c.id,
+          text: c.name
+        }))
+      };
+    },
+    cache: true
+  }
+});
+    });
+
+</script>
+
     <script src="{% static 'dashboard/vendor/libs/fullcalendar/fullcalendar.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/moment/moment.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/flatpickr/flatpickr.js' %}"></script>

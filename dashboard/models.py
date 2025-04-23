@@ -44,9 +44,9 @@ class Event(models.Model):
 
     def save(self, *args, user=None, **kwargs):
         super().save(*args, **kwargs)  # Call the original save method
-        if user:  # If a user is provided, you can create the meeting here if needed
+        # if user:  # If a user is provided, you can create the meeting here if needed
             # Create the Teams meeting
-            create_teams_meeting_for_event(self, user)
+            # create_teams_meeting_for_event(self, user)
 
     class Meta:
         ordering = ['-start_datetime']

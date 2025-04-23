@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.views import View
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from future.backports.datetime import datetime
@@ -121,6 +122,7 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
             job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active', '-updated_on')
             if job_posts.exists():
                 for job in job_posts:
+                    job.request = self.request  # Inject the request
                     if job.is_expired:
                         job.active = False
                         job.save()
@@ -278,6 +280,7 @@ class StageView(LoginRequiredMixin, TemplateView):
         # Retrieve the JobOpening instance
         job_opening_id = self.kwargs.get('pk')
         job_opening = get_object_or_404(JobOpening, pk=job_opening_id)
+        job_opening.request = self.request  # Inject the request
         
         context['s_skills'] = job_opening.requiredskills
        
@@ -320,10 +323,10 @@ class CalendarView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['candidates'] = Candidate.objects.filter(
-            company=self.request.user.employee.company
-        ).only('id', 'name').order_by('-updated')
-        context['designation'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
+        # context['candidates'] = Candidate.objects.filter(
+        #     company=self.request.user.employee.company
+        # ).only('id', 'name').order_by('-updated')
+        context['designation'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True).only('id', 'designation')
         events = Event.objects.filter(company=self.request.user.employee.company).order_by('start_datetime')
         # Create a nested dictionary to group events by year and month
         grouped_events = {}
@@ -482,7 +485,15 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         event.delete()
         return JsonResponse({'status': 'success'})
 
-
+class CandidateCalendarListView(View):
+    def get(self, request):
+        q = request.GET.get("q", "")
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company,
+            name__icontains=q
+        ).only("id", "name")
+        data = [{"id": c.id, "name": c.name} for c in candidates]
+        return JsonResponse(data, safe=False)
 
 
 

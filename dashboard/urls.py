@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-from .views import JobOpeningView, StageView,StageAPIView, CandidateAPIView, CalendarView, HomeView, email_action
+from .views import (JobOpeningView, StageView,StageAPIView, CandidateAPIView, CalendarView, HomeView,
+                    email_action, CandidateCalendarListView)
 
 
 urlpatterns = [
@@ -12,6 +13,7 @@ urlpatterns = [
     path('calendar/', CalendarView.as_view(), name='calendar'),
     path("candidate/action/<int:candidate_id>/<str:action>/", email_action,
          name="process_candidate_action"),
+    path('ajax/candidates/', CandidateCalendarListView.as_view(), name='ajax-candidates'),
 
 ]
 

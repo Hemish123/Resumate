@@ -142,6 +142,7 @@ class CandidateCreateView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
+        job_opening.request = self.request
         context['job_opening'] = job_opening
         context['client'] = job_opening.client
         context['company'] = job_opening.company

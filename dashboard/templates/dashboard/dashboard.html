@@ -76,9 +76,11 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end mt-1">
-                                <small class="text-muted">Expires in: {{ jobs.days_remaining }} days</small>
-                            </div>
+                            {% if not request.user.employee.company.name == "JMS Advisory" %}
+                                <div class="d-flex justify-content-end mt-1">
+                                    <small class="text-muted">Expires in: {{ jobs.days_remaining }} days</small>
+                                </div>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
