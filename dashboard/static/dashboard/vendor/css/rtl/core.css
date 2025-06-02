@@ -289,6 +289,14 @@ sup {
   top: -0.5em;
 }
 
+.dataTables_processing {
+
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 10;
+}
+
 a {
   color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
   text-decoration: none;

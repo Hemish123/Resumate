@@ -203,11 +203,23 @@ var selectedRows = '';
       ],
 
       order: [[9, 'desc']],
-      dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+      dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"r t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
       displayLength: 10,
       lengthMenu: [7, 10, 25, 50, 75, 100],
       deferRender: true,  // Render only visible rows first
       language: {
+        processing:
+        `<div class="loading-spinner">
+                  <div class="sk-chase sk-primary">
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                  </div>
+                </div>`
+        ,
         paginate: {
           next: '<i class="ti ti-chevron-right ti-sm"></i>',
           previous: '<i class="ti ti-chevron-left ti-sm"></i>'
@@ -371,6 +383,39 @@ var selectedRows = '';
         actions.prop('disabled', true);
     }
     });
+
+    // Clean up any extra content injected by DataTables
+    dt_basic.on('processing.dt', function (e, settings, processing) {
+      const $proc = $('.dataTables_processing');
+      $proc.children().not('.loading-spinner').remove(); // Keep only your custom spinner
+        const $tbody = $(this).find('tbody');
+    console.log('proce', processing);
+      if (processing) {
+        // Insert loading row if not exists
+        if ($tbody.find('.loading-row').length === 0) {
+          const loadingRow = `
+            <tr class="loading-row">
+              <td colspan="6" style="text-align:center;">
+                <div class="loading-spinner">
+                  <div class="sk-chase sk-primary">
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>`;
+          $tbody.append(loadingRow);
+        }
+      } else {
+        // Remove loading row after data loads
+        $tbody.find('.loading-row').remove();
+      }
+    });
+
     let endTime = performance.now();
     console.log(`Execution time: ${(endTime - startTime).toFixed(2)} ms`);
     // Select the title element from the DOM
@@ -552,5 +597,36 @@ function getSelectedIds() {
   });
 
 }
+
+
+
+const scrollContainer = document.querySelector(".table-responsive");
+let scrollInterval;
+
+scrollContainer.addEventListener("mousemove", (e) => {
+  const bounds = scrollContainer.getBoundingClientRect();
+  const mouseX = e.clientX - bounds.left;
+  const scrollThreshold = 50; // px from edge
+
+  clearInterval(scrollInterval); // stop previous scroll
+
+  if (mouseX > bounds.width - scrollThreshold) {
+    // Near right edge
+    scrollInterval = setInterval(() => {
+      scrollContainer.scrollLeft += 5;
+    }, 20);
+  } else if (mouseX < scrollThreshold) {
+    // Near left edge
+    scrollInterval = setInterval(() => {
+      scrollContainer.scrollLeft -= 5;
+    }, 20);
+  }
+});
+
+
+
+scrollContainer.addEventListener("mouseleave", () => {
+  clearInterval(scrollInterval); // stop scrolling when mouse leaves
+});
 });
 
