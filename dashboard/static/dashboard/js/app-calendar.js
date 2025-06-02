@@ -536,8 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleFields();
 
     // Add event listener for changes
-    interviewTypeField.addEventListener("change", toggleFields);
-
+    $('#eventLabel').on("change", toggleFields);
     // Sidebar Toggle Btn
     if (btnToggleSidebar) {
       btnToggleSidebar.addEventListener('click', e => {
