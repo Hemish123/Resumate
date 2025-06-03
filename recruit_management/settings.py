@@ -32,6 +32,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com', '127.0.0.1']
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
