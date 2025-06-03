@@ -408,7 +408,7 @@ var selectedRows = '';
                 </div>
               </td>
             </tr>`;
-          $tbody.append(loadingRow);
+          $tbody.html(loadingRow);
         }
       } else {
         // Remove loading row after data loads
