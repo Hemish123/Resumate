@@ -36,11 +36,11 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
             "type": "json_object"
         },
         messages=[{"role": "system", "content": content},
-                  {"role": "user", "content": text + "for Job Description :" + designation +
-                   "skills required : " + skills_string +
-                    "min experience : " + min_experience +
-                    "max experience : " + max_experience +
-                    "required education : " + education}]
+                  {"role": "user", "content": f"{text} for Job Description : {designation} "
+                                              f"skills required : {skills_string} "
+                                              f"min experience : {min_experience} "
+                                              f" max experience : {max_experience} "
+                                              f"required education : {education}"}]
     )
 
     # total_tokens = response.usage.total_tokens
