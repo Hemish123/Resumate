@@ -104,8 +104,15 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
         context['has_perm'] = has_perm
         self.request.session['previous_page'] = ''
 
+        # Check for ?active=true query parameter
+        show_active_only = self.request.GET.get('active') == 'true'
+
         if self.request.user.is_superuser:
             job_posts = JobOpening.objects.all().order_by('-active', '-updated_on')
+            if show_active_only:
+                job_posts = job_posts.filter(active=True)
+            
+            
 
             if job_posts.exists():
                 for job in job_posts:
@@ -120,6 +127,8 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
                 context['no_job_posts'] = 'No openings'
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active', '-updated_on')
+            if show_active_only:
+                job_posts = job_posts.filter(active=True)
             if job_posts.exists():
                 for job in job_posts:
                     job.request = self.request  # Inject the request
@@ -136,6 +145,9 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
 
             try:
                 job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active', '-updated_on')
+
+                if show_active_only:
+                    job_posts = job_posts.filter(active=True)
 
                 if job_posts.exists():
                     for job in job_posts:
