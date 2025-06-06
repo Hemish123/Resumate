@@ -479,6 +479,7 @@ def candidate_list_api(request):
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
     status_filter = request.GET.get('status', '').strip()
+    print("status", status_filter)
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     draw = int(request.GET.get('draw', 1))
@@ -544,8 +545,27 @@ def candidate_list_api(request):
             pass
 
     if status_filter:
+        status_filters = Q()
         status_list = [s.strip() for s in status_filter.split(',') if s.strip()]
-        filters &= Q(stage_name__in=status_list)
+
+        if "In Stage" in status_list:
+            exclude_stages = ['']
+            if "Hired" not in status_list:
+                exclude_stages.append("Hired")
+            if "Rejected" not in status_list:
+                exclude_stages.append("Rejected")
+
+            # Exclude these stages (including empty string if needed)
+            status_filters |= ~Q(stage_name__in=exclude_stages)
+
+        # Add direct matches for other statuses (except "In Stage" and "Inactive")
+        direct_statuses = [s for s in status_list if s not in ["In Stage", "Inactive"]]
+        if direct_statuses:
+            status_filters |= Q(stage_name__in=direct_statuses)
+
+        if 'Inactive' in status_list:
+            status_filters |= Q(stage_name='')
+        filters &= status_filters
 
     filtered_queryset = queryset.filter(filters)
 
