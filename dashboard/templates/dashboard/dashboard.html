@@ -3,7 +3,27 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+    <!-- Search -->
+<!--<div class="card mb-0 py-4 px-3 mb-3 search-wrapper" id="searchToggleWrapper">-->
+<!--  <a class="search-toggler d-flex align-items-center px-0" href="javascript:void(0);">-->
+<!--    <i class="ti ti-search ti-md me-2 me-lg-4 ti-lg"></i>-->
+<!--    <span class="d-none d-md-inline-block text-muted fw-normal">Search (Ctrl+/)</span>-->
+<!--  </a>-->
+<!--</div>-->
+<!-- Search Small Screens -->
+<div class="card mb-5 d-flex justify-content-between align-items-center">
+<!--  <i class="ti ti-search ti-md me-2 me-lg-4 ti-lg"></i>-->
+    <input
+    type="text"
+    id="jobSearchInput"
+    class="form-control border-0 py-4 px-3"
+    placeholder="Search..."
+    aria-label="Search..." />
+<!--  <i class="ti ti-x search-toggler cursor-pointer"></i>-->
+</div>
+<!-- /Search -->
 <div class="d-flex justify-content-between mb-4">
+
     <!-- "New Opening" Button aligned to the right -->
     <div>
         {% if has_perm %}
@@ -165,7 +185,9 @@
 <script src="{% static 'dashboard/js/dashboard.js' %}"></script>
 <script>
     // Toggle between grid and list views
+    let currentView = 'grid'; // default
     document.getElementById('gridViewButton').addEventListener('click', function() {
+        currentView = 'grid';
         document.querySelectorAll('.grid-view-item').forEach(function(item) {
             item.style.display = 'block';
         });
@@ -175,12 +197,40 @@
     });
 
     document.getElementById('listViewButton').addEventListener('click', function() {
+        currentView = 'list';
         document.querySelectorAll('.grid-view-item').forEach(function(item) {
             item.style.display = 'none';
         });
         document.querySelectorAll('.list-view-item').forEach(function(item) {
             item.style.display = 'block';
         });
+    });
+
+    $('#jobSearchInput').on('keyup', function () {
+      let searchValue = $(this).val().toLowerCase().trim();
+
+      if (currentView === 'grid') {
+          $('.grid-view-item').each(function () {
+            let designation = $(this).find('.card-title').text().toLowerCase();
+
+            if (designation.includes(searchValue)) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          });
+     }
+     else if (currentView === 'list') {
+            $('.list-view-item').each(function () {
+            let designation = $(this).find('.card-title').text().toLowerCase();
+
+            if (designation.includes(searchValue)) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          });
+     }
     });
 </script>
 {% endblock js %}

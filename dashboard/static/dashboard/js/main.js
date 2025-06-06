@@ -395,30 +395,49 @@ if (typeof $ !== 'undefined') {
     //----------------------------------------------------------------------------------
 
     var searchToggler = $('.search-toggler'),
+//        searchToggleWrapper = $('#searchToggleWrapper'), // Add this
+
       searchInputWrapper = $('.search-input-wrapper'),
       searchInput = $('.search-input'),
       contentBackdrop = $('.content-backdrop');
 
+      // Function to show input and hide trigger
+//        function showSearchInput() {
+//          searchToggleWrapper.addClass('d-none');     // Hide trigger section
+//          searchInputWrapper.removeClass('d-none');   // Show input section
+//          searchInput.focus();                        // Focus the input
+//        }
+//
+//        // Function to hide input and show trigger
+//        function hideSearchInput() {
+//          searchInputWrapper.addClass('d-none');
+//          searchToggleWrapper.removeClass('d-none');
+//        }
+
     // Open search input on click of search icon
-    if (searchToggler.length) {
-      searchToggler.on('click', function () {
-        if (searchInputWrapper.length) {
-          searchInputWrapper.toggleClass('d-none');
-          searchInput.focus();
-        }
-      });
-    }
+//    if (searchToggler.length) {
+//      searchToggler.on('click', function () {
+//        if (searchInputWrapper.length) {
+//          showSearchInput();
+//        }
+//        else {
+//          hideSearchInput();
+//        }
+//      });
+//    }
     // Open search on 'CTRL+/'
     $(document).on('keydown', function (event) {
       let ctrlKey = event.ctrlKey,
         slashKey = event.which === 191;
 
-      if (ctrlKey && slashKey) {
-        if (searchInputWrapper.length) {
-          searchInputWrapper.toggleClass('d-none');
-          searchInput.focus();
-        }
-      }
+//      if (ctrlKey && slashKey) {
+//        if (searchInputWrapper.length) {
+//          showSearchInput();
+//        }
+//        else {
+//          hideSearchInput();
+//        }
+//      }
     });
     // Note: Following code is required to update container class of typeahead dropdown width on focus of search input. setTimeout is required to allow time to initiate Typeahead UI.
     setTimeout(function () {
@@ -478,7 +497,7 @@ if (typeof $ !== 'undefined') {
             {
               hint: false,
               classNames: {
-                menu: 'tt-menu navbar-search-suggestion',
+                menu: 'tt-menu search-suggestion',
                 cursor: 'active',
                 suggestion: 'suggestion d-flex justify-content-between px-4 py-2 w-100'
               }

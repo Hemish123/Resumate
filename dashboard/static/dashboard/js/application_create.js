@@ -61,3 +61,13 @@ fileInput.addEventListener('change', function(event) {
     }
 });
 }
+
+document.querySelector('form').addEventListener('submit', function () {
+        const preloader = document.querySelector('.preloader-container');
+        const innerDiv = preloader.querySelector('div');
+        innerDiv.innerText = "Loading";
+
+        document.querySelector('.preloader-container').style.display = 'flex';
+});
+
+
