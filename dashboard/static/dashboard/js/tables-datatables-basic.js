@@ -14,6 +14,21 @@ $(function () {
 
     dt_basic;
     var actions = $('#actioncheck');
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get("status");
+
+    // If status param exists
+    if (statusParam) {
+        const statusesFromUrl = statusParam.split(',');
+
+        // Loop through each checkbox and check if its data-value matches
+        $('#filter-status .form-check-input').each(function () {
+            const checkboxValue = $(this).data('value');
+            if (statusesFromUrl.includes(checkboxValue)) {
+                $(this).prop('checked', true);
+            }
+        });
+    }
 
 
   // DataTable with buttons
@@ -24,7 +39,7 @@ var selectedRows = '';
         processing: true,
         serverSide: true,    // Load data page-by-page
         ajax: {
-        url: "/candidate/candidate-list-api/", // Update with your API endpoint
+        url: "/candidate/candidate-list-api/"+ window.location.search, // Update with your API endpoint
         data: function(d) {
             d.experience = $('#experience-input').val().trim(); // Send experience filter
             d.status = $('.form-check-input:checked').map(function() { // Send status filter
@@ -382,6 +397,7 @@ var selectedRows = '';
         $('.card-header').after('<hr class="my-0">');
         actions.prop('disabled', true);
     }
+
     });
 
     // Clean up any extra content injected by DataTables
@@ -415,6 +431,10 @@ var selectedRows = '';
         $tbody.find('.loading-row').remove();
       }
     });
+    if (statusParam) {
+    console.log("d", statusParam);
+            dt_basic.ajax.reload();
+        }
 
     let endTime = performance.now();
     console.log(`Execution time: ${(endTime - startTime).toFixed(2)} ms`);
@@ -431,6 +451,23 @@ var selectedRows = '';
   $('#filter-status').on('change', '.form-check-input', function () {
     dt_basic.ajax.reload();
   });
+
+  // Get status param from URL
+//    const urlParams = new URLSearchParams(window.location.search);
+//    const statusParam = urlParams.get("status");
+//
+//    // If status param exists
+//    if (statusParam) {
+//        const statusesFromUrl = statusParam.split(',');
+//
+//        // Loop through each checkbox and check if its data-value matches
+//         $('#filter-status .form-check-input').each(function () {
+//            const checkboxValue = $(this).data('value');
+//            if (statusesFromUrl.includes(checkboxValue)) {
+//                $(this).prop('checked', true);
+//            }
+//        });
+//    }
 
 
         // Event handler for individual checkboxes

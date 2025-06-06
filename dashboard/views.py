@@ -68,8 +68,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
             active_jobs = JobOpening.objects.filter(company=employee.company, assignemployee=employee, active=True)
             # Fetch recent job openings
             recent_openings = active_jobs.order_by('-updated_on')[:4]
-
-        active_jobs = [job for job in active_jobs if not job.is_expired]
+        filtered_jobs = []
+        for job in active_jobs:
+            job.request = self.request
+            if not job.is_expired:
+                filtered_jobs.append(job)
+        active_jobs = filtered_jobs
+        active_jobs_count = len(active_jobs)
         candidate_applied = 0
         candidates_hired = 0
         candidates_in_review = 0
@@ -79,7 +84,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
             candidates_hired += CandidateStage.objects.filter(stage=stage).count()
             stage_all = Stage.objects.filter(job_opening=job).exclude(name__in=['Hired', 'Rejected'])
             candidates_in_review += CandidateStage.objects.filter(stage__in=stage_all).count()
-        active_jobs_count = len(active_jobs)
         context['active_jobs'] = active_jobs_count
         context['candidates_applied'] = candidate_applied
         context['candidates_hired'] = candidates_hired
@@ -167,6 +171,7 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
 
                 if job_posts.exists():
                     for job in job_posts:
+                        job.request = self.request
                         if job.is_expired:
                             job.active = False
                             job.save()
