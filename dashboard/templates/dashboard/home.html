@@ -71,7 +71,7 @@
 
 <div class="row g-4 mt-4">
   <div class="col-lg-3 col-sm-6">
-    <a href="{% url 'job-opening' %}?active=true" class="text-decoration-none">
+    <a href="{% url 'job-opening' %}?status=active" class="text-decoration-none">
       <div class="card h-100 border-0 shadow-sm hover-scale-up">
         <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
           <div class="mb-3">
@@ -135,31 +135,30 @@
 
   <div class="row col-12">
     {% for job in recent_openings %}
-    <div class="col-md-12 mb-4">
-      <div class="card shadow-sm border-0 rounded-lg hover-scale-up">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <!-- Left section with image and job details -->
-          <div class="d-flex align-items-center">
-            <div class="d-flex flex-column">
-              <a href="#" class="text-dark fw-bold mb-1 fs-18 hover-primary">{{ job.designation }}</a>
-              <span class="text-muted fs-14">{{ job.company }}, {{ job.updated_on|date:"F j, Y" }}</span>
+      <div class="col-md-12 mb-4">
+        <a href="{% url 'job-process' job.id %}" class="text-decoration-none">
+          <div class="card shadow-sm border-0 rounded-lg hover-scale-up">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <!-- Left section with job title and company -->
+              <div class="d-flex align-items-center">
+                <div class="d-flex flex-column">
+                  <span class="text-dark fw-bold mb-1 fs-18 hover-primary">{{ job.designation }}</span>
+                  <span class="text-muted fs-14">{{ job.company }}, {{ job.updated_on|date:"F j, Y" }}</span>
+                </div>
+              </div>
+
+              <!-- Right section with job stats -->
+              <div class="text-end">
+                <p class="m-0 card-text">Open Positions: {{ job.openings }}</p>
+                <p class="m-0 card-text">No. of Applicants: {{ job.candidate_set.count }}</p>
+                <p class="m-0 text-muted fs-14">Expires in: {{ job.days_remaining }} days</p>
+              </div>
             </div>
           </div>
-
-          
-
-          <!-- Right section with job status and duration -->
-          <div>
-            <p class="m-0 card-text">Open Positions: {{ job.openings }}</p>
-            <p class="m-0 card-text">No. of Applicants: {{ job.candidate_set.count }}</p>
-            <p class="m-0 text-muted fs-14">Expires in: {{ job.days_remaining }} days</p>
-            
-          </div>
-          
-        </div>
+        </a>
       </div>
-    </div>
     {% endfor %}
+
   </div>
 </div>
 <div class="row">

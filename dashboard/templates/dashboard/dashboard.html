@@ -26,6 +26,16 @@
     </div>
 </div>
 
+<!-- Filter Tabs -->
+<ul class="nav nav-tabs mb-2" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if request.GET.status == 'active' %}active{% endif %}" href="?status=active">Active</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.GET.status == 'closed' %}active{% endif %}" href="?status=closed">Closed</a>
+  </li>
+</ul>
+
 <div class="row mt-1 mb-12 g-6" id="jobPostsContainer">
     {% if job_posts %}
         {% for jobs in job_posts %}

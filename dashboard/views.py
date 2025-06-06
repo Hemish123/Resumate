@@ -95,22 +95,32 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     title = 'Job Openings'
 
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect to default 'active' status if not provided
+        if 'status' not in request.GET:
+            return redirect(f"{request.path}?status=active")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['user'] = self.request.user
+
         # Access permission details (optional)
         has_perm = self.request.user.groups.filter(permissions__codename='add_jobopening').exists()
         context['has_perm'] = has_perm
         self.request.session['previous_page'] = ''
 
-        # Check for ?active=true query parameter
-        show_active_only = self.request.GET.get('active') == 'true'
+        # New: filter from ?status=active or ?status=closed
+        status_filter = self.request.GET.get('status')  # 'active' or 'closed'
 
         if self.request.user.is_superuser:
             job_posts = JobOpening.objects.all().order_by('-active', '-updated_on')
-            if show_active_only:
+            
+            if status_filter == 'active':
                 job_posts = job_posts.filter(active=True)
+            elif status_filter == 'closed':
+                job_posts = job_posts.filter(active=False)
             
             
 
@@ -127,8 +137,12 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
                 context['no_job_posts'] = 'No openings'
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             job_posts = JobOpening.objects.filter(company=self.request.user.employee.company).order_by('-active', '-updated_on')
-            if show_active_only:
+
+            if status_filter == 'active':
                 job_posts = job_posts.filter(active=True)
+            elif status_filter == 'closed':
+                job_posts = job_posts.filter(active=False)
+
             if job_posts.exists():
                 for job in job_posts:
                     job.request = self.request  # Inject the request
@@ -146,8 +160,10 @@ class JobOpeningView(LoginRequiredMixin, TemplateView):
             try:
                 job_posts = JobOpening.objects.filter(company=employee.company, assignemployee=employee).order_by('-active', '-updated_on')
 
-                if show_active_only:
+                if status_filter == 'active':
                     job_posts = job_posts.filter(active=True)
+                elif status_filter == 'closed':
+                    job_posts = job_posts.filter(active=False)
 
                 if job_posts.exists():
                     for job in job_posts:
