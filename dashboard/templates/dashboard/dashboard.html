@@ -177,6 +177,10 @@
     {% elif no_job_posts %}
         <p>{{ no_job_posts }}</p>
     {% endif %}
+    <div id="noResultsMessage" class="col-12 text-center mt-4" style="display: none;">
+     <div class="alert alert-warning">No job openings found.</div>
+    </div>
+
 </div>
 
 {% endblock content %}
@@ -207,30 +211,36 @@
     });
 
     $('#jobSearchInput').on('keyup', function () {
-      let searchValue = $(this).val().toLowerCase().trim();
+    let searchValue = $(this).val().toLowerCase().trim();
+    let visibleCount = 0;
 
-      if (currentView === 'grid') {
-          $('.grid-view-item').each(function () {
+    if (currentView === 'grid') {
+        $('.grid-view-item').each(function () {
             let designation = $(this).find('.card-title').text().toLowerCase();
-
             if (designation.includes(searchValue)) {
-              $(this).show();
+                $(this).show();
+                visibleCount++;
             } else {
-              $(this).hide();
+                $(this).hide();
             }
-          });
-     }
-     else if (currentView === 'list') {
-            $('.list-view-item').each(function () {
+        });
+    } else if (currentView === 'list') {
+        $('.list-view-item').each(function () {
             let designation = $(this).find('.card-title').text().toLowerCase();
-
             if (designation.includes(searchValue)) {
-              $(this).show();
+                $(this).show();
+                visibleCount++;
             } else {
-              $(this).hide();
+                $(this).hide();
             }
-          });
-     }
-    });
+        });
+    }
+
+    if (visibleCount === 0) {
+        $('#noResultsMessage').show();
+    } else {
+        $('#noResultsMessage').hide();
+    }
+});
 </script>
 {% endblock js %}
