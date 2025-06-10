@@ -479,7 +479,6 @@ def candidate_list_api(request):
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
     status_filter = request.GET.get('status', '').strip()
-    print("status", status_filter)
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     draw = int(request.GET.get('draw', 1))
@@ -565,6 +564,8 @@ def candidate_list_api(request):
 
         if 'Inactive' in status_list:
             status_filters |= Q(stage_name='')
+        else:
+            status_filters &= Q(job_openings__active=True)
         filters &= status_filters
 
     filtered_queryset = queryset.filter(filters)
@@ -578,6 +579,8 @@ def candidate_list_api(request):
     # Build data
     data = []
     for c in candidates:
+        if not c.job_openings.filter(active=True).exists():
+            c.stage_name = ''  # or 'Inactive' if that's what you want
         data.append({
             'id': c.id,
             'name': c.name,
