@@ -87,7 +87,7 @@ class JobOpening(models.Model):
     @property
     def is_expired(self):
         """Check if the job opening is expired."""
-        if hasattr(self, 'request') and self.request.user.employee.company.name == "JMS Advisory":
+        if hasattr(self, 'request') and self.request.user.is_authenticated and self.request.user.employee.company.name == "JMS Advisory":
             return False
 
         return timezone.now() > self.expiration_date
