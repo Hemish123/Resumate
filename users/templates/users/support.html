@@ -1,0 +1,47 @@
+{% extends "screening/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+<div class="container-xxl">
+    <div class="card">
+    <div class="card-body">
+        <h4 class="mb-1 text-center">Support</h4>
+    <form id="formAuthentication" enctype="multipart/form-data" class="mb-4" method="post">
+        {% csrf_token %}
+        <div class="mb-6">
+            <label for="id_email" class="form-label">
+                Your Email*
+            </label>
+            <input type="text" class="form-control"
+                   required
+                   placeholder="Youremail@gmail.com" name="email" id="id_email">
+
+        </div>
+        <div class="mb-6">
+            <label for="id_subject" class="form-label">
+                Subject*
+            </label>
+            <input type="text" class="form-control"
+                   required
+                   placeholder="Enter Subject" name="subject" id="id_subject">
+        </div>
+        <div class="mb-6">
+            <label for="id_message" class="form-label">
+                Message*
+            </label>
+            <textarea class="form-control"
+                   required
+                   placeholder="Enter Message" name="message"
+                      id="id_message"></textarea>
+        </div>
+
+        <button class="btn btn-primary d-grid w-100" type="submit">
+            Submit
+        </button>
+    </form>
+</div>
+        </div>
+    </div>
+{% endblock content %}

@@ -32,6 +32,10 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ['full_name', 'email', 'password1', 'password2']
 
+class SupportForm(forms.Form):
+    email = forms.EmailField(validators=[EmailValidator])
+    subject = forms.CharField(max_length=500)
+    message = forms.CharField(widget=forms.Textarea)
 
 
 class EmailValidationOnForgotPassword(PasswordResetForm):

@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, 
 from django.core.mail import send_mail
 from verify_email.email_handler import send_verification_email
 from django.contrib.auth.models import Group, User
-from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView
+from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView, FormView
 from .models import Employee, Company
 from manager.models import Client
 from django.shortcuts import get_object_or_404
@@ -16,6 +16,8 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import complete_social_login
+from django.core.mail import EmailMessage
+from .forms import SupportForm
 
 @logout_required
 def register(request):
@@ -274,3 +276,35 @@ class EmployeeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
         if response.status_code == 302:  # Check for redirect after successful deletion
             user.delete()
         return response
+
+
+class SupportView(LoginRequiredMixin, FormView):
+    template_name = "users/support.html"
+    form_class = SupportForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+
+        return context
+
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        subject = form.cleaned_data["subject"]
+        message = form.cleaned_data["message"]
+
+        email_msg = EmailMessage(
+            subject=subject,
+            body=message,
+            to=["jmsadvisory1@gmail.com"],
+            reply_to=[email],
+        )
+        email_msg.send(fail_silently=False)
+
+        messages.success(self.request, "We have received your message!")
+        return redirect('dashboard')
+
+    def form_invalid(self, form):
+        messages.error(self.request, "There was a problem with your submission.")
+        return self.render_to_response(self.get_context_data(form=form))
+
