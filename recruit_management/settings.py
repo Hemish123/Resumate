@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['SECRET']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com', '127.0.0.1']
+ALLOWED_HOSTS = ['20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com','recruitsmart.co', '127.0.0.1']
 
 
 
@@ -239,7 +239,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
-DEFAULT_FROM_EMAIL = os.environ['EMAIL_HOST_USER']
+DEFAULT_FROM_EMAIL = f"Recruit Smart <{os.environ['EMAIL_HOST_USER']}>"
 
 # link expire after 10 minutes
 EXPIRE_AFTER = "10m"

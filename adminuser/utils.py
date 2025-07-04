@@ -12,7 +12,7 @@ def generate_random_password():
 
 def send_activation_email(employee, site_url, password):
     emailOfSender = EMAIL_HOST_USER
-    subject = 'Login to Your Account on JiviHire'
+    subject = 'Login to Your Account on RecruitSmart'
     message = render_to_string('adminuser/activation_email.html', {
         'employee': employee,
         'site_url': site_url,
