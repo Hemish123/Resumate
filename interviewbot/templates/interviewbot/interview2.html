@@ -47,171 +47,219 @@
 
   <!-- 🧠 JavaScript for Recording & Question Handling -->
   <script>
-let recorder = null;
-let videoStream = null;
-let recordedChunks = [];
-let timerInterval = null;
-let timeLeft = 180;
+  let recognition = null;
+  let recorder = null;
+  let videoStream = null;
+  let recordedChunks = [];
+  let timerInterval = null;
+  let timeLeft = 180; // 3 minutes
+  let speechTranscript = ''; // Store the transcript here
 
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 180;
-  updateTimerDisplay();
 
-  timerInterval = setInterval(() => {
-    timeLeft--;
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 180;
     updateTimerDisplay();
 
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      autoSubmitAndNext();
-    }
-  }, 1000);
-}
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
 
-function updateTimerDisplay() {
-  const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-  const seconds = (timeLeft % 60).toString().padStart(2, '0');
-  document.getElementById('timer').innerText = `${minutes}:${seconds}`;
-}
-
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-function loadQuestion() {
-  fetch('/interviewbot/get-question/')
-    .then(res => res.json())
-    .then(data => {
-      if (data.done) {
-        document.getElementById('question').innerText = "🎉 Interview Complete!";
-        document.getElementById('answerInput').style.display = "none";
-        document.getElementById('nextButton').style.display = "none";
-        stopInterview();
+      if (timeLeft <= 0) {
         clearInterval(timerInterval);
-
-        const tryAgainBtn = document.createElement("button");
-        tryAgainBtn.innerText = "🔁 Try Again";
-        tryAgainBtn.className = "btn btn-warning";
-        tryAgainBtn.onclick = restartInterview;
-        tryAgainBtn.id = "tryAgainButton";
-        document.querySelector('.col-md-6.align-items-center').appendChild(tryAgainBtn);
-        return;
+        autoSubmitAndNext();
       }
+    }, 1000);
+  }
 
-      document.getElementById('question').innerText = data.question;
-      document.getElementById('answerInput').value = '';
-      document.getElementById('result').innerText = '';
-      document.getElementById('error').innerText = '';
-      recordedChunks = [];
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const seconds = (timeLeft % 60).toString().padStart(2, '0');
+    document.getElementById('timer').innerText = `${minutes}:${seconds}`;
+  }
 
-      startTimer();
-      startInterview();
-    });
-}
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
-function startInterview() {
- navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then(stream => {
-      videoStream = stream;
-      document.getElementById('videoPreview').srcObject = stream;
+  function loadQuestion() {
+    fetch('/interviewbot/get-question/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.done) {
+          document.getElementById('question').innerText = "🎉 Interview Complete!";
+          document.getElementById('nextButton').style.display = "none";
+          stopInterview();
+          clearInterval(timerInterval);
 
-      recordedChunks = [];
-
-      recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm; codecs=vp8,opus"
-      });
-
-       recorder.ondataavailable = e => {
-        if (e.data && e.data.size > 0) {
-          recordedChunks.push(e.data);
-          console.log("Received data chunk size:", e.data.size);
+          const tryAgainBtn = document.createElement("button");
+          tryAgainBtn.innerText = "🔁 Try Again";
+          tryAgainBtn.className = "btn btn-warning";
+          tryAgainBtn.onclick = restartInterview;
+          tryAgainBtn.id = "tryAgainButton";
+          document.querySelector('.col-md-6.align-items-center').appendChild(tryAgainBtn);
+          return;
         }
+
+        document.getElementById('question').innerText = data.question;
+        document.getElementById('answerInput').value = '';
+        speechTranscript = ''; // Reset the transcript for new question
+        document.getElementById('result').innerText = '';
+        document.getElementById('error').innerText = '';
+        recordedChunks = [];
+
+        startTimer();
+        startInterview();
+      });
+  }
+
+  function startInterview() {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onresult = event => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Store the final transcript
+        speechTranscript += finalTranscript;
+        document.getElementById('answerInput').value = speechTranscript;
       };
 
-      recorder.start();
-    })
-    .catch(err => {
-      document.getElementById('error').innerText = "Camera/Mic error: " + err;
-    });
-}
+      recognition.onerror = event => {
+        document.getElementById('error').innerText = "Microphone error: " + event.error;
+      };
+      
+      recognition.onend = () => {
+        // Automatically restart recognition if it stops unexpectedly
+        if (timeLeft > 0) {
+          recognition.start();
+        }
+      };
+      
+      recognition.start();
+    } else {
+      document.getElementById('error').innerText = "Speech Recognition not supported.";
+    }
 
-function stopInterview() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        videoStream = stream;
+        document.getElementById('videoPreview').srcObject = stream;
+        recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = e => recordedChunks.push(e.data);
+        recorder.start();
+      })
+      .catch(err => {
+        document.getElementById('error').innerText = "Camera/Mic error: " + err;
+      });
+  }
+
+  function stopInterview(submitAfterStop = false) {
+  if (recognition) {
+    recognition.onend = () => {
+      const answer = document.getElementById('answerInput').value.trim();
+      if (!answer && submitAfterStop !== "auto") {
+        document.getElementById('error').innerText = "❌ No voice input detected.";
+        return;
+      }
+      submitAnswer(answer, submitAfterStop === "auto");
+    };
+    recognition.stop();
+  } else {
+    const answer = document.getElementById('answerInput').value.trim();
+    if (!answer && submitAfterStop !== "auto") {
+      document.getElementById('error').innerText = "❌ No voice input detected.";
+      return;
+    }
+    submitAnswer(answer, submitAfterStop === "auto");
+  }
+
   if (recorder && recorder.state !== "inactive") recorder.stop();
   if (videoStream) videoStream.getTracks().forEach(track => track.stop());
 }
 
-function submitAndNext() {
+
+
+  function submitAndNext() {
   clearInterval(timerInterval);
-  // stopInterview();
-  submitAnswer(false);
+  stopInterview(true); // pass true to indicate we want to submit after stopping
 }
 
-function autoSubmitAndNext() {
+
+  function autoSubmitAndNext() {
   clearInterval(timerInterval);
-  // stopInterview();
-  submitAnswer(true);
+  stopInterview("auto");
 }
 
-function submitAnswer(isAuto) {
-  if (recorder && recorder.state === "recording") {
-    // Attach onstop handler to finalize after recording ends
-    recorder.onstop = () => {
-      console.log("Recorder stopped. Total chunks:", recordedChunks.length);
-      const totalSize = recordedChunks.reduce((s, b) => s + b.size, 0);
-      console.log("Final blob size:", totalSize);
-      sendAnswer(isAuto);
-    };
-    recorder.stop(); // This triggers final ondataavailable
-  } else {
-    // Already stopped
-    sendAnswer(isAuto);
+
+  function submitAnswer(answer, isAuto = false) {
+    // Check if recorder exists and is recording
+    if (recorder && recorder.state === "recording") {
+      recorder.onstop = () => {
+        sendAnswer(answer, isAuto);
+      };
+      recorder.stop();
+    } else {
+      // No recorder or already stopped
+      sendAnswer(answer, isAuto);
+    }
   }
-}
+
+  function sendAnswer(answer, isAuto) {
+    const videoBlob = new Blob(recordedChunks, { type: "video/webm" });
+    const formData = new FormData();
+    formData.append('answer', answer);
+    formData.append('video', videoBlob, 'interview.webm');
+
+    // Show the spinner
+    document.getElementById('loadingNext').classList.remove('d-none');
 
 
-function sendAnswer(isAuto) {
-  console.log("Recorded chunks:", recordedChunks);
-const totalSize = recordedChunks.reduce((sum, blob) => sum + blob.size, 0);
-console.log("Total blob size:", totalSize, "bytes");
-  const videoBlob = new Blob(recordedChunks, { type: "video/webm" });
-  const formData = new FormData();
-  formData.append('video', videoBlob, 'interview.webm');
+    fetch('/interviewbot/submit-answer/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('result').innerText = isAuto ? "⏳ Time's up! Auto-submitted." : "";
+      setTimeout(() => {
+        loadQuestion();
+        document.getElementById('loadingNext').classList.add('d-none');
+      }, 1000);
+    });
+  }
 
-  document.getElementById('loadingNext').classList.remove('d-none');
-
-  fetch('/interviewbot/submit-answer/', {
-    method: 'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('result').innerText = isAuto ? "⏳ Time's up! Auto-submitted." : "";
-    setTimeout(() => {
+  function restartInterview() {
+    fetch('/interviewbot/reset/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    }).then(() => {
+      
+      document.getElementById('nextButton').style.display = "inline";
+      document.getElementById('tryAgainButton')?.remove();
       loadQuestion();
-      document.getElementById('loadingNext').classList.add('d-none');
-    }, 1000);
-  });
-}
+    });
+  }
 
-function restartInterview() {
-  fetch('/interviewbot/reset/', {
-    method: 'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-  }).then(() => {
-    document.getElementById('answerInput').style.display = "inline";
-    document.getElementById('nextButton').style.display = "inline";
-    document.getElementById('tryAgainButton')?.remove();
-    loadQuestion();
-  });
-}
-
-loadQuestion();
+  // Initial start
+  loadQuestion();
 </script>
-
 
 </body>
 </html>

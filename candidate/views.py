@@ -200,6 +200,7 @@ class CandidateCreateView(FormView):
             # Download from Azure and write to a local file
             # Define a temporary local path
             local_temp_path = f"/tmp/{resume_file.name}"
+            print("path:",local_temp_path)
 
             # Download from Azure and write to a local file
             with open(local_temp_path, "wb") as f:
