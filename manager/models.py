@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from twisted.python.usage import UsageError
 from django.contrib.auth.models import User
 from users.models import Employee, Company
-from phonenumber_field.modelfields import PhoneNumberField
+
 
 
 # Create your models here.
