@@ -111,7 +111,7 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                                 experience=experience,
                                 company=request.user.employee.company
                             )
-                            print('candidate')
+                            # print('candidate')
                         else:
                             skip += 1
                     else:
