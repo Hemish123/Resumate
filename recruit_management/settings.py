@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.microsoft',  # For Microsoft login
     "whitenoise.runserver_nostatic",
     "storages",
-    'interviewbot'
 ]
 
 MIDDLEWARE = [
