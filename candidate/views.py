@@ -200,7 +200,7 @@ class CandidateCreateView(FormView):
             # Download from Azure and write to a local file
             # Define a temporary local path
             local_temp_path = f"/tmp/{resume_file.name}"
-            print("path:",local_temp_path)
+            # print("path:",local_temp_path)
 
             # Download from Azure and write to a local file
             with open(local_temp_path, "wb") as f:
@@ -790,7 +790,16 @@ class ApplicationListView(LoginRequiredMixin, TemplateView):
         context['title'] = self.title
         id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(pk=id)
-        candidates = Candidate.objects.filter(job_openings=job_opening, company=self.request.user.employee.company).order_by('-is_new')
+        candidates = Candidate.objects.filter(job_openings=job_opening,
+                                              company=self.request.user.employee.company
+                                              ).order_by('-is_new')
+        stages = Stage.objects.get(job_opening_id=id, name='Applied')
+        # print("st", stages.id)
+        stage = CandidateStage.objects.filter(stage=stages, candidate=OuterRef('pk')).values('stage__name')
+        candidates = candidates.annotate(stage=Subquery(stage))
+        # for c in candidates:
+        #
+        #     print("can", c.candidatestage_set.filter(stage=stages).values('stage__id'))
         context['job_opening'] = job_opening
         # relevant_candidates = []
         # non_relevant_candidates = []
