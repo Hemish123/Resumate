@@ -8,7 +8,8 @@ __pycache__/
 
 candidate/resume_parsing/model-best/
 Bootstrap5/
-
+media/
+imp.txt
 # Distribution / packaging
 .Python
 build/
