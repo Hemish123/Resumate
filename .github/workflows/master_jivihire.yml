@@ -97,6 +97,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'recruitsmart'
+          app-name: 'jivihire'
           slot-name: 'Production'
           
