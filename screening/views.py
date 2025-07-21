@@ -351,6 +351,7 @@ class ContactUsView(FormView):
             fail_silently=False,
         )
 
+
         return JsonResponse({'success': True})
 
     def form_invalid(self, form):
