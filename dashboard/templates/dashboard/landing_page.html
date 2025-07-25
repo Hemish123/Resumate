@@ -1,0 +1,503 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Recruit Smart</title>
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{% static 'dashboard/img/icons/logo_1.png' %}"
+    />
+
+    <!-- CSS Files -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}" />
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- AOS and Icons -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+  </head>
+
+  <body>
+    <!--navbar-->
+
+    <section class="navbar-section">
+      <nav class="container navbar-section">
+        <img
+          src="{% static 'dashboard/img/icons/logo.png' %}"
+          alt="Logo"
+          class="navbar-logo"
+        />
+        <div class="read_bt"><a href="{% url 'login' %}">Login now</a></div>
+      </nav>
+    </section>
+
+    <!-- Header Section -->
+    <div class="header_section">
+      <!-- Banner Section -->
+      <div class="banner_section layout_padding">
+        <div id="my_slider" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="container">
+                <div class="row">
+                  <div class="col-md-6 left-section">
+                    <div class="taital_main">
+                      <h4 class="banner_taital">
+                        Built to Scale With Your Hiring Needs.
+                        <!-- <img
+                          src="{% static 'dashboard/img/landingPage_img/logo_1.png' %}"
+                          alt="Logo"
+                          class="navbar-logo"
+                        /> -->
+                      </h4>
+                      <p class="banner_text">
+                        From startups to enterprises, Recruit Smart offers a
+                        flexible, feature-rich ATS to optimize every stage of
+                        the recruitment journey. Start Free Trial
+                      </p>
+                      <span class="banner_text2_span">
+                        Smart AI-Hiring Platform
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <img
+                      src="{% static 'dashboard/img/landingPage_img/img-1.png' %}"
+                      class="image_1"
+                      alt="Banner Image"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <section class="about_section layout_padding">
+      <div class="container text-white">
+        <div class="row align-items-center">
+          <div class="col-md-6 mb-4 mb-md-0">
+            <img
+              src="{% static 'dashboard/img/landingPage_img/img-2.png' %}"
+              class="image_2 img-fluid"
+              alt="About Image"
+            />
+          </div>
+          <div class="col-md-6">
+            <h2 class="about_title">About Us</h2>
+            <p class="about_text mb-3">
+              We are a passionate team dedicated to building intelligent
+              solutions that drive growth and empower innovation. Our focus is
+              on delivering top-quality digital products tailored to your
+              business needs.
+            </p>
+            <p class="about_text mb-3">
+              With years of experience in web development, AI tools, and design,
+              we combine creativity and cutting-edge technology to turn your
+              ideas into impactful results.
+            </p>
+            <ul class="about_list">
+              <li>✔️ Innovative & Custom Solutions</li>
+              <li>✔️ Expert Team & Friendly Support</li>
+              <li>✔️ Fast, Scalable & Secure Development</li>
+            </ul>
+            <div class="read_bt_1">
+              <a href="#connect-us">Contact Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section">
+      <div class="container">
+        <h2 class="section-title">Our Smart Services</h2>
+        <div class="services-grid">
+          <!-- Repeatable Zigzag Cards -->
+          <div class="service-row left" data-aos="fade-right">
+            <div class="service-card">
+              <div class="icon">🤖</div>
+              <h3>AI-Powered Resume Screening</h3>
+              <p>
+                Automatically extract candidate data and match profiles based on skills, experience, and behavior cutting manual screening time by 80%. 
+              </p>
+            </div>
+          </div>
+          <div class="service-row right" data-aos="fade-left">
+            <div class="service-card">
+              <div class="icon">📅</div>
+              <h3>Smart Interview Scheduling</h3>
+              <p>
+                Schedule telephonic, virtual, or face-to-face interviews in seconds. Sync your calendar and reduce coordination delays.
+              </p>
+            </div>
+          </div>
+          <div class="service-row left" data-aos="fade-right">
+            <div class="service-card">
+              <div class="icon">🔔</div>
+              <h3>Real-Time Alerts & Notifications</h3>
+              <p>
+                Stay in the loop with instant updates on candidate actions, team feedback, and interview progress. 
+              </p>
+            </div>
+          </div>
+          <div class="service-row right" data-aos="fade-left">
+            <div class="service-card">
+              <div class="icon">📊</div>
+              <h3>Advanced Analytics & Reports</h3>
+              <p>
+                Track key hiring metrics: time-to-fill, applicant-to-hire ratio, stage-wise drop-offs, and more with export-ready reports. 
+              </p>
+            </div>
+          </div>
+          <div class="service-row left" data-aos="fade-right">
+            <div class="service-card">
+              <div class="icon">🤝</div>
+              <h3>Team Collaboration</h3>
+              <p>Enable recruiters, hiring managers, and HR heads to work in sync with shared dashboards and live status updates.</p>
+            </div>
+          </div>
+          <div class="service-row right" data-aos="fade-left">
+            <div class="service-card">
+              <div class="icon">🗂️</div>
+              <h3>Resume Management</h3>
+              <p>
+                Import bulk resumes, auto-organize by skill or title, and search instantly with tech-specific filters like “Python”, “UI/UX”, or “DevOps”. 
+              </p>
+            </div>
+          </div>
+          <div class="service-row left" data-aos="fade-right">
+            <div class="service-card">
+              <div class="icon">📈</div>
+              <h3>Scalable for Any Team Size</h3>
+              <p>
+               From lean startups to large HR departments, Recruit Smart adapts to your recruitment volume and structure. 
+              </p>
+            </div>
+          </div>
+          <div class="service-row right" data-aos="fade-left">
+            <div class="service-card">
+              <div class="icon">🤖</div>
+              <h3>AI Interviews (Coming Soon)</h3>
+              <p>
+                Experience the future of candidate evaluation. Our upcoming AI-powered interview module will assess skills, analyse responses, and help you shortlist smarter and faster.
+              </p>
+            </div>
+          </div>
+          <div class="service-row left" data-aos="fade-right">
+            <div class="service-card">
+              <div class="icon">📄</div>
+              <h3>AI Resume Analyzer</h3>
+              <p>
+                Upload your resume and instantly receive a detailed report with
+                keyword relevance, role fit, and improvement tips — powered by
+                AI.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accordian Section -->
+
+    <section class="py-5 accordian-section">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="frequently-ques">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="accordion custom-accordion" id="faqAccordion">
+          <!-- Accordion Item 1 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+                aria-expanded="false"
+                aria-controls="collapseOne"
+              >
+                Why does hiring take so long?
+              </button>
+            </h2>
+            <div
+              id="collapseOne"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingOne"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                Manual screening and scheduling slow everything down. Recruit
+                Smart automates the entire process so you hire faster, with less
+                effort.
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 2 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo"
+              >
+                How can I contact your team?
+              </button>
+            </h2>
+            <div
+              id="collapseTwo"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingTwo"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                You can reach us at
+                <a href="tel:+918866071321" class="text-white"
+                  >+91 88660 71321</a
+                >
+                or email us at
+                <a href="mailto:info@jmsadvisory.in" class="text-white"
+                  >info@jmsadvisory.in</a
+                >.
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 3 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseThree"
+                aria-expanded="false"
+                aria-controls="collapseThree"
+              >
+                How do I know if a candidate is the right fit?
+              </button>
+            </h2>
+            <div
+              id="collapseThree"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingThree"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                It’s hard to tell from a resume alone. Recruit Smart analyzes
+                skills, behavior, and experience to help you make better hiring
+                decisions.
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 4 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFour">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFour"
+                aria-expanded="false"
+                aria-controls="collapseFour"
+              >
+                Why does our process feel messy?
+              </button>
+            </h2>
+            <div
+              id="collapseFour"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingFour"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                Disjointed tools create confusion. Recruit Smart centralizes
+                your hiring pipeline into one simple, easy-to-use platform.
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 5 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFive">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFive"
+                aria-expanded="false"
+                aria-controls="collapseFive"
+              >
+                Why do we waste time on unqualified candidates?
+              </button>
+            </h2>
+            <div
+              id="collapseFive"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingFive"
+              data-bs-parent="#faqAccordion"
+            >
+              <div class="accordion-body">
+                Filtering manually isn’t scalable. Recruit Smart auto-ranks
+                candidates by relevance so you focus only on the right ones.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Connect With Us Section -->
+    <section class="newsletter_section pt-5" id="connect-us">
+      <div class="container">
+        <div class="row align-items-center justify-content-between">
+          <div class="col-md-6 mb-4 mb-md-0">
+            <h1 class="newsletter_text mb-3">Connect with us now</h1>
+            <p class="tempor_text mb-4">
+              Recruit Smart combines AI screening, automated workflows, and
+              real-time collaboration to simplify your entire recruitment
+              process from start to finish.
+            </p>
+          </div>
+          <div
+            class="col-md-6 d-flex justify-content-md-end justify-content-center"
+          >
+            <a href="{% url 'login' %}" class="subscribe_bt">Login</a>
+          </div>
+        </div>
+        <ul class="social-icons d-flex gap-3 ps-0">
+          <li>
+            <a
+              href="https://www.facebook.com/Jmsadvisory/"
+              class="icon fb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-brands fa-facebook-f"></i>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.linkedin.com/company/jms-advisory-services-private-limited/posts/?feedView=all"
+              class="icon linkedin"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.instagram.com/jms_advisory/"
+              class="icon insta"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.youtube.com/@learnwithjms?app=desktop"
+              class="icon youtube"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fa-brands fa-youtube"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer_section">
+      <div class="container">
+        <div class="address_main row text-center text-md-start">
+          <div
+            class="col-md-4 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start"
+          >
+            <img
+              src="{% static 'dashboard/img/landingPage_img/map-icon.png' %}"
+              alt="Map"
+              class="me-2"
+            />
+            <span
+              >401, Anand Mangal 3, Ambavadi, Ahmedabad, Gujarat, India</span
+            >
+          </div>
+          <div
+            class="col-md-4 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start"
+          >
+            <img
+              src="{% static 'dashboard/img/landingPage_img/call-icon.png' %}"
+              alt="Call"
+              class="me-2"
+            />
+            <span><a href="tel:+918866071321">+91 88660 71321</a></span>
+          </div>
+          <div
+            class="col-md-4 d-flex align-items-center justify-content-center justify-content-md-start"
+          >
+            <img
+              src="{% static 'dashboard/img/landingPage_img/mail-icon.png' %}"
+              alt="Email"
+              class="me-2"
+            />
+            <span
+              ><a href="mailto:info@jmsadvisory.in"
+                >info@jmsadvisory.in</a
+              ></span
+            >
+          </div>
+        </div>
+
+        <div class="text-center text-white mt-4 small">
+          Proudly powered by
+          <a href="https://jmsadvisory.in/" class="powered-link" target="_blank"
+            >JMS Advisory Services</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init({ once: true, duration: 1000 });
+    </script>
+  </body>
+</html>

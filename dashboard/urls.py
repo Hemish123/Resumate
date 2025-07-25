@@ -1,11 +1,12 @@
 from django.urls import path
 from . import views
 from .views import (JobOpeningView, StageView,StageAPIView, CandidateAPIView, CalendarView, HomeView,
-                    email_action, CandidateCalendarListView)
+                    email_action, CandidateCalendarListView,LandingPageView)
 
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='dashboard'),
+    path('dashboard/', HomeView.as_view(), name='dashboard'),
+    path('',LandingPageView.as_view(), name='landing_page'),
     path('job-openings/', JobOpeningView.as_view(), name='job-opening'),
     path('job-process/<int:pk>/', StageView.as_view(), name='job-process'),
     path('stage-api/<int:pk>/', StageAPIView.as_view(), name='stage-api'),

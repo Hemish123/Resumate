@@ -47,6 +47,16 @@ def email_action(request, candidate_id, action):
     # candidate.save()
     return JsonResponse({"success": f"Candidate {action}d successfully."})
 
+class LandingPageView(TemplateView):
+    template_name = 'dashboard/landing_page.html'
+    title = 'RecruitSmart'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        return context
+
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/home.html'
     title = 'Dashboard'
