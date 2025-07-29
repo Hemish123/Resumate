@@ -1,0 +1,233 @@
+/* Basic Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Login Container */
+.login-wrapper {
+  max-width: 420px;
+  width: 100%;
+}
+
+.login-card {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  max-width: 450px;
+  margin: auto;
+  border-radius: 12px;
+  padding: 20px 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px #9891c5;
+  overflow: hidden;
+}
+
+/* Outer rotating conic gradient border */
+.login-card::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: conic-gradient(transparent, #402fb7, transparent 70%);
+  animation: rotate 8s linear infinite;
+}
+
+/* Inner solid background to clip border */
+.login-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 6px;
+  left: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  background: #fff;
+  border-radius: 10px;
+}
+
+/* Rotation animation */
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+/* Logo */
+.logo-container img {
+  width: 80%;
+  /* margin-bottom: 24px; */
+}
+
+/* Titles */
+.login-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: black;
+  margin-bottom: 10px;
+}
+
+.login-subtext {
+  font-size: 14px;
+  color: rgb(58, 58, 58);
+  margin-bottom: 25px;
+}
+
+/* Form Styles */
+.form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: black;
+  font-weight: 500;
+  display: block;
+}
+
+.email,
+.label-row {
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #402fb7;
+  box-shadow: 0 0 0 3px rgba(64, 47, 183, 0.15);
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Forgot Link */
+.forgot-link {
+  font-size: 13px;
+  color: #402fb7;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Checkbox */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.form-check-input {
+  accent-color: #402fb7;
+}
+
+/* Button */
+/* Animated Border Wrapper */
+.login-button-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 3px;
+  border-radius: 10px;
+  background: transparent;
+  z-index: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.login-button-wrapper::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: conic-gradient(transparent, #402fb7, transparent 70%);
+  animation: rotate 8s linear infinite;
+}
+
+.login-button-wrapper::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 8px;
+}
+
+/* Actual Button */
+.login-button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  color: #402fb7;
+  font-size: 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+}
+
+.login-button:hover {
+  color: white;
+  background-color: #402fb7;
+  margin: 2px;
+}
+
+
+/* Bottom Text */
+.bottom-text {
+  margin-top: 20px;
+  font-size: 14px;
+  color: rgb(58, 58, 58);
+}
+
+.bottom-text a {
+  color: #402fb7;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bottom-text a:hover {
+  text-decoration: underline;
+}
+
+/* Error Styling */
+.error-message {
+  font-size: 14px;
+  color: red;
+  margin-bottom: 5px;
+}

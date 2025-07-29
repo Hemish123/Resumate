@@ -1,131 +1,95 @@
-
-{% extends "users/user_base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account - RecruitSmart</title>
+  <link rel="stylesheet" href="{% static 'user/css/register.css' %}" />
+  <link rel="icon" type="image/x-icon" href="{% static 'dashboard/img/icons/logo_1.png' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+</head>
+<body>
+  <div class="register-wrapper">
+    <div class="register-card">
+        <div class="logo-container">
+          <img src="{% static 'dashboard/img/icons/logo.png' %}" alt="RecruitSmart Logo" />
+        </div>
+      <h2 class="heading">Adventure starts here 🚀</h2>
+      <p class="subtext">Make your app management easy and fun!</p>
+
+      <form id="formAuthentication" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Row: Full Name & Email -->
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="John Doe" required />
+            {% for error in form.full_name.errors %}
+              <div class="error-message text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="form-group half">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" placeholder="johndoe@gmail.com" required />
+            {% for error in form.email.errors %}
+              <div class="error-message text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+<!-- Row: Password & Confirm Password -->
+<div class="form-row">
+  <!-- Password -->
+  <div class="form-group half password-wrapper">
+    <label for="password">Password</label>
+    <div class="password-input">
+      <input type="password" id="password" name="password1" placeholder="••••••••••••" required />
+      <i class="fa-solid fa-eye toggle-password" data-target="password"></i>
+    </div>
+    {% for error in form.password1.errors %}
+      <div class="error-message text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <!-- Confirm Password -->
+  <div class="form-group half password-wrapper">
+    <label for="password2">Confirm Password</label>
+    <div class="password-input">
+      <input type="password" id="password2" name="password2" placeholder="••••••••••••" required />
+      <i class="fa-solid fa-eye toggle-password" data-target="password2"></i>
+    </div>
+    {% for error in form.password2.errors %}
+      <div class="error-message text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
 
 
-<h4 class="mb-1">Adventure starts here 🚀</h4>
-              <p class="mb-6">Make your app management easy and fun!</p>
+        <!-- Terms Checkbox -->
+        <div class="form-check">
+          <input type="checkbox" id="terms" name="terms" />
+          <label for="terms">I agree to the <a href="#">privacy policy & terms</a></label>
+        </div>
 
-              <form id="formAuthentication" class="mb-6" enctype="multipart/form-data" method="post">
-                {% csrf_token %}
-                <div class="mb-6">
-                  <label for="full_name" class="form-label">Full Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="full_name"
-                    name="full_name"
-                    placeholder="John Doe"
-                    required
-                    autofocus />
-                  {% if form.errors %}
-                  {% for error in form.full_name.errors %}
-                        <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-                </div>
-                <div class="mb-6">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="text" class="form-control" id="email" name="email" required placeholder="johndoe@gmail.com" />
-                  {% if form.errors %}
-                  {% for error in form.email.errors %}
-                        <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-                </div>
-                <div class="mb-6 form-password-toggle">
-                  <label class="form-label" for="password">Password</label>
-                  <div class="input-group input-group-merge">
-                    <input
-                      type="password"
-                      id="password"
-                      class="form-control"
-                      name="password1"
-                      required
-                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                      aria-describedby="password" />
-                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
-                    <small id="password_suggestion" class="form-text text-muted" style="display: none;">
-                    Your password can’t be too similar to your other personal information.<br>
-                    Your password must contain at least 8 characters.<br>
-                    Your password can’t be a commonly used password.<br>
-                    Your password can’t be entirely numeric.
-                  </small>
+        <!-- Submit Button -->
+        <div class="register-button-wrapper">
+          <button type="submit" class="register-button">Sign up</button>
+        </div>
+      </form>
 
-                  </div>
-                  {% if form.errors %}
-                  {% for error in form.password1.errors %}
-                        <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-                </div>
-                <div class="mb-6 form-password-toggle">
-                  <label class="form-label" for="password2">Confirm Password</label>
-                  <div class="input-group input-group-merge">
-                    <input
-                      type="password"
-                      id="password2"
-                      class="form-control"
-                      name="password2"
-                      required
-                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                      aria-describedby="password" />
-                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
-                    <small id="password2_suggestion" class="form-text text-muted" style="display: none;">Enter the same password as before, for verification.</small>
+      <p class="text-center mt-4">
+        Already have an account?
+        <a href="{% url 'login' %}">Sign in instead</a>
+      </p>
+    </div>
+  </div>
+  <script src="{% static 'user/js/register.js' %}"></script>
 
-                  </div>
-                    {% if form.errors %}
-                    {% for error in form.password2.errors %}
-                          <div class="error-message text-danger">{{ error }}</div>
-                    {% endfor %}
-                    {% endif %}
-                </div>
-
-                <div class="my-8">
-                  <div class="form-check mb-0 ms-2">
-                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms" />
-                    <label class="form-check-label" for="terms-conditions">
-                      I agree to
-                      <a href="javascript:void(0);">privacy policy & terms</a>
-                    </label>
-                  </div>
-                </div>
-                <button class="btn btn-primary d-grid w-100" type="submit">Sign up</button>
-              </form>
-
-              <p class="text-center">
-                <span>Already have an account?</span>
-                <a href="{% url 'login' %}">
-                  <span>Sign in instead</span>
-                </a>
-              </p>
-
-<!--              <div class="divider my-6">-->
-<!--                <div class="divider-text">or</div>-->
-<!--              </div>-->
-
-<!--              <div class="d-flex justify-content-center">-->
-<!--                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-facebook me-1_5">-->
-<!--                  <i class="tf-icons ti ti-brand-facebook-filled"></i>-->
-<!--                </a>-->
-
-<!--                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-twitter me-1_5">-->
-<!--                  <i class="tf-icons ti ti-brand-twitter-filled"></i>-->
-<!--                </a>-->
-
-<!--                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-github me-1_5">-->
-<!--                  <i class="tf-icons ti ti-brand-github-filled"></i>-->
-<!--                </a>-->
-
-<!--                <a href="javascript:;" class="btn btn-sm btn-icon rounded-pill btn-text-google-plus">-->
-<!--                  <i class="tf-icons ti ti-brand-google-filled"></i>-->
-<!--                </a>-->
-<!--              </div>-->
-
-<script src="../../static/user/js/register.js"></script>
-
-
-{% endblock content %}
+</body>
+</html>

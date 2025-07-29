@@ -1,64 +1,63 @@
-{% extends "users/user_base.html" %}
-{% load crispy_forms_tags %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Company - RecruitSmart</title>
+  <link rel="stylesheet" href="{% static 'user/css/forgot.css' %}" />
+  <link rel="icon" type="image/x-icon" href="{% static 'dashboard/img/icons/logo_1.png' %}" />
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="logo-container">
+        <img src="{% static 'dashboard/img/icons/logo.png' %}" alt="RecruitSmart Logo" />
+      </div>
 
+      <h2 class="login-title">Welcome to RecruitSmart! 👋</h2>
+      <p class="login-subtext">Create Company and start the adventure</p>
 
-{% block content %}
-{% if user.is_authenticated %}
-<h4 class="mb-1">Welcome to RecruitSmart! 👋</h4>
-              <p class="mb-6">Create Company and start the adventure</p>
+      <form id="formAuthentication" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
 
-              <form id="formAuthentication" enctype="multipart/form-data" class="mb-4" method="post">
-                {% csrf_token %}
-                  <div class="mb-6">
-                      {% if form.errors %}
-                        {% for field, errors in form.errors.items %}
-                                  {% for error in errors %}
-                                      <div class="error-message text-danger">{{ error }}</div>
-                                  {% endfor %}
-                              {% endfor %}
-                    {% endif %}
-                  <label for="name" class="form-label">Company Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    name="name"
-                    placeholder="XYZ Private Limited"
-                    value="{{ form.name.value|default_if_none:'' }}"
-                    required
-                    autofocus />
-                </div>
-                <div class="mb-6">
-                  <label class="form-label" for="website">Website</label>
-                    <input
-                      id="website"
-                      class="form-control"
-                      name="website"
-                      placeholder="abc.in"
-                      value="{{ form.website.value|default_if_none:'' }}"
+        {% if form.errors %}
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <div class="error-message text-danger">{{ error }}</div>
+            {% endfor %}
+          {% endfor %}
+        {% endif %}
 
-                       />
-                </div>
-                  <div class="mb-6">
-                  <label class="form-label" for="description">Company Description</label>
+        <!-- Company Name -->
+        <div class="form-group">
+          <label for="name">Company Name</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="XYZ Private Limited"
+            value="{{ form.name.value|default_if_none:'' }}" required />
+        </div>
 
-                    <textarea
-                      id="description"
-                      class="form-control"
-                      name="description"
-                      placeholder="XYZ Private Limited is focused on ..."
-                      rows="4"
+        <!-- Website -->
+        <div class="form-group">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" class="form-control" placeholder="abc.in"
+            value="{{ form.website.value|default_if_none:'' }}" />
+        </div>
 
-                    >{{ form.description.value|default_if_none:'' }}</textarea>
-                </div>
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description">Company Description</label>
+          <textarea id="description" name="description" rows="4" class="form-control"
+            placeholder="XYZ Private Limited is focused on ...">{{ form.description.value|default_if_none:'' }}</textarea>
+        </div>
 
-                <div class="mb-6">
-                  <button class="btn btn-primary d-grid w-100" type="submit">Submit</button>
-                </div>
-              </form>
-
-    <!-- / Content -->
-
-{% endif %}{% endblock %}
-
+        <!-- Submit Button -->
+        <div class="login-button-wrapper">
+          <button type="submit" class="login-button">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</body>
+</html>
