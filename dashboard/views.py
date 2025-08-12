@@ -10,7 +10,7 @@ from django.utils import timezone
 import pytz
 from manager.models import JobOpening
 from users.models import Employee
-from .models import Stage, CandidateStage
+from .models import Stage, CandidateStage,InterviewInvitation
 from candidate.models import Candidate, ResumeAnalysis
 from rest_framework import status
 from rest_framework.views import APIView
@@ -27,9 +27,10 @@ from collections import defaultdict
 from .microsoft_graph_api import get_access_token
 from .microsoft_graph_api import create_teams_meeting  # Assuming your helper functions are in utils.py
 from .utils import send_hired_email, send_rejected_email, send_stage_change_email, send_interview_email, \
-    send_schedule_interview_email
+    send_schedule_interview_email,send_interview_invitation_email
 from django.db.models import Prefetch
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
 def email_action(request, candidate_id, action):
@@ -315,6 +316,17 @@ class StageView(LoginRequiredMixin, TemplateView):
         # Retrieve the JobOpening instance
         job_opening_id = self.kwargs.get('pk')
         job_opening = get_object_or_404(JobOpening, pk=job_opening_id)
+        # Get candidate_id from URL parameters or from POST data
+        candidate_id = self.request.GET.get('candidate_id')
+        
+        # Initialize candidate as None
+        context['candidate'] = None
+        
+        if candidate_id:
+            try:
+                context['candidate'] = get_object_or_404(Candidate, pk=candidate_id)
+            except Candidate.DoesNotExist:
+                pass
         job_opening.request = self.request  # Inject the request
         
         context['s_skills'] = job_opening.requiredskills
@@ -556,3 +568,46 @@ class CandidateCalendarListView(View):
 #
 #     def form_invalid(self, form):
 #         return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+# views.py
+from django.db import IntegrityError
+@method_decorator(csrf_exempt, name='dispatch')
+class SendInterviewLinkView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            candidate_id = data.get('candidate_id')
+            job_opening_id = data.get('job_opening_id')
+            additional_notes = data.get('additional_notes', '')
+
+            if not candidate_id or not job_opening_id:
+                return JsonResponse({'status': 'error', 'message': 'Missing required parameters'}, status=400)
+
+            candidate = Candidate.objects.get(id=candidate_id)
+
+            # Check if already sent
+            if InterviewInvitation.objects.filter(candidate=candidate, job_opening_id=job_opening_id).exists():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Interview link already sent to this candidate for this job.'
+                }, status=400)
+
+            # Save first to prevent race condition
+            InterviewInvitation.objects.create(candidate=candidate, job_opening_id=job_opening_id)
+
+            send_interview_invitation_email(
+                candidate=candidate,
+                job_opening_id=job_opening_id,
+                additional_notes=additional_notes
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'Interview invitation sent successfully'})
+
+        except Candidate.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Candidate not found'}, status=404)
+
+        # except IntegrityError:
+        #     return JsonResponse({'status': 'error', 'message': 'Invitation already sent'}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

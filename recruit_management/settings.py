@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['SECRET']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com','recruitsmart.co', '127.0.0.1']
+ALLOWED_HOSTS = ['20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com','recruitsmart.co', '127.0.0.1','localhost']
 
 
 
@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.microsoft',  # For Microsoft login
     "whitenoise.runserver_nostatic",
     "storages",
-    'interviewbot'
+    'interviewbot',
+    
 ]
 
 MIDDLEWARE = [

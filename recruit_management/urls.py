@@ -32,6 +32,7 @@ urlpatterns = ([
     path('accounts/', include('allauth.urls')),
     path('screening/', include('screening.urls')),
     path('', include('dashboard.urls')),
+    # path("", include("frontend.urls")),
     path('manager/', include('manager.urls')),
     path('notification/', include('notification.urls')),
     path('candidate/', include('candidate.urls')),

@@ -76,7 +76,12 @@
               <h5 class="fw-bold text-primary">
                 <i class="fas fa-sparkles me-2"></i>AI Interview Summary
               </h5>
-              <p class="mt-2 mb-0">{{ summary_text }}</p>
+              <ul>
+                {% for line in summary_text.splitlines %} 
+                  {% if line.strip %}<li>{{ line|safe }}</li>{% endif %}
+                {% endfor %}
+              </ul>
+
             </div>
           </div>
 

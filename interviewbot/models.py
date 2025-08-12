@@ -22,3 +22,12 @@ class InterviewAnswer(models.Model):
         null=True, blank=True, max_digits=5, decimal_places=2,
         help_text="Score (0–100) representing overall technical skill demonstrated."
     )
+    source = models.CharField(max_length=20, choices=[('job', 'Job'), ('resume', 'Resume')], default='job')
+
+
+class InterviewQuestion(models.Model):
+    job_opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE, related_name="questions")
+    text = models.TextField()
+    is_selected = models.BooleanField(default=False)
+    is_custom = models.BooleanField(default=False)  # <-- Track recruiter-created ones
+    created_at = models.DateTimeField(auto_now_add=True)
