@@ -200,13 +200,18 @@ class CandidateCreateView(FormView):
             path = default_storage.save('resume/' + resume_file.name, temp_file)
             # Download from Azure and write to a local file
             # Define a temporary local path
-            local_temp_path = f"/tmp/{resume_file.name}"
+            # local_temp_path = f"/tmp/{resume_file.name}"
             # print("path:",local_temp_path)
 
-            with open(local_temp_path, "wb") as f:
-                f.write(default_storage.open(path).read())
+            # with open(local_temp_path, "wb") as f:
+            #     f.write(default_storage.open(path).read())
             # full_file_path = os.path.join(settings.MEDIA_ROOT, path)
             # file_path = resume_file.path
+
+            temp_dir = tempfile.gettempdir()
+            local_temp_path = os.path.join(temp_dir, resume_file.name)
+            print("path:", local_temp_path)
+
             extractedText = extractText(local_temp_path)
             default_storage.delete(path)
             if extractedText.strip() == "" :

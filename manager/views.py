@@ -102,7 +102,7 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             Stage.objects.create(job_opening_id=job_opening.id, name='Hired', order=50)
 
             messages.success(self.request, 'Opening created successfully!')
-            return redirect('job-opening-generate', pk=job_opening.pk)
+            return redirect(reverse('job-opening-generate', kwargs={'pk':job_opening.pk}))
 
 
         

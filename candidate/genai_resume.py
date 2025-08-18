@@ -8,7 +8,7 @@ import json, os
 def get_response(text, designation, skills_string, min_experience, max_experience, education):
     endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
 
-    # # Initialize Azure OpenAI Service client with key-based authentication
+    # # # Initialize Azure OpenAI Service client with key-based authentication
     client = AzureOpenAI(
         azure_endpoint=endpoint,
         api_key=os.environ['CHATGPT_API_KEY'],
