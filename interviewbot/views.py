@@ -485,23 +485,42 @@ class JobOpeningQuestionsView(LoginRequiredMixin, View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request, pk):
-        # ✅ Fetch job object
-        job = get_object_or_404(JobOpening, pk=pk, company=request.user.employee.company)
+    # def post(self, request, pk):
+    #     # ✅ Fetch job object
+    #     job = get_object_or_404(JobOpening, pk=pk, company=request.user.employee.company)
 
-        # ✅ Handle custom questions submitted by the recruiter
+    #     # ✅ Handle custom questions submitted by the recruiter
+    #     custom_questions = request.POST.getlist('custom_questions[]')
+    #     for question in custom_questions:
+    #         if question.strip():
+    #             # ✅ Save custom question to DB
+    #             InterviewQuestion.objects.create(
+    #                 job_opening=job,
+    #                 text=question.strip(),
+    #                 is_selected=True,  # Always selected since no manual selection
+    #                 is_custom=True
+    #             )
+
+    #     # ✅ Show success message and reload page
+    #     messages.success(request, "Custom interview questions added successfully.")
+    #     return redirect('dashboard')
+    def post(self, request, pk):
+        try:
+            job = JobOpening.objects.get(pk=pk, company=request.user.employee.company)
+        except JobOpening.DoesNotExist:
+            messages.error(request, "This job does not exist or does not belong to your company.")
+            return redirect('dashboard')
+
         custom_questions = request.POST.getlist('custom_questions[]')
         for question in custom_questions:
             if question.strip():
-                # ✅ Save custom question to DB
                 InterviewQuestion.objects.create(
-                    job_opening=job,
+                    job_opening=job,  # ✅ safe object
                     text=question.strip(),
-                    is_selected=True,  # Always selected since no manual selection
+                    is_selected=True,
                     is_custom=True
                 )
 
-        # ✅ Show success message and reload page
         messages.success(request, "Custom interview questions added successfully.")
         return redirect('dashboard')
 
