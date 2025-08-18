@@ -66,13 +66,13 @@
                           ><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a
                         >
                       </li>
-                      {% if clients %}
-                      <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users-clients' %}"
-                          ><i class="ti-sm ti ti-building me-1_5"></i> Clients</a
-                        >
-                      </li>
-                      {% endif %}
+<!--                      {% if clients %}-->
+<!--                      <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{% url 'users-clients' %}"-->
+<!--                          ><i class="ti-sm ti ti-building me-1_5"></i> Clients</a-->
+<!--                        >-->
+<!--                      </li>-->
+<!--                      {% endif %}-->
                       {% if has_perm2 and employees %}
 
                       <li class="nav-item">
@@ -139,9 +139,9 @@
                       </ul>
                       <small class="card-text text-uppercase text-muted small">Hiring</small>
                       <ul class="list-unstyled mb-0 mt-3 pt-1">
-                        {% for jobopening in user.employee.jobopening_set.all %}
+                        {% for jobopening in job_openings %}
                         <li class="d-flex flex-wrap mb-4">
-                          <span class="fw-medium me-2">{{ jobopening }}</span><span>({{jobopening.client}})</span>
+                          <span class="fw-medium me-2">{{ jobopening }}</span>
                         </li>
                         {% empty %}
                         <li class="d-flex flex-wrap">
@@ -157,62 +157,62 @@
                  <div class="col-xl-7 col-lg-6 col-md-6">
 
                     <!-- Clients -->
-                    {% if clients %}
-                      <div class="card card-action mb-6">
-                        <div class="card-header align-items-center">
-                          <h5 class="card-action-title mb-0">Clients</h5>
-                          <div class="card-action-element">
-                            <div class="dropdown">
-                              <button
-                                type="button"
-                                class="btn btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow p-0 text-muted"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <i class="ti ti-dots-vertical ti-md text-muted"></i>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="javascript:void(0);">Share Clients</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0);">Suggest edits</a></li>
-                                <li>
-                                  <hr class="dropdown-divider" />
-                                </li>
-                                <li><a class="dropdown-item" href="javascript:void(0);">Report bug</a></li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="card-body">
-                          <ul class="list-unstyled mb-0">
-                            {% for org in clients %}
-                            <li class="mb-4">
-                              <div class="d-flex align-items-center">
+<!--                    {% if clients %}-->
+<!--                      <div class="card card-action mb-6">-->
+<!--                        <div class="card-header align-items-center">-->
+<!--                          <h5 class="card-action-title mb-0">Clients</h5>-->
+<!--                          <div class="card-action-element">-->
+<!--                            <div class="dropdown">-->
+<!--                              <button-->
+<!--                                type="button"-->
+<!--                                class="btn btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow p-0 text-muted"-->
+<!--                                data-bs-toggle="dropdown"-->
+<!--                                aria-expanded="false">-->
+<!--                                <i class="ti ti-dots-vertical ti-md text-muted"></i>-->
+<!--                              </button>-->
+<!--                              <ul class="dropdown-menu dropdown-menu-end">-->
+<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Share Clients</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Suggest edits</a></li>-->
+<!--                                <li>-->
+<!--                                  <hr class="dropdown-divider" />-->
+<!--                                </li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Report bug</a></li>-->
+<!--                              </ul>-->
+<!--                            </div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        <div class="card-body">-->
+<!--                          <ul class="list-unstyled mb-0">-->
+<!--                            {% for org in clients %}-->
+<!--                            <li class="mb-4">-->
+<!--                              <div class="d-flex align-items-center">-->
 
-                                <div class="d-flex align-items-center">
-<!--                                  <div class="avatar me-2">-->
-<!--                                    <img src="../../assets/img/avatars/2.png" alt="Avatar" class="rounded-circle" />-->
+<!--                                <div class="d-flex align-items-center">-->
+<!--&lt;!&ndash;                                  <div class="avatar me-2">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <img src="../../assets/img/avatars/2.png" alt="Avatar" class="rounded-circle" />&ndash;&gt;-->
+<!--&lt;!&ndash;                                  </div>&ndash;&gt;-->
+<!--                                  <div class="me-2">-->
+<!--                                    <h6 class="mb-0">{{ org }}</h6>-->
+<!--                                    <small>{{ org.location }}</small>-->
 <!--                                  </div>-->
-                                  <div class="me-2">
-                                    <h6 class="mb-0">{{ org }}</h6>
-                                    <small>{{ org.location }}</small>
-                                  </div>
-                                </div>
-                                {% if org.jobopening_set.first %}
-                                <div class="ms-auto">
-                                  <a href="javascript:;"><span class="badge bg-label-info">Hiring</span></a>
-                                </div>
-                                {% endif %}
+<!--                                </div>-->
+<!--                                {% if org.jobopening_set.first %}-->
+<!--                                <div class="ms-auto">-->
+<!--                                  <a href="javascript:;"><span class="badge bg-label-info">Hiring</span></a>-->
+<!--                                </div>-->
+<!--                                {% endif %}-->
 
-                              </div>
-                            </li>
-                            {% endfor %}
+<!--                              </div>-->
+<!--                            </li>-->
+<!--                            {% endfor %}-->
 
-                            <li class="text-center mt-2">
-                              <a href="{% url 'users-clients' %}">View all clients</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    {% endif %}
+<!--                            <li class="text-center mt-2">-->
+<!--                              <a href="{% url 'users-clients' %}">View all clients</a>-->
+<!--                            </li>-->
+<!--                          </ul>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                    {% endif %}-->
                     <!--/ Clients -->
                     {% if has_perm2 and employees %}
 
