@@ -515,7 +515,7 @@ class JobOpeningQuestionsView(LoginRequiredMixin, View):
         for question in custom_questions:
             if question.strip():
                 InterviewQuestion.objects.create(
-                    job_opening=job,  # ✅ safe object
+                    job_opening_id=pk,  # ✅ safe object
                     text=question.strip(),
                     is_selected=True,
                     is_custom=True
