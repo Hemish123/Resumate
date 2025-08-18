@@ -9,7 +9,10 @@ __pycache__/
 candidate/resume_parsing/model-best/
 Bootstrap5/
 media/
+<<<<<<< HEAD
+=======
 imp.txt
+>>>>>>> ea21d837300dd791754cfea9a14c2de8d89efc8b
 # Distribution / packaging
 .Python
 build/
