@@ -3,6 +3,53 @@
  */
 
 'use strict';
+// Utility function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast notification functions
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'}`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    
+    // Auto-remove toast after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
 
 (async function () {
   let boards;
@@ -289,35 +336,70 @@ const excludedCandidateIds = new Set(
       candidateProfileBtn.onclick = function() {
         window.location.href = `/candidate/candidate-analysis/${candidateId}/?job_opening_id=${jobOpeningId}`;  // Redirect to candidate profile page
       };
+      // In the click handler function where we set up the View Analysis button, add this:
+     // Set the onclick event for the Send Interview Link button
+  const sendInterviewLinkBtn = kanbanSidebar.querySelector('#sendInterviewLink');
+  sendInterviewLinkBtn.onclick = function() {
+    // Show the modal instead of directly opening the interview page
+    const modal = document.getElementById('sendInterviewModal');
+    document.getElementById('modalCandidateEmail').textContent = email;
+    modal.dataset.candidateId = candidateId;
+    modal.dataset.jobOpeningId = jobOpeningId;
+    
+    const interviewModal = new bootstrap.Modal(modal);
+    interviewModal.show();
+  };
 
+  // Handle the confirm button in the modal
+  document.getElementById('confirmSendInterview').addEventListener('click', async function() {
+    const modal = document.getElementById('sendInterviewModal');
+    const candidateId = modal.dataset.candidateId;
+    const jobOpeningId = modal.dataset.jobOpeningId;
+    const additionalNotes = document.getElementById('additionalNotes').value;
+    
+    // Show loading state
+    const sendBtn = this;
+    sendBtn.disabled = true;
+    const spinner = sendBtn.querySelector('.spinner-border');
+    spinner.classList.remove('d-none');
+    
+    try {
+      const response = await fetch('/api/send-interview-link/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          candidate_id: candidateId,
+          job_opening_id: jobOpeningId,
+          additional_notes: additionalNotes
+        })
+      });
 
-      // ! Using jQuery method to get sidebar due to select2 dependency
-      $('.kanban-update-item-sidebar').find(select2).val(stageSelect).trigger('change');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send interview link');
+      }
 
-      // Remove & Update assigned
-//      kanbanSidebar.querySelector('.assigned').innerHTML = '';
-//      kanbanSidebar
-//        .querySelector('.assigned')
-//        .insertAdjacentHTML(
-//          'afterbegin',
-//          renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
-//            "<div class='avatar avatar-xs ms-1'>" +
-//            "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
-//            '</div>'
-//        );
+      // Close modal and show success
+      bootstrap.Modal.getInstance(modal).hide();
+      showToast('Interview link sent successfully!', 'success');
+      
+    } catch (error) {
+      console.error('Error:', error);
+      showToast(error.message || 'Failed to send interview link', 'error');
+    } finally {
+      // Reset button state
+      sendBtn.disabled = false;
+      spinner.classList.add('d-none');
+    }
+  });
 
-
-
-
-//    // Add event listener to board headers
-//    document.querySelectorAll('.kanban-board-header').forEach(header => {
-//      header.addEventListener('click', function () {
-//        const stageId = this.parentNode.getAttribute('data-id');
-//        document.getElementById('stage_id').value = stageId;
-//      });
-//    });
-
-    },
+  // ! Using jQuery method to get sidebar due to select2 dependency
+  $('.kanban-update-item-sidebar').find(select2).val(stageSelect).trigger('change');
+},
 
     // update item order on drag and drop
 
@@ -865,3 +947,76 @@ applyBoardColors();
     });
   }
 })();
+
+
+document.getElementById('confirmSendInterview').addEventListener('click', async function() {
+  const modal = document.getElementById('sendInterviewModal');
+  const candidateId = modal.dataset.candidateId;
+  const jobOpeningId = modal.dataset.jobOpeningId;
+  const additionalNotes = document.getElementById('additionalNotes').value;
+  
+  // Show loading state
+  const sendBtn = this;
+  sendBtn.disabled = true;
+  sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+  
+  try {
+    const response = await fetch('/api/send-interview-link/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        candidate_id: candidateId,
+        job_opening_id: jobOpeningId,
+        additional_notes: additionalNotes
+      })
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to send interview link');
+    }
+
+    // Close modal and show success
+    bootstrap.Modal.getInstance(modal).hide();
+    showToast('Interview link sent successfully!', 'success');
+    
+  } catch (error) {
+    showToast(error.message || 'Failed to send interview link', 'error');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+  }
+});
+
+function showToast(message, type = 'success') {
+  const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+  const toast = document.createElement('div');
+  toast.className = `toast show align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'}`;
+  toast.setAttribute('role', 'alert');
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  `;
+  toastContainer.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toastContainer';
+  container.style.position = 'fixed';
+  container.style.top = '20px';
+  container.style.right = '20px';
+  container.style.zIndex = '9999';
+  document.body.appendChild(container);
+  return container;
+}

@@ -8,7 +8,7 @@ import json, os
 def get_response(text, designation, skills_string, min_experience, max_experience, education):
     endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
 
-    # # Initialize Azure OpenAI Service client with key-based authentication
+    # # # Initialize Azure OpenAI Service client with key-based authentication
     client = AzureOpenAI(
         azure_endpoint=endpoint,
         api_key=os.environ['CHATGPT_API_KEY'],
@@ -56,70 +56,7 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     return response.choices[0].message.content
 
 
-# def generate_interview_questions(text, designation, skills_string, min_experience, max_experience, education):
-#     """
-#      Generates the next interview question based on:
-#     - Candidate's skills
-#     - Job description
-#     - Prior answers
-#     """
-#     # endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
-#     client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
 
-#     # Initialize Azure OpenAI Service client
-#     # client = AzureOpenAI(
-#     #     azure_endpoint=endpoint,
-#     #     api_key=os.environ['CHATGPT_API_KEY'],
-#     #     api_version="2024-05-01-preview",
-#     # )
-
-#     system_prompt = """
-#     You are an expert HR specialist.
-#     Your task is to generate a list of 5 varied and relevant interview questions for a candidate applying for the following job role.
-
-#     Make sure:
-#     - The questions are specific to the designation and skills.
-#     - They vary each time you are asked (do NOT always return the same questions).
-#     - Questions cover knowledge, experience, problem-solving, and cultural fit.
-
-#     IMPORTANT:
-#     Return ONLY a JSON array of strings.
-#     Do NOT include any explanation or extra text.
-#     Example:
-#     ["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]
-#     """
-
-#     user_prompt = (
-#         f"Job Designation: {designation}\n"
-#         f"Required Skills: {skills_string}\n"
-#         f"Minimum Experience: {min_experience} years\n"
-#         f"Maximum Experience: {max_experience} years\n"
-#         f"Required Education: {education}\n"
-#         f"Job Description:\n{text}"
-#     )
-
-#     response = client.chat.completions.create(
-#         model="gpt-4o-mini",
-#         messages=[
-#             {"role": "system", "content": system_prompt},
-#             {"role": "user", "content": user_prompt}
-#         ]
-#     )
-
-#     result_text = response.choices[0].message.content.strip()
-#     print("Raw GPT response:", repr(result_text))  # For debugging
-
-#     try:
-#         # Try to parse JSON directly
-#         return json.loads(result_text)
-#     except json.JSONDecodeError:
-#         # If GPT added extra text, extract JSON array using regex
-#         match = re.search(r"\[.*\]", result_text, re.DOTALL)
-#         if match:
-#             json_array = match.group(0)
-#             return json.loads(json_array)
-#         else:
-#             raise ValueError("Could not extract a JSON array from the GPT response.")
 def transcribe_audio(audio_file_path):
     """
     Convert audio file to text using OpenAI's Whisper model
@@ -437,11 +374,58 @@ Also provide an overall "technical_skills_score" based on depth and clarity of t
             "technical_skills_score": 0
         }
 
+# def generate_interview_summary(candidate_name: str, questions: list, required_skills: list) -> str:
+#     """
+#     Generate a summary of the interview overall performance.
+#     """
+#     # Build a detailed string with Q&A and scores
+#     qna_text = ""
+#     for q in questions:
+#         qna_text += f"""
+# Q: {q['question']}
+# A: {q['answer']}
+# Score: {q['score']}%
+# Technical Skills: {q['technical_skills_score']}%
+# """
+
+#         if q["skills"]:
+#             skills_str = ", ".join([f"{s}: {v}%" for s, v in q["skills"].items()])
+#             qna_text += f"Skill Scores: {skills_str}\n"
+
+#     skills_list = ", ".join(required_skills)
+
+#     system = (
+#         "You are a senior interviewer and hiring manager. "
+#         "Based on the interview transcript, write a short professional summary assessing the candidate's performance, "
+#         "strengths, weaknesses, and fit for the role. Keep it concise (max 200 words)."
+#     )
+
+#     user = f"""
+# Candidate: {candidate_name}
+
+# Interview Summary Data:
+# {qna_text}
+
+# Skills evaluated: {skills_list}
+
+# Please write the interview summary:
+# """
+
+#     resp = client.chat.completions.create(
+#         model="gpt-4o-mini",
+#         messages=[
+#             {"role": "system", "content": system},
+#             {"role": "user", "content": user}
+#         ],
+#         temperature=0.3
+#     )
+
+#     return resp.choices[0].message.content.strip()
+
 def generate_interview_summary(candidate_name: str, questions: list, required_skills: list) -> str:
     """
-    Generate a summary of the interview overall performance.
+    Generate a 5-bullet summary of the interview covering all aspects: performance, skills, and fit.
     """
-    # Build a detailed string with Q&A and scores
     qna_text = ""
     for q in questions:
         qna_text += f"""
@@ -450,17 +434,17 @@ A: {q['answer']}
 Score: {q['score']}%
 Technical Skills: {q['technical_skills_score']}%
 """
-
         if q["skills"]:
             skills_str = ", ".join([f"{s}: {v}%" for s, v in q["skills"].items()])
             qna_text += f"Skill Scores: {skills_str}\n"
 
     skills_list = ", ".join(required_skills)
 
+    # ✅ GPT prompt for 5 bullet points
     system = (
-        "You are a senior interviewer and hiring manager. "
-        "Based on the interview transcript, write a short professional summary assessing the candidate's performance, "
-        "strengths, weaknesses, and fit for the role. Keep it concise (max 200 words)."
+        "You are a senior interviewer. Based on the provided interview data, generate a summary in exactly 5 bullet points. "
+        "Cover the candidate's performance, strengths, weaknesses, technical and soft skills, and overall recommendation. "
+        "Be concise, avoid repetition, and use professional tone."
     )
 
     user = f"""
@@ -471,7 +455,7 @@ Interview Summary Data:
 
 Skills evaluated: {skills_list}
 
-Please write the interview summary:
+Write 5 bullet points summarizing the interview:
 """
     endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
 
@@ -491,3 +475,56 @@ Please write the interview summary:
     )
 
     return resp.choices[0].message.content.strip()
+
+
+def generate_questions_from_skills(skills):
+    if not skills:
+        return []
+
+    client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    user_prompt = f"""Generate 5 interview questions based on these skills: {', '.join(skills)}.
+    Return a JSON list: {{ "questions": ["q1", "q2", ...] }}"""
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful technical recruiter."},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+        data = json.loads(resp.choices[0].message.content)
+        return data.get("questions", [])[:5]
+    except Exception as e:
+        print(f"Error generating resume-based questions: {e}")
+        return []
+
+def generate_combined_questions_for_skills(designation, skill_levels, n=5):
+    """
+    Generate exactly `n` interview questions for multiple skills combined.
+    skill_levels: [{'skill': 'Python', 'level': 'fresher'}, ...]
+    """
+    client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+
+    # ✅ Create descriptive list for prompt
+    skills_desc = ", ".join([f"{s['skill']} ({s['level']} level)" for s in skill_levels])
+
+    user_prompt = (
+        f"Generate exactly {n} interview questions for a \"{designation}\" role. "
+        f"The questions should cover the following skills and their levels: {skills_desc}. "
+        "Distribute questions fairly across skills. Return a JSON list: { \"questions\": [\"q1\", \"q2\", ...] }"
+    )
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert interviewer."},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+        data = json.loads(resp.choices[0].message.content)
+        return data.get("questions", [])[:n]
+    except Exception as e:
+        print("Error generating combined questions:", e)
+        return []

@@ -50,3 +50,11 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['-start_datetime']
+
+class InterviewInvitation(models.Model):
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    job_opening_id = models.IntegerField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('candidate', 'job_opening_id')

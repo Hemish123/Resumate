@@ -4,6 +4,8 @@ from django.template.loader import render_to_string
 from recruit_management.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from django.core.mail import EmailMultiAlternatives
 from candidate.models import ResumeAnalysis
+from django.utils.html import strip_tags
+from django.conf import settings
 
 def send_success_email(candidate, job_opening):
     emailOfSender = EMAIL_HOST_USER
@@ -149,3 +151,45 @@ def new_opening_email(job_opening, e):
                                           to=[e.user.email, ], reply_to=['noreply@invalid'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+from django.contrib.sites.models import Site
+def send_interview_invitation_email(candidate, job_opening_id, additional_notes=''):
+    """
+    Send interview invitation email to candidate
+    """
+    current_site = Site.objects.get_current()
+    
+    # Determine protocol (http for local, https for production)
+    protocol = 'https' if not settings.DEBUG else 'http'
+    
+    # Handle domain formatting
+    domain = current_site.domain
+    if domain.startswith('http://'):
+        domain = domain.replace('http://', '')
+    elif domain.startswith('https://'):
+        domain = domain.replace('https://', '')
+    
+    # interview_url = f"{protocol}://{domain}/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
+    interview_url = f"{protocol}://jivihire.com/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
+    
+    context = {
+        'candidate_name': candidate.name,
+        'interview_url': interview_url,
+        'additional_notes': additional_notes,
+        
+    }
+    
+    # Render HTML email template
+    html_message = render_to_string('dashboard/interview_invitation.html', context)
+    plain_message = strip_tags(html_message)
+    
+    subject = f"Interview Invitation for {candidate.name}"
+    
+    return send_mail(
+        subject=subject,
+        message=plain_message,
+        html_message=html_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[candidate.email],
+        fail_silently=False,
+    )
