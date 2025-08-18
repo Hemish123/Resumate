@@ -9,7 +9,7 @@ from verify_email.email_handler import send_verification_email
 from django.contrib.auth.models import Group, User
 from django.views.generic import ListView, CreateView, TemplateView, DeleteView, UpdateView, FormView
 from .models import Employee, Company
-from manager.models import Client
+from manager.models import Client, JobOpening
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseForbidden
 from django.contrib.auth.views import LoginView
@@ -191,6 +191,8 @@ class SettingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        job_openings = JobOpening.objects.filter(company=self.request.user.employee.company, assignemployee=self.request.user.employee, active=True)
+        context["job_openings"] = job_openings
         context['clients'] = Client.objects.filter(company=self.request.user.employee.company)[:5]
       # Add employee data
 

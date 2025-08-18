@@ -16,7 +16,9 @@
             </label>
             <input type="text" class="form-control"
                    required
-                   placeholder="Youremail@gmail.com" name="email" id="id_email">
+                   placeholder="Youremail@gmail.com" name="email"
+                   value="{{ email|default:user.email }}"
+                   id="id_email">
 
         </div>
         <div class="mb-6">

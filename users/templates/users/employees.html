@@ -60,11 +60,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'users-settings' %}"><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a>
                     </li>
-                    {% if clients %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users-clients' %}"><i class="ti-sm ti ti-building me-1_5"></i> Clients</a>
-                    </li>
-                    {% endif %}
+<!--                    {% if clients %}-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{% url 'users-clients' %}"><i class="ti-sm ti ti-building me-1_5"></i> Clients</a>-->
+<!--                    </li>-->
+<!--                    {% endif %}-->
                     {% if has_perm2 and employees %}
                     <li class="nav-item">
                         <a class="nav-link active" href="javascript:void(0);"><i class="ti-sm ti ti-user me-1_5"></i> Employees</a>
