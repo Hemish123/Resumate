@@ -500,6 +500,7 @@ def generate_questions_from_skills(skills):
         return []
 
 def generate_combined_questions_for_skills(designation, skill_levels, n=5):
+    print("generating..")
     """
     Generate exactly `n` interview questions for multiple skills combined.
     skill_levels: [{'skill': 'Python', 'level': 'fresher'}, ...]

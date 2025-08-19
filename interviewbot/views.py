@@ -546,16 +546,19 @@ class JobOpeningSkillSelectView(LoginRequiredMixin, View):
 
         # ✅ Get selected skill names from checkboxes
         selected_skills = request.POST.getlist('skill')  # e.g., ['Python', 'Django']
+        print("Selected Skills:",selected_skills)
 
         skill_levels = []
         for skill in selected_skills:
             # ✅ Get the level for each selected skill using the name 'level_for_<skill>'
             level = request.POST.get(f"level_for_{skill}") or request.POST.get("level")
+            print("Level:",level)
             if level:
                 skill_levels.append({'skill': skill, 'level': level})
 
         # ❌ If no valid skill + level pair was selected, re-render with error
         if not skill_levels:
+            print("no skills")
             return render(request, self.template_name, {
                 'job': job,
                 'skills': skills,
@@ -568,6 +571,7 @@ class JobOpeningSkillSelectView(LoginRequiredMixin, View):
             skill_levels=skill_levels,
             n=5  # total questions only (not 5 per skill)
         )
+        print("Questions:",questions)
 
         # ✅ Save each generated question into the DB
         for q in questions:
