@@ -31,3 +31,4 @@ class InterviewQuestion(models.Model):
     is_selected = models.BooleanField(default=False)
     is_custom = models.BooleanField(default=False)  # <-- Track recruiter-created ones
     created_at = models.DateTimeField(auto_now_add=True)
+
