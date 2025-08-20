@@ -481,7 +481,15 @@ def generate_questions_from_skills(skills):
     if not skills:
         return []
 
-    client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    # client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
+
+    # # # Initialize Azure OpenAI Service client with key-based authentication
+    client = AzureOpenAI(
+        azure_endpoint=endpoint,
+        api_key=os.environ['CHATGPT_API_KEY'],
+        api_version="2024-05-01-preview",
+    )
     user_prompt = f"""Generate 5 interview questions based on these skills: {', '.join(skills)}.
     Return a JSON list: {{ "questions": ["q1", "q2", ...] }}"""
 
@@ -505,7 +513,15 @@ def generate_combined_questions_for_skills(designation, skill_levels, n=5):
     Generate exactly `n` interview questions for multiple skills combined.
     skill_levels: [{'skill': 'Python', 'level': 'fresher'}, ...]
     """
-    client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    # client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
+
+    # # # Initialize Azure OpenAI Service client with key-based authentication
+    client = AzureOpenAI(
+        azure_endpoint=endpoint,
+        api_key=os.environ['CHATGPT_API_KEY'],
+        api_version="2024-05-01-preview",
+    )
 
     # ✅ Create descriptive list for prompt
     skills_desc = ", ".join([f"{s['skill']} ({s['level']} level)" for s in skill_levels])
