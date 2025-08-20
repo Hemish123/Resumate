@@ -39,7 +39,7 @@
 <!--                    fill="#7367F0" />-->
 <!--                </svg>-->
 <!--              </span>-->
-              <img src="{% static 'dashboard/img/icons/logo.png' %}" alt="RecruitSmart Logo" width="80%" height="auto" />
+              <img src="{% static 'dashboard/img/icons/WhatsApp Image 2025-07-30 at 14.28.53_c5f0a16d.jpg' %}" alt="RecruitSmart Logo" width="80%" height="auto" />
 <!--              <span class="app-brand-text demo menu-text fw-bold">RecruitSmart</span>-->
 <!--            </a>-->
 
@@ -51,54 +51,55 @@
 
           <div class="menu-inner-shadow"></div>
 
-          <ul class="menu-inner py-1">
-            <!-- Page -->
-            <li class="menu-item {% if request.path == '/' %}active{% endif %}">
-              <a href="{% url 'dashboard' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-smart-home"></i>
-                <div data-i18n="Page 1">Dashboard</div>
-              </a>
-            </li>
-            <li class="menu-item {% if request.path == '/job-openings/' %}active{% endif %}">
-              <a href="{% url 'job-opening' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-briefcase-2"></i>
-                <div data-i18n="Page 1">Job Openings</div>
-              </a>
-            </li>
-            <li class="menu-item {% if request.path == '/candidate/candidate-list/' %}active{% endif %}">
-              <a href="{% url 'candidate-list' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-users-group"></i>
-                <div data-i18n="Page 2">Candidates</div>
-              </a>
-            </li>
-            <li class="menu-item {% if request.path == '/candidate/resume-list/' %}active{% endif %}">
-              <a href="{% url 'resume-list' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-users-group"></i>
-                <div data-i18n="Page 2">Resumes</div>
-              </a>
-            </li>
-            <li class="menu-item {% if request.path == '/calendar/' %}active{% endif %}">
-              <a href="{% url 'calendar' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-calendar-month"></i>
-                <div data-i18n="Page 1">Calendar</div>
-              </a>
-            </li>
-            <li class="menu-item {% if request.path == '/screening/about/' %}active{% endif %}">
-              <a href="{% url 'parsing-about' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-app-window"></i>
-                <div data-i18n="Page 2">About</div>
-              </a>
-            </li>
-            <li class="menu-header small">
-              <span class="menu-header-text" data-i18n="Apps & Pages">User</span>
-            </li>
-            <li class="menu-item {% if request.path == '/users-settings/' %}active{% endif %}">
-              <a href="{% url 'users-settings' %}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-settings-2"></i>
-                <div data-i18n="Page 2">Settings</div>
-              </a>
-            </li>
-          </ul>
+         <ul class="menu-inner py-1">
+  <!-- Page -->
+                <li class="menu-item {% if request.path == '/' %}active{% endif %}">
+                  <a href="{% url 'dashboard' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
+                    <div data-i18n="Page 1">Dashboard</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.path == '/job-openings/' %}active{% endif %}">
+                  <a href="{% url 'job-opening' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-briefcase"></i>
+                    <div data-i18n="Page 1">Job Openings</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.path == '/candidate/candidate-list/' %}active{% endif %}">
+                  <a href="{% url 'candidate-list' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-users"></i>
+                    <div data-i18n="Page 2">Candidates</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.path == '/candidate/resume-list/' %}active{% endif %}">
+                  <a href="{% url 'resume-list' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-file-text"></i>
+                    <div data-i18n="Page 2">Resumes</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.path == '/calendar/' %}active{% endif %}">
+                  <a href="{% url 'calendar' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-calendar-event"></i>
+                    <div data-i18n="Page 1">Calendar</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.path == '/screening/about/' %}active{% endif %}">
+                  <a href="{% url 'parsing-about' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-info-circle"></i>
+                    <div data-i18n="Page 2">About</div>
+                  </a>
+                </li>
+                <li class="menu-header small">
+                  <span class="menu-header-text" data-i18n="Apps & Pages">User</span>
+                </li>
+                <li class="menu-item {% if request.path == '/users-settings/' %}active{% endif %}">
+                  <a href="{% url 'users-settings' %}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-settings"></i>
+                    <div data-i18n="Page 2">Settings</div>
+                  </a>
+                </li>
+        </ul>
+
         </aside>
         <!-- / Menu -->
 
@@ -114,7 +115,7 @@
                 <i class="ti ti-menu-2 ti-md"></i>
               </a>
             </div>
-
+          
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                 <!-- Search -->
 <!--              <div class="navbar-nav align-items-center">-->
@@ -251,10 +252,11 @@
 
                           <form action="{% url 'logout' %}" method="post">
                                 {% csrf_token %}
-                            <span class="btn btn-sm btn-danger d-flex" href="{% url 'logout' %}">
-                                <button class="btn btn-danger align-middle" type="submit">Logout
-                                <i class="ti ti-logout ms-2 ti-14px"></i></button>
-                              </span>
+                            <button type="submit" class="btn btn-sm btn-outline-primary" style="width: 100%;" href="{% url 'logout' %}">
+                               Logout
+                                  <i class="ti ti-logout ms-2 ti-14px"></i>
+                                
+                            </button>
 
                             </form>
 

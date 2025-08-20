@@ -557,7 +557,7 @@ html[class] .bootstrap-select.form-select {
   border: var(--bs-border-width) solid #d1d0d4;
 }
 .light-style .bootstrap-select .dropdown-toggle.show, .light-style .bootstrap-select .dropdown-toggle:focus {
-  border: 2px solid #7367f0;
+  border: 2px solid #402fb7;
 }
 .light-style .bootstrap-select .dropdown-toggle:not(.show):hover {
   border-color: #82808b;
@@ -585,7 +585,7 @@ html[class] .bootstrap-select.form-select {
   color: #cfcde4;
 }
 .dark-style .bootstrap-select .dropdown-toggle.show, .dark-style .bootstrap-select .dropdown-toggle:focus {
-  border: 2px solid #7367f0;
+  border: 2px solid #402fb7;
 }
 .dark-style .bootstrap-select .dropdown-toggle:not(.show):hover {
   border-color: #9a9ab0;

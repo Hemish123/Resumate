@@ -7304,6 +7304,7 @@
 
 .ti-copy:before {
   content: "\ea7a";
+    color: white;
 }
 
 .ti-copy-check:before {
@@ -21244,6 +21245,7 @@
 
 .ti-x:before {
   content: "\eb55";
+  color: white;
 }
 
 .ti-xbox-a:before {

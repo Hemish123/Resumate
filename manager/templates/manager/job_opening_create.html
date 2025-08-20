@@ -11,21 +11,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 
 
+
 {% endblock css %}
 
 {% block body %}
 
-<div class="content-wrapper">
+<div class="content-wrapper" >
             <!-- Content -->
 
-  <div class="container-xxl container-p-y d-flex justify-content-center">
-    <div class="card mb-6 w-50">
+  <div class="container-xxl container-p-y d-flex justify-content-center" >
+    <div class="card mb-6 w-50" style="border: 2px solid #402fb7; border-radius:0 0 20px 20px;">
         <div class="bg-primary d-flex justify-content-between align-items-end">
-            <h5 class="card-header text-white mb-0">New Job Opening</h5>
+            <h3 class="card-header text-white mb-0">Create New Job Opening</h3>
             <img src="{% static 'dashboard/img/pages/mascot-1.png' %}" alt="Job Opening" class="me-3 mt-5" style="width: 100px; height: auto; object-fit: cover;">
 
         </div>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+      <form class="card-body"  id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <div class="row g-6">
 
@@ -394,8 +395,8 @@
 <!--            </div>-->
           </div>
 
-        <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+        <div class="pt-6"   >
+          <button type="submit" class="btn btn-outline-primary me-4" style="width: 100%;">Submit</button>
         </div>
       </form>
     </div>

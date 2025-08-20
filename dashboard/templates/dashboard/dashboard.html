@@ -35,7 +35,7 @@
     <!-- Job List Section -->
     <div class="d-flex align-items-center">
         <!-- Button Group for View Toggle -->
-        <div class="btn-group" role="group" aria-label="View Toggle">
+        <div class="btn-group gap-1" role="group" aria-label="View Toggle">
             <button class="btn btn-outline-primary rounded-3 shadow-sm me-1" id="gridViewButton">
                 <i class="fas fa-th"></i> 
             </button>
@@ -100,8 +100,8 @@
                         {% if not jobs.is_expired %}
                             <div class="bg-light border rounded p-2 mt-3">
                                 <div class="d-flex align-items-center text-primary">
-                                    <a href="{% url 'application_create' jobs.id %}" target="_blank" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
-                                    <button class="btn btn-link text-primary ml-2" data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'application_create' jobs.id %}" title="Copy to clipboard">
+                                    <a href="{% url 'application_create' jobs.id %}" style="margin-left: 20px;" target="_blank" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
+                                    <button class="btn btn-link text-primary ml-2" data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'application_create' jobs.id %}" title="Copy link">
                                         <i class="ti ti-copy"></i>
                                     </button>
                                 </div>
@@ -157,7 +157,7 @@
                         {% if not jobs.is_expired %}
                             <div class="bg-light border rounded p-2 mt-3">
                                 <div class="d-flex align-items-center text-primary">
-                                    <a href="{% url 'application_create' jobs.id %}" target="_blank" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
+                                    <a href="{% url 'application_create' jobs.id %}" style="margin-left: 20px;" target="_blank" class="flex-grow-1 overflow-hidden text-wrap">Application Link</a>
                                     <button class="btn btn-link text-primary ml-2" data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'application_create' jobs.id %}" title="Copy to clipboard">
                                         <i class="ti ti-copy"></i>
                                     </button>

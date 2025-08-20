@@ -13,7 +13,7 @@
   <section class="py-5">
     <div class="row align-items-center">
       <div class="col-md-6 mb-md-0">
-        <img class="img-fluid " loading="lazy" src="{% static 'screening/images/about_img/1.png' %}" alt="Our Mission">
+        <img class="img-fluid hover-img" loading="lazy" src="{% static 'screening/images/about_img/1.png' %}" alt="Our Mission">
       </div>
       <div class="col-md-6">
         <h2 class="mb-4 fw-bold text-primary">Our Mission</h2>
@@ -46,7 +46,7 @@
   <section class="py-5 bg-light rounded-3 shadow">
     <div class="row align-items-center">
       <div class="col-md-6 order-md-2 mb-4 mb-md-0">
-        <img class="img-fluid" loading="lazy" src="{% static 'screening/images/about_img/2.png' %}" alt="Tailored Screening Process">
+        <img class="img-fluid hover-img" loading="lazy" src="{% static 'screening/images/about_img/2.png' %}" alt="Tailored Screening Process">
       </div>
       <div class="col-md-6 order-md-1">
         <h2 class="mb-4 fw-bold text-primary ms-5">Tailored Screening Process</h2>
@@ -60,7 +60,7 @@
   <section class="py-5">
     <div class="row align-items-center">
       <div class="col-md-6 mb-4 mb-md-0">
-        <img class="img-fluid " loading="lazy" src="{% static 'screening/images/about_img/3.png' %}" alt="Continuous Improvement">
+        <img class="img-fluid hover-img" loading="lazy" src="{% static 'screening/images/about_img/3.png' %}" alt="Continuous Improvement">
       </div>
       <div class="col-md-6">
         <h2 class="mb-4 fw-bold text-primary">Continuous Improvement</h2>
@@ -74,7 +74,7 @@
   <section class="py-5 bg-light rounded-3 shadow">
     <div class="row align-items-center">
       <div class="col-md-6 order-md-2 mb-4 mb-md-0 my-2">
-        <img class="img-fluid ms-5" loading="lazy" src="{% static 'screening/images/about_img/4.png' %}" alt="Join Us" >
+        <img class="img-fluid ms-5 hover-img" loading="lazy" src="{% static 'screening/images/about_img/4.png' %}" alt="Join Us" >
       </div>
       <div class="col-md-6 order-md-1">
         <h2 class="mb-4 fw-bold text-primary ms-5">Join Us on Our Journey</h2>
@@ -89,5 +89,15 @@
     <p class="text-secondary fs-5">Thank you for choosing <span class="text-info fw-bold">RecruitSmart</span>. Together, let's build a brighter future.</p>
   </div>
 </div>
+
+<style>
+  .hover-img {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  .hover-img:hover {
+    transform: scale(1.05);
+ 
+  }
+</style>
 
 {% endblock content %}
