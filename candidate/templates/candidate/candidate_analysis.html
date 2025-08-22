@@ -19,10 +19,12 @@
       <span class="ti-xs ti ti-user me-2"></span>View Full Profile
   </a>
 
-  <a href="{% url 'interview-report-page' candidate.id %}" 
-     type="button" class="btn btn-success">
-    <span class="ti-xs ti ti-file-text me-2"></span>Interview Report
-  </a>
+  {% if has_interview %}
+    <a href="{% url 'interview-report-page' candidate.id %}" 
+       type="button" class="btn btn-success">
+      <span class="ti-xs ti ti-file-text me-2"></span>Interview Report
+    </a>
+  {% endif %}
 
 </div>
 <!-- my-code -->

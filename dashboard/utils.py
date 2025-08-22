@@ -169,8 +169,8 @@ def send_interview_invitation_email(candidate, job_opening_id, additional_notes=
     elif domain.startswith('https://'):
         domain = domain.replace('https://', '')
     
-    interview_url = f"{protocol}://{domain}/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
-    # interview_url = f"{protocol}://jivihire.com/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
+    # interview_url = f"{protocol}://{domain}/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
+    interview_url = f"{protocol}://jivihire.com/interviewbot/?job_opening={job_opening_id}&candidate={candidate.id}"
     
     context = {
         'candidate_name': candidate.name,
