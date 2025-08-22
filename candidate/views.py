@@ -891,4 +891,9 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
 
 
         context['stable'] = stable
+
+        # ✅ New logic: check if candidate has interview answers for this job opening
+        has_interview = candidate.interview_answers.filter(job_opening=job_opening).exists()
+        context['has_interview'] = has_interview
+
         return context
