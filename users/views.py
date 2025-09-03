@@ -45,10 +45,10 @@ def register(request):
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         return redirect('dashboard')
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         # Add Microsoft app data to the context for the template
