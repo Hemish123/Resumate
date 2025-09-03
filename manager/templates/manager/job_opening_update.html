@@ -7,256 +7,273 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-
-
 {% endblock css %}
 
 {% block body %}
 
 <div class="content-wrapper">
-            <!-- Content -->
+    <!-- Content -->
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="card mb-6">
+            <h5 class="card-header">Update Job Opening</h5>
+            <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                <div class="row g-6">
 
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">Update Job Opening</h5>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        <div class="row g-6">
+                    <!-- Basic Job Information Section -->
+                    <div class="col-12">
+                        <h6 class="mb-4 text-muted">Basic Information</h6>
+                    </div>
 
-          <div class="col-md-6">
-            <div class="row g-6">
+                    <!-- Opening Status -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_active">Opening Status :
+                            <input name="active" class="form-check-input ms-2" type="checkbox" id="id_active" {% if form.active.value %}checked{% endif %} />
+                            <span class="custom-option-header">
+                                <span class="h6 mb-1">Active</span>
+                            </span>
+                        </label>
+                        {% if form.errors %}
+                            {% for error in form.active.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-              <div class="col-md-6">
-                <label class="form-label" for="id_active">Opening Status :
-                <input name="active" class="form-check-input ms-2" type="checkbox" id="id_active" {% if form.active.value %}checked{% endif %} />
-                <span class="custom-option-header">
-                  <span class="h6 mb-1">Active</span>
-                </span>
-                </label>
-                {% if form.errors %}
-                  {% for error in form.active.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_designation">Designation
-                  <span>*</span>
-                </label>
-                <input
-                  id="id_designation"
-                  name="designation"
-                  type="text"
-                  class="form-control typeahead"
-                  placeholder="Designation"
-                  value="{% if form.designation.value %}{{ form.designation.value }}{% endif %}"
-                  readonly
-                  />
+                    <!-- Designation -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_designation">Designation
+                            <span>*</span>
+                        </label>
+                        <input
+                            id="id_designation"
+                            name="designation"
+                            type="text"
+                            class="form-control typeahead"
+                            placeholder="Designation"
+                            value="{% if form.designation.value %}{{ form.designation.value }}{% endif %}"
+                            readonly
+                        />
+                        {% if form.errors %}
+                            {% for error in form.designation.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-                {% if form.errors %}
-                  {% for error in form.designation.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_job_type">Job Type
-                  <span>*</span>
-                </label>
-                <select id="id_job_type" name="job_type" required class="select2 form-select" data-allow-clear="true">
-                  <option value=""></option>
-                  {% for value, label in form.fields.job_type.choices %}
+                    <!-- Job Type -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_job_type">Job Type
+                            <span>*</span>
+                        </label>
+                        <select id="id_job_type" name="job_type" required class="select2 form-select" data-allow-clear="true">
+                            <option value=""></option>
+                            {% for value, label in form.fields.job_type.choices %}
+                                <option value="{{ value }}" {% if form.job_type.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.errors %}
+                            {% for error in form.job_type.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-                    <option value="{{ value }}" {% if form.job_type.value == value %}selected{% endif %}>{{ label }}</option>
+                    <!-- Job Mode -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_job_mode">Mode of Job
+                            <span>*</span>
+                        </label>
+                        <select id="id_job_mode" name="job_mode" required class="select2 form-select" data-allow-clear="true">
+                            <option value=""></option>
+                            {% for value, label in form.fields.job_mode.choices %}
+                                <option value="{{ value }}" {% if form.job_mode.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.errors %}
+                            {% for error in form.job_mode.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-                  {% endfor %}
+                    <!-- Experience Requirements Section -->
+                    <div class="col-12">
+                        <h6 class="mb-4 text-muted mt-4">Experience & Education</h6>
+                    </div>
 
-                </select>
-                {% if form.errors %}
-                  {% for error in form.job_type.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-              <div class="col-sm-5 col-md-6">
-                    <label class="form-label" for="id_min_experience">Minimum Experience</label><span>*</span>
-                    <input type="number" placeholder="0"
-                           value="{{ form.min_experience.value|default_if_none:'' }}" name="min_experience" id="id_min_experience" class="form-control w-50">
+                    <!-- Minimum Experience -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_min_experience">Minimum Experience <span>*</span></label>
+                        <input type="number" placeholder="0"
+                               value="{{ form.min_experience.value|default_if_none:'' }}" 
+                               name="min_experience" 
+                               id="id_min_experience" 
+                               class="form-control">
+                        {% if form.errors %}
+                            {% for error in form.min_experience.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-              </div>
-              <div class="col-sm-5 col-md-6">
-                  <label class="form-label" for="id_max_experience">Maximum Experience</label><span>*</span>
-                  <input type="number" placeholder="1"
-                         value="{{ form.max_experience.value|default_if_none:'' }}" name="max_experience" id="id_max_experience" class="form-control w-50">
+                    <!-- Maximum Experience -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_max_experience">Maximum Experience <span>*</span></label>
+                        <input type="number" placeholder="1"
+                               value="{{ form.max_experience.value|default_if_none:'' }}" 
+                               name="max_experience" 
+                               id="id_max_experience" 
+                               class="form-control">
+                        {% if form.errors %}
+                            {% for error in form.max_experience.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-              </div>
+                    <!-- Education -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_education">Education</label>
+                        <input
+                            id="id_education"
+                            name="education"
+                            type="text"
+                            class="form-control typeahead"
+                            placeholder="Education"
+                            value="{% if form.education.value %}{{ form.education.value }}{% endif %}"
+                        />
+                        {% if form.errors %}
+                            {% for error in form.education.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-              <div class="col-sm-5 col-md-6">
-                  <label class="form-label" for="id_education">Education</label>
-                  <input
-                  id="id_education"
-                  name="education"
-                  type="text"
-                  class="form-control typeahead"
-                  placeholder="Education"
-                  value="{% if form.education.value %}{{ form.education.value }}{% endif %}"
-                  />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_job_mode">Mode of Job
-                  <span>*</span>
-                </label>
-                <select id="id_job_mode" name="job_mode" required class="select2 form-select" data-allow-clear="true">
-                  <option value=""></option>
-                  {% for value, label in form.fields.job_mode.choices %}
+                    <!-- Required Skills -->
+                    <div class="col-md-6">
+                        <label for="id_requiredskills" class="form-label">Required Skills <span>*</span></label>
+                        <input
+                            id="id_requiredskills"
+                            name="requiredskills"
+                            class="form-control"
+                            placeholder="Select skills"
+                            value="{% if form.requiredskills.value %}{{ form.requiredskills.value}}{% endif %}"
+                            required
+                        />
+                        {% if form.errors %}
+                            {% for error in form.requiredskills.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-                    <option value="{{ value }}" {% if form.job_mode.value == value %}selected{% endif %}>{{ label }}</option>
+                    <!-- Position Details Section -->
+                    <div class="col-12">
+                        <h6 class="mb-4 text-muted mt-4">Position Details</h6>
+                    </div>
 
-                  {% endfor %}
+                    <!-- Openings -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_openings">Number of Openings
+                            <span>*</span>
+                        </label>
+                        <input type="number" 
+                               name="openings" 
+                               value="{{ form.openings.value|default_if_none:'' }}" 
+                               placeholder="0" 
+                               id="id_openings" 
+                               min="0" 
+                               class="form-control" 
+                               required/>
+                        {% if form.errors %}
+                            {% for error in form.openings.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
+                    <!-- Budget -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_budget">Budget (in LPA)
+                            <span>*</span>
+                        </label>
+                        <input type="number" 
+                               step="any" 
+                               name="budget" 
+                               value="{{ form.budget.value|default_if_none:'' }}" 
+                               placeholder="0" 
+                               id="id_budget" 
+                               min="0" 
+                               class="form-control" 
+                               required/>
+                        {% if form.errors %}
+                            {% for error in form.budget.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-                </select>
-                {% if form.errors %}
-                  {% for error in form.job_mode.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_openings">Openings
-                  <span>*</span>
-                </label>
-                <input type="number" name="openings" value="{{ form.openings.value|default_if_none:'' }}" placeholder="0" id="id_openings" min="0" class="form-control" required/>
-                {% if form.errors %}
-                  {% for error in form.openings.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_budget">Budget (in LPA)
-                  <span>*</span>
-                </label>
-                <input type="number" step="any" name="budget" value="{{ form.budget.value|default_if_none:'' }}" placeholder="0" id="id_budget" min="0" class="form-control" required/>
-                {% if form.errors %}
-                  {% for error in form.budget.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-<!--               <div class="col-md-6">-->
-<!--                <label for="id_requiredskills" class="form-label">Required Skills-->
-<!--                  <span>*</span>-->
-<!--                </label>-->
-<!--                <select name="requiredskills" id="id_requiredskills" class="select2 form-select" required multiple>-->
-<!--                  <option value=""></option>-->
-<!--                  {% for skill in skills %}-->
+                    <!-- Assignment Section -->
+                    <div class="col-12">
+                        <h6 class="mb-4 text-muted mt-4">Assignment & Criteria</h6>
+                    </div>
 
-<!--                    <option value="{{ skill }}" {% if form.requiredskills.value == skill %}selected{% endif %}>{{ skill }}</option>-->
+                    <!-- Assign Recruiter -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_assignemployee">Assign Recruiter
+                            <span>*</span>
+                        </label>
+                        <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>
+                            {% for employee in choices %}
+                                <option value="{{ employee.id }}" {% if employee.id in form.assignemployee.value %}selected{% endif %}>{{ employee }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.errors %}
+                            {% for error in form.assignemployee.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-<!--                  {% endfor %}-->
+                    <!-- Skills Criteria -->
+                    <div class="col-md-6">
+                        <label class="form-label" for="id_skills_criteria">Skills Criteria (%)
+                            <span>*</span>
+                        </label>
+                        <input type="number" 
+                               name="skills_criteria" 
+                               value="{{ form.skills_criteria.value|default_if_none:'50' }}" 
+                               placeholder="50" 
+                               id="id_skills_criteria" 
+                               min="0" 
+                               max="100"
+                               class="form-control" 
+                               required/>
+                        <small class="form-text text-muted">Minimum screening criteria for candidates</small>
+                        {% if form.errors %}
+                            {% for error in form.skills_criteria.errors %}
+                                <div class="error-message text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
 
-<!--                </select>-->
-<!--                {% if form.errors %}-->
-<!--                  {% for error in form.requiredskills.errors %}-->
-<!--                    <div class="error-message text-danger">{{ error }}</div>-->
-<!--                  {% endfor %}-->
-<!--                {% endif %}-->
-<!--              </div>-->
+                    <!-- Submit Button -->
+                    <div class="col-12">
+                        <div class="pt-6">
+                            <button type="submit" class="btn btn-outline-primary me-4" style="width: 100%;">Submit</button>
+                        </div>
+                    </div>
 
-              <div class="col-md-6">
-                <label for="id_requiredskills" class="form-label">Required Skills <span>*</span></label>
-                <input
-                    id="id_requiredskills"
-                    name="requiredskills"
-                    class="form-control"
-                    placeholder="Select skills"
-                    value="{% if form.requiredskills.value %}{{ form.requiredskills.value}}{% endif %}"
-                    required
-                />
-                {% if form.errors %}
-                    {% for error in form.requiredskills.errors %}
-                        <div class="error-message text-danger">{{ error }}</div>
-                    {% endfor %}
-                {% endif %}
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label" for="id_assignemployee">Assign Recruiter
-                  <span>*</span>
-                </label>
-                <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>
-
-                  {% for employee in choices %}
-
-                    <option value="{{ employee.id }}" {% if employee.id in form.assignemployee.value %}selected{% endif %}>{{ employee }}</option>
-
-                  {% endfor %}
-
-                </select>
-                {% if form.errors %}
-                  {% for error in form.assignemployee.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-
-<!--              <div class="col-md-6">-->
-<!--                <label class="form-label" for="id_assignemployee">Assign Recruiter-->
-<!--                  <span>*</span>-->
-<!--                </label>-->
-<!--                <select id="id_assignemployee" name="assignemployee" required class="select2 form-select" multiple>-->
-<!--                  <option value=""></option>-->
-<!--                  {% for employee in choices %}-->
-
-<!--                    <option value="{{ employee.id }}" {% if form.assignemployee.value == employee.id %}selected{% endif %}>{{ employee }}</option>-->
-
-<!--                  {% endfor %}-->
-
-<!--                </select>-->
-<!--                {% if form.errors %}-->
-<!--                  {% for error in form.assignemployee.errors %}-->
-<!--                    <div class="error-message text-danger">{{ error }}</div>-->
-<!--                  {% endfor %}-->
-<!--                {% endif %}-->
-<!--              </div>-->
-              <div class="col-md-12">
-                <hr class="my-0">
-                <p class="mt-1 mb-0" >Minimum Screening criteria for candidates</p>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label" for="id_skills_criteria">Skills Criteria(%)
-                  <span>*</span>
-                </label>
-                <input type="number" name="skills_criteria" value="{{ form.skills_criteria.value|default_if_none:'50' }}" placeholder="50" id="id_skills_criteria" min="0" class="form-control" required/>
-                {% if form.errors %}
-                  {% for error in form.skills_criteria.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
-              </div>
-
-            </div>
-          </div>
-
-
-        <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+                </div>
+            </form>
         </div>
-      </form>
-
     </div>
-  </div>
 </div>
-
-
 
 {% endblock body %}
 
-
 {% block js %}
-
     <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
@@ -264,12 +281,8 @@
     <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
     <script src="{% static 'dashboard/vendor/libs/typeahead-js/typeahead.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-typeahead.js' %}"></script>
-<!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
     <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
     <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-tagify.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-
-
-
 {% endblock js %}
