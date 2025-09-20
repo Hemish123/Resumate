@@ -38,7 +38,8 @@ jobs:
           SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
         run: |
           curl -L -o model-best.zip "https://parsingmodel.blob.core.windows.net/model-best/model-best.zip?$SAS_TOKEN"
-          file model-best.zip
+          unzip -t model-best.zip
+
 
 
       - name: Extract ZIP file
