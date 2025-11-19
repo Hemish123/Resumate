@@ -83,7 +83,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
             candidate_applied += job.candidate_set.count()
             # for candidate in job.candidate_set.all():
                 # print(candidate.name)
-            stage = Stage.objects.get(name='Hired', job_opening=job)
+            # stage = Stage.objects.get(name='Hired', job_opening=job)
+            stage = Stage.objects.filter(name='Hired', job_opening=job).first()
             candidates_hired += CandidateStage.objects.filter(stage=stage).count()
             stage_all = Stage.objects.filter(job_opening=job).exclude(name__in=['Hired', 'Rejected'])
             candidates_in_review += CandidateStage.objects.filter(stage__in=stage_all).count()
