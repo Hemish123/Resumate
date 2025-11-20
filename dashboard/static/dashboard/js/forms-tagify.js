@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const requiredSkillsEl = document.querySelector('#id_requiredskills');
                 const requiredSkillsTagify = new Tagify(requiredSkillsEl, {
                     whitelist: data, // Ensure Tagify receives correct format
-                    maxTags: 10,
+                    // maxTags: 10,
+                    maxTags: Infinity,
                     dropdown: {
                         maxItems: Infinity,  // Display all items in the dropdown
                         classname: '',       // Additional classes to add to the dropdown
