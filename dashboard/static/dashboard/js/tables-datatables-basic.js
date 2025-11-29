@@ -44,9 +44,9 @@ var selectedRows = '';
             d.experience = $('#experience-input').val().trim(); // Send experience filter
             d.status = $('.form-check-input:checked').map(function() { // Send status filter
                 return $(this).data('value');
-                d.location = $('#filter-location').val().trim();
-                d.designation = $('#filter-designation').val().trim();
             }).get().join(',');
+            d.location = $('#filter-location').val().trim();
+            d.designation = $('#filter-designation').val().trim();
         }
         },  // API to fetch data
       columns: [
