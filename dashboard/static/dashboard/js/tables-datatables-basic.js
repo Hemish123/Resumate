@@ -44,6 +44,8 @@ var selectedRows = '';
             d.experience = $('#experience-input').val().trim(); // Send experience filter
             d.status = $('.form-check-input:checked').map(function() { // Send status filter
                 return $(this).data('value');
+                d.location = $('#filter-location').val().trim();
+                d.designation = $('#filter-designation').val().trim();
             }).get().join(',');
         }
         },  // API to fetch data
@@ -450,6 +452,9 @@ var selectedRows = '';
   });
   $('#filter-status').on('change', '.form-check-input', function () {
     dt_basic.ajax.reload();
+  });
+   $('#filter-location, #filter-designation').on('input', function() {
+     dt_basic.ajax.reload();
   });
 
   // Get status param from URL
