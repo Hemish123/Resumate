@@ -484,6 +484,8 @@ def candidate_list_api(request):
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
     status_filter = request.GET.get('status', '').strip()
+    location_filter = request.GET.get('location', '').strip()       # 👈 new
+    designation_filter = request.GET.get('designation', '').strip() # 👈 new
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     draw = int(request.GET.get('draw', 1))
@@ -531,6 +533,12 @@ def candidate_list_api(request):
                     Q(location__icontains=keyword) |
                     Q(current_designation__icontains=keyword)
             )
+            
+    if location_filter:
+        filters &= Q(location__icontains=location_filter)
+    if designation_filter:
+        filters &= Q(current_designation__icontains=designation_filter)
+
 
     if experience_filter:
         try:
