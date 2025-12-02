@@ -85,7 +85,7 @@ function searchResumes() {
                   url: $(this).attr('action'),  // Replace with your delete endpoint
                   method: 'POST',
                   data: {
-                    'ids[]': selectedIds,
+                    "ids": JSON.stringify(selectedIds),
                     'job_opening_id': selectedJobOpening,  // Include job opening ID
 
                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
@@ -96,11 +96,11 @@ function searchResumes() {
                     $('#select-all').prop('checked', false);
                     $('#shareOpening').modal('hide');
                   },
-                  error: function(xhr, status, error) {
-                    console.error('Error sending mail:', status, error);
-                    // Optionally, show an error message to the user
-                  }
+                  error: function(xhr){
+                    console.log("Error:", xhr.responseText);
+                }
                 });
             }
         });
 });
+
