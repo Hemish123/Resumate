@@ -4,7 +4,7 @@ import string
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
-from recruit_management.settings import EMAIL_HOST_USER
+from recruit_management.settings import EMAIL_HOST_USER,DEFAULT_FROM_EMAIL
 
 def generate_random_password():
     chars = string.ascii_lowercase + string.digits + string.punctuation
