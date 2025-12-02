@@ -237,7 +237,7 @@ EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "9ca506001@smtp-brevo.com"
-EMAIL_HOST_PASSWORD = "xsmtpsib-e1cf685ded2e9aa497c450a6d715ebdeb2185bcbf82db2bb11bea349fd0da094-1i6mvzzCgJX0Vso9"
+EMAIL_HOST_PASSWORD = "xsmtpsib-e1cf685ded2e9aa497c450a6d715ebdeb2185bcbf82db2bb11bea349fd0da094-Hk9UFvX61uUpUunq"
 
 DEFAULT_FROM_EMAIL = f"Recruit Smart <recruitsmart@hirewithjms.com>"
 
