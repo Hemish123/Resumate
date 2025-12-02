@@ -1,14 +1,14 @@
 import string, json
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from recruit_management.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+from recruit_management.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD,DEFAULT_FROM_EMAIL
 from django.core.mail import EmailMultiAlternatives
 from candidate.models import ResumeAnalysis
 from django.utils.html import strip_tags
 from django.conf import settings
 
 def send_success_email(candidate, job_opening):
-    emailOfSender = EMAIL_HOST_USER
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Application submitted successfully!'
     message = render_to_string('dashboard/success_email.html', {
         'candidate': candidate,
@@ -17,13 +17,13 @@ def send_success_email(candidate, job_opening):
 
     
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 
 def send_stage_change_email(user, candidate, job_opening, stage):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Application status!'
     message = render_to_string('dashboard/stages_email.html', {
         'candidate': candidate,
@@ -32,12 +32,12 @@ def send_stage_change_email(user, candidate, job_opening, stage):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_hired_email(user, candidate, job_opening):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Congratulations!'
     message = render_to_string('dashboard/congratulations_email.html', {
         'candidate': candidate,
@@ -45,12 +45,12 @@ def send_hired_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_rejected_email(user, candidate, job_opening):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Application status!'
     message = render_to_string('dashboard/reject_email.html', {
         'candidate': candidate,
@@ -58,12 +58,12 @@ def send_rejected_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_interview_email(user, candidate, job_opening, event):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Interview update!'
     message = render_to_string('dashboard/interview_email.html', {
         'candidate': candidate,
@@ -72,12 +72,12 @@ def send_interview_email(user, candidate, job_opening, event):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_schedule_interview_email(user, employee, event):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Interview scheduled!'
     message = render_to_string('dashboard/interview_schedule_email.html', {
         'employee': employee,
@@ -85,12 +85,12 @@ def send_schedule_interview_email(user, employee, event):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[employee , ], reply_to=['noreply@invalid'])
+                                          to=[employee , ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_thankyou_email(user, candidate, job_opening):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Thank You!'
     message = render_to_string('dashboard/thanks_email.html', {
         'candidate': candidate,
@@ -98,12 +98,12 @@ def send_thankyou_email(user, candidate, job_opening):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def new_application_email(candidate, job_opening, e, site_url):
-    emailOfSender = EMAIL_HOST_USER
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'New Application!'
     approve_url = f"{site_url}/candidate/action/{candidate.id}/approve/"
     reject_url = f"{site_url}/candidate/action/{candidate.id}/reject/"
@@ -119,12 +119,12 @@ def new_application_email(candidate, job_opening, e, site_url):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[e.user.email, ], reply_to=['noreply@invalid'])
+                                          to=[e.user.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def send_job_opening_email(user, candidate, job_opening, site_url):
-    emailOfSender = user.email
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = f'Apply for {job_opening.designation} at {job_opening.company}!'
     message = render_to_string('dashboard/share_job_opening_email.html', {
         'candidate': candidate,
@@ -134,12 +134,12 @@ def send_job_opening_email(user, candidate, job_opening, site_url):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[candidate.email, ], reply_to=['noreply@invalid'])
+                                          to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
 def new_opening_email(job_opening, e):
-    emailOfSender = EMAIL_HOST_USER
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'New Opening assigned to you!'
     message = render_to_string('dashboard/new_opening_assign.html', {
         'employee': e,
@@ -148,7 +148,7 @@ def new_opening_email(job_opening, e):
     })
 
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[e.user.email, ], reply_to=['noreply@invalid'])
+                                          to=[e.user.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
