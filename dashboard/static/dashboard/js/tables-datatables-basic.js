@@ -401,6 +401,25 @@ var selectedRows = '';
     }
 
     });
+      /* ADD THIS CODE HERE */
+      dt_basic.on("draw", function () {
+        $('.dt-checkboxes-select-all input')
+            .off("change")
+            .on("change", function () {
+                let checked = $(this).prop("checked");
+
+                dt_basic.rows({ search: 'applied' }).every(function () {
+                    var node = this.node();
+                    $(node).find(".dt-checkboxes").prop("checked", checked);
+                });
+
+                // ENABLE / DISABLE ACTION BUTTON
+                actions.prop("disabled", !checked);
+            });
+             $(".dt-checkboxes").off("change").on("change", function () {
+              updateSelectedRows();
+          });
+    });
 
     // Clean up any extra content injected by DataTables
     dt_basic.on('processing.dt', function (e, settings, processing) {
@@ -509,16 +528,20 @@ var selectedRows = '';
     
 
     function updateSelectedRows() {
-      // Get all selected rows
-      selectedRows = dt_basic.rows('.selected').data().toArray();
+    let anyChecked = false;
 
-      // Perform actions with the selected rows, e.g., updating the button state
-      if (selectedRows.length > 0) {
-        actions.prop('disabled', false);  // Enable button
-      } else {
-        actions.prop('disabled', true);  // Disable button
-      }
-    }
+    dt_basic.rows().every(function () {
+        var node = this.node();
+        var checkbox = $(node).find(".dt-checkboxes");
+
+        if (checkbox.prop("checked")) {
+            anyChecked = true;
+        }
+    });
+
+    actions.prop("disabled", !anyChecked);
+}
+
         // Append filter inputs to the filter container
     'use strict';
 
@@ -553,13 +576,21 @@ $(function () {
 // Function to get selected IDs
 function getSelectedIds() {
     var selectedIds = [];
-    updateSelectedRows();
-    selectedIds.push(selectedRows.map(row => row.id));  // Add the ID to the array
-    console.log('ids: ', selectedIds);
+    dt_basic.rows().every(function () {
+        var node = this.node();
+        var checkbox = $(node).find(".dt-checkboxes");
+
+        if (checkbox.prop("checked")) {
+            selectedIds.push(this.data().id);
+        }
+    });
+
+    console.log("Selected IDs:", selectedIds);
     return selectedIds;
 }
 
-  // Delete Record
+  
+          // Delete Record
 
   const delbtn = $('#delete_btn');
 
@@ -591,52 +622,34 @@ function getSelectedIds() {
   });
 
   $('#shareJobOpeningForm').on('submit', function(e) {
-    e.preventDefault();  // Prevent default form submission
-   var idsToShare = getSelectedIds();
-   var selectedJobOpening = $('#jobOpening').val(); // Get the selected job opening ID
-    $('#shareOpening').modal('hide');
-    if (idsToShare.length > 0) {
-    // Send AJAX request to delete rows
+    e.preventDefault();
+
+    const ids = getSelectedIds();
+    const job_opening_id = $("#jobOpening").val();
+
+    if (ids.length === 0) {
+        alert("Please select at least one candidate.");
+        return;
+    }
+
     $.ajax({
-      url: $(this).attr('action'),  // Replace with your delete endpoint
-      method: 'POST',
-      data: {
-        'ids[]': idsToShare,
-        'job_opening_id': selectedJobOpening,  // Include job opening ID
-
-        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
-      },
-      success: function(response) {
-        // On success, remove rows from DataTable
-        dt_basic.rows('.selected').nodes().to$().find('input[type="checkbox"]').prop('checked', false);
-        dt_basic.rows().nodes().to$().removeClass('selected');
-        $('.dt-checkboxes-select-all input').prop('checked', false);
-//        $('#shareOpening').modal('hide');
-      },
-      error: function(xhr, status, error) {
-        console.error('Error sending mail:', status, error);
-//        $('#shareOpening').modal('hide');
-
-          // Show Django style message dynamically
-//        let message = "Email id may not be correct! Please check all email id and try again.";
-//        let tags = "danger"; // For error messages, use 'danger' | For success, use 'success'
-//
-//        // Append message using the same structure
-//        $('#messages').html(`
-//          <div class="messages alert alert-danger" data-tags="${tags}" data-message="${message}">
-//            ${message}
-//          </div>
-//        `);
-        // Automatically hide message after 3 seconds
-//        setTimeout(function () {
-//          $('.messages').fadeOut('slow');
-//        }, 6000);
-        // Optionally, show an error message to the user
-      }
+        url: $(this).attr("action"),
+        method: "POST",
+        data: {
+            "ids": JSON.stringify(ids),   // VERY IMPORTANT
+            "job_opening_id": job_opening_id,
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+        },
+        success: function (response) {
+            $('#shareOpening').modal('hide');
+            $('.dt-checkboxes-select-all input').prop('checked', false);
+            dt_basic.ajax.reload();
+        },
+        error: function (xhr) {
+            console.error("Error:", xhr.responseText);
+        }
     });
-  }
-
-  });
+});
 
 }
 
