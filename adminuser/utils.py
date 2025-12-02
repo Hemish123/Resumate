@@ -11,7 +11,7 @@ def generate_random_password():
     return ''.join(random.choice(chars) for i in range(7))
 
 def send_activation_email(employee, site_url, password):
-    emailOfSender = EMAIL_HOST_USER
+    emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Login to Your Account on RecruitSmart'
     message = render_to_string('adminuser/activation_email.html', {
         'employee': employee,
@@ -19,7 +19,7 @@ def send_activation_email(employee, site_url, password):
         'password': password
     })
     emailMessage = EmailMultiAlternatives(subject=subject, body='text_content', from_email=emailOfSender,
-                                          to=[employee.user.email, ], reply_to=[emailOfSender, ])
+                                          to=[employee.user.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
