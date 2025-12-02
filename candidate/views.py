@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib import messages
-from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView
+from django.views.generic import CreateView, TemplateView, DetailView, UpdateView, FormView,View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models.signals import post_save
 from rest_framework.views import APIView
@@ -727,24 +727,32 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
 
         return context
 
-class ShareJobOpeningView(LoginRequiredMixin, TemplateView):
+class ShareJobOpeningView(LoginRequiredMixin, View):
+
     def post(self, request, *args, **kwargs):
-        ids = request.POST.get('ids[]')  # Get list of IDs from POST data
-        job_opening_id = request.POST.get('job_opening_id')
+
+        ids_json = request.POST.get("ids")
+        job_opening_id = request.POST.get("job_opening_id")
+
+        if not ids_json:
+            return JsonResponse({"status": "error", "message": "No candidates selected"})
+
+        try:
+            ids = json.loads(ids_json)
+        except:
+            return JsonResponse({"status": "error", "message": "Invalid ID format"})
 
         job_opening = JobOpening.objects.get(id=job_opening_id)
-        if ids:
-            ids = [int(id) for id in ids.split(',')]
-            for id in ids:
-                try:
-                    candidate = Candidate.objects.get(id=id)
-                    site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
-                    send_job_opening_email(request.user, candidate, job_opening, site_url)
-                except Exception as e:
-                    messages.error(self.request, message='There was an error!')
-                    return JsonResponse({'status': 'error', 'message': str(e)})
+        site_url = request.META.get("HTTP_HOST")
 
-        return JsonResponse({'status': 'success'})
+        for candidate_id in ids:
+            try:
+                candidate = Candidate.objects.get(id=candidate_id)
+                send_job_opening_email(request.user, candidate, job_opening, site_url)
+            except Exception as e:
+                return JsonResponse({"status": "error", "message": str(e)})
+
+        return JsonResponse({"status": "success"})
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
