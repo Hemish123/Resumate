@@ -41,7 +41,9 @@ var selectedRows = '';
         ajax: {
         url: "/candidate/candidate-list-api/"+ window.location.search, // Update with your API endpoint
         data: function(d) {
-            d.experience = $('#experience-input').val().trim(); // Send experience filter
+            // d.experience = $('#experience-input').val().trim(); // Send experience filter
+            d.min_exp = $('#min-exp').val().trim();
+            d.max_exp = $('#max-exp').val().trim();
             d.status = $('.form-check-input:checked').map(function() { // Send status filter
                 return $(this).data('value');
             }).get().join(',');
@@ -466,9 +468,13 @@ var selectedRows = '';
     $('div.head-label').html(titleElement);
 
       // Trigger table reload on filter change
-  $('#experience-input, .form-check-input').on('input', function () {
+  // $('#experience-input, .form-check-input').on('input', function () {
+  //   dt_basic.ajax.reload();
+  // });
+  $('#min-exp, #max-exp,.form-check-input').on('input', function () {
     dt_basic.ajax.reload();
   });
+
   $('#filter-status').on('change', '.form-check-input', function () {
     dt_basic.ajax.reload();
   });
