@@ -523,16 +523,33 @@ def candidate_list_api(request):
 
     # Apply filters
     filters = Q()
+    # if search_value:
+    #     keywords = [word.strip() for word in search_value.replace(',', ' ').split()]
+    #     for keyword in keywords:
+    #         filters &= (
+    #                 Q(name__icontains=keyword) |
+    #                 Q(email__icontains=keyword) |
+    #                 Q(contact__icontains=keyword) |
+    #                 Q(location__icontains=keyword) |
+    #                 Q(current_designation__icontains=keyword)
+    #         )
     if search_value:
-        keywords = [word.strip() for word in search_value.replace(',', ' ').split()]
+        # Convert "ahmedabad,surat" → ["ahmedabad", "surat"]
+        keywords = [word.strip() for word in search_value.replace(",", " ").split() if word.strip()]
+
+        search_query = Q()
+
+        # OR logic between keywords
         for keyword in keywords:
-            filters &= (
-                    Q(name__icontains=keyword) |
-                    Q(email__icontains=keyword) |
-                    Q(contact__icontains=keyword) |
-                    Q(location__icontains=keyword) |
-                    Q(current_designation__icontains=keyword)
+            search_query |= (
+                Q(name__icontains=keyword) |
+                Q(email__icontains=keyword) |
+                Q(contact__icontains=keyword) |
+                Q(location__icontains=keyword) |
+                Q(current_designation__icontains=keyword)
             )
+
+        filters &= search_query
             
     if location_filter:
         filters &= Q(location__icontains=location_filter)
@@ -540,21 +557,33 @@ def candidate_list_api(request):
         filters &= Q(current_designation__icontains=designation_filter)
 
 
-    if experience_filter:
-        try:
-            if experience_filter.isdigit():
-                filters &= Q(experience=int(experience_filter))
-            else:
-                comparator, exp_value = experience_filter.split()
-                exp_value = float(exp_value)
-                if comparator == '<':
-                    filters &= Q(experience__lt=exp_value)
-                elif comparator == '>':
-                    filters &= Q(experience__gt=exp_value)
-                elif comparator == '=':
-                    filters &= Q(experience=exp_value)
-        except ValueError:
-            pass
+    # if experience_filter:
+    #     try:
+    #         if experience_filter.isdigit():
+    #             filters &= Q(experience=int(experience_filter))
+    #         else:
+    #             comparator, exp_value = experience_filter.split()
+    #             exp_value = float(exp_value)
+    #             if comparator == '<':
+    #                 filters &= Q(experience__lt=exp_value)
+    #             elif comparator == '>':
+    #                 filters &= Q(experience__gt=exp_value)
+    #             elif comparator == '=':
+    #                 filters &= Q(experience=exp_value)
+    #     except ValueError:
+    #         pass
+    min_exp = request.GET.get('min_exp', '').strip()
+    max_exp = request.GET.get('max_exp', '').strip()
+
+    # Filter using min & max experience
+    if min_exp.isdigit() and max_exp.isdigit():
+        filters &= Q(experience__gte=int(min_exp), experience__lte=int(max_exp))
+
+    elif min_exp.isdigit():
+        filters &= Q(experience__gte=int(min_exp))
+
+    elif max_exp.isdigit():
+        filters &= Q(experience__lte=int(max_exp))
 
     if status_filter:
         status_filters = Q()
