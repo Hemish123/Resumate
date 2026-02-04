@@ -238,7 +238,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = "resumate1nfo1@gmail.com"
 # EMAIL_HOST_PASSWORD = 'uzuc bhya nbav wmhc'
-MAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 
 DEFAULT_FROM_EMAIL = f"Recruit Smart <resumate1nfo1@gmail.com>"
