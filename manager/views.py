@@ -88,6 +88,8 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
              
             # Save the job opening and create default stages
             job_opening.save()
+            # Assign employees properly to ManyToMany field
+            job_opening.assignemployee.set(employees)
             message = "New Job Opening " + job_opening.designation + " assigned to you"
             for e in employees:
                 Notification.objects.create(user_id=e.user.id, message=message)
