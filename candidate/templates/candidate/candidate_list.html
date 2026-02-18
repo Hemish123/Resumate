@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
 <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
 <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/spinkit/spinkit.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}">
+
 
 <style>
 /* =====================
@@ -446,9 +448,8 @@ table.dataTable tbody tr:hover {
 {% comment %} <script src="{% static 'dashboard/vendor/libs/datatables-buttons/dataTables.buttons.min.js' %}"></script>
 <script src="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.js' %}"></script> {% endcomment %}
 
-<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}">
-
+{% comment %} 
 <script src="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/dataTables.buttons.js' %}"></script>
 
-<script src="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js' %}"></script> {% endcomment %}
 {% endblock js %}

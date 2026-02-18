@@ -70,9 +70,7 @@
                                 {% endif %}
                                 <span class="fw-medium">{{ user.groups.first|capfirst }}</span>
                               </li>
-<!--                              <li class="list-inline-item d-flex gap-2 align-items-center">-->
-<!--                                <i class="ti ti-map-pin ti-lg"></i><span class="fw-medium">Vatican City</span>-->
-<!--                              </li>-->
+
                               <li class="list-inline-item d-flex gap-2 align-items-center">
                                 <i class="ti ti-calendar ti-lg"></i><span class="fw-medium"> Joined {{ user.employee.joined|date:"F j, Y" }}</span>
                               </li>
@@ -99,13 +97,7 @@
                           ><i class="ti-sm ti ti-user-check me-1_5"></i> Profile</a
                         >
                       </li>
-<!--                      {% if clients %}-->
-<!--                      <li class="nav-item">-->
-<!--                        <a class="nav-link" href="{% url 'users-clients' %}"-->
-<!--                          ><i class="ti-sm ti ti-building me-1_5"></i> Clients</a-->
-<!--                        >-->
-<!--                      </li>-->
-<!--                      {% endif %}-->
+
                       {% if has_perm2 and employees %}
 
                       <li class="nav-item">
@@ -139,21 +131,7 @@
                           <i class="ti ti-user ti-lg"></i><span class="fw-medium mx-2">Full Name:</span>
                           <span>{{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</span>
                         </li>
-<!--                        <li class="d-flex align-items-center mb-4">-->
-<!--                          <i class="ti ti-check ti-lg"></i><span class="fw-medium mx-2">Status:</span>-->
-<!--                          <span>{{ user.status }}</span>-->
-<!--                        </li>-->
-<!--                        <li class="d-flex align-items-center mb-4">-->
-<!--                          <i class="ti ti-crown ti-lg"></i><span class="fw-medium mx-2">Role:</span>-->
-<!--                          <span>Developer</span>-->
-<!--                        </li>-->
-<!--                        <li class="d-flex align-items-center mb-4">-->
-<!--                          <i class="ti ti-flag ti-lg"></i><span class="fw-medium mx-2">Country:</span> <span>USA</span>-->
-<!--                        </li>-->
-<!--                        <li class="d-flex align-items-center mb-2">-->
-<!--                          <i class="ti ti-language ti-lg"></i><span class="fw-medium mx-2">Languages:</span>-->
-<!--                          <span>English</span>-->
-<!--                        </li>-->
+
                       </ul>
                       <small class="card-text text-uppercase text-muted small">Contacts</small>
                       <ul class="list-unstyled my-3 py-1">
@@ -161,10 +139,7 @@
                           <i class="ti ti-phone-call ti-lg"></i><span class="fw-medium mx-2">Contact:</span>
                           <span>{{ user.employee.contact }}</span>
                         </li>
-<!--                        <li class="d-flex align-items-center mb-4">-->
-<!--                          <i class="ti ti-messages ti-lg"></i><span class="fw-medium mx-2">Skype:</span>-->
-<!--                          <span>john.doe</span>-->
-<!--                        </li>-->
+
                         <li class="d-flex align-items-center mb-4">
                           <i class="ti ti-mail ti-lg"></i><span class="fw-medium mx-2">Email:</span>
                           <span>{{ user.email }}</span>
@@ -189,64 +164,6 @@
                 </div>
                  <div class="col-xl-7 col-lg-6 col-md-6">
 
-                    <!-- Clients -->
-<!--                    {% if clients %}-->
-<!--                      <div class="card card-action mb-6">-->
-<!--                        <div class="card-header align-items-center">-->
-<!--                          <h5 class="card-action-title mb-0">Clients</h5>-->
-<!--                          <div class="card-action-element">-->
-<!--                            <div class="dropdown">-->
-<!--                              <button-->
-<!--                                type="button"-->
-<!--                                class="btn btn-icon btn-text-secondary rounded-pill dropdown-toggle hide-arrow p-0 text-muted"-->
-<!--                                data-bs-toggle="dropdown"-->
-<!--                                aria-expanded="false">-->
-<!--                                <i class="ti ti-dots-vertical ti-md text-muted"></i>-->
-<!--                              </button>-->
-<!--                              <ul class="dropdown-menu dropdown-menu-end">-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Share Clients</a></li>-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Suggest edits</a></li>-->
-<!--                                <li>-->
-<!--                                  <hr class="dropdown-divider" />-->
-<!--                                </li>-->
-<!--                                <li><a class="dropdown-item" href="javascript:void(0);">Report bug</a></li>-->
-<!--                              </ul>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                        <div class="card-body">-->
-<!--                          <ul class="list-unstyled mb-0">-->
-<!--                            {% for org in clients %}-->
-<!--                            <li class="mb-4">-->
-<!--                              <div class="d-flex align-items-center">-->
-
-<!--                                <div class="d-flex align-items-center">-->
-<!--&lt;!&ndash;                                  <div class="avatar me-2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <img src="../../assets/img/avatars/2.png" alt="Avatar" class="rounded-circle" />&ndash;&gt;-->
-<!--&lt;!&ndash;                                  </div>&ndash;&gt;-->
-<!--                                  <div class="me-2">-->
-<!--                                    <h6 class="mb-0">{{ org }}</h6>-->
-<!--                                    <small>{{ org.location }}</small>-->
-<!--                                  </div>-->
-<!--                                </div>-->
-<!--                                {% if org.jobopening_set.first %}-->
-<!--                                <div class="ms-auto">-->
-<!--                                  <a href="javascript:;"><span class="badge bg-label-info">Hiring</span></a>-->
-<!--                                </div>-->
-<!--                                {% endif %}-->
-
-<!--                              </div>-->
-<!--                            </li>-->
-<!--                            {% endfor %}-->
-
-<!--                            <li class="text-center mt-2">-->
-<!--                              <a href="{% url 'users-clients' %}">View all clients</a>-->
-<!--                            </li>-->
-<!--                          </ul>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    {% endif %}-->
-                    <!--/ Clients -->
                     {% if has_perm2 and employees %}
 
                     <div class="card card-action mb-6">
@@ -298,7 +215,7 @@
                     </div>
 
                    {% endif %}
-                     
+
 
                 </div>
               </div>
