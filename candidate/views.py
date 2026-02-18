@@ -204,7 +204,7 @@ class CandidateCreateView(FormView):
             # Download from Azure and write to a local file
             # Define a temporary local path
             local_temp_path = f"/tmp/{resume_file.name}"
-            # print("path:",local_temp_path)
+            print("path:",local_temp_path)
 
             with open(local_temp_path, "wb") as f:
                 f.write(default_storage.open(path).read())
@@ -1034,14 +1034,14 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
             })
         return JsonResponse({'results': results, 'counts': counts})
-from django.db.models import Q
-from django.http import JsonResponse
-from rest_framework.views import APIView
+    
+from django.views import View
+from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-class ResumeFilterView(LoginRequiredMixin, APIView):
+class ResumeFilterView(LoginRequiredMixin, View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
 
         candidates = Candidate.objects.filter(
             company=request.user.employee.company
@@ -1049,65 +1049,51 @@ class ResumeFilterView(LoginRequiredMixin, APIView):
             upload_resume__isnull=True
         ).exclude(upload_resume="")
 
-                # Candidate Name
-        if request.GET.get('name'):
-            candidates = candidates.filter(name__icontains=request.GET['name'])
+        # Candidate Name
+        name = request.GET.get('name')
+        if name:
+            candidates = candidates.filter(name__icontains=name)
 
         # File Name
-        if request.GET.get('filename'):
-            candidates = candidates.filter(filename__icontains=request.GET['filename'])
+        filename = request.GET.get('filename')
+        if filename:
+            candidates = candidates.filter(filename__icontains=filename)
 
         # Designation
-        if request.GET.get('designation'):
-            candidates = candidates.filter(current_designation__icontains=request.GET['designation'])
+        designation = request.GET.get('designation')
+        if designation:
+            candidates = candidates.filter(current_designation__icontains=designation)
 
         # Experience
-        if request.GET.get('experience'):
-            candidates = candidates.filter(experience__gte=request.GET['experience'])
+        experience = request.GET.get('experience')
+        if experience:
+            candidates = candidates.filter(experience__gte=experience)
 
         # Education
-        if request.GET.get('education'):
-            candidates = candidates.filter(education__icontains=request.GET['education'])
+        education = request.GET.get('education')
+        if education:
+            candidates = candidates.filter(education__icontains=education)
 
         # Location
-        if request.GET.get('location'):
-            candidates = candidates.filter(location__icontains=request.GET['location'])
+        location = request.GET.get('location')
+        if location:
+            candidates = candidates.filter(location__icontains=location)
 
-                # Skill filter (search inside resume text)
-        if request.GET.get('skill'):
-            candidates = candidates.filter(
-                text_content__icontains=request.GET['skill']
-            )
+        # Skill
+        skill = request.GET.get('skill')
+        if skill:
+            candidates = candidates.filter(text_content__icontains=skill)
 
-        # Industry filter (also search inside resume text)
-        if request.GET.get('industry'):
-            candidates = candidates.filter(
-                text_content__icontains=request.GET['industry']
-            )
-
-        if request.GET.get('location'):
-            candidates = candidates.filter(
-                location__icontains=request.GET['location']
-            )
-
-
+        # Industry
+        industry = request.GET.get('industry')
+        if industry:
+            candidates = candidates.filter(text_content__icontains=industry)
 
         candidates = candidates.order_by('-updated')
 
-        results = []
-
-        for candidate in candidates:
-            results.append({
-                "id": candidate.id,
-                "filename": candidate.filename,
-                "resume_url": candidate.upload_resume.url,
-                "content": candidate.text_content[:100],
-                "updated": candidate.updated.strftime('%Y-%m-%d')
-            })
-
-        return JsonResponse({
-            "results": results,
-            "counts": f"Filtered {candidates.count()} candidates"
+        return render(request, "candidate/resume_list.html", {
+            "candidates": candidates,
+            "counts": candidates.count()
         })
 
 

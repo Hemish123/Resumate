@@ -5,39 +5,117 @@
 {% block css %}
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+    <style>
+
+/* ================= CARD ================= */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.card-datatable {
+  padding: 18px;
+}
+
+/* Header */
+.card h5 {
+  padding: 16px 18px;
+  margin: 0;
+  background: linear-gradient(90deg, #eef2ff, #ffffff);
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ================= TABLE ================= */
+.table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.table td, .table th {
+  word-break: break-word;
+  white-space: normal;
+}
+
+.table-hover tbody tr:hover {
+  background: #f1f5ff;
+}
+
+/* ================= FILTER ================= */
+.filter-card {
+  position: sticky;
+  top: 90px;
+  padding: 18px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.filter-card h6 {
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.filter-card .form-control {
+  margin-bottom: 12px;
+}
+
+/* Responsive Fix */
+@media (max-width: 992px) {
+  .filter-card {
+    position: relative;
+    max-height: none;
+  }
+}
+
+</style>
 {% endblock css %}
 
 {% block content %}
 <button onclick="window.history.back()" type="button" class="btn btn-outline-primary mb-2">
     <span class="ti-xs ti ti-chevron-left me-2"></span>Back
 </button>
-<div class="card">
-    <div class="card-datatable p-3 p-md-5">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-            <h5 id="datatable-title" class="card-title mb-0"><strong>RESUMES</strong></h5>
-                <div class="d-flex flex-column flex-sm-row w-100 w-md-auto mt-2 mt-md-0">
-                <input id="search-input" class="form-control me-sm-2 mb-2 mb-sm-0 w-100"/>
+<div class="row g-4">
+  <div class="col-12 col-xl-9">
+    <div class="card">
+
+      <h5><strong>RESUMES</strong></h5>
+
+            <div class="card-datatable">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+
+                    <div class="d-flex w-10 w-md-auto" >
+                <input id="search-input" class="form-control me-2" placeholder="Search" />
                 <button id="search-button" class="btn btn-outline-success">
                     Search
                 </button>
             </div>
-        </div>
-        <div class="btn-group" id="dropdown-icon-demo">
+
+        <div class="btn-group mb-2 mb-md-0" id="dropdown-icon-demo">
             <button
               type="button"
               id="actioncheck"
-                class="btn btn-outline-primary dropdown-toggle mt-2 mt-md-0"
+              class="btn btn-outline-primary dropdown-toggle "
               data-bs-toggle="dropdown"
               aria-expanded="false">
                Action
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#shareOpening">
+                <a class="dropdown-item " data-bs-toggle="modal" data-bs-target="#shareOpening">
                     <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Share Job Opening</a>
               </li>
-
             </ul>
+        </div>
+
              <!--Job opening share Modal -->
             <div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -69,13 +147,14 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+
 
     <!-- TABLE -->
-    <div class="col-lg-9">
-        <div class="card p-4">
-        <div id="count" class="m-2 mt-4"><p>{{ counts }}</p></div>
-        <table id="resume-table" class="table">
+        <div class="mb-3">
+          <strong>   {{ counts }} </strong>
+        </div>
+        <div class="table-responsive">
+        <table id="resume-table" class="table table-hover">
             <thead>
                 <tr>
                     <th><input type="checkbox" id="select-all" /></th>
@@ -84,7 +163,7 @@
                     <th>Updated</th>
                 </tr>
             </thead>
-            <tbody id="resume-body">
+            <tbody>
                 {% for candidate in candidates %}
                 {% if candidate.upload_resume %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
@@ -99,22 +178,38 @@
         </table>
     </div>
 </div>
-
+</div>
+</div>
     <!-- RIGHT FILTER -->
-   <div class="col-lg-3">
-    <div class="card p-3">
-        <h6><strong>Filters</strong></h6>
+  <div class="col-12 col-xl-3">
+<div class="card filter-card">
+            <h6><strong>Filters</strong></h6>
+<form method="GET" action="{% url 'resume-filter' %}" id="filterForm">
 
-        <input type="text" id="filter-name" class="form-control mb-2" placeholder="Candidate Name">
-        <input type="text" id="filter-filename" class="form-control mb-2" placeholder="File Name">
-        <input type="text" id="filter-location" class="form-control mb-2"placeholder="Current Location">
+        <input type="text" name="name" class="form-control auto-submit"
+       placeholder="Candidate Name" value="{{ request.GET.name }}">
 
-        <input type="text" id="filter-designation" class="form-control mb-2" placeholder="Current Designation">
-        <input type="number" id="filter-experience" class="form-control mb-2" placeholder="Experience (yrs)">
-        <input type="text" id="filter-education" class="form-control mb-2" placeholder="Education">
+    <input type="text" name="filename" class="form-control auto-submit"
+        placeholder="File Name" value="{{ request.GET.filename }}">
 
-        <input type="text" id="filter-skill" class="form-control mb-2" placeholder="Skill">
-        <input type="text" id="filter-industry" class="form-control mb-2" placeholder="Industry">
+    <input type="text" name="location" class="form-control auto-submit"
+        placeholder="Current Location" value="{{ request.GET.location }}">
+
+    <input type="text" name="designation" class="form-control auto-submit"
+        placeholder="Current Designation" value="{{ request.GET.designation }}">
+
+    <input type="number" name="experience" class="form-control auto-submit"
+        placeholder="Experience (yrs)" value="{{ request.GET.experience }}">
+
+    <input type="text" name="education" class="form-control auto-submit"
+        placeholder="Education" value="{{ request.GET.education }}">
+
+    <input type="text" name="skill" class="form-control auto-submit"
+        placeholder="Skill" value="{{ request.GET.skill }}">
+
+    <input type="text" name="industry" class="form-control auto-submit"
+        placeholder="Industry" value="{{ request.GET.industry }}">
+</form>
         
     </div>
 </div>
@@ -129,5 +224,43 @@
     <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
     <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
     <script src="{% static 'dashboard/js/resume-list.js' %}"></script>
+    <script>
+$(document).ready(function() {
+
+    let delayTimer;
+
+    $(".auto-submit").on("input", function() {
+
+        clearTimeout(delayTimer);
+
+        delayTimer = setTimeout(function() {
+
+            $.ajax({
+                url: $("#filterForm").attr("action"),
+                type: "GET",
+                data: $("#filterForm").serialize(),
+                success: function(response) {
+
+                    // Replace only table body
+                    $("#resume-table tbody").html(
+                        $(response).find("#resume-table tbody").html()
+                    );
+
+                    // Update counts
+                    $("strong").first().html(
+                        $(response).find("strong").first().html()
+                    );
+
+                }
+            });
+
+        }, 400);
+
+    });
+
+});
+</script>
+
+
 
 {% endblock js %}
