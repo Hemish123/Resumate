@@ -102,5 +102,78 @@ function searchResumes() {
                 });
             }
         });
+
+/* ================= FILTER ================= */
+
+const tableBody = document.getElementById("resume-body");
+const countDiv = document.getElementById("count");
+
+function fetchFilteredData() {
+
+    let params = new URLSearchParams({
+
+        name: $('#filter-name').val(),
+        filename: $('#filter-filename').val(),
+        designation: $('#filter-designation').val(),
+        experience: $('#filter-experience').val(),
+        education: $('#filter-education').val(),
+        skill: $('#filter-skill').val(),
+        industry: $('#filter-industry').val(),
+        location: $('#filter-location').val(),
+
+    });
+
+    fetch(`/candidate/resume-filter/?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+
+            tableBody.innerHTML = "";
+
+            if (data.results.length > 0) {
+
+                data.results.forEach(item => {
+                    tableBody.innerHTML += `
+                        <tr data-id="${item.id}">
+                            <td><input type="checkbox" class="row-checkbox" /></td>
+                            <td>
+                                <a href="${item.resume_url}" target="_blank">
+                                    ${item.filename}
+                                </a>
+                            </td>
+                            <td>${item.content}</td>
+                            <td>${item.updated}</td>
+                        </tr>
+                    `;
+                });
+
+            } else {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            No results found
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (countDiv) {
+                countDiv.innerHTML = `<p>${data.counts}</p>`;
+            }
+
+        })
+        .catch(error => {
+            console.error("Filter error:", error);
+        });
+}
+
+
+/* Trigger on typing */
+$('#filter-name, #filter-filename, #filter-designation, #filter-experience, #filter-education, #filter-skill, #filter-industry,#filter-location')
+    .on('keyup change', function () {
+        fetchFilteredData();
+    });
+
+
 });
 

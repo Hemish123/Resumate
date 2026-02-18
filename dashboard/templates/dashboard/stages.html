@@ -149,6 +149,36 @@
                     </form>
                   </div>
                 </div>
+              
+                <div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Select Email For CC </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+     
+      <div class="modal-body">
+        <div id="emailList"></div>
+        <br>
+         <div class="mb-3">
+            <input
+              type="email"
+              id="manualEmail"
+              class="form-control"
+              placeholder="Enter email address" />
+          </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="sendWithCC">Send</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
                 <!-- Kanban Wrapper -->
                 <div class="kanban-wrapper {% if not active %}kanban-disabled{% elif job_opening.is_expired %}kanban-disabled{% endif %}">
@@ -169,7 +199,7 @@
                   </div>
                   <div class="offcanvas-body pt-0">
                       <button type="button" id="candidateProfile" class="btn btn-primary w-100 my-2">View Analysis</button>
-                      <button type="button" id="sendInterviewLink" class="btn btn-primary w-100 my-2">Send Interview Link</button>
+                      {% comment %} <button type="button" id="sendInterviewLink" class="btn btn-primary w-100 my-2">Send Interview Link</button> {% endcomment %}
                     <div class="my-2">
                         <i class="ti ti-mail me-2"></i><span id="email"></span>
                     </div>
@@ -181,12 +211,12 @@
                     </div>
                       <div class="nav-align-top">
                       <ul class="nav nav-tabs mb-5 rounded-0">
-                        <li class="nav-item">
+                       <!-- <li class="nav-item">
                           <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-update">
                             <i class="ti ti-edit ti-18px me-1_5"></i>
                             <span class="align-middle">Edit</span>
                           </button>
-                        </li>
+                        </li> -->
 <!--                        <li class="nav-item">-->
 <!--                          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-activity">-->
 <!--                            <i class="ti ti-chart-pie-2 ti-18px me-1_5"></i>-->
@@ -218,6 +248,7 @@
                            {% endfor %}
                             </select>
                           </div>
+                          
 
 <!--                          <div class="mb-5">-->
 <!--                            <label class="form-label">FeedBack</label>-->
@@ -460,6 +491,108 @@
     <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
     <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
     
+<script>
+async function openEmailPopup(jobId, candidateStageId) {
 
+  const res = await fetch(`/client-emails/${jobId}/`);
+  const data = await res.json();
+
+  let html = "";
+
+  data.emails.forEach(email => {
+    html += `
+      <div>
+        <input type="checkbox" class="client-email" value="${email}">
+        ${email}
+      </div>
+    `;
+  });
+
+  document.getElementById("emailList").innerHTML = html;
+
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+  modal.show();
+
+  document.getElementById("sendWithCC").onclick = function() {
+    let selected = [];
+    document.querySelectorAll(".client-email:checked").forEach(cb => {
+      selected.push(cb.value);
+    });
+
+    sendStageUpdate(candidateStageId, selected);
+  }
+}
+async function sendStageUpdate(jobId, candidateStageId, ccEmails) {
+
+  await fetch(`/api/stages/${jobId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken")
+    },
+    body: JSON.stringify({
+      stage_id: SENT_TO_CLIENT_STAGE_ID,
+      candidate_stage_id: candidateStageId,
+      send_email: true,
+      cc_emails: ccEmails
+    })
+  });
+
+  location.reload();
+}
+
+
+</script>
+<script>
+/* ---------- ADD-ONLY HELPER FOR SENT TO CLIENT POPUP ---------- */
+
+window.enableSentToClientPopup = true;   // flag your main JS can check
+
+window.getSelectedClientEmails = async function(jobId) {
+  const res = await fetch(`/client-emails/${jobId}/`);
+  const data = await res.json();
+
+  let html = "";
+  data.emails.forEach(email => {
+    html += `
+      <div class="form-check mb-2">
+        <input class="form-check-input client-email" 
+               type="checkbox" value="${email}" id="${email}">
+        <label class="form-check-label" for="${email}">
+          ${email}
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("emailList").innerHTML = html;
+
+   // 🔹 Clear old manual email (important)
+  document.getElementById("manualEmail").value = "";
+
+  const emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+  emailModal.show();
+
+  return new Promise(resolve => {
+    document.getElementById("sendWithCC").onclick = function() {
+      let selected = [];
+      document.querySelectorAll(".client-email:checked")
+        .forEach(cb => selected.push(cb.value));
+
+      const manualEmail =
+        document.getElementById("manualEmail").value.trim();
+
+      if (manualEmail) {
+        selected.push(manualEmail);
+      }
+      
+      emailModal.hide();
+      resolve(selected);
+    };
+  });
+};
+</script>
 
 {% endblock js %}
+

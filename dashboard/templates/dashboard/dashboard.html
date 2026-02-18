@@ -21,6 +21,7 @@
     aria-label="Search..." />
 <!--  <i class="ti ti-x search-toggler cursor-pointer"></i>-->
 </div>
+
 <!-- /Search -->
 <div class="d-flex justify-content-between mb-4">
 
@@ -35,6 +36,10 @@
     <!-- Job List Section -->
     <div class="d-flex align-items-center">
         <!-- Button Group for View Toggle -->
+    <a href="{% url 'job-opening-import' %}" 
+            class="btn btn-outline-primary">
+            <i class="ti ti-"></i> Import
+            </a>
         <div class="btn-group" role="group" aria-label="View Toggle">
             <button class="btn btn-outline-primary rounded-3 shadow-sm me-1" id="gridViewButton">
                 <i class="fas fa-th"></i> 
@@ -80,11 +85,12 @@
                             </div>
                             <div class="card-subtitle mt-2 mb-4">
                                 {% if jobs.client %}
-                                    {{ jobs.client }}
+                                    {{ jobs.client.company }}
                                 {% else %}
                                     {{ jobs.company }}
                                 {% endif %}
                             </div>
+
                             <p class="card-text">
                                 Open Positions: {{ jobs.openings }}
                             </p>
@@ -109,8 +115,13 @@
                             {% if not request.user.employee.company.name == "JMS Advisory" %}
                                 <div class="d-flex justify-content-end mt-1">
                                     <small class="text-muted">Expires in: {{ jobs.days_remaining }} days</small>
+                                    
+
                                 </div>
                             {% endif %}
+                            <small class="text-muted">Created on: {{ jobs.created_at|date:"d M Y, h:i A" }}</small>
+                            <br> </br>
+                            <small class="text-muted">Active till: {{ jobs.active_till|date:"d M Y, h:i A" }}</small>
                         {% endif %}
                     </div>
                 </div>
@@ -136,12 +147,12 @@
                             </div>
                         </div>
                         <div class="card-subtitle mt-2 mb-4">
-                            {% if jobs.client %}
-                                {{ jobs.client }}
-                            {% else %}
-                                {{ jobs.company }}
-                            {% endif %}
-                        </div>
+                                {% if jobs.client %}
+                                    {{ jobs.client.company }}
+                                {% else %}
+                                    {{ jobs.company }}
+                                {% endif %}
+                            </div>
                         <p class="card-text">
                             Open Positions: {{ jobs.openings }}
                         </p>
@@ -168,6 +179,9 @@
                                     <small class="text-muted">Expires in: {{ jobs.days_remaining }} days</small>
                                 </div>
                             {% endif %}
+                            <small class="text-muted">Created on: {{ jobs.created_at|date:"d M Y, h:i A" }}</small>
+                            <br> </br>
+                            <small class="text-muted">Active till: {{ jobs.active_till|date:"d M Y, h:i A" }}</small>
                         {% endif %}
                     </div>
                 </div>

@@ -1,9 +1,9 @@
 from django.urls import path
 from . import views
-from .views import (CandidateCreateView, CandidateListView, candidate_list_api,
+from .views import (CandidateCreateView, CandidateListView, ResumeFilterView, candidate_list_api,
                     CandidateDetailsView, CandidateUpdateView, CandidateImportView, ShareJobOpeningView,
                     CandidateDeleteView, ApplicationSuccessView, ResumeListView, ResumeSearchView,
-                    CandidateAnalysisView, ApplicationListView)
+                    CandidateAnalysisView, ApplicationListView, export_selected_candidates_csv)
 
 urlpatterns = [
     path('application-create/<int:pk>/', CandidateCreateView.as_view(), name='application_create'),
@@ -14,6 +14,8 @@ urlpatterns = [
     path('add-candidate-form/', CandidateImportView.as_view(), name='candidate-import'),
     path('resume-list/', ResumeListView.as_view(), name='resume-list'),
     path('resume-search/', ResumeSearchView.as_view(), name='resume-search'),
+    path('resume-filter/', ResumeFilterView.as_view(), name='resume-filter'),
+
     path('candidate-details/<int:pk>/', CandidateDetailsView.as_view(), name='candidate-details'),
     path('candidate-update/<int:pk>/', CandidateUpdateView.as_view(), name='candidate-update'),
     path('candidate-delete/', CandidateDeleteView.as_view(), name='candidate-delete'),
@@ -21,5 +23,5 @@ urlpatterns = [
     path('application-success/<int:pk1>/<int:pk2>/', ApplicationSuccessView.as_view(), name='application_success'),
     path('candidate-analysis/<int:pk>/', CandidateAnalysisView.as_view(), name='candidate-analysis'),
     path('application-list/<int:pk>/', ApplicationListView.as_view(), name='application-list'),
-
+    path('export-selected-csv/', export_selected_candidates_csv, name='export_selected_csv'),
 ]

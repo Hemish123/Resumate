@@ -1,0 +1,283 @@
+{% extends "screening/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+/* ===== HEADER ===== */
+.header-box {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  margin-bottom: 28px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.view-toggle {
+  display: flex;
+  background: #f3f1ff;
+  padding: 6px;
+  border-radius: 14px;
+  gap: 6px;
+}
+
+.view-toggle i {
+  font-size: 16px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #6f6cff;
+  cursor: pointer;
+}
+
+.view-toggle i.active {
+  background: linear-gradient(135deg, #6f6cff, #8b86ff);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(111,108,255,0.35);
+}
+
+/* ===== CARD GRID ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 32px;
+}
+
+.job-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.job-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background: #6f6cff;
+  color: #fff;
+}
+
+.status-badge.closed {
+  background: #dc3545;
+  color: #fff;
+}
+
+.job-client {
+  font-size: 14px;
+  color: #9a9a9a;
+  margin: 6px 0 14px;
+}
+
+.job-stats {
+  font-size: 15px;
+  color: #6f6cff;
+  margin-bottom: 14px;
+}
+
+.job-stats span {
+  font-weight: 500;
+}
+
+.app-link-box {
+  background: #e6e6e9;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #6f6cff;
+  cursor: pointer;
+}
+
+.app-link-box:hover {
+  background: #dedee3;
+}
+
+.job-footer {
+  font-size: 12.5px;
+  color: #9a9a9a;
+  margin-top: 12px;
+}
+
+.job-footer .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ===== LIST VIEW ===== */
+.list-view {
+  display: none;
+}
+</style>
+
+<div class="container mt-4">
+      <a href="/manager/clients/" class="btn btn-outline-primary btn-sm">← Back</a>
+<br></br>
+  <!-- ===== HEADER ===== -->
+  <div class="header-box">
+    <div class="header-left">
+      <h5 class="mb-0">Openings By: {{ client.name }}</h5>
+    </div>
+
+    <div class="view-toggle">
+      <i class="bi bi-grid-fill active" onclick="showCards(this)"></i>
+      <i class="bi bi-list-task" onclick="showList(this)"></i>
+    </div>
+  </div>
+
+  {% if openings %}
+
+  <!-- ===== CARD VIEW ===== -->
+  <div id="cardView" class="card-grid">
+    {% for job in openings %}
+<div class="job-card" onclick="window.location.href='{% url 'job-process' job.id %}'" style="cursor:pointer;">
+
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <h6 class="job-title mb-0">{{ job.designation }}</h6>
+
+        {% if job.active %}
+          <span class="status-badge active">Active</span>
+        {% else %}
+          <span class="status-badge closed">Closed</span>
+        {% endif %}
+      </div>
+
+      <div class="job-client">
+        {% if job.client %}
+          {{ job.client.company }}
+        {% else %}
+          {{ job.company }}
+        {% endif %}
+      </div>
+
+      <div class="job-stats">
+        <div>Open Positions: <span>{{ job.openings }}</span></div>
+        <div>No. of Applicants: <span>{{ job.candidate_set.count }}</span></div>
+      </div>
+
+      <div class="app-link-box"
+           onclick="copyLink('{{ request.scheme }}://{{ request.get_host }}{% url 'application_create' job.id %}', this)">
+        <span>Application Link</span>
+        <i class="ti ti-copy"></i>
+      </div>
+
+      <div class="job-footer">
+        <div class="row">
+          <span>Expires in: {{ job.days_remaining }} days</span>
+          <span>Created On : {{ job.created_at|date:"d M Y, h:i A" }}</span>
+          <span>Active till: {{ job.active_till|date:"d M Y, h:i A" }}</span>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+ <!-- ===== LIST VIEW (CARD STYLE) ===== -->
+<div id="listView" class="list-view">
+  {% for job in openings %}
+<div class="card list-job-card mb-3" onclick="window.location.href='{% url 'job-process' job.id %}'" style="cursor:pointer;">
+    <div class="card-body">
+
+      <!-- TITLE + STATUS -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="job-title mb-0">{{ job.designation }}</h6>
+        {% if job.active %}
+          <span class="badge bg-primary status-pill">Active</span>
+        {% else %}
+          <span class="badge bg-danger status-pill">Closed</span>
+        {% endif %}
+      </div>
+
+      <!-- COMPANY -->
+      <div class="text-muted small mb-3">
+        {% if job.client %}
+          {{ job.client.company }}
+        {% else %}
+          {{ job.company }}
+        {% endif %}
+      </div>
+
+      <!-- STATS -->
+      <div class="row small text-muted mb-3">
+        <div class="col-md-4">
+          <strong>Opening Positions:</strong> {{ job.openings }}
+        </div>
+        <div class="col-md-4">
+          <strong>No. of Applicants:</strong> {{ job.candidate_set.count }}
+        </div>
+      </div>
+
+      <!-- APPLICATION LINK -->
+      <div class="app-link-box list-app-link"
+           onclick="copyLink('{{ request.scheme }}://{{ request.get_host }}{% url 'application_create' job.id %}', this)">
+        <span>Application Link</span>
+        <i class="ti ti-copy"></i>
+      </div>
+    
+      <div class="row small text-muted mb-3">
+      <div class="col-md-4 ">
+          <strong>Expires in:</strong> {{ job.days_remaining }} days
+        </div>
+      <div class="col-md-4">
+          <strong>Created On:</strong> {{ job.created_at|date:"d M Y, h:i A" }}
+        </div>
+      <div class="col-md-4">
+          <strong>Active Till:</strong> {{ job.active_till|date:"d M Y, h:i A" }}
+        </div>
+      </div>
+        
+  </div>
+</div>
+  {% endfor %}
+</div>
+
+<script>
+const cardView = document.getElementById("cardView");
+const listView = document.getElementById("listView");
+
+function showCards(el) {
+  cardView.style.display = "grid";
+  listView.style.display = "none";
+  document.querySelectorAll(".view-toggle i").forEach(i => i.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function showList(el) {
+  cardView.style.display = "none";
+  listView.style.display = "block";
+  document.querySelectorAll(".view-toggle i").forEach(i => i.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function copyLink(link, el) {
+  navigator.clipboard.writeText(link).then(() => {
+    const icon = el.querySelector("i");
+    icon.className = "ti ti-check";
+    setTimeout(() => {
+      icon.className = "ti ti-copy";
+    }, 1200);
+  });
+}
+</script>
+{% endif %}
+
+{% endblock content %}

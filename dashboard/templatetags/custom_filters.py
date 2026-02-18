@@ -19,3 +19,9 @@ def timesince_custom(value):
         return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
     else:
         return "just now"
+
+
+@register.filter
+def has_group(user, group_names):
+    groups = group_names.split(',')
+    return user.groups.filter(name__in=groups).exists()

@@ -13,14 +13,47 @@
                 <div class="col-12">
                   <div class="card mb-6">
                     <div class="user-profile-header-banner">
-                      <img src="{% static 'dashboard/img/pages/profile-banner.png' %}" alt="Banner image" class="rounded-top" />
+                      <img src="{% static 'dashboard/img/pages/profile-banner.png' %}" alt="Banner image" class="rounded-top"
+                        style="width:100%; height:200px; object-fit:cover;" />
                     </div>
                     <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                       <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
-                        <img
-                          src="{% static 'dashboard/img/avatars/8380015.jpg' %}"
-                          alt="user image"
-                          class="d-block h-auto ms-0 ms-sm-6 rounded user-profile-img" />
+                        <div class="flex-shrink-0 mt-n5 mx-sm-0 mx-auto">
+                          <div class="avatar avatar-xl avatar-profile-square">
+                            {% if user.employee.profile_pic %}
+                              <img src="{{ user.employee.profile_pic.url }}" alt="Profile Pic" />
+                            {% else %}
+                              <img src="{% static '/profile_pics/default.png' %}" alt="Default Profile Pic" />
+                            {% endif %}
+                          </div>
+                        </div>
+
+
+<style>
+  .avatar-profile-square {
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;          /* square but soft edges */
+  border: 4px solid #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-profile-square img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile-header {
+  position: relative;
+  padding-left: 2rem;
+}
+
+</style>
+
+
                       </div>
                       <div class="flex-grow-1 mt-3 mt-lg-5">
                         <div

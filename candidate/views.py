@@ -13,6 +13,8 @@ from dashboard.models import CandidateStage, Stage
 from .models import Candidate, ResumeAnalysis
 from users.models import Employee
 from manager.models import JobOpening
+from datetime import datetime, timedelta
+
 # from .forms import CandidateForm
 from django.utils import timezone
 from datetime import datetime
@@ -198,6 +200,7 @@ class CandidateCreateView(FormView):
             temp_file = ContentFile(file_content, resume_file.name)
 
             path = default_storage.save('resume/' + resume_file.name, temp_file)
+            #for production
             # Download from Azure and write to a local file
             # Define a temporary local path
             local_temp_path = f"/tmp/{resume_file.name}"
@@ -206,10 +209,13 @@ class CandidateCreateView(FormView):
             with open(local_temp_path, "wb") as f:
                 f.write(default_storage.open(path).read())
             
-
+            #for local
             # temp_dir = tempfile.gettempdir()
             # local_temp_path = os.path.join(temp_dir, resume_file.name)
-            # print("path:", local_temp_path)
+
+            # with open(local_temp_path, "wb") as f:
+            #     f.write(default_storage.open(path).read())
+
 
             extractedText = extractText(local_temp_path)
             default_storage.delete(path)
@@ -243,11 +249,20 @@ class CandidateCreateView(FormView):
                 candidate.portfolio = form.cleaned_data['portfolio']
                 candidate.blog = form.cleaned_data['blog']
                 candidate.current_organization = form.cleaned_data['current_organization']
+                candidate.preferred_location = form.cleaned_data.get('preferred_location')
+                candidate.current_ctc = form.cleaned_data.get('current_ctc')
+                candidate.expected_ctc = form.cleaned_data.get('expected_ctc')
+                candidate.notice_period = form.cleaned_data.get('notice_period')
+                candidate.share_date = form.cleaned_data.get('share_date')
+                candidate.dob = form.cleaned_data.get('dob')
+                candidate.college = form.cleaned_data.get('college')
+                candidate.client = job_opening.client
                 candidate.updated = timezone.now()
                 candidate.is_new = True
                 # candidate.job_openings.add(job_opening)
             else:
                 candidate = form.save(commit=False)
+            
             resume = request.session.get('resume', None)
 
             if not resume:
@@ -331,7 +346,7 @@ class ApplicationSuccessView(TemplateView):
 class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Candidate
     # form_class = CandidateForm
-    fields = ['name', 'email', 'contact', 'location', 'dob', 'linkedin', 'github',
+    fields = ['name', 'email', 'contact', 'location', 'dob', 'college','linkedin', 'github',
               'portfolio', 'blog', 'education', 'experience', 'current_designation', 'current_organization',
               'current_ctc', 'current_ctc_ih', 'expected_ctc', 'expected_ctc_ih',
               'offer_in_hand', 'notice_period', 'reason_for_change', 'feedback']
@@ -377,7 +392,7 @@ class CandidateUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVie
             return super().form_valid(form)
 
 
-def candidate_list_api(request):
+
     # search_value = request.GET.get('search[value]', '').strip()
     # experience_filter = request.GET.get('experience', '').strip()
     # status_filter = request.GET.get('status', '').strip()
@@ -479,16 +494,36 @@ def candidate_list_api(request):
     #     'recordsTotal': total_records,
     #     'recordsFiltered': records_filtered,
     #     'data': data
-    # })
+    # })\
+    from django.db.models import OuterRef, Subquery
 
+def candidate_list_api(request):
+    candidates = Candidate.objects.all()
+    preferred_location = request.GET.get('preferred_location')
+    current_ctc = request.GET.get('current_ctc')
+    expected_ctc = request.GET.get('expected_ctc')
+    notice_period = request.GET.get('notice_period')
+    updated_range = request.GET.get("updated_range")
+    from_month = request.GET.get("from_month")
+    to_month = request.GET.get("to_month")
+    share_from = request.GET.get('share_from')
+    share_to = request.GET.get('share_to')
     search_value = request.GET.get('search[value]', '').strip()
     experience_filter = request.GET.get('experience', '').strip()
     status_filter = request.GET.get('status', '').strip()
-    location_filter = request.GET.get('location', '').strip()       # 👈 new
-    designation_filter = request.GET.get('designation', '').strip() # 👈 new
+    location_filter = request.GET.get('location', '').strip()       
+    designation_filter = request.GET.get('designation', '').strip() 
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 10))
     draw = int(request.GET.get('draw', 1))
+    name_filter = request.GET.get('name', '').strip()
+    contact_filter = request.GET.get('contact', '').strip()
+    email_filter = request.GET.get('email', '').strip()
+    updated_filter = request.GET.get('updated', '').strip()
+    dob_filter = request.GET.get('dob', '').strip()
+    college_filter = request.GET.get('college', '').strip()
+    client_filter = request.GET.get('client', '').strip()
+    organization_filter = request.GET.get('organization', '').strip()
 
     # Sorting
     order_column_index = request.GET.get('order[0][column]', '9')
@@ -500,8 +535,17 @@ def candidate_list_api(request):
         "4": "contact",
         "5": "email",
         "6": "location",
-        "7": "experience",
-        "9": "updated",
+        "7": "preferred_location",
+        "8": "experience",
+         "9": "current_ctc",
+        "10": "expected_ctc",
+        "11": "notice_period",
+        "12": "share_date",
+        "14": "updated",
+        "15"   :"dob",
+        "16": "college",
+        "17": "job_openings__client__name",
+        "18": "current_organization",
     }
     sort_field = column_mapping.get(order_column_index, 'updated')
     if order_dir == 'desc':
@@ -511,18 +555,120 @@ def candidate_list_api(request):
     latest_stage_subquery = CandidateStage.objects.filter(
         candidate=OuterRef('pk')
     ).order_by('-id').values('stage__name')[:1]
+  
 
-    queryset = Candidate.objects.filter(company=request.user.employee.company).annotate(
-        stage_name=Coalesce(Subquery(latest_stage_subquery), Value(''))
-    ).only(
-        'id', 'name', 'current_designation', 'email', 'contact',
-        'location', 'experience', 'updated', 'company_id'
-    ).order_by(sort_field)
+    queryset = Candidate.objects.filter(
+    company=request.user.employee.company
+).prefetch_related(
+    'job_openings__client'
+).annotate(
+    stage_name=Coalesce(Subquery(latest_stage_subquery), Value(''))
+).only(
+    'id', 'name', 'current_designation', 'email', 'contact',
+    'location', 'preferred_location', 'experience',
+    'dob', 'college', 'client__name','current_organization',
+    'current_ctc', 'expected_ctc', 'notice_period',
+    'share_date', 'updated', 'company_id'
+).order_by(sort_field)
+    today = timezone.now().date()
+
+    if updated_range and updated_range.isdigit():
+        queryset = queryset.filter(
+            updated__date__gte=today - timedelta(days=int(updated_range))
+        )
+
+    elif updated_range == "month":
+        queryset = queryset.filter(
+            updated__year=today.year,
+            updated__month=today.month
+        )
+
+    elif updated_range == "between" and from_month and to_month:
+        from_date = datetime.strptime(from_month, "%Y-%m").date().replace(day=1)
+
+        to_date = datetime.strptime(to_month, "%Y-%m").date()
+        if to_date.month == 12:
+            to_date = to_date.replace(year=to_date.year + 1, month=1, day=1)
+        else:
+            to_date = to_date.replace(month=to_date.month + 1, day=1)
+
+        queryset = queryset.filter(
+            updated__date__gte=from_date,
+            updated__date__lt=to_date
+        )
+
+    elif updated_range == "year":
+        queryset = queryset.filter(
+            updated__date__lte=today - timedelta(days=365)
+        )
 
     total_records = queryset.count()
 
     # Apply filters
     filters = Q()
+    # NAME
+    if name_filter:
+        filters &= build_multi_icontains('name', name_filter)
+
+    # CONTACT
+    if contact_filter:
+        filters &= build_multi_icontains('contact', contact_filter )
+
+    # EMAIL
+    if email_filter:
+        filters &= build_multi_icontains('email', email_filter)
+
+    # UPDATED (DATE)
+    if updated_filter:
+        dates = [d.strip() for d in updated_filter.split(',') if d.strip()]
+        filters &= Q(updated__date__in=dates)
+
+    if preferred_location:
+        filters &= build_multi_icontains('preferred_location',preferred_location)
+
+    if current_ctc:
+        filters &= build_multi_icontains('current_ctc',current_ctc)
+
+    if expected_ctc:
+        filters &= build_multi_icontains('expected_ctc',expected_ctc)
+
+    if notice_period:
+        filters &= build_multi_icontains('notice_period',notice_period)
+
+    if share_from:
+        try:
+            share_from = datetime.strptime(share_from, "%Y-%m-%d").date()
+        except ValueError:
+            share_from = None
+
+    if share_to:
+        try:
+            share_to = datetime.strptime(share_to, "%Y-%m-%d").date()
+        except ValueError:
+            share_to = None
+
+    if share_from and share_to:
+        filters &= Q(share_date__range=[share_from, share_to])
+
+    elif share_from:
+        filters &= Q(share_date__gte=share_from)
+
+    elif share_to:
+        filters &= Q(share_date__lte=share_to)
+
+
+    if dob_filter:
+        filters &= Q(dob=dob_filter)
+
+    if college_filter:
+        filters &= build_multi_icontains('college', college_filter)
+
+    if client_filter:
+        filters &= Q(client__name__icontains=client_filter)
+
+    if organization_filter:
+        filters &= build_multi_icontains('current_organization', organization_filter)
+
     # if search_value:
     #     keywords = [word.strip() for word in search_value.replace(',', ' ').split()]
     #     for keyword in keywords:
@@ -552,26 +698,10 @@ def candidate_list_api(request):
         filters &= search_query
             
     if location_filter:
-        filters &= Q(location__icontains=location_filter)
+        filters &= build_multi_icontains('location', location_filter)
     if designation_filter:
-        filters &= Q(current_designation__icontains=designation_filter)
+        filters &= build_multi_icontains('current_designation',designation_filter)
 
-
-    # if experience_filter:
-    #     try:
-    #         if experience_filter.isdigit():
-    #             filters &= Q(experience=int(experience_filter))
-    #         else:
-    #             comparator, exp_value = experience_filter.split()
-    #             exp_value = float(exp_value)
-    #             if comparator == '<':
-    #                 filters &= Q(experience__lt=exp_value)
-    #             elif comparator == '>':
-    #                 filters &= Q(experience__gt=exp_value)
-    #             elif comparator == '=':
-    #                 filters &= Q(experience=exp_value)
-    #     except ValueError:
-    #         pass
     min_exp = request.GET.get('min_exp', '').strip()
     max_exp = request.GET.get('max_exp', '').strip()
 
@@ -630,7 +760,21 @@ def candidate_list_api(request):
             'email': c.email,
             'contact': c.contact,
             'location': c.location,
+            'preferred_location': c.preferred_location,
             'experience': c.experience,
+            'dob': c.dob.strftime('%d-%m-%Y') if c.dob else '',
+            'college': c.college or '',
+            'client': (
+                c.job_openings.first().client.name
+                if c.job_openings.exists() and c.job_openings.first().client
+                else ''
+            ),
+
+            'current_organization': c.current_organization or '',
+            'current_ctc': c.current_ctc,
+            'expected_ctc': c.expected_ctc,
+            'notice_period': c.notice_period,
+            'share_date': c.share_date.strftime('%d-%m-%Y') if c.share_date else '',
             'status': c.stage_name or '',
             'updated': c.updated.strftime('%d-%m-%Y %H:%M')
         })
@@ -642,106 +786,117 @@ def candidate_list_api(request):
         'data': data
     })
 
+    import csv
+from django.http import HttpResponse
+from .models import Candidate   # adjust model name
 
+# def export_selected_candidates_csv(request):
+#     ids = request.GET.get('ids', '')
 
-    # Get search term and filters from request
-    # search_value = request.GET.get('search[value]', '').strip()
-    # experience_filter = request.GET.get('experience', '').strip()
-    # # candidates = Candidate.objects.filter(company=request.user.employee.company).order_by('-updated')
-    #
-    # # Get column index and sorting direction from request
-    # order_column_index = request.GET.get('order[0][column]', None)
-    # order_dir = request.GET.get('order[0][dir]', 'asc')
-    #
-    # # Define mapping of DataTables column index to model field names
-    # column_mapping = {
-    #     "0": "",
-    #     "1": "id",
-    #     "2": "name",
-    #     "3": "current_designation",
-    #     "4": "contact",
-    #     "5": "email",
-    #     "6": "location",
-    #     "7": "experience",
-    #     "9": "updated",
-    # }
+#     if not ids:
+#         return HttpResponse("No candidates selected", status=400)
 
-    # Apply sorting if valid column index is provided
-    # if order_column_index in column_mapping:
-    #     order_field = column_mapping[order_column_index]
-    #     if order_dir == 'desc':
-    #         order_field = f"-{order_field}"  # Add "-" for descending order
-    #     candidates = candidates.order_by(order_field)
-    #
-    #
-    # # Apply search filter
-    # if search_value:
-    #     keywords = [word.strip() for word in search_value.replace(',', ' ').split() if word.strip()]
-    #     query_filter = Q()
-    #     for keyword in keywords:
-    #         query_filter &= (Q(name__icontains=keyword) |
-    #         Q(email__icontains=keyword) |
-    #         Q(contact__icontains=keyword) |
-    #         Q(location__icontains=keyword) |
-    #         Q(current_designation__icontains=keyword))
-    #     candidates = candidates.filter(
-    #         query_filter
-    #     )
-    #
-    # # Apply experience filter
-    # if experience_filter:
-    #     try:
-    #         if experience_filter.isdigit():
-    #             candidates = candidates.filter(experience=int(experience_filter))
-    #         else:
-    #             comparator, exp_value = experience_filter.split()
-    #             exp_value = float(exp_value)
-    #             if comparator == '<':
-    #                 candidates = candidates.filter(experience__lt=exp_value)
-    #             elif comparator == '>':
-    #                 candidates = candidates.filter(experience__gt=exp_value)
-    #             elif comparator == '=':
-    #                 candidates = candidates.filter(experience=exp_value)
-    #     except ValueError:
-    #         pass  # Ignore invalid input
-    #
-    # status_filter = request.GET.get('status')  # Get the raw string
-    #
-    # if status_filter:
-    #     status_filter = status_filter.split(',')  # Convert it into a list
-    #     status_filter = [s.strip() for s in status_filter if s]  # Remove spaces & empty values
-    #
-    # # Apply status filter
-    # if status_filter:
-    #     candidates = candidates.filter(candidatestage__stage__name__in=status_filter).distinct()
-    #
-    # # candidates = candidates.order_by('-updated')
-    # paginator = Paginator(candidates, request.GET.get('length', len(candidates)))
-    # page = request.GET.get('start', 0)
-    # page_number = (int(page) // paginator.per_page) + 1
-    # data = []  # Initialize empty list
-    #
-    # for c in paginator.page(page_number):
-    #     status = ', '.join([stage.stage.name for stage in c.candidatestage_set.all()])
-    #     data.append(
-    #         {
-    #             'id': c.id,
-    #             'name': c.name,
-    #             'designation': c.current_designation,
-    #             'email': c.email,
-    #             'contact': c.contact,
-    #             'location': c.location,
-    #             'experience': c.experience,
-    #             'status': status,
-    #             'updated': c.updated.strftime('%d-%m-%Y %H:%M')
-    #         })
-    #
-    # return JsonResponse({
-    #     'draw': int(request.GET.get('draw', 1)),
-    #     'recordsTotal': Candidate.objects.filter(company=request.user.employee.company).count(),
-    #     'recordsFiltered': candidates.count(),
-    #     'data': data
-    # })
+#     id_list = ids.split(',')
+
+#     candidates = Candidate.objects.filter(id__in=id_list)
+
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename="selected_candidates.csv"'
+
+#     writer = csv.writer(response)
+
+#     # CSV HEADER
+#     writer.writerow([
+#         'Name',
+#         'Designation',
+#         'Contact',
+#         'Email',
+#         'Location',
+#         'Experience',
+#         'Status',
+#         'Updated On'
+#     ])
+
+#     # CSV ROWS
+#     for c in candidates:
+#         writer.writerow([
+#             c.name,
+#             c.current_designation,
+#             c.contact,
+#             c.email,
+#             c.location,
+#             c.experience,
+#             c.get_status(),
+#             c.updated.strftime('%Y-%m-%d %H:%M')
+#         ])
+
+#     return response
+
+import csv
+from django.http import HttpResponse
+from django.utils.timezone import localtime
+
+def export_selected_candidates_csv(request):
+    ids = request.GET.get('ids', '')
+
+    if not ids:
+        return HttpResponse("No candidates selected", status=400)
+
+    id_list = ids.split(',')
+
+    candidates = Candidate.objects.filter(
+        id__in=id_list
+    ).select_related('client')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="selected_candidates.csv"'
+
+    writer = csv.writer(response)
+
+    # ✅ HEADER (Same as Table)
+    writer.writerow([
+        'Name',
+        'Designation',
+        'Contact',
+        'Email',
+        'Location',
+        'Preferred Location',
+        'Experience (In Years)',
+        'Current CTC',
+        'Expected CTC',
+        'Notice Period',
+        'Share Date',
+        'Status',
+        'Updated',
+        'DOB',
+        'College',
+        'Client',
+        'Current Organization'
+    ])
+
+    # ✅ ROWS
+    for c in candidates:
+        writer.writerow([
+            c.name,
+            c.current_designation or '',
+            c.contact,
+            c.email,
+            c.location or '',
+            c.preferred_location or '',
+            c.experience,
+            c.current_ctc,
+            c.expected_ctc,
+            c.notice_period,
+            c.share_date.strftime('%Y-%m-%d') if c.share_date else '',
+            c.get_status(),
+            localtime(c.updated).strftime('%Y-%m-%d %H:%M'),
+            c.dob.strftime('%Y-%m-%d') if c.dob else '',
+            c.college or '',
+            c.client.name if c.client else '',
+            c.current_organization or ''
+        ])
+
+    return response
 
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
@@ -756,6 +911,33 @@ class CandidateListView(LoginRequiredMixin, TemplateView):
 
         return context
 
+# class ShareJobOpeningView(LoginRequiredMixin, View):
+
+#     def post(self, request, *args, **kwargs):
+
+#         ids_json = request.POST.get("ids")
+#         job_opening_id = request.POST.get("job_opening_id")
+
+#         if not ids_json:
+#             return JsonResponse({"status": "error", "message": "No candidates selected"})
+
+#         try:
+#             ids = json.loads(ids_json)
+#         except:
+#             return JsonResponse({"status": "error", "message": "Invalid ID format"})
+
+#         job_opening = JobOpening.objects.get(id=job_opening_id)
+#         site_url = request.META.get("HTTP_HOST")
+
+#         for candidate_id in ids:
+#             try:
+#                 candidate = Candidate.objects.get(id=candidate_id)
+#                 send_job_opening_email(request.user, candidate, job_opening, site_url)
+#             except Exception as e:
+#                 return JsonResponse({"status": "error", "message": str(e)})
+
+#         return JsonResponse({"status": "success"})
+
 class ShareJobOpeningView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
@@ -763,23 +945,46 @@ class ShareJobOpeningView(LoginRequiredMixin, View):
         ids_json = request.POST.get("ids")
         job_opening_id = request.POST.get("job_opening_id")
 
-        if not ids_json:
-            return JsonResponse({"status": "error", "message": "No candidates selected"})
+        if not ids_json or not job_opening_id:
+            return JsonResponse({
+                "status": "error",
+                "message": "Missing data"
+            })
 
         try:
             ids = json.loads(ids_json)
-        except:
-            return JsonResponse({"status": "error", "message": "Invalid ID format"})
+        except json.JSONDecodeError:
+            return JsonResponse({
+                "status": "error",
+                "message": "Invalid ID format"
+            })
 
-        job_opening = JobOpening.objects.get(id=job_opening_id)
-        site_url = request.META.get("HTTP_HOST")
+        try:
+            job_opening = JobOpening.objects.get(id=job_opening_id)
+        except JobOpening.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": "Job opening not found"
+            })
+
+        site_url = request.get_host()
 
         for candidate_id in ids:
             try:
                 candidate = Candidate.objects.get(id=candidate_id)
-                send_job_opening_email(request.user, candidate, job_opening, site_url)
+                send_job_opening_email(
+                    request.user,
+                    candidate,
+                    job_opening,
+                    site_url
+                )
+            except Candidate.DoesNotExist:
+                continue   # skip invalid candidate
             except Exception as e:
-                return JsonResponse({"status": "error", "message": str(e)})
+                return JsonResponse({
+                    "status": "error",
+                    "message": str(e)
+                })
 
         return JsonResponse({"status": "success"})
 
@@ -829,6 +1034,83 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
                 'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
             })
         return JsonResponse({'results': results, 'counts': counts})
+from django.db.models import Q
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class ResumeFilterView(LoginRequiredMixin, APIView):
+
+    def get(self, request, *args, **kwargs):
+
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company
+        ).exclude(
+            upload_resume__isnull=True
+        ).exclude(upload_resume="")
+
+                # Candidate Name
+        if request.GET.get('name'):
+            candidates = candidates.filter(name__icontains=request.GET['name'])
+
+        # File Name
+        if request.GET.get('filename'):
+            candidates = candidates.filter(filename__icontains=request.GET['filename'])
+
+        # Designation
+        if request.GET.get('designation'):
+            candidates = candidates.filter(current_designation__icontains=request.GET['designation'])
+
+        # Experience
+        if request.GET.get('experience'):
+            candidates = candidates.filter(experience__gte=request.GET['experience'])
+
+        # Education
+        if request.GET.get('education'):
+            candidates = candidates.filter(education__icontains=request.GET['education'])
+
+        # Location
+        if request.GET.get('location'):
+            candidates = candidates.filter(location__icontains=request.GET['location'])
+
+                # Skill filter (search inside resume text)
+        if request.GET.get('skill'):
+            candidates = candidates.filter(
+                text_content__icontains=request.GET['skill']
+            )
+
+        # Industry filter (also search inside resume text)
+        if request.GET.get('industry'):
+            candidates = candidates.filter(
+                text_content__icontains=request.GET['industry']
+            )
+
+        if request.GET.get('location'):
+            candidates = candidates.filter(
+                location__icontains=request.GET['location']
+            )
+
+
+
+        candidates = candidates.order_by('-updated')
+
+        results = []
+
+        for candidate in candidates:
+            results.append({
+                "id": candidate.id,
+                "filename": candidate.filename,
+                "resume_url": candidate.upload_resume.url,
+                "content": candidate.text_content[:100],
+                "updated": candidate.updated.strftime('%Y-%m-%d')
+            })
+
+        return JsonResponse({
+            "results": results,
+            "counts": f"Filtered {candidates.count()} candidates"
+        })
+
+
 
 class ApplicationListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/application_list.html'
@@ -884,16 +1166,39 @@ class CandidateDetailsView(LoginRequiredMixin, DetailView):
             context['job_opening'] = JobOpening.objects.get(pk=job_opening_id)
 
         return context
-
 class CandidateDeleteView(LoginRequiredMixin, TemplateView):
-    def post(self, request, *args, **kwargs):
-        
-        ids = request.POST.get('ids[]')  # Get list of IDs from POST data
 
-        if ids:
-            ids = [int(id) for id in ids.split(',')]
-            Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
+    def post(self, request, *args, **kwargs):
+
+        ids_str = request.POST.get('ids')  # "1,2,3"
+
+        if not ids_str:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No candidates selected'
+            })
+
+        try:
+            ids = [int(i) for i in ids_str.split(',')]
+        except ValueError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid ID format'
+            })
+
+        Candidate.objects.filter(id__in=ids).delete()
+
         return JsonResponse({'status': 'success'})
+
+# class CandidateDeleteView(LoginRequiredMixin, TemplateView):
+#     def post(self, request, *args, **kwargs):
+        
+#         ids = request.POST.get('ids[]')  # Get list of IDs from POST data
+
+#         if ids:
+#             ids = [int(id) for id in ids.split(',')]
+#             Candidate.objects.filter(id__in=ids).delete()  # Delete candidates with these IDs
+#         return JsonResponse({'status': 'success'})
 
 class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
     title = 'Resume Analysis'
@@ -942,3 +1247,11 @@ class CandidateAnalysisView(LoginRequiredMixin, TemplateView):
         context['has_interview'] = has_interview
 
         return context
+
+
+def build_multi_icontains(field, value):
+    values = [v.strip() for v in value.replace(',', ' ').split() if v.strip()]
+    q = Q()
+    for v in values:
+        q |= Q(**{f"{field}__icontains": v})
+    return q

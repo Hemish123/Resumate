@@ -3,50 +3,194 @@
 {% load crispy_forms_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
 
+<style>
+/* ========== BASE ========== */
+body {
+  background: #f6f7fb;
+  font-family: "Inter", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
+/* ========== PAGE WRAPPER ========== */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 15px;
+}
+
+/* ========== CARD ========== */
+.job-card {
+  width: 100%;
+  max-width: 860px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+/* ========== HEADER ========== */
+.job-header {
+  background: #7367f0;
+  padding: 22px 28px;
+}
+
+.job-header h4 {
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+/* ========== BODY ========== */
+.job-body {
+  padding: 38px 48px;
+}
+
+/* ========== FORM LABELS ========== */
+.form-label, .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600; /* semi-bold */
+  font-size: 14px;
+  color: #4b4b4b;
+}
+
+/* ========== INPUTS ========== */
+.form-control,
+select,
+input[type="file"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  background-color: #fff;
+}
+
+.form-control:focus,
+select:focus,
+input[type="file"]:focus {
+  border-color: #7367f0;
+  box-shadow: 0 0 0 0.15rem rgba(115, 103, 240, 0.25);
+  outline: none;
+}
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+  background: #7367f0;
+  border: none;
+  padding: 10px 34px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background: #5f57e0;
+}
+
+.btn-outline-primary {
+  border-color: #7367f0;
+  color: #7367f0;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.btn-outline-primary:hover {
+  background: #7367f0;
+  color: #fff;
+}
+
+/* Back button outside card */
+.back-outside {
+  position: absolute;
+  top: 25px;
+  left: 40px;
+  font-size: 16px;      
+  padding: 8px 16px;
+}
+
+/* ========== MOBILE ========== */
+@media (max-width: 768px) {
+  .job-body {
+    padding: 28px 22px;
+  }
+
+  .job-card {
+    border-radius: 10px;
+  }
+
+  .row.g-4 > .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+</style>
 {% endblock css %}
 
 {% block body %}
+<div class="page-wrapper">
 
-<div class="content-wrapper">
-            <!-- Content -->
+  <!-- Back Button -->
+  <a href="javascript:history.back()" class="btn btn-outline-primary back-outside">&larr; Back</a>
 
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">Change Position of {{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</h5>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+  <!-- Card -->
+  <div class="card job-card">
+    <div class="card-header job-header d-flex align-items-center">
+      <h4 class="mb-0 text-white"><strong>Change Details of {{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</strong></h4>
+    </div>
+
+    <div class="card-body job-body">
+      <form id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
+            <div class="row g-3 align-items-end">
+
+        <!-- Crispy Form -->
         <div class="row g-6">
-            {{ form|crispy }}
-            <div class="pt-6 mt-0">
-              <button type="submit" class="btn btn-primary me-4">Submit</button>
-            </div>
+          {{ form|crispy }}
+
+          <!-- Custom fields in single line -->
+          <div class="col-md-3">
+            <label class="form-label">Contact</label>
+            <input type="text" name="contact" class="form-control" value="{{ employee.contact }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Designation</label>
+            <input type="text" name="designation" class="form-control" value="{{ employee.designation }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+          </div>
         </div>
       </form>
     </div>
   </div>
 </div>
-
-
-
 {% endblock body %}
 
-
 {% block js %}
-
-    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
-    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
-<!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
-    <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
-    <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
-
-
-
+<script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
+<script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
+<script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
 {% endblock js %}

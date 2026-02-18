@@ -2,117 +2,703 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <style>
+/* ========== BASE ========== */
+body {
+  background: #f6f7fb;
+  font-family: "Inter", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== PAGE WRAPPER ========== */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 15px;
+}
+
+/* ========== CARD ========== */
+.job-card {
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* ========== HEADER ========== */
+.job-header {
+  background: #7367f0;
+  padding: 22px 28px;
+}
+
+.job-header h4 {
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+/* ========== BODY ========== */
+.job-body {
+  padding: 38px 48px;
+}
 
 
+
+/* ========== FORM LABELS ========== */
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #4b4b4b;
+}
+
+/* ========== INPUTS ========== */
+.form-control,
+select,
+input[type="file"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  background-color: #fff;
+}
+
+/* Focus */
+.form-control:focus,
+select:focus,
+input[type="file"]:focus {
+  border-color: #7367f0;
+  box-shadow: 0 0 0 0.15rem rgba(115, 103, 240, 0.25);
+  outline: none;
+}
+
+/* ========== FILE INPUT ========== */
+input[type="file"] {
+  padding: 9px;
+  border: 1px dashed #cfcdf7;
+  background: #fafaff;
+  cursor: pointer;
+}
+
+/* ========== FIELD SPACING ========== */
+.mb-3 {
+  margin-bottom: 22px !important;
+}
+
+/* Horizontal spacing between columns */
+.row.gx-4 {
+  --bs-gutter-x: 1.5rem;
+}
+
+/* ========== ERROR TEXT ========== */
+.text-danger {
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+/* ========== DIVIDER ========== */
+hr {
+  margin: 32px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+  background: #7367f0;
+  border: none;
+  padding: 10px 34px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background: #5f57e0;
+}
+
+/* Add email button */
+.btn-outline-primary {
+  border-color: #7367f0;
+  color: #7367f0;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.btn-outline-primary:hover {
+  background: #7367f0;
+  color: #fff;
+}
+
+/* ========== MOBILE ========== */
+@media (max-width: 768px) {
+  .job-body {
+    padding: 28px 22px;
+  }
+
+  .job-card {
+    border-radius: 10px;
+  }
+}
+.small-email {
+  max-width: 300px;
+  min-height: 38px;
+  font-size: 14px;
+}
+/* Back button positioned outside the card */
+.back-outside {
+  position: absolute;       /* Absolute positioning relative to nearest positioned parent */
+  top: 30px;                /* Distance from top of the page */
+  left: 30px;               /* Distance from left of the page */
+  font-size: 16px;          
+  padding: 8px 16px;
+  text-decoration: none;    /* Remove underline */
+  color: #7367f0;           /* Theme color */
+  background-color: #f0f0ff; /* Light background */
+  border-radius: 6px;
+  border: 1px solid #7367f0;
+  transition: all 0.2s ease;
+}
+
+
+/* ===============================
+   COMMERCIAL TERMS SECTION
+================================= */
+
+h5.mb-3 {
+  font-weight: 600;
+  color: #4b4b4b;
+}
+
+.row > .col-md-6 {
+  margin-bottom: 18px;
+}
+
+select.form-control {
+  background-color: #fafaff;
+  border: 1px solid #dcdcf5;
+}
+
+input[type="number"] {
+  background-color: #fff;
+}
+
+/* ===============================
+   NAV TABS (POC SECTION)
+================================= */
+
+.nav-tabs {
+  border-bottom: 1px solid #eaeaea;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 8px 8px 0 0;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  
+}
+
+.nav-tabs .nav-link:hover {
+  background: #f3f2ff;
+  color: #7367f0;
+}
+
+.nav-tabs .nav-link.active {
+  background: #7367f0;
+  color: #fff !important;
+  box-shadow: 0 -2px 10px rgba(115, 103, 240, 0.2);
+}
+
+/* ===============================
+   POC CARD LIST
+================================= */
+
+#hiring-list .card,
+#payment-list .card {
+  border: none;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+
+#hiring-list .card:hover,
+#payment-list .card:hover {
+  transform: translateY(-3px);
+}
+
+#hiring-list strong,
+#payment-list strong {
+  font-size: 15px;
+  color: #2c2c2c;
+}
+
+#hiring-list small,
+#payment-list small {
+  color: #777;
+}
+
+/* Close button polish */
+.btn-close {
+  transform: scale(0.8);
+  opacity: 0.6;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* ===============================
+   ADD BUTTON STYLE
+================================= */
+
+.btn-sm.btn-primary {
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #7367f0, #5f57e0);
+  border: none;
+}
+
+.btn-sm.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* ===============================
+   POPUP FORM BOX
+================================= */
+
+#poc-form-box {
+  border-radius: 12px;
+  border: none;
+  background: #fdfdff;
+  animation: fadeSlide 0.3s ease;
+}
+
+#poc-form-box h6 {
+  font-weight: 600;
+  color: #7367f0;
+}
+
+/* Smooth animation */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   SECTION DIVIDERS
+================================= */
+
+hr {
+  border-top: 1px solid #f0f0f0;
+  margin: 35px 0;
+}
+
+/* ===============================
+   SUBMIT BUTTON ENHANCEMENT
+================================= */
+
+.text-center .btn-primary {
+  min-width: 200px;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 18px rgba(115, 103, 240, 0.25);
+}
+
+.text-center .btn-primary:hover {
+  transform: translateY(-2px);
+  transition: 0.2s ease;
+}
+
+h4.mb-3 {
+    font-size: 17px;   /* change as needed */
+    font-weight: 600;
+}
+
+    </style>
 {% endblock css %}
-
 {% block body %}
+<div class="page-wrapper">
+   <a href="{% url 'client_list' %}" class="back-btn back-outside">← Back</a>
 
-<div class="content-wrapper">
-            <!-- Content -->
+   <br>
+  <div class="card job-card mt-5">
 
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">New Client</h5>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+    <!-- HEADER -->
+    <div class="card-header job-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0"><strong>Update Client</strong></h4>
+      {% comment %} <a href="{% url 'client_list' %}" class="btn btn-light btn-sm">Back</a> {% endcomment %}
+    </div>
+
+    <!-- BODY -->
+    <div class="card-body job-body">
+
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="row g-6">
+<div class="mb-3">
+    <label class="form-label">Client ID</label>
+    <input type="text"
+           class="form-control"
+           value="{{ client.client_id }}"
+           readonly>
+</div>
+
+        <!-- CLIENT BASIC DETAILS -->
+        <div class="row g-3">
+          {% for field in form %}
           <div class="col-md-6">
-            <div class="row g-6">
-              <div class="col-md-6">
-                <label class="form-label" for="id_name">Name
-                    <span>*</span>
-                </label>
-                <input id="id_name" name="name" class="form-control"
-                       value="{{ form.name.value|default_if_none:'' }}"
-                       required/>
-                {% if form.errors %}
-                  {% for error in form.name.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_location">Location
-                    <span>*</span>
-                </label>
-                <input id="id_location" name="location" class="form-control"
-                       value="{{ form.location.value|default_if_none:'' }}"
-                       required/>
-                {% if form.errors %}
-                  {% for error in form.location.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_contact">Contact
-                    <span>*</span>
-                </label>
-                <input name="contact" type="number" placeholder="0" id="id_contact"
-                       value="{{ form.contact.value|default_if_none:'' }}"
-                       min="0" class="form-control" required/>
-                {% if form.errors %}
-                  {% for error in form.contact.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label for="id_email" class="form-label">Email
-                    <span>*</span>
-                </label>
-                <input id="id_email" name="email"
-                       value="{{ form.email.value|default_if_none:'' }}"
-                       class="form-control" required/>
-                  {% if form.errors %}
-                  {% for error in form.email.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="id_website">Website URL</label>
-                <input id="id_website" name="website"
-                       value="{{ form.website.value|default_if_none:'' }}"
-                       class="form-control"/>
-                {% if form.errors %}
-                  {% for error in form.website.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-              </div>
-            </div>
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-danger">{{ field.errors }}</div>
+            {% endif %}
           </div>
+          {% endfor %}
+        </div>
+<!-- UPLOAD DOCUMENTS -->
+<div class="mb-3">
+    <label class="form-label">Upload Documents</label>
+    <input type="file" name="document_upload" class="form-control" multiple>
+    <small class="text-muted">You can select multiple files.</small>
+</div>
+
+{% if client.documents.all %}
+<h6>Existing Documents</h6>
+<ul>
+    {% for doc in client.documents.all %}
+        <li>
+            <a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name|cut:"documents/" }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+        <hr>
+
+        <!-- POC SECTION -->
+        <h5 class="mb-3">POC Details</h5>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item">
+            <button type="button" class="nav-link active"
+                    onclick="showTab('hiring', event)">
+              Hiring POC
+            </button>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link"
+                    onclick="showTab('payment', event)">
+              Payment POC
+            </button>
+          </li>
+        </ul>
+
+        <!-- HIRING TAB -->
+        <div id="hiring-tab">
+  <div id="hiring-list">
+
+    {% for poc in client.hiring_pocs.all %}
+    <div class="card p-3 mb-3 shadow-sm position-relative">
+
+      <button type="button"
+              class="btn-close position-absolute top-0 end-0 m-2"
+              onclick="this.parentElement.remove()"></button>
+
+      <div class="row">
+        <div class="col-md-6">
+          <input type="text" name="hiring_name[]"
+                 class="form-control mb-2"
+                 value="{{ poc.name }}"
+                 placeholder="Name">
         </div>
 
-        <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+        <div class="col-md-6">
+          <input type="text" name="hiring_designation[]"
+                 class="form-control mb-2"
+                 value="{{ poc.designation }}"
+                 placeholder="Designation">
         </div>
+
+        <div class="col-md-6">
+          <input type="email" name="hiring_email[]"
+                 class="form-control mb-2"
+                 value="{{ poc.email }}"
+                 placeholder="Email">
+        </div>
+
+        <div class="col-md-6">
+          <input type="text" name="hiring_contact[]"
+                 class="form-control mb-2"
+                 value="{{ poc.contact }}"
+                 placeholder="Contact">
+        </div>
+
+        <div class="col-md-6">
+          <input type="url" name="hiring_linkedin[]"
+                 class="form-control mb-2"
+                 value="{{ poc.linkedin }}"
+                 placeholder="LinkedIn">
+        </div>
+
+        <div class="col-md-12">
+          <textarea name="hiring_description[]"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Description">{{ poc.description }}</textarea>
+        </div>
+      </div>
+
+    </div>
+    {% empty %}
+    <!-- If no hiring POC exists -->
+    <div id="hiring-list"></div>
+    {% endfor %}
+
+  </div>
+
+  <button type="button"
+          class="btn btn-primary btn-sm mt-2"
+          onclick="openForm('hiring')">
+    + Add Hiring POC
+  </button>
+</div>
+
+        <!-- PAYMENT TAB -->
+        <div id="payment-tab" class="d-none">
+  <div id="payment-list">
+
+    {% for poc in client.payment_pocs.all %}
+    <div class="card p-3 mb-3 shadow-sm position-relative">
+
+      <button type="button"
+              class="btn-close position-absolute top-0 end-0 m-2"
+              onclick="this.parentElement.remove()"></button>
+
+      <div class="row">
+        <div class="col-md-6">
+          <input type="text" name="payment_name[]"
+                 class="form-control mb-2"
+                 value="{{ poc.name }}"
+                 placeholder="Name">
+        </div>
+
+        <div class="col-md-6">
+          <input type="text" name="payment_designation[]"
+                 class="form-control mb-2"
+                 value="{{ poc.designation }}"
+                 placeholder="Designation">
+        </div>
+
+        <div class="col-md-6">
+          <input type="email" name="payment_email[]"
+                 class="form-control mb-2"
+                 value="{{ poc.email }}"
+                 placeholder="Email">
+        </div>
+
+        <div class="col-md-6">
+          <input type="text" name="payment_contact[]"
+                 class="form-control mb-2"
+                 value="{{ poc.contact }}"
+                 placeholder="Contact">
+        </div>
+
+        <div class="col-md-6">
+          <input type="url" name="payment_linkedin[]"
+                 class="form-control mb-2"
+                 value="{{ poc.linkedin }}"
+                 placeholder="LinkedIn">
+        </div>
+
+        <div class="col-md-12">
+          <textarea name="payment_description[]"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Description">{{ poc.description }}</textarea>
+        </div>
+      </div>
+
+    </div>
+    {% empty %}
+    <div id="payment-list"></div>
+    {% endfor %}
+
+  </div>
+
+  <button type="button"
+          class="btn btn-primary btn-sm mt-2"
+          onclick="openForm('payment')">
+    + Add Payment POC
+  </button>
+</div>
+<!-- POC POPUP FORM -->
+<div id="poc-form-box" class="card shadow p-4 mt-3 d-none">
+  <h6 id="form-title" class="mb-3"></h6>
+
+  <div class="row">
+    <div class="col-md-6">
+      <input type="text" id="p_name" class="form-control mb-2" placeholder="Name">
+    </div>
+
+    <div class="col-md-6">
+      <input type="text" id="p_designation" class="form-control mb-2" placeholder="Designation">
+    </div>
+
+    <div class="col-md-6">
+      <input type="email" id="p_email" class="form-control mb-2" placeholder="Email">
+    </div>
+
+    <div class="col-md-6">
+      <input type="text" id="p_contact" class="form-control mb-2" placeholder="Contact">
+    </div>
+
+    <div class="col-md-6">
+      <input type="url" id="p_linkedin" class="form-control mb-2" placeholder="LinkedIn">
+    </div>
+
+    <div class="col-md-12">
+      <textarea id="p_description"
+                class="form-control mb-2"
+                rows="2"
+                placeholder="Description"></textarea>
+    </div>
+  </div>
+
+  <div class="text-end">
+    <button type="button"
+            class="btn btn-primary btn-sm"
+            onclick="savePOC()">Save</button>
+
+    <button type="button"
+            class="btn btn-secondary btn-sm"
+            onclick="closeForm()">Cancel</button>
+  </div>
+</div>
+
+        <hr>
+
+        <!-- SUBMIT -->
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary px-4">
+            Update Client
+          </button>
+        </div>
+
       </form>
     </div>
   </div>
 </div>
-
-
-
 {% endblock body %}
 
 
 {% block js %}
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
-    <script src="{% static 'dashboard/vendor/libs/select2/select2.js' %}"></script>
-    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/popular.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/bootstrap5.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/@form-validation/auto-focus.js' %}"></script>
-<!--    <script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>-->
-    <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
-    <script src="{% static 'dashboard/js/job_opening_create.js' %}"></script>
+<script>
+let currentType = "";
 
+function showTab(type, event) {
+  document.getElementById("hiring-tab").classList.add("d-none");
+  document.getElementById("payment-tab").classList.add("d-none");
 
+  document.getElementById(type + "-tab").classList.remove("d-none");
 
+  document.querySelectorAll(".nav-link")
+    .forEach(btn => btn.classList.remove("active"));
+
+  event.target.classList.add("active");
+}
+
+function openForm(type) {
+  currentType = type;
+  document.getElementById("form-title").innerText =
+      type === "hiring" ? "Add Hiring POC" : "Add Payment POC";
+  document.getElementById("poc-form-box").classList.remove("d-none");
+}
+
+function closeForm() {
+  document.getElementById("poc-form-box").classList.add("d-none");
+}
+
+function savePOC() {
+
+  let name = p_name.value;
+  let designation = p_designation.value;
+  let email = p_email.value;
+  let contact = p_contact.value;
+  let linkedin = p_linkedin.value;
+  let description = p_description.value;
+
+  if (!name || !email) {
+    alert("Name and Email required");
+    return;
+  }
+
+  let container = document.getElementById(currentType + "-list");
+
+  let card = document.createElement("div");
+  card.className = "card p-3 mb-3 shadow-sm position-relative";
+
+  card.innerHTML = `
+    <button type="button"
+            class="btn-close position-absolute top-0 end-0 m-2"
+            onclick="this.parentElement.remove()"></button>
+
+    <div class="row">
+      <div class="col-md-6">
+        <input type="text" name="${currentType}_name[]" class="form-control mb-2" value="${name}">
+      </div>
+
+      <div class="col-md-6">
+        <input type="text" name="${currentType}_designation[]" class="form-control mb-2" value="${designation}">
+      </div>
+
+      <div class="col-md-6">
+        <input type="email" name="${currentType}_email[]" class="form-control mb-2" value="${email}">
+      </div>
+
+      <div class="col-md-6">
+        <input type="text" name="${currentType}_contact[]" class="form-control mb-2" value="${contact}">
+      </div>
+
+      <div class="col-md-6">
+        <input type="url" name="${currentType}_linkedin[]" class="form-control mb-2" value="${linkedin}">
+      </div>
+
+      <div class="col-md-12">
+        <textarea name="${currentType}_description[]" class="form-control" rows="2">${description}</textarea>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(card);
+
+  document.querySelectorAll("#poc-form-box input, #poc-form-box textarea")
+    .forEach(el => el.value = "");
+
+  closeForm();
+}
+
+</script>
 {% endblock js %}

@@ -14,7 +14,7 @@
 <div class="card">
     <div class="card-datatable p-5">
         <div class="d-flex justify-content-between">
-            <h5 id="datatable-title" class="card-title mb-0">Resumes</h5>
+            <h5 id="datatable-title" class="card-title mb-0"><strong>RESUMES</strong></h5>
             <div class="d-flex justify-content-end mb-2">
                 <input id="search-input" class="form-control me-2" />
                 <button id="search-button" class="btn btn-outline-success">
@@ -68,9 +68,12 @@
                     </div>
                 </div>
             </div>
-
-
         </div>
+        <div class="row">
+
+    <!-- TABLE -->
+    <div class="col-lg-9">
+        <div class="card p-4">
         <div id="count" class="m-2 mt-4"><p>{{ counts }}</p></div>
         <table id="resume-table" class="table">
             <thead>
@@ -81,7 +84,7 @@
                     <th>Updated</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="resume-body">
                 {% for candidate in candidates %}
                 {% if candidate.upload_resume %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
@@ -97,6 +100,26 @@
     </div>
 </div>
 
+    <!-- RIGHT FILTER -->
+   <div class="col-lg-3">
+    <div class="card p-3">
+        <h6><strong>Filters</strong></h6>
+
+        <input type="text" id="filter-name" class="form-control mb-2" placeholder="Candidate Name">
+        <input type="text" id="filter-filename" class="form-control mb-2" placeholder="File Name">
+        <input type="text" id="filter-location" class="form-control mb-2"placeholder="Current Location">
+
+        <input type="text" id="filter-designation" class="form-control mb-2" placeholder="Current Designation">
+        <input type="number" id="filter-experience" class="form-control mb-2" placeholder="Experience (yrs)">
+        <input type="text" id="filter-education" class="form-control mb-2" placeholder="Education">
+
+        <input type="text" id="filter-skill" class="form-control mb-2" placeholder="Skill">
+        <input type="text" id="filter-industry" class="form-control mb-2" placeholder="Industry">
+        
+    </div>
+</div>
+
+</div>
 {% endblock content %}
 
 {% block js %}

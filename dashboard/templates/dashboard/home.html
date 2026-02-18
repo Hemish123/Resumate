@@ -3,47 +3,219 @@
 
 {% block content %}
 <style>
-  /* Card hover effect */
-  .hover-scale-up:hover {
-    transform: scale(1.05); /* Slightly enlarge the card on hover */
-    transition: transform 0.3s ease; /* Smooth transition */
-  }
 
-  /* Custom styling for job cards */
-  .card {
-    border-radius: 15px;
-    background-color: #fff;
-    transition: box-shadow 0.3s ease;
-  }
+/* ================= GLOBAL ================= */
+body {
+  background: #f2f4fb;
+  animation: fadeIn 0.6s ease-in-out;
+}
 
-  .card:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .card-body {
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-  }
+/* ================= HERO BANNER ================= */
+.bg-gradient-primary {
+  background: linear-gradient(120deg, #6a4bff, #8b6bff);
+  border-radius: 22px;
+  box-shadow: 0 12px 32px rgba(106, 75, 255, 0.28);
+  position: relative;
+  overflow: hidden;
+}
 
-  /* Job image and details section */
-  .me-4 {
-    margin-right: 1.5rem;
-  }
+/* subtle pattern overlay */
+.bg-gradient-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("https://cdn-icons-png.flaticon.com/512/943/943536.png");
+  opacity: 0.03;
+}
 
-  .img-fluid {
-    max-width: 100%;
-    height: auto;
-  }
+/* ================= METRIC CARDS ================= */
+.card {
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e9ff;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.32s ease;
+}
 
-  .fw-bold {
-    font-weight: bold;
-  }
+/* glass glow border (only for metric cards) */
+.row.g-4.mt-4 .card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(120deg, #6a4bff, #8b6bff);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: 20px;
+}
 
-  .fs-18 {
-    font-size: 1.125rem;
-  }
+/* main hover effect for top cards only */
+.row.g-4.mt-4 .hover-scale-up:hover {
+  transform: translateY(-7px) scale(1.02);
+  box-shadow: 0 16px 38px rgba(106, 75, 255, 0.18);
+  border-color: transparent;
+}
+
+/* activate glow only on top metric cards */
+.row.g-4.mt-4 .card:hover::after {
+  opacity: 1;
+}
+
+/* smooth icon zoom */
+.row.g-4.mt-4 .card img {
+  transition: transform 0.28s ease;
+}
+.row.g-4.mt-4 .card:hover img {
+  transform: scale(1.1);
+}
+
+/* metric number stronger */
+h4.fw-bold {
+  font-size: 30px;
+  letter-spacing: 0.3px;
+  color: #2b2b2b;
+}
+
+/* ================= RECENT OPENINGS CONTAINER ================= */
+/* Outer container stays clean white — NO HOVER */
+.card.border-0 {
+  background: #ffffff;
+  box-shadow: none;
+  border-radius: 18px;
+  padding: 12px;
+}
+
+/* Keep heading black (as you set) */
+.card.border-0 h3 {
+  color: #000000 !important;
+}
+
+/* View All link style */
+.card.border-0 a.text-primary {
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.card.border-0 a.text-primary:hover {
+  text-decoration: underline;
+  letter-spacing: 0.3px;
+}
+
+/* ================= JOB CARD (EACH OPENING) ================= */
+
+/* base look of each job card */
+.card.shadow-sm.border-0.rounded-3.p-3.mb-3 {
+  background: #ffffff;
+  transition: all 0.3s ease;
+  border: 1px solid #e5e9ff;
+}
+
+/* highlight ONLY job cards on hover */
+.card.shadow-sm.border-0.rounded-3.p-3.mb-3:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(106, 75, 255, 0.18);
+  border-color: #6a4bff;
+}
+
+/* soft glow line on hover */
+.card.shadow-sm.border-0.rounded-3.p-3.mb-3::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #6a4bff, #8b6bff);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.card.shadow-sm.border-0.rounded-3.p-3.mb-3:hover::after {
+  opacity: 0.6;
+}
+
+/* job title */
+.fs-18 {
+  font-size: 18px;
+  color: #2b2b2b;
+}
+
+/* right side stats softer */
+.card-text {
+  font-size: 14px;
+  color: #555;
+}
+
+/* ================= OVERLAP FIX ================= */
+.row.g-4.mt-4 {
+  margin-bottom: 30px !important;
+}
+
+/* ================= BOTTOM BANNER ================= */
+.bg-black,
+.bg-dark {
+  background: #1f1f2e !important;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+/* Make "Upgrade to Pro" white */
+.card.bg-dark h3 {
+  color: #ffffff !important;
+}
+
+.text-fade {
+  color: #b3b3c7;
+}
+
+/* image float effect */
+.bg-dark img {
+  transition: transform 0.3s ease;
+}
+.bg-dark img:hover {
+  transform: translateY(-5px);
+}
+/* ======== SPACE BETWEEN RECENT OPENINGS & BLACK CARD ======== */
+
+/* add breathing space above black section */
+.box.rounded-3.bg-black {
+  margin-top: 40px !important;
+}
+
+/* extra internal padding for better look */
+.box.rounded-3.bg-black .box-body {
+  padding: 30px 20px !important;
+}
+
+/* ======== IMPROVE BLACK CARD LOOK ======== */
+
+.card.bg-dark {
+  border-radius: 24px !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35) !important;
+  background: linear-gradient(135deg, #1f1f2e, #242434) !important;
+}
+
+/* make text clearer on black card */
+.card.bg-dark h5,
+.card.bg-dark h3 {
+  letter-spacing: 0.3px;
+}
+
+/* smooth hover lift on black card */
+.card.bg-dark {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card.bg-dark:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
 </style>
+
 
 <div class="row">
   <div class="col-12">
@@ -128,46 +300,44 @@
 
 </div>
   <!-- Flex container to keep both "Recent Openings" and "View All Jobs" on the same line -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-left text-dark mb-0">Recent Openings</h3>
+  <div class="card border-0 ">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-dark mb-0">Recent Openings</h3>
     <a href="{% url 'job-opening' %}" class="text-primary fw-bold">View All Openings</a>
   </div>
 
-  <div class="row col-12">
-    {% for job in recent_openings %}
-      <div class="col-md-12 mb-4">
-        <a href="{% url 'job-process' job.id %}" class="text-decoration-none">
-          <div class="card shadow-sm border-0 rounded-lg hover-scale-up">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <!-- Left section with job title and company -->
-              <div class="d-flex align-items-center">
-                <div class="d-flex flex-column">
-                  <span class="text-dark fw-bold mb-1 fs-18 hover-primary">{{ job.designation }}</span>
-                  <span class="text-muted fs-14">{{ job.company }}, {{ job.updated_on|date:"F j, Y" }}</span>
-                </div>
-              </div>
+  {% for job in recent_openings %}
+  <a href="{% url 'job-process' job.id %}" class="text-decoration-none">
+    <div class="card shadow-sm border-0 rounded-3 p-3 mb-3 hover-scale-up">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-dark fw-bold fs-18">{{ job.designation }}</span><br>
+          <span class="text-muted fs-14">
+            {{ job.company }}, {{ job.updated_on|date:"F j, Y" }}
+          </span>
+        </div>
 
-              <!-- Right section with job stats -->
-              <div class="text-end">
-                <p class="m-0 card-text">Open Positions: {{ job.openings }}</p>
-                <p class="m-0 card-text">No. of Applicants: {{ job.candidate_set.count }}</p>
-                <p class="m-0 text-muted fs-14">Expires in: {{ job.days_remaining }} days</p>
-              </div>
-            </div>
-          </div>
-        </a>
+        <div class="text-end">
+          <p class="m-0">Open Positions: {{ job.openings }}</p>
+          <p class="m-0">No. of Applicants: {{ job.candidate_set.count }}</p>
+          <p class="m-0 text-muted">Expires in: {{ job.days_remaining }} days</p>
+        </div>
       </div>
-    {% endfor %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
 
-  </div>
 </div>
 <div class="row">
   <div class="col-12">
     <div class="box rounded-3 bg-black">
       <div class="box-body pe-0 ps-lg-50 ps-15 py-4">
+        <div class="card border-0 shadow-lg rounded-4 bg-dark text-white p-4 mt-4">
+
         <div class="row align-items-center">
           <!-- Left Section: JiviHire Box -->
-          <div class="col-12 col-lg-8 d-flex align-items-center">
+          <div class=" col-lg-8">
             <div class="content">
               <h5 class="text-white ms-4">RecruitSmart</h5>
               <h3 class="mt-25 fw-500 text-white ms-4">Upgrade to Pro</h3>

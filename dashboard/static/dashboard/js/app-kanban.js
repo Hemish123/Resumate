@@ -3,6 +3,16 @@
  */
 
 'use strict';
+
+function formatMovedAt(dt) {
+  if (!dt) return "";
+  return `
+  <div class="kanban-date mt-1">
+    <i class="ti ti-calendar me-1"></i>
+    ${moment(dt).format("DD MMM YYYY hh:mm A")}
+  </div>`;
+}
+
 // Utility function to get CSRF token from cookies
 function getCookie(name) {
     let cookieValue = null;
@@ -77,19 +87,37 @@ function createToastContainer() {
   const stages = await kanbanResponse.json();
 
 boards = stages.map(stage => ({
-    id: String(stage.id),
-    title: stage.name,
-    item: stage.candidates.map(candidateStage => ({
+  id: String(stage.id),
+  title: stage.name,
+  item: stage.candidates.map(candidateStage => {
+    // const movedAt = candidateStage.moved_at || candidateStage.movedAt;
+    const movedAt = candidateStage.moved_at || new Date().toISOString();
+
+    return {
       id: String(candidateStage.id),
-      title: candidateStage.candidate.name,
+      title: `
+        ${renderHeader(candidateStage.candidate.name)}
+        <span class='d-flex flex-wrap me-2 align-items-start'>
+          ${candidateStage.candidate.email}
+    ${formatMovedAt(movedAt) ? `
+            <div class="kanban-date mt-1">
+              <i class="ti ti-calendar me-1"></i>
+              ${moment(movedAt).format("DD MMM YYYY hh:mm A")}
+            </div>
+          ` : ''}
+        </span>
+        ${renderFooter(candidateStage.candidate.analysis?.specific_value ?? 0)}
+      `,
       contact: candidateStage.candidate.contact,
       email: candidateStage.candidate.email,
-      feedback:candidateStage.candidate.feedback,
-      candidateId: candidateStage.candidate.id,  // Store candidate ID here
-      responseText: candidateStage.candidate.analysis?.specific_value
+      feedback: candidateStage.candidate.feedback,
+      candidateId: candidateStage.candidate.id,
+      responseText: candidateStage.candidate.analysis?.specific_value,
 
-    }))
-  }));
+      movedat: movedAt // ✅ THIS FIXES EVERYTHING
+    };
+  })
+}));
 const excludedCandidateIds = new Set(
         boards.flatMap(board => board.item.map(candidate => candidate.candidateId))
 );
@@ -447,8 +475,16 @@ const excludedCandidateIds = new Set(
       if (response.ok) {
         const stage = await response.json();
         const newCandidate = stage.candidates[stage.candidates.length - 1];
-//
-//        // Add the new candidate to the kanban board
+
+        // const movedAt = newCandidate.moved_at;
+        const movedAt = newCandidate.moved_at || new Date().toISOString();
+
+        const dateHtml = formatMovedAt(movedAt)
+          ? `<div class="text-muted small mt-1">
+                <i class="ti ti-calendar me-1"></i>${moment(movedAt).format("DD MMM YYYY")}
+            </div>`
+          : "";
+        // Add the new candidate to the kanban board
         kanban.addElement(id, {
           id: newCandidate.id,
           title: `${renderHeader(newCandidate.candidate.name)}
@@ -456,7 +492,9 @@ const excludedCandidateIds = new Set(
                     ${newCandidate.candidate.email}
 
                   </span>
-                  ${renderFooter(newCandidate.candidate.feedback ? newCandidate.candidate.feedback : 0)}`
+                  ${dateHtml}
+                  ${renderFooter(newCandidate.candidate.analysis?.specific_value ?? 0)}`
+                  // ${renderFooter(newCandidate.candidate.feedback ? newCandidate.candidate.feedback : 0)}`
         });
         const newElement = document.querySelector(`.kanban-item[data-eid='${newCandidate.id}']`);
 //          const title = newElement.getAttribute('data-eid')
@@ -467,6 +505,7 @@ const excludedCandidateIds = new Set(
         newElement.setAttribute('data-contact', newCandidate.candidate.contact);
         newElement.setAttribute('data-feedback', newCandidate.candidate.feedback);
         newElement.setAttribute('data-candidateId', newCandidate.candidate.id);
+        newElement.setAttribute('data-movedat',newCandidate.moved_at)
         newElement.classList.remove('is-moving');
 
               // add drag and drop functionality for new items
@@ -537,7 +576,21 @@ const excludedCandidateIds = new Set(
     }
   });
 
+setTimeout(() => {
+  boards.forEach(board => {
+    board.item.forEach(item => {
+      const el = document.querySelector(`.kanban-item[data-eid='${item.id}']`);
+      if (!el) return;
 
+      el.setAttribute('data-email', item.email);
+      el.setAttribute('data-contact', item.contact);
+      el.setAttribute('data-feedback', item.feedback);
+      el.setAttribute('data-candidateId', item.candidateId);
+      el.setAttribute('data-responseText', item.responseText);
+      el.setAttribute('data-movedat', item.movedAt); // ✅ DATE
+    });
+  });// 
+}, 200);
 
 
 // Apply background color to boards
@@ -581,9 +634,14 @@ applyBoardColors();
 
 
 // drop update order item
-  async function ItemDrop(el, target, source, sibling) {
+async function ItemDrop(el, target, source, sibling) {
   const stageId = target.parentElement.getAttribute('data-id');
   const candidateId = el.dataset.eid;
+  const stageName = target.parentElement
+    .querySelector('.kanban-title-board')
+    .textContent
+    .trim()
+    .toLowerCase();
 
   // Create the order array
   const item_order = Array.from(target.children).map((item, index) => ({
@@ -591,11 +649,18 @@ applyBoardColors();
     order: index + 1
   }));
 
+let ccEmails = [];
+
+if (stageName === "sent to client") {
+  // call your popup function
+  ccEmails = await window.getSelectedClientEmails(jobOpeningId);
+}
+
     // Show the modal to confirm sending an email
   const shouldSendEmail = await new Promise((resolve) => {
     const confirmEmailModal = new bootstrap.Modal(document.getElementById('confirmEmailModal'));
     confirmEmailModal.show();
-
+    
     document.getElementById('confirmSendEmail').addEventListener('click', () => {
       confirmEmailModal.hide();
       resolve(true); // User confirmed to send email
@@ -605,6 +670,8 @@ applyBoardColors();
       confirmEmailModal.hide();
       resolve(false); // User declined to send email
     });
+   
+
   });
 
   try {
@@ -618,7 +685,9 @@ applyBoardColors();
       body: JSON.stringify({
       'order': item_order,
       'stage_id': stageId,
-      'send_email': shouldSendEmail // Include email confirmation flag
+      'send_email': shouldSendEmail, // Include email confirmation flag
+      'cc_emails': ccEmails,
+
       })
     });
 
@@ -632,6 +701,16 @@ applyBoardColors();
   } catch (error) {
     console.error('Error updating order:', error);
   }
+  // ---- UI AUTO UPDATE DATE TIME AFTER MOVE ----
+  const now = new Date().toISOString();
+  el.setAttribute('data-movedat', now);
+
+  // UI ma date replace karo
+  const dateEl = el.querySelector('.kanban-date');
+  if (dateEl) {
+    dateEl.outerHTML = formatMovedAt(now);
+  }
+
 }
 
 // drop update order board
@@ -672,56 +751,15 @@ applyBoardColors();
   const kanbanContainer = document.querySelector('.kanban-container'),
     kanbanTitleBoard = [].slice.call(document.querySelectorAll('.kanban-title-board')),
     kanbanItem = [].slice.call(document.querySelectorAll('.kanban-item'));
+    
 
-  // Render custom items
-  if (kanbanItem) {
-    kanbanItem.forEach(function (el) {
+  // Render custom items (ONLY footer, no header)
+if (kanbanItem) {
+  kanbanItem.forEach(function (el) {
+    const response = el.getAttribute('data-responseText');
+  });
+}
 
-    var element = '';
-    var name = el.textContent;
-    el.textContent = '';
-    if (el.getAttribute('data-email') !== undefined) {
-      element = "<span class='d-flex flex-wrap me-2 align-items-start'>" + el.getAttribute('data-email') + '</span>';
-      }
-      let img = '';
-      if (el.getAttribute('data-image') !== null) {
-        img =
-          "<img class='img-fluid rounded mb-2' src='" +
-          assetsPath +
-          'img/elements/' +
-          el.getAttribute('data-image') +
-          "'>";
-      }
-//      el.textContent = '';
-//      if (el.getAttribute('data-email') !== undefined) {
-        el.insertAdjacentHTML(
-          'afterbegin',
-//          renderHeader(el.getAttribute('data-email')) + element
-          renderHeader(name) + element
-
-        );
-//        console.log('e', element, el.textContent);
-
-//      }
-      if (
-        el.getAttribute('data-responseText') !== 'undefined'
-      ) {
-        el.insertAdjacentHTML(
-          'beforeend',
-          renderFooter(
-            el.getAttribute('data-responseText')
-
-          )
-        );
-      }
-      else {
-      el.insertAdjacentHTML(
-          'beforeend',
-          renderFooter(0)
-        );
-      }
-    });
-  }
 
   // To initialize tooltips for rendered items
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

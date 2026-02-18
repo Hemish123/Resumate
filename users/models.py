@@ -20,12 +20,14 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
-
 class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')  # Link to User model
     contact = models.CharField(max_length=12, unique=True, blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='employees', null=True)
     joined = models.DateTimeField(default=timezone.now)
-
+    name = models.CharField(max_length=255, blank=True, null=True)        # New
+    designation = models.CharField(max_length=255, blank=True, null=True) # New
+    profile_pic = models.ImageField(upload_to='profile_pics/',blank=True,null=True,default='profile_pics/default.png')
+    
     def __str__(self):
         return self.user.username

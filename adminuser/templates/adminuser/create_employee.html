@@ -7,75 +7,262 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/@form-validation/form-validation.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
 
+    <style>
+        /* ========== BASE ========== */
+        body {
+          background: #f6f7fb;
+          font-family: "Inter", Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+        }
 
+        /* ========== PAGE WRAPPER ========== */
+        .page-wrapper {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 30px 15px;
+        }
+
+        /* ========== CARD ========== */
+        .job-card {
+          width: 100%;
+          max-width: 860px;
+          background: #fff;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+          overflow: hidden;
+        }
+
+        /* ========== HEADER ========== */
+        .job-header {
+          background: #7367f0;
+          padding: 22px 28px;
+        }
+
+        .job-header h4 {
+          color: #fff;
+          font-weight: 600;
+          font-size: 18px;
+          letter-spacing: 0.3px;
+        }
+
+        /* ========== BODY ========== */
+        .job-body {
+          padding: 38px 48px;
+        }
+
+        /* ========== FORM LABELS ========== */
+        .form-label, .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600; /* semi-bold */
+          font-size: 14px;
+          color: #4b4b4b;
+        }
+
+        /* ========== INPUTS ========== */
+        .form-control,
+        select,
+        input[type="file"] {
+          width: 100%;
+          min-height: 46px;
+          padding: 10px 14px;
+          font-size: 15px;
+          border-radius: 6px;
+          border: 1px solid #dcdcdc;
+          background-color: #fff;
+        }
+
+        /* Focus */
+        .form-control:focus,
+        select:focus,
+        input[type="file"]:focus {
+          border-color: #7367f0;
+          box-shadow: 0 0 0 0.15rem rgba(115, 103, 240, 0.25);
+          outline: none;
+        }
+
+        /* ========== FILE INPUT ========== */
+        input[type="file"] {
+          padding: 9px;
+          border: 1px dashed #cfcdf7;
+          background: #fafaff;
+          cursor: pointer;
+        }
+
+        /* ========== FIELD SPACING ========== */
+        .mb-3 {
+          margin-bottom: 22px !important;
+        }
+
+        /* Horizontal spacing between columns */
+        .row.gx-4 {
+          --bs-gutter-x: 1.5rem;
+        }
+
+        /* ========== ERROR TEXT ========== */
+        .text-danger, .error-message {
+          font-size: 13px;
+          margin-top: 5px;
+        }
+
+        /* ========== DIVIDER ========== */
+        hr {
+          margin: 32px 0;
+          border: none;
+          border-top: 1px solid #eee;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+          background: #7367f0;
+          border: none;
+          padding: 10px 34px;
+          font-size: 15px;
+          font-weight: 500;
+          border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+          background: #5f57e0;
+        }
+
+        /* Add email button */
+        .btn-outline-primary {
+          border-color: #7367f0;
+          color: #7367f0;
+          font-size: 13px;
+          padding: 6px 14px;
+        }
+
+        .btn-outline-primary:hover {
+          background: #7367f0;
+          color: #fff;
+        }
+
+        /* Small email input */
+        .small-email {
+          max-width: 300px;
+          min-height: 38px;
+          font-size: 14px;
+        }
+
+        /* Back button outside card */
+        .back-outside {
+          position: absolute;
+          top: 25px;
+          left: 40px;
+          font-size: 16px;      
+          padding: 8px 16px;
+        }
+
+        /* ========== MOBILE ========== */
+        @media (max-width: 768px) {
+          .job-body {
+            padding: 28px 22px;
+          }
+
+          .job-card {
+            border-radius: 10px;
+          }
+        }
+        .job-card {
+            width: 100%;
+            max-width: 860px; /* Card width fixed to 860px */
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 0 auto; /* center the card */
+            }
+.job-header .btn-outline-primary {
+  border-color: #fff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 12px;
+}
+
+.job-header .btn-outline-primary:hover {
+  background: #fff;
+  color: #7367f0;
+}
+
+    </style>
 {% endblock css %}
-
 {% block body %}
+<div class="page-wrapper">
 
-<div class="content-wrapper">
-            <!-- Content -->
+  <!-- Back Button outside card -->
+  <a href="javascript:history.back()" class="btn btn-outline-primary back-outside">
+    &larr; Back
+  </a>
 
-  <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card mb-6">
-      <h5 class="card-header">New Employee</h5>
-      <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
+  <!-- Card -->
+  <div class="card job-card">
+
+    <!-- Header -->
+    <div class="card-header job-header d-flex align-items-center">
+      <h4 class="mb-0 text-white"><strong>New Employee</strong></h4>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body job-body">
+      <form id="formAuthentication" enctype="multipart/form-data" method="post">
         {% csrf_token %}
-        <div class="row g-6">
-<!--            {{ form|crispy }}-->
-            {% if form.errors %}
+        {{ form.non_field_errors }}
+    <div class="row g-3 align-items-end">
 
-                {% for field, errors in form.errors.items %}
-                      {% for error in errors %}
-                          <div class="error-message text-danger">{{ error }}</div>
-                      {% endfor %}
-                  {% endfor %}
+        <div class="row g-4">
+          <div class="col-md-6 mb-3">
+            <label for="id_name" class="form-label">Full Name</label>
+            <input type="text" name="name" maxlength="255" class="form-control" id="id_name" required>
+          </div>
 
-            {% endif %}
+          <div class="col-md-6 mb-3">
+            <label for="id_contact" class="form-label">Phone Number</label>
+            <input type="text" name="contact" maxlength="12" class="form-control" id="id_contact" required>
+          </div>
 
-                <div id="div_id_email" class="form-group">
-                    <label for="id_email" class="">
-                        Email address
-                    </label>
-                    <div>
-                        <input type="email" name="email" maxlength="254" class="emailinput form-control" id="id_email" required>
-                    </div>
-                </div>
-                <div id="div_id_groups" class="form-group">
-                    <label for="id_groups" class="">
-                        Groups
-                    </label>
-                <div>
-                    <select name="groups" class="selectmultiple select2 form-select form-control" required aria-describedby="id_groups_helptext" id="id_groups" multiple="">
-                        {% if request.user.employee.company.name == "demo" %}
-                        <option value="2">manager</option>
-                        <option value="3">recruiter</option>
-                        {% else %}
-                        <option value="1">admin</option>
-                        <option value="2">manager</option>
-                        <option value="3">recruiter</option>
-                        {% endif %}
+          <div class="col-md-6 mb-3">
+            <label for="id_designation" class="form-label">Designation</label>
+            <input type="text" name="designation" maxlength="255" class="form-control" id="id_designation" required>
+          </div>
 
-                    </select>
-                    <small id="hint_id_groups" class="form-text text-muted">
-                        The groups this user belongs to. A user will get all permissions granted to each of their groups.
-                    </small>
-                </div>
-            </div>
+          <div class="col-md-6 mb-3">
+            <label for="id_email" class="form-label">Email address</label>
+            <input type="email" name="email" maxlength="254" class="form-control" id="id_email" required>
+          </div>
 
-            <div class="pt-6 mt-0">
-              <button type="submit" class="btn btn-primary me-4 waves-effect waves-light">Submit</button>
-            </div>
-
+          <div class="col-md-12 mb-3">
+            <label for="id_groups" class="form-label">Role</label>
+            <select name="groups" class="selectmultiple select2 form-select form-control" required id="id_groups" multiple>
+              {% if request.user.employee.company.name == "demo" %}
+                <option value="2">manager</option>
+                <option value="3">recruiter</option>
+              {% else %}
+                <option value="1">admin</option>
+                <option value="2">manager</option>
+                <option value="3">recruiter</option>
+              {% endif %}
+            </select>
+            <small id="hint_id_groups" class="form-text text-muted">
+              The groups this user belongs to. A user will get all permissions granted to each of their groups.
+            </small>
+          </div>
         </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary px-5">Submit</button>
+        </div>
+    </div>
       </form>
+
     </div>
   </div>
 </div>
-
-
-
 {% endblock body %}
-
 
 {% block js %}
 

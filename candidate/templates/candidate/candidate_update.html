@@ -89,6 +89,15 @@
                   {% endif %}
               </div>
               <div class="col-md-4">
+    <label for="id_college" class="form-label">College / University</label>
+    <input id="id_college" name="college" type="text" value="{{ form.college.value|default_if_none:'' }}" class="form-control"/>
+    {% if form.errors %}
+        {% for error in form.college.errors %}
+            <div class="error-message text-danger">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
+              <div class="col-md-4">
                 <label class="form-label" for="id_linkedin">LinkedIn (URL)
                 </label>
                 <input id="id_linkedin" type="text" name="linkedin" value="{{ form.linkedin.value|default_if_none:'' }}" class="form-control"/>

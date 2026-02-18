@@ -31,6 +31,7 @@ from .utils import send_hired_email, send_rejected_email, send_stage_change_emai
 from django.db.models import Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .utils import send_stage_to_client_email
 
 
 def email_action(request, candidate_id, action):
@@ -211,6 +212,7 @@ class StageAPIView(APIView):
         stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')
         if not stages.exists():
             Stage.objects.create(job_opening_id=job_opening_id, name='Initial Stage', order=1)
+
             Stage.objects.create(job_opening_id=job_opening_id, name='Hired', order=10)
             stages = Stage.objects.filter(job_opening_id=job_opening_id).order_by('order')  # Refresh queryset after creating stage
 
@@ -247,7 +249,7 @@ class StageAPIView(APIView):
             order = CandidateStage.objects.filter(stage_id=stageid).aggregate(Max('order'))['order__max'] or 0
             candidate = Candidate.objects.get(id=candidateid)
             candidate.job_openings.add(job_opening)
-            candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=order+1)
+            candidate_stage = CandidateStage(stage=stage, candidate=candidate, order=order+1,moved_at=timezone.now())
             candidate_stage.save()
 
         serializer = self.serializer_class(stage)
@@ -257,6 +259,7 @@ class StageAPIView(APIView):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
         send_email = request.data.get('send_email', False)  # New flag
+        cc_emails = request.data.get("cc_emails", [])
         job_opening_id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(id=job_opening_id)
         if stage_id:
@@ -264,18 +267,51 @@ class StageAPIView(APIView):
             for item in order:
                 candidate_stage_id = item.get('id')
                 candidate_order = item.get('order')
-                CandidateStage.objects.filter(id=candidate_stage_id).update(order=candidate_order, stage=stage)
+                assigned_recruiters = job_opening.assignemployee.all()
+
+                CandidateStage.objects.filter(id=candidate_stage_id).update(order=candidate_order, stage=stage,moved_at=timezone.now())
 
                 # send email to candidate
                 candidate_stage = CandidateStage.objects.get(id=candidate_stage_id)
                 candidate = candidate_stage.candidate
                 if send_email:
-                    if stage.name == 'Hired':
-                        send_hired_email(request.user, candidate, job_opening)
-                    elif stage.name == 'Rejected':
-                        send_rejected_email(request.user, candidate, job_opening)
-                    else :
-                        send_stage_change_email(request.user, candidate, job_opening, stage)
+
+                    # --- 1) FIRST: send mail to CLIENT with CC ---
+                    if stage.name == "Sent to Client":
+                        # pick first recruiter as sender
+                        recruiter = assigned_recruiters.first()
+
+                        send_stage_to_client_email(
+                            recruiter=recruiter,
+                            candidate=candidate,
+                            job_opening=job_opening,
+                            cc_list=cc_emails,
+                            request=request,  
+                        )
+
+                    # --- 2) THEN: send mails to recruiters ---
+                    for recruiter in assigned_recruiters:
+
+                        if stage.name == "Hired":
+                            send_hired_email(recruiter, candidate, job_opening)
+
+                        elif stage.name == "Rejected":
+                            send_rejected_email(recruiter, candidate, job_opening)
+
+                        else:
+                            send_stage_change_email(recruiter, candidate, job_opening, stage)
+
+                # if stage.name == "Sent to Client":
+                #     send_stage_to_client_email(request.user, candidate, job_opening)
+
+                # elif stage.name == 'Hired':
+                #     send_hired_email(request.user, candidate, job_opening)
+
+                # elif stage.name == 'Rejected':
+                #     send_rejected_email(request.user, candidate, job_opening)
+
+                # else:
+                #     send_stage_change_email(request.user, candidate, job_opening, stage)
 
         else:
             for item in order[:-1]:
@@ -607,8 +643,55 @@ class SendInterviewLinkView(View):
         except Candidate.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Candidate not found'}, status=404)
 
-        # except IntegrityError:
-        #     return JsonResponse({'status': 'error', 'message': 'Invitation already sent'}, status=400)
-
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+from django.http import JsonResponse
+from manager.models import ClientEmail, JobOpening
+
+def get_client_emails(request, job_opening_id):
+    job = JobOpening.objects.get(id=job_opening_id)
+    client = job.client
+
+    emails = []
+
+    # 1️⃣ Main client email
+    if client.email:
+        emails.append(client.email)
+
+    # 2️⃣ Alternative email (jo blank na hoy to)
+    if client.alternative_email:
+        emails.append(client.alternative_email)
+
+    # 3️⃣ All emails from ClientEmail model
+    extra_emails = list(
+        ClientEmail.objects.filter(client=client)
+        .values_list('email', flat=True)
+    )
+
+    emails += extra_emails
+
+    return JsonResponse({
+        "emails": emails
+    })
+
+from django.shortcuts import render, get_object_or_404
+from candidate.models import Candidate, JobOpening
+
+def candidate_analysis_pdf_view(request, candidate_id):
+    candidate = get_object_or_404(Candidate, id=candidate_id)
+    job_opening = candidate.job_openings.last()
+
+    analysis = candidate.analysis.filter(
+        job_opening=job_opening
+    ).first()
+
+    return render(
+        request,
+        "candidate/candidate_analysis_pdf.html",
+        {
+            "candidate": candidate,
+            "job_opening": job_opening,
+            "text": analysis,
+        }
+    )

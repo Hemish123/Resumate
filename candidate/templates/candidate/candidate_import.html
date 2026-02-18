@@ -3,93 +3,252 @@
 {% load static %}
 
 {% block css %}
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
 
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+<style>
 
+/* ===== Back Button ===== */
+.back-btn {
+    margin-bottom: 20px;
+}
+
+/* ===== Card Style ===== */
+.custom-card {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+/* Card Header */
+.custom-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid #eef0f5;
+    padding: 20px 25px;
+}
+
+.custom-card .card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    color: #000000;
+}
+
+/* Card Body */
+.custom-card .card-body {
+    padding: 25px;
+}
+
+/* ===== Table ===== */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f5f5f9;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.table tbody th,
+.table tbody td {
+    font-size: 14px;
+    color: #6c757d;
+    vertical-align: middle;
+}
+
+/* ===== Dropzone ===== */
+.dropzone {
+    border: 2px dashed #d9dee3 !important;
+    border-radius: 12px;
+    background: #fafbff;
+    padding: 40px 20px !important;
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.dropzone:hover {
+    border-color: #696cff !important;
+    background: #f3f4ff;
+}
+
+.dropzone .dz-message {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111111;
+}
+
+#dropzone {
+    position: relative;
+}
+
+.upload-instruction {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.dropzone p {
+    font-size: 14px;
+    color: #222222;
+}
+
+.dropzone .dz-preview {
+    display: none !important;
+}
+.dropzone .fallback {
+    display: none;
+}
+
+/* Selected file */
+#selected-filename {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: #06073d;
+}
+
+/* Button */
+button[type="submit"] {
+    padding: 8px 28px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(105,108,255,0.25);
+}
+
+</style>
 {% endblock css %}
+
 
 {% block content %}
 <div class="content-wrapper">
-            <!-- Content -->
-
+<!-- Back Button -->
+    <div class="back-btn">
+        <button type="button"
+                onclick="window.history.back()"
+                class="btn btn-outline-primary px-4 py-2 fw-semibold">
+            <i class="ti ti-chevron-left me-2"></i> Back
+        </button>
+    </div>
   <div class="container-xxl flex-grow-1 container-p-y">
-      <div class="border m-2">
-          <p class="m-1">Upload file in following Format only.</p>
-          <table class="table bg-light">
-              <thead>
-              <tr>
-                  <th scope="col">
-                      Name
-                  </th>
-                  <th scope="col">
-                      Contact
-                  </th>
-                  <th scope="col">
-                      Email
-                  </th>
-                  <th scope="col">
-                      Designation
-                  </th>
-                  <th scope="col">
-                      Location
-                  </th>
-                  <th scope="col">
-                      Experience(in years)
-                  </th>
 
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                  <th scope="row">
-                    John Doe
-                  </th>
-                  <th>
-                    982392****
-                  </th>
-                  <th>
-                    Johndoe@gmail.com
-                  </th>
-                  <th>
-                    Python Developer
-                  </th>
-                  <th>
-                    Ahmedabad
-                  </th>
-                  <th>
-                    4
-                  </th>
+    
 
-              </tr>
-              </tbody>
-          </table>
-      </div>
-    <form class="card-body" id="formAuthentication" enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        {% if form.errors %}
-                  {% for error in form.upload_file.errors %}
-                    <div class="error-message text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% endif %}
-        <div class="card-body needsclick dropzone" id="dropzone">
-            <p class="text-muted m-2">upload file in .csv or .xlsx format only.</p>
-            <div class="needsclick dz-message" id="dropzone-basic">
-              Drop file here or click to upload
-            </div>
-            <span id="selected-filename">No file chosen</span>
-            <div class="fallback">
-              <input id="fileInput" accept=".csv, .xlsx" class="d-none" name="upload_file" type="file" />
+    <!-- Format Preview Card -->
+    <div class="card custom-card">
+        <div class="card-header">
+            <h5>Upload file in following format only</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                            <th>Location</th>
+                            <th>Experience (Years)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Doe</td>
+                            <td>982392****</td>
+                            <td>johndoe@gmail.com</td>
+                            <td>Python Developer</td>
+                            <td>Ahmedabad</td>
+                            <td>4</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="pt-6">
-          <button type="submit" class="btn btn-primary me-4">Submit</button>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="card custom-card">
+        <div class="card-body">
+
+            <form id="formAuthentication"
+                  enctype="multipart/form-data"
+                  method="post">
+
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    {% for error in form.upload_file.errors %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="dropzone needsclick" id="dropzone">
+                  <div class="upload-instruction">
+                      Upload File in .csv or .xlsx Format Only.
+                  </div>
+                    <div class="dz-message needsclick">
+                        <span class="text-muted">
+                            Drop File Here or Click to Upload
+                        </span>
+                    </div>
+
+                    <div class="fallback">
+                        <input id="fileInput"
+                               accept=".csv, .xlsx"
+                               name="upload_file"
+                               type="file" />
+                    </div>
+                </div>
+
+                <span id="selected-filename">No file chosen</span>
+
+                <div class="mt-4">
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Submit
+                    </button>
+                </div>
+
+            </form>
+
         </div>
-    </form>
+    </div>
 
   </div>
 </div>
 {% endblock content %}
-    {% block js %}
-        <script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
 
-    {% endblock js %}
+
+{% block js %}
+<script src="{% static 'dashboard/js/forms-file-upload.js' %}"></script>
+<script>
+Dropzone.autoDiscover = false;
+
+var myDropzone = new Dropzone("#dropzone", {
+    url: "/",
+    autoProcessQueue: false,
+    clickable: true,   // Important
+    paramName: "upload_file",
+    maxFiles: 1,
+    acceptedFiles: ".csv,.xlsx",
+    addRemoveLinks: false
+});
+
+/* Hide default file input completely */
+document.addEventListener("DOMContentLoaded", function () {
+    const fallbackInput = document.querySelector("#fileInput");
+    if (fallbackInput) {
+        fallbackInput.style.display = "none";
+    }
+});
+</script>
+{% endblock js %}

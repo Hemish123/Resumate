@@ -28,6 +28,14 @@ $(function () {
                 $(this).prop('checked', true);
             }
         });
+        setTimeout(function () {
+            const dtButtons = document.querySelector('.dt-buttons');
+            const rightToolbar = document.getElementById('datatable-toolbar-right');
+
+            if (dtButtons && rightToolbar) {
+              rightToolbar.appendChild(dtButtons);
+            }
+          }, 500);
     }
 
 
@@ -49,6 +57,22 @@ var selectedRows = '';
             }).get().join(',');
             d.location = $('#filter-location').val().trim();
             d.designation = $('#filter-designation').val().trim();
+            d.name = $('#filter-name').val();
+            d.contact = $('#filter-contact').val();
+            d.email = $('#filter-email').val();
+            d.updated = $('#filter-updated').val();
+            d.preferred_location = $('#filter-preferred-location').val();
+            d.current_ctc = $('#filter-current-ctc').val();
+            d.expected_ctc = $('#filter-expected-ctc').val();
+            d.notice_period = $('#filter-notice').val();
+            d.share_from = $('#filter-share-from').val();
+            d.share_to = $('#filter-share-to').val();
+            d.dob = $('#filter-dob').val();
+            d.college = $('#filter-college').val();
+            d.client = $('#filter-client').val();
+            d.organization = $('#filter-organization').val();
+
+
         }
         },  // API to fetch data
       columns: [
@@ -66,9 +90,19 @@ var selectedRows = '';
         { data: 'contact' },
         { data: 'email' },
         { data: 'location' },
+        { data: 'preferred_location' },
         { data: 'experience' },
+        
+        { data: 'current_ctc' },
+        { data: 'expected_ctc' },
+        { data: 'notice_period' },
+        { data: 'share_date' },
         { data: 'status' },
-        { data: 'updated' }
+        { data: 'updated' },
+        { data: 'dob' },
+        { data: 'college' },
+        { data: 'client' },
+        { data: 'current_organization' },
       ],
       columnDefs: [
 //        {
@@ -177,7 +211,7 @@ var selectedRows = '';
         },
         {
           // status
-          targets: 8,
+          targets:13,
           orderable: false,
           render: function (data, type, full, meta) {
             var $status_number = full['status'];
@@ -221,8 +255,14 @@ var selectedRows = '';
         }
       ],
 
-      order: [[9, 'desc']],
-      dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-6 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end mt-n6 mt-md-0"f>><"table-responsive"r t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+      order: [[14, 'desc']],
+dom:
+  '<"row"<"col-md-6"><"col-md-6">>' +
+  '<"row"<"col-md-6"l><"col-md-6"f>>' +
+  '<"dt-buttons-wrapper"B>' +
+  '<"table-responsive"rt>' +
+  '<"row"<"col-md-6"i><"col-md-6"p>>',
+
       displayLength: 10,
       lengthMenu: [7, 10, 25, 50, 75, 100],
       deferRender: true,  // Render only visible rows first
@@ -254,6 +294,22 @@ var selectedRows = '';
               window.location.href = "/candidate/add-candidate-form/";
             }
           },
+          // {
+          //   text: '<i class="ti ti-download ti-xs me-sm-1"></i><span class="d-none d-sm-inline-block">Export CSV</span>',
+          //   className: 'btn btn-primary me-4 waves-effect waves-light border-none',
+          //   action: function () {
+          //     const ids = getSelectedIds();
+
+          //     if (ids.length === 0) {
+          //       alert("Please select at least one candidate");
+          //       return;
+          //     }
+
+          //     // redirect with ids
+          //     window.location.href = `/candidate/export-selected-csv/?ids=${ids.join(',')}`;
+          //   }
+          // }
+
 //        {
 //          extend: 'collection',
 //          className: 'btn btn-label-primary dropdown-toggle me-4 waves-effect waves-light border-none',
@@ -396,11 +452,23 @@ var selectedRows = '';
 //        }
       ],
 
-      initComplete: function (settings, json) {
-      var header = $('.card-header');
-        $('.card-header').after('<hr class="my-0">');
-        actions.prop('disabled', true);
-    }
+      initComplete: function () {
+
+  // Add separator line after card header (optional)
+  $('.card-header').after('<hr class="my-0">');
+
+  // Disable Action button initially
+  $('#actioncheck').prop('disabled', true);
+
+  // Move Import button next to Action
+  const dtButtons = document.querySelector('.dt-buttons');
+  const rightToolbar = document.getElementById('datatable-toolbar-right');
+
+  if (dtButtons && rightToolbar) {
+    rightToolbar.appendChild(dtButtons);
+  }
+}
+
 
     });
       /* ADD THIS CODE HERE */
@@ -466,6 +534,20 @@ var selectedRows = '';
 
     // Insert the title into the target div
     $('div.head-label').html(titleElement);
+/* =========================
+   FILTER TRIGGERS (MAIN)
+========================= */
+
+// Text inputs
+$('#filter-name, #filter-contact, #filter-email, #filter-designation, #filter-location')
+.on('keyup', function () {
+    dt_basic.ajax.reload();
+});
+
+// Date filter
+$('#filter-updated').on('change', function () {
+    dt_basic.ajax.reload();
+});
 
       // Trigger table reload on filter change
   // $('#experience-input, .form-check-input').on('input', function () {
@@ -478,8 +560,17 @@ var selectedRows = '';
   $('#filter-status').on('change', '.form-check-input', function () {
     dt_basic.ajax.reload();
   });
-   $('#filter-location, #filter-designation').on('input', function() {
-     dt_basic.ajax.reload();
+   $('#filter-preferred-location, #filter-share-date, #filter-current-ctc, #filter-expected-ctc, #filter-notice').on('input change', function () {
+    dt_basic.ajax.reload();
+  });
+
+  $('#filter-share-from, #filter-share-to').on('change', function () {
+    dt_basic.ajax.reload();
+  });
+
+  $('#filter-dob, #filter-college, #filter-client, #filter-organization')
+  .on('keyup change', function () {
+      dt_basic.ajax.reload();
   });
 
   // Get status param from URL
@@ -599,39 +690,97 @@ function getSelectedIds() {
           // Delete Record
 
   const delbtn = $('#delete_btn');
+$('#deleteForm').on('submit', function (e) {
+    e.preventDefault();
 
-  $('#deleteForm').on('submit', function(e) {
-    e.preventDefault();  // Prevent default form submission
-   var idsToDelete = getSelectedIds();
-    if (idsToDelete.length > 0) {
-    // Send AJAX request to delete rows
+    const ids = getSelectedIds(); // [1,2,3]
+
+    if (ids.length === 0) {
+        alert("Please select at least one candidate");
+        return;
+    }
+
     $.ajax({
-      url: $(this).attr('action'),  // Replace with your delete endpoint
-      method: 'POST',
-      data: {
-        'ids[]': idsToDelete,
-        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
-      },
-      success: function(response) {
-        // On success, remove rows from DataTable
-        dt_basic.rows('.selected').remove().draw(false);
-        $('.dt-checkboxes-select-all input').prop('checked', false);
-        $('#basicModal').modal('hide');
-      },
-      error: function(xhr, status, error) {
-        console.error('Error deleting rows:', status, error);
-        // Optionally, show an error message to the user
-      }
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: {
+            ids: ids.join(','),   // 🔥 "1,2,3"
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+        },
+        success: function (response) {
+            if (response.status === 'success') {
+                dt_basic.rows('.selected').remove().draw(false);
+                $('#basicModal').modal('hide');
+            } else {
+                alert(response.message);
+            }
+        }
     });
-  }
+});
 
-  });
 
-  $('#shareJobOpeningForm').on('submit', function(e) {
+  // $('#deleteForm').on('submit', function(e) {
+  //   e.preventDefault();  // Prevent default form submission
+  //  var idsToDelete = getSelectedIds();
+  //   if (idsToDelete.length > 0) {
+  //   // Send AJAX request to delete rows
+  //   $.ajax({
+  //     url: $(this).attr('action'),  // Replace with your delete endpoint
+  //     method: 'POST',
+  //     data: {
+  //       'ids[]': idsToDelete,
+  //       csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
+  //     },
+  //     success: function(response) {
+  //       // On success, remove rows from DataTable
+  //       dt_basic.rows('.selected').remove().draw(false);
+  //       $('.dt-checkboxes-select-all input').prop('checked', false);
+  //       $('#basicModal').modal('hide');
+  //     },
+  //     error: function(xhr, status, error) {
+  //       console.error('Error deleting rows:', status, error);
+  //       // Optionally, show an error message to the user
+  //     }
+  //   });
+  // }
+
+  // });
+
+//   $('#shareJobOpeningForm').on('submit', function(e) {
+//     e.preventDefault();
+
+//     const ids = getSelectedIds();
+//     const job_opening_id = $("#jobOpening").val();
+
+//     if (ids.length === 0) {
+//         alert("Please select at least one candidate.");
+//         return;
+//     }
+
+//     $.ajax({
+//         url: $(this).attr("action"),
+//         method: "POST",
+//         data: {
+//             "ids": JSON.stringify(ids),   // VERY IMPORTANT
+//             "job_opening_id": job_opening_id,
+//             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+//         },
+//         success: function (response) {
+//             $('#shareOpening').modal('hide');
+//             $('.dt-checkboxes-select-all input').prop('checked', false);
+//             dt_basic.ajax.reload();
+//         },
+//         error: function (xhr) {
+//             console.error("Error:", xhr.responseText);
+//         }
+//     });
+// });
+
+$('#shareJobOpeningForm').on('submit', function (e) {
     e.preventDefault();
 
     const ids = getSelectedIds();
-    const job_opening_id = $("#jobOpening").val();
+    const job_opening_id = $('#jobOpening').val();
 
     if (ids.length === 0) {
         alert("Please select at least one candidate.");
@@ -642,19 +791,37 @@ function getSelectedIds() {
         url: $(this).attr("action"),
         method: "POST",
         data: {
-            "ids": JSON.stringify(ids),   // VERY IMPORTANT
+            "ids": JSON.stringify(ids),   // 🔥 EXACT match
             "job_opening_id": job_opening_id,
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
         },
         success: function (response) {
-            $('#shareOpening').modal('hide');
-            $('.dt-checkboxes-select-all input').prop('checked', false);
-            dt_basic.ajax.reload();
+            if (response.status === "success") {
+                $('#shareOpening').modal('hide');
+                dt_basic.ajax.reload(null, false);
+            } else {
+                alert(response.message);
+            }
         },
         error: function (xhr) {
             console.error("Error:", xhr.responseText);
         }
     });
+});
+
+
+// ==========================
+// EXPORT CSV FROM ACTION
+// ==========================
+$('#exportCsvAction').on('click', function () {
+    const ids = getSelectedIds();
+
+    if (ids.length === 0) {
+        alert("Please select at least one candidate");
+        return;
+    }
+
+    window.location.href = `/candidate/export-selected-csv/?ids=${ids.join(',')}`;
 });
 
 }
@@ -690,4 +857,3 @@ scrollContainer.addEventListener("mouseleave", () => {
   clearInterval(scrollInterval); // stop scrolling when mouse leaves
 });
 });
-

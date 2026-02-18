@@ -9,7 +9,14 @@
 
     <!-- Tagify CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-
+<style>
+  /* Back button outside card */
+.back-outside {
+  position: absolute;
+  top: 25px;
+  left: 40px;
+}
+</style>
 
 {% endblock css %}
 
@@ -17,6 +24,9 @@
 
 <div class="content-wrapper">
             <!-- Content -->
+<a href="javascript:history.back()" class="btn btn-outline-primary back-outside">
+    &larr; Back
+  </a>
 
   <div class="container-xxl container-p-y d-flex justify-content-center">
     <div class="card mb-6 w-50">
@@ -137,6 +147,26 @@
                   {% endfor %}
                 {% endif %}
               </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_location">Location
+                  <span>*</span>
+                </label>
+                <input
+                  id="id_location"
+                  name="location"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter location"
+                  value="{{ form.location.value|default_if_none:'' }}"
+                  required
+                />
+                {% if form.errors %}
+                  {% for error in form.location.errors %}
+                    <div class="error-message text-danger">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+
               <div class="col-md-6">
                 <label class="form-label" for="id_job_type">Job Type
                   <span>*</span>
@@ -291,6 +321,29 @@
                   {% endfor %}
                 {% endif %}
               </div>
+
+              <div class="col-md-6">
+                  <label class="form-label">Hiring For <span>*</span></label>
+                  <select id="hiring_for" name="hiring_for" class="form-select">
+                      <option value="self">Self</option>
+                      <option value="client">Client</option>
+                  </select>
+                </div>
+
+              <div class="col-md-6" id="client_box" style="display:none;">
+                <label class="form-label">Select Client <span>*</span></label>
+                <select id="id_client" name="client" class="form-select">
+                    <option value="">Select Client</option>
+                    {% for c in clients %}
+                        <option value="{{ c.id }}">
+                          {{ c.company }} — {{ c.name }}
+                        </option>
+                    {% empty %}
+                        <option value="">No clients found</option>
+                      {% endfor %}
+                  </select>
+                </div>
+
               <div class="col-md-12">
                 <hr class="my-0">
                 <p class="mt-1 mb-0" >Minimum Screening criteria for candidates</p>
@@ -423,6 +476,21 @@
     <script src="{% static 'dashboard/js/forms-tagify.js' %}"></script>
     <!-- Tagify JS -->
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+
+    
+<script>
+document.getElementById("hiring_for").addEventListener("change", function(){
+    let val = this.value;
+    let clientBox = document.getElementById("client_box");
+
+    if(val === "client"){
+        clientBox.style.display = "block";
+    } else {
+        clientBox.style.display = "none";
+        document.getElementById("id_client").value = "";
+    }
+});
+</script>
 
 
 {% endblock js %}

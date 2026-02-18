@@ -36,9 +36,10 @@ class CandidateSerializer(serializers.ModelSerializer):
 
 class CandidateStageSerializer(serializers.ModelSerializer):
     candidate = CandidateSerializer()
+    moved_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     class Meta:
         model = CandidateStage
-        fields = ['id', 'candidate', 'stage', 'order']
+        fields = ['id', 'candidate', 'stage', 'order','moved_at']
 
 class StageSerializer(serializers.ModelSerializer):
     candidates = CandidateStageSerializer(source='candidatestage_set', many=True, read_only=True)

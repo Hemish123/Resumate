@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.core.validators import FileExtensionValidator, EmailValidator
 from django.utils import timezone
@@ -15,9 +16,33 @@ class Client(models.Model):
     email = models.EmailField(validators=[EmailValidator], unique=True)
     contact = models.CharField(max_length=12, blank=True)
     website = models.URLField(max_length=100, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.CharField(max_length=255)
+    joined = models.DateTimeField(default=timezone.now)  #(Agreement date)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='client_created')
+    linkedin = models.URLField(max_length=200, blank=True)
+    industry = models.CharField(max_length=255, blank=True)
+    gst_no = models.CharField(max_length=50, blank=True)
+    # payment_id = models.CharField(max_length=100, blank=True)
+    alternative_email = models.EmailField(blank=True,null=True)
+    alternative_contact = models.CharField(max_length=12, blank=True)
+    agreement_upload = models.FileField(upload_to='agreements/', blank=True, null=True)
+    # document_upload = models.FileField(upload_to='documents/', blank=True, null=True)
+    client_id = models.CharField(max_length=20, unique=True,null=True)
+    street = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    client_location = models.CharField(max_length=400, blank=True)
+    payment_period = models.PositiveIntegerField(blank=True, null=True)
+    replacement_period = models.PositiveIntegerField(blank=True, null=True)
 
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    commercials_decided = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -32,6 +57,54 @@ def exempt_zero(value):
             ('Please enter a value greater than 0'),
             params={'value': value},
         )
+class ClientDocument(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='documents')
+    file = models.FileField(upload_to='documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.file.name
+    
+class ClientEmail(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='additional_emails')
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return f"{self.email} ({self.client.name})"
+
+class HiringPOC(models.Model):
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='hiring_pocs'
+    )
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    designation = models.CharField(max_length=255, blank=True)
+    email = models.EmailField()
+    contact = models.CharField(max_length=15, blank=True)
+    linkedin = models.URLField(blank=True)
+
+    def __str__(self):
+        return f"{self.client.name} - {self.name} (Hiring)"
+
+class PaymentPOC(models.Model):
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='payment_pocs'
+    )
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    designation = models.CharField(max_length=255, blank=True)
+    email = models.EmailField()
+    contact = models.CharField(max_length=15, blank=True)
+    linkedin = models.URLField(blank=True)
+
+    def __str__(self):
+        return f"{self.client.name} - {self.name} (Payment)"
 
 
 
@@ -62,12 +135,17 @@ class JobOpening(models.Model):
     expires = models.IntegerField(default=21)
     skills_criteria = models.IntegerField(default=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default="1", related_name='jobopening')
-
+    location = models.CharField(max_length=255, null=True, blank=True)
     HIRING_FOR_CHOICES = [
         ('self', 'Hiring for self'),
         ('client', 'Hiring for client'),
     ]
     hiring_for = models.CharField(max_length=10, choices=HIRING_FOR_CHOICES, default='self')
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+
+    @property
+    def active_till(self):
+        return self.created_at + timedelta(days=self.expires)
 
 
     def __str__(self):

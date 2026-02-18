@@ -94,7 +94,7 @@ class CompanyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 
 class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Employee
-    fields = ['contact']
+    fields = ['contact','profile_pic']
     template_name = 'users/enter_details.html'
 
     def test_func(self):
@@ -130,13 +130,17 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             user.last_name = last_name
             user.save()
         employee.contact = form.cleaned_data['contact']
+        
+        profile_pic = self.request.FILES.get('profile_pic')
+        if profile_pic:
+            employee.profile_pic = profile_pic
 
         employee.save()
         return redirect('dashboard')
 
 class EmployeeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Employee
-    fields = ['contact']
+    fields = ['contact','profile_pic']
     template_name = 'users/update_details.html'
 
     def test_func(self):
@@ -180,6 +184,9 @@ class EmployeeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             user.last_name = last_name
         user.save()
         employee.contact = form.cleaned_data['contact']
+        profile_pic = self.request.FILES.get('profile_pic')
+        if profile_pic:
+            employee.profile_pic = profile_pic
 
         employee.save()
         return redirect('users-settings')
@@ -194,11 +201,8 @@ class SettingsView(LoginRequiredMixin, TemplateView):
         job_openings = JobOpening.objects.filter(company=self.request.user.employee.company, assignemployee=self.request.user.employee, active=True)
         context["job_openings"] = job_openings
         context['clients'] = Client.objects.filter(company=self.request.user.employee.company)[:5]
-      # Add employee data
-
-
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
-        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company)[:5]
+        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company).exclude( user__groups__name='admin').order_by('id')[:5]
         context['has_perm2'] = has_perm2
         
 
@@ -246,7 +250,7 @@ class EmployeeListView(LoginRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company)
+        context['employees'] = Employee.objects.filter(company=self.request.user.employee.company).exclude(user__groups__name='admin').order_by('id')
         context['clients'] = Client.objects.filter(company=self.request.user.employee.company)[:5]
         has_perm2 = self.request.user.groups.filter(permissions__codename='view_employee').exists()
         context['has_perm2'] = has_perm2
@@ -309,4 +313,3 @@ class SupportView(LoginRequiredMixin, FormView):
     def form_invalid(self, form):
         messages.error(self.request, "There was a problem with your submission.")
         return self.render_to_response(self.get_context_data(form=form))
-

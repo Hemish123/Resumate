@@ -60,6 +60,26 @@
                 {% endif %}
               </div>
               <div class="col-md-6">
+  <label class="form-label" for="id_location">
+    Location <span>*</span>
+  </label>
+  <input
+    id="id_location"
+    name="location"
+    type="text"
+    class="form-control"
+    placeholder="Enter location"
+    value="{{ form.location.value|default_if_none:'' }}"
+    required
+  />
+  {% if form.errors %}
+    {% for error in form.location.errors %}
+      <div class="error-message text-danger">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+              <div class="col-md-6">
                 <label class="form-label" for="id_job_type">Job Type
                   <span>*</span>
                 </label>
@@ -201,6 +221,47 @@
                 {% endif %}
               </div>
 
+              <div class="col-md-6">
+                  <label class="form-label">Hiring For <span>*</span></label>
+
+                  {% if form.instance.hiring_for == 'client' %}
+                      <!-- Locked to Client -->
+                      <select id="hiring_for" class="form-select" disabled>
+                          <option value="client" selected>Client</option>
+                      </select>
+                      <!-- Hidden input so value is submitted -->
+                      <input type="hidden" name="hiring_for" value="client">
+                  {% else %}
+                      <!-- Normal dropdown -->
+                      <select id="hiring_for" name="hiring_for" class="form-select" required>
+                          <option value="self"
+                              {% if form.instance.hiring_for == 'self' %}selected{% endif %}>
+                              Self
+                          </option>
+                          <option value="client">Client</option>
+                      </select>
+                  {% endif %}
+                </div>
+
+
+
+              <div class="col-md-6" id="client_box" style="display: {% if form.instance.hiring_for == 'client' %}block{% else %}none{% endif %};">
+                <label class="form-label">Select Client <span>*</span></label>
+                <select id="id_client" name="client" class="form-select">
+                  <option value="">Select Client</option>
+                  {% for c in clients %}
+                      <option value="{{ c.id }}"
+                          {% if form.instance.client and form.instance.client.id == c.id %}
+                              selected
+                          {% endif %}
+                      >
+                          {{ c.company }} — {{ c.name }}
+                      </option>
+                  {% endfor %}
+              </select>
+              </div>
+
+
 <!--              <div class="col-md-6">-->
 <!--                <label class="form-label" for="id_assignemployee">Assign Recruiter-->
 <!--                  <span>*</span>-->
@@ -271,5 +332,25 @@
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const hiringForSelect = document.getElementById('hiring_for');
+    const clientBox = document.getElementById('client_box');
+    const clientSelect = document.getElementById('id_client');
+
+    function toggleClientBox() {
+        if (hiringForSelect.value === 'client') {
+            clientBox.style.display = 'block';
+            clientSelect.required = true;
+        } else {
+            clientBox.style.display = 'none';
+            clientSelect.required = false;
+        }
+    }
+
+    toggleClientBox();
+    hiringForSelect.addEventListener('change', toggleClientBox);
+});
+</script>
 
 {% endblock js %}

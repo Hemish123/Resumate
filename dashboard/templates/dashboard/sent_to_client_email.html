@@ -1,0 +1,21 @@
+<h3>Hello,</h3>
+
+<p>
+Candidate has been sent to you for review for the position of  
+<b>{{ job_opening.designation }}</b>.
+</p>
+
+<h4>Candidate Tracker Details</h4>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  {% for key, value in tracker_data.items %}
+  <tr>
+    <th style="text-align:left; background:#f2f2f2;">{{ key }}</th>
+    <td>{{ value }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<p>
+Resume and analysis report are attached with this email.
+</p>

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.urls import reverse
 from datetime import timedelta
 from users.models import Company
-
+from manager.models import Client
 # Create your models here.
 
 def today():
@@ -41,13 +41,18 @@ class Candidate(models.Model):
     reason_for_change = models.CharField(max_length=500, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
     upload_resume = models.FileField(upload_to='resumes/', null=True,
-                                     validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc'],
-                                                                        message='Select pdf, docx or doc files only')])
+                                        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'doc'],
+                                        message='Select pdf, docx or doc files only')])
     filename = models.CharField(max_length=255, blank=True)
     text_content = models.TextField(default='')
     updated = models.DateTimeField(default=timezone.now)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='candidates', null=True)
     is_new = models.BooleanField(default=True)
+    preferred_location = models.CharField(max_length=255, blank=True, null=True)
+    share_date = models.DateField(blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    college = models.CharField(max_length=255, blank=True, null=True)
+    client = models.ForeignKey(Client,on_delete=models.SET_NULL,null=True,blank=True,related_name='candidates')
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase
@@ -58,6 +63,22 @@ class Candidate(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_status(self):
+        from dashboard.models import CandidateStage  
+
+        cs = (
+            CandidateStage.objects
+            .filter(candidate=self)
+            .select_related('stage')
+            .order_by('-id')
+            .first()
+        )
+
+        if cs and cs.stage:
+            return cs.stage.name   
+
+        return "Pending"
 
 
     # def clean(self):

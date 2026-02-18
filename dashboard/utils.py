@@ -193,3 +193,160 @@ def send_interview_invitation_email(candidate, job_opening_id, additional_notes=
         recipient_list=[candidate.email],
         fail_silently=False,
     )
+
+
+
+# def create_single_candidate_pdf_weasy(candidate, job_opening):
+#     # Render HTML from your template
+#     html_string = render_to_string('candidate/candidate_analysis_pdf.html', {
+#         'candidate': candidate,
+#         'job_opening': job_opening,
+#         'text': candidate.analysis.filter(job_opening=job_opening).first(),
+#     })
+
+#     # Create a temporary PDF file
+#     tmp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+#     HTML(string=html_string, base_url=".").write_pdf(tmp_pdf.name)
+#     tmp_pdf.close()
+    
+#     return tmp_pdf.name
+
+from django.core.mail import EmailMessage
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from PyPDF2 import PdfMerger
+import tempfile, os
+from django.conf import settings
+from django.utils.html import strip_tags
+from weasyprint import HTML
+import mimetypes
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+
+def send_stage_to_client_email(request,recruiter, candidate, job_opening, cc_list=None, recipient_type="client"):
+    # # Fetch AI analysis safely
+    # analysis = candidate.analysis.filter(job_opening=job_opening).first()
+
+    # text = analysis  # In your templates, you use 'text' variable
+    analysis_obj = candidate.analysis.filter(job_opening=job_opening).first()
+
+    if analysis_obj and analysis_obj.response_text:
+        if isinstance(analysis_obj.response_text, str):
+            try:
+                analysis = json.loads(analysis_obj.response_text)
+            except json.JSONDecodeError:
+                analysis = {}
+        else:
+            analysis = analysis_obj.response_text
+    else:
+        analysis = {}
+
+    client = job_opening.client
+
+    tracker_data = {
+        "Candidate Name": candidate.name,
+        "Current Profile": candidate.current_designation or "N/A",
+        "Current Company": candidate.current_organization or "N/A",
+        "Total Work Experience": f"{candidate.experience} years",
+        "Current Location": candidate.location or "N/A",
+        "Preferred Location": candidate.preferred_location or "N/A",
+        "Education": candidate.education,
+        "Number": candidate.contact,
+        "Email ID": candidate.email,
+        "Current CTC": candidate.current_ctc,
+        "Expected CTC": candidate.expected_ctc,
+        "Notice Period": f"{candidate.notice_period} days",
+        "Share Date": candidate.share_date or "N/A",
+        # "Recruiter": recruiter.user.get_full_name(),
+    }
+
+    assigned_recruiters = job_opening.assignemployee.all()
+    recruiter_emails = [r.user.email for r in assigned_recruiters if r.user.email]
+
+    recipients = [client.email] + recruiter_emails
+
+    recipient_name = client.name if recipient_type == "client" else recruiter.user.get_full_name()
+
+    # ✅ CREATE AI PDF
+    ai_pdf = create_ai_analysis_pdf(candidate, job_opening,analysis=analysis)
+
+    # ✅ MERGE AI PDF + RESUME
+    final_pdf = merge_ai_pdf_with_resume(
+        ai_pdf,
+        candidate.upload_resume.path if candidate.upload_resume else None
+    )
+
+    html_message = render_to_string(
+        "dashboard/sent_to_client_email.html",
+        {
+            "recipient_name": recipient_name,
+            "candidate": candidate,
+            "job_opening": job_opening,
+            "tracker_data": tracker_data,
+        },
+    )
+
+    subject = f"Candidate Sent to {recipient_name} | {job_opening.designation}"
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body="Please find attached candidate report + resume.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=recipients,
+        cc=cc_list or [],
+    )
+
+    # ✅ Read the PDF content and attach with specific filename
+    with open(final_pdf, "rb") as f:
+        pdf_content = f.read()
+    # Example filename: "Candidate_Report_John_Doe.pdf"
+    pdf_filename = f"Candidate_Report_{candidate.name.replace(' ', '_')}.pdf"
+
+    email.attach(
+        pdf_filename,
+        pdf_content,
+        mimetypes.guess_type(pdf_filename)[0] or "application/pdf"
+    )
+    email.attach_alternative(html_message, "text/html")
+    email.send(fail_silently=False)
+
+def create_ai_analysis_pdf(candidate, job_opening,analysis=None):
+     # Use passed analysis or fetch it
+    if not isinstance(analysis, dict):
+        analysis = {}
+        
+    logo_path = os.path.join(
+            settings.BASE_DIR,
+            "dashboard/static/dashboard/img/icons/jmslogo.png"
+        )
+    clean_logo_path = logo_path.replace("\\", "/")
+
+    html = render_to_string(
+        "candidate/candidate_analysis_pdf.html",
+        {
+            "candidate": candidate,
+            "job_opening": job_opening,
+            # "analysis": candidate.analysis.filter(job_opening=job_opening).first(),
+            "text":analysis,
+            "logo_path": "file:///" + clean_logo_path,
+        }
+    )
+
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    HTML(string=html, base_url=settings.BASE_DIR).write_pdf(tmp.name)
+    return tmp.name
+
+def merge_ai_pdf_with_resume(ai_pdf, resume_path):
+    merger = PdfMerger()
+    merger.append(ai_pdf)
+
+    if resume_path and os.path.exists(resume_path):
+        merger.append(resume_path)
+
+    final_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    merger.write(final_pdf.name)
+    merger.close()
+
+    return final_pdf.name

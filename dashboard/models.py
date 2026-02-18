@@ -20,7 +20,7 @@ class CandidateStage(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
     order = models.IntegerField(default=0)  # To maintain order within the stage
-
+    moved_at = models.DateTimeField(default=timezone.now)  # Timestamp for when the candidate was moved to this stage
     class Meta:
         ordering = ['order']
 

@@ -3,249 +3,447 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
-    <!-- <style>
-        .experience-input {
-            width: 100px !important;
-        }
-    </style> -->
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/spinkit/spinkit.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/spinkit/spinkit.css' %}" />
 
+<style>
+/* =====================
+   CARD STRUCTURE FIX
+===================== */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+/* Card inner padding fix */
+.card-datatable {
+  padding: 16px 18px 18px 18px;
+}
+
+/* =====================
+   CARD HEADER HIGHLIGHT
+===================== */
+.card h5 {
+  padding: 16px 18px;
+  margin: 0;
+  background: linear-gradient(90deg, #eef2ff, #ffffff);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card h5 strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.05em;
+}
+
+/* =====================
+   TABLE CLEAN LOOK
+===================== */
+.datatables-basic {
+  margin-top: 10px;
+}
+
+.datatables-basic thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+table.dataTable tbody td {
+  padding: 14px 10px;
+  font-size: 14px;
+  color: #334155;
+}
+
+table.dataTable tbody tr {
+  transition: background 0.2s ease;
+}
+
+table.dataTable tbody tr:hover {
+  background: #f1f5ff;
+}
+
+/* =====================
+   SIDEBAR FILTER CARD
+===================== */
+.filter-card {
+  position: sticky;
+  top: 90px;
+  padding: 18px !important;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Sidebar title */
+.filter-card h6 {
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+/* =====================
+   FILTER FIELD SPACING
+===================== */
+.filter-card .form-control,
+.filter-card .form-select {
+  margin-bottom: 12px;
+}
+
+/* =====================
+   FIXED INPUT SIZE
+===================== */
+.form-control,
+.form-select,
+.btn {
+  height: 42px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* Experience input group fix */
+.input-group .form-control {
+  height: 42px;
+}
+
+.input-group-text {
+  height: 42px;
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  font-weight: 500;
+}
+
+/* =====================
+   DROPDOWN LOOK
+===================== */
+.dropdown-menu {
+  border-radius: 12px;
+  border: none;
+  padding: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.dropdown-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.dropdown-item:hover {
+  background: #eef2ff;
+}
+
+/* =====================
+   BUTTON POLISH
+===================== */
+.btn-outline-primary {
+  border: 1px solid #c7d2fe;
+  color: #4338ca;
+  font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+  background: #6366f1;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(99,102,241,0.35);
+}
+.small-label {
+    font-size: 0.8rem; /* smaller size */
+    margin-right: 4px; /* optional spacing */
+    display: inline-block; /* keeps label inline with input if needed */
+}
+
+</style>
 {% endblock css %}
 
 {% block content %}
 
-<div class="card">
-    <div class="card-datatable pt-0">
-        <h5 id="datatable-title" class="card-title mb-0">Candidate DataTable</h5>
+<div class="row">
 
-        <!-- Filter and Action Buttons -->
-        <div id="filter-container" class="my-3">
-                <div class="row">
-                    <div class="col-md-2">
-                            <!-- Action Button -->
-                            <div class="btn-group" id="dropdown-icon-demo">
-                                <button
-                                  type="button"
-                                  id="actioncheck"
-                                  class="btn btn-outline-primary dropdown-toggle ms-4"
-                                  data-bs-toggle="dropdown"
-                                  aria-expanded="false">
-                                   Action
-                                </button>
-                                <ul class="dropdown-menu">
-                                  <li>
-                                    <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#shareOpening">
-                                        <i class="ti ti-plus scaleX-n1-rtl me-2"></i>Share Job Opening</a>
-                                  </li>
-                                  <li>
-                                    <a class="dropdown-item d-flex align-items-center text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
-                                        <i class="ti ti-trash scaleX-n1-rtl me-2"></i>Delete</a>
-                                  </li>
-                                </ul>
-                                 <!--Job opening share Modal -->
-                                <div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                      <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="shareOpeningLabel">Share Job Opening</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                            <div class="modal-body">
-                                                <form id="shareJobOpeningForm" method="post" enctype="multipart/form-data" action="{% url 'share_job_opening' %}">
-                                                    {% csrf_token %}
+  <!-- ================== TABLE ================== -->
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-datatable pt-0">
 
-                                                     <div class="mb-3">
-                                                        <label for="jobOpening" class="form-label">Select Job Opening</label>
-                                                        <select class="form-select" id="jobOpening" name="job_opening" required>
-                                                            <option value="" disabled selected>Select a job opening</option>
-                                                            {% for job in job_openings %}
-                                                            <option value="{{ job.id }}">{{ job.designation }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                     </div>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">Send Email</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+<!-- CARD HEADER -->
+<div class="card-header-custom">
 
-                                  <!--Delete Modal -->
-                                <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                      <div class="modal-content">
-                                        <div class="modal-header">
-                                          <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
-                                          <button
-                                            type="button"
-                                            class="btn-close"
-                                            data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                          <p>Are you sure you want to delete selected candidates?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                                            Close
-                                          </button>
-                                            <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
-                                              {% csrf_token %}
-                                              <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
-                                            </form>
-                                        </div>
-                                      </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
+  <!-- TITLE -->
+  <h5 class="mb-2"><strong>CANDIDATES</strong></h5>
 
-                            <!-- Status Filter -->
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Status
-                                </button>
-                                <ul class="dropdown-menu" id="filter-status">
-                                    <li>
-                                        <div class="form-check dropdown-item">
-                                            <label class="form-check-label custom-option-content">
-                                                <input type="checkbox" class="form-check-input mx-1" data-value="Hired">Hired
-                                            </label>
-                                        </div>
-                                        <div class="form-check dropdown-item">
-                                            <label class="form-check-label custom-option-content">
-                                                <input type="checkbox" class="form-check-input mx-1" data-value="In Stage">In Stage
-                                            </label>
-                                        </div>
-                                        <div class="form-check dropdown-item">
-                                            <label class="form-check-label custom-option-content">
-                                                <input type="checkbox" class="form-check-input mx-1" data-value="Rejected">Rejected
-                                            </label>
-                                        </div>
-                                        <div class="form-check dropdown-item">
-                                            <label class="form-check-label custom-option-content">
-                                                <input type="checkbox" class="form-check-input mx-1" data-value="Applied">Applied
-                                            </label>
-                                        </div>
-                                        <div class="form-check dropdown-item">
-                                            <label class="form-check-label custom-option-content">
-                                                <input type="checkbox" class="form-check-input mx-1" data-value="Inactive">Inactive
-                                            </label>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- <div class="col-md-4">
+  <!-- TOOLBAR -->
+  <div class="d-flex justify-content-between align-items-center">
 
-                            
-                            <div class="input-group">
-                                <button type="button" class="btn btn-outline-primary">Experience</button>
-                                <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" id="experience-comparator">
-                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="<">&lt; </a></li>
-                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator=">">&gt; </a></li>
-                                    <li><a class="dropdown-item" href="javascript:void(0);" data-comparator="=">= </a></li>
-                                </ul>
-                                <input type="text" class="form-control w-20" aria-label="Text input with segmented dropdown button" id="experience-input" />
-                            </div>
-                        </div> -->
-                        <div class="col-md-3">
-                            <!-- <label class="form-label">Experience Range</label> -->
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="min-exp" placeholder="Min Exp (e.g. 2)">
-                                <span class="input-group-text">-</span>
-                                <input type="number" class="form-control" id="max-exp" placeholder="Max Exp (e.g. 5)">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <!-- Location Search
-                            <label class="form-label">Location</label> -->
-                            <input type="text" class="form-control" id="filter-location" placeholder="Search Location...">
-                        </div>
+    <!-- LEFT : ACTION -->
+    <div class="btn-group">
+      <button type="button"
+              id="actioncheck"
+              class="btn btn-outline-primary dropdown-toggle"
+              data-bs-toggle="dropdown">
+        Action
+      </button>
 
-                        <div class="col-md-2">
-                            <!-- Designation Search
-                            <label class="form-label">Designation</label> -->
-                            <input type="text" class="form-control" id="filter-designation" placeholder="Search Designation...">
-                        </div>
-                    
-                    </div>
-                </div>
-
-
-        <table class="datatables-basic table table-striped ">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th></th>
-                  <th>Name</th>
-                  <th>Designation</th>
-                  <th>Contact</th>
-                  <th>Email</th>
-                  <th>Location</th>
-                  <th>Experience (in years)</th>
-                  <th>Status</th>
-                  <th>Updated</th>
-                </tr>
-              </thead>
-<!--              <tbody>-->
-<!--                {% for candidate in candidates %}-->
-
-<!--                <tr data-id="{{candidate.id}}">-->
-<!--                    <td></td>-->
-<!--                    <td>{{ candidate.id }}</td>-->
-<!--                    <td><a href="{% url 'candidate-details' candidate.id %}">{{candidate.name}}</a></td>-->
-<!--                    <td>{{candidate.current_designation}}</td>-->
-<!--                    <td>{{candidate.contact}}</td>-->
-<!--                    <td>{{candidate.email}}</td>-->
-<!--                    <td>{{candidate.location}}</td>-->
-<!--                    <td>{{candidate.experience}}</td>-->
-<!--                    <td>{% for stage in candidate.candidatestage_set.all %} {{stage.stage.name}} {% endfor %}</td>-->
-<!--                    <td>{{candidate.updated|date:"F j, Y"}}</td>-->
-<!--                </tr>-->
-<!--                {% endfor %}-->
-<!--              </tbody>-->
-            </table>
+      <ul class="dropdown-menu">
+        <li>
+          <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#shareOpening">
+            Share Job Opening
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="javascript:void(0);" id="exportCsvAction">
+            Export CSV
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#basicModal">
+            Delete
+          </a>
+        </li>
+      </ul>
     </div>
+
+    <!-- RIGHT : JS IMPORT BUTTON -->
+    <div id="datatable-toolbar-right"></div>
+  </div>
+</div>
+        
+
+        <table class="datatables-basic table">
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th>Name</th>
+              <th>Designation</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Location</th>
+              <th>Preferred Location</th>
+              <th>Experience (In Years)</th>
+              <th>Current CTC</th>
+              <th>Expected CTC</th>
+              <th>Notice Period</th>
+              <th>Share Date</th>
+              <th>Status</th>
+              <th>Updated</th>
+              <th>DOB</th>
+              <th>College</th>
+              <th>Client</th>
+              <th>CurrentOrganization</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== RIGHT SIDEBAR ================== -->
+  <div class="col-md-3">
+    <div class="card p-3 filter-card">
+
+      <h6 class="mb-3">Filters</h6>
+
+      <!-- STATUS (NO SPLIT) -->
+      <div class="mb-3">
+        <label class="form-label"></label>
+        <div class="btn-group w-100">
+          <button type="button"
+                  class="btn btn-outline-primary dropdown-toggle w-100"
+                  data-bs-toggle="dropdown">
+            Status
+          </button>
+
+          <ul class="dropdown-menu p-2 w-100" id="filter-status">
+
+            <li class="dropdown-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-value="Applied">
+                <label class="form-check-label">Applied</label>
+              </div>
+            </li>
+
+            <li class="dropdown-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-value="In Stage">
+                <label class="form-check-label">In Stage</label>
+              </div>
+            </li>
+
+            <li class="dropdown-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-value="Hired">
+                <label class="form-check-label">Hired</label>
+              </div>
+            </li>
+
+            <li class="dropdown-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-value="Rejected">
+                <label class="form-check-label">Rejected</label>
+              </div>
+            </li>
+
+            <li class="dropdown-item">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-value="Inactive">
+                <label class="form-check-label">Inactive</label>
+              </div>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+      
+<form method="get">
+  <select name="updated_range" class="form-select mt-2" onchange="this.form.submit()">
+    <option value="">Search by Days</option>
+    <option value="1" {% if request.GET.updated_range == "1" %}selected{% endif %}>Last 1 Day</option>
+    <option value="7" {% if request.GET.updated_range == "7" %}selected{% endif %}>Last 7 Days</option>
+    <option value="15" {% if request.GET.updated_range == "15" %}selected{% endif %}>Last 15 Days</option>
+    <option value="month" {% if request.GET.updated_range == "month" %}selected{% endif %}>This Month</option>
+    <option value="between" {% if request.GET.updated_range == "between" %}selected{% endif %}>Between Months</option>
+    <option value="year" {% if request.GET.updated_range == "year" %}selected{% endif %}>1+ Year Old</option>
+  </select>
+
+  {% if request.GET.updated_range == "between" %}
+    <div class="mt-2">
+      <input type="month"
+             name="from_month"
+             class="form-control mb-2"
+             value="{{ request.GET.from_month }}"
+             onchange="this.form.submit()">
+
+      <input type="month"
+             name="to_month"
+             class="form-control"
+             value="{{ request.GET.to_month }}"
+             onchange="this.form.submit()">
+    </div>
+  {% endif %}
+</form>
+
+
+      <!-- SEARCH FILTERS -->
+      <input type="text" id="filter-name" class="form-control mb-2" placeholder="Search Name">
+      <input type="text" id="filter-designation" class="form-control mb-2" placeholder="Search Designation">
+      <input type="text" id="filter-contact" class="form-control mb-2" placeholder="Search Contact">
+      <input type="text" id="filter-email" class="form-control mb-2" placeholder="Search Email">
+      <input type="text" id="filter-location" class="form-control mb-2" placeholder="Search Location">
+      <input type="text" id="filter-preferred-location" class="form-control mb-2" placeholder="Search Preferred Location">
+
+      <!-- EXPERIENCE -->
+      <div class="input-group mb-2">
+        <input type="number" class="form-control" id="min-exp" placeholder="Min Exp">
+        <span class="input-group-text">-</span>
+        <input type="number" class="form-control" id="max-exp" placeholder="Max Exp">
+      </div>
+      <div class="mb-3">
+      <label class="form-label fw-semibold mb-1"> DOB</label>
+      <input type="date" id="filter-dob" class="form-control mb-2" placeholder="Search DOB">
+      </div>
+      <input type="text" id="filter-college" class="form-control mb-2" placeholder="Search College">
+      <input type="text" id="filter-client" class="form-control mb-2" placeholder="Search Client">
+      <input type="text" id="filter-organization" class="form-control mb-2" placeholder="Search Organization">
+
+      <input type="number" id="filter-current-ctc" class="form-control mb-2" placeholder="Current CTC">
+      <input type="number" id="filter-expected-ctc" class="form-control mb-2" placeholder="Expected CTC">
+      <input type="number" id="filter-notice" class="form-control mb-2" placeholder="Notice Period (Days)">
+      <br>
+      <div class="mb-3">
+      <label class="form-label fw-semibold mb-1">Update Date</label>
+      <input type="date" id="filter-updated" class="form-control custom-date">
+      </div>
+
+      
+    </div>
+  </div>
+
+</div>
+</div>   <!-- row end -->
+
+<!-- ================= MODALS (ALWAYS OUTSIDE DROPDOWN) ================= -->
+
+<!-- Job Opening Modal -->
+<div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Share Job Opening</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="shareJobOpeningForm" method="post" action="{% url 'share_job_opening' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Select Job Opening</label>
+              <select class="form-select" id="jobOpening" name="job_opening" required>
+              {% for job in job_openings %}
+              <option value="{{ job.id }}">{{ job.designation }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">
+          Send Email
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- Modal for Delete Confirmation -->
-<!-- <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Delete Candidates</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete selected candidates?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                <form id="deleteForm" method="post" enctype="multipart/form-data" action="{% url 'candidate-delete' %}">
-                    {% csrf_token %}
-                    <button type="submit" id="delete_btn" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
+<!-- Delete Modal -->
+<div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Candidates</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to delete selected candidates?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+
+        <form id="deleteForm" method="post" action="{% url 'candidate-delete' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+
+      </div>
+
     </div>
-</div> -->
+  </div>
+</div>
 
 {% endblock content %}
 
 {% block js %}
-    <script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>
-    <script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
-    <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
-    <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
+<script src="{% static 'dashboard/js/tables-datatables-basic.js' %}"></script>
+<script src="{% static 'dashboard/js/forms-selects.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.js' %}"></script>
+<script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
+<script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
+<!-- DataTables Buttons -->
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.css' %}">
+
+<script src="{% static 'dashboard/vendor/libs/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.js' %}"></script>
+
+
 {% endblock js %}

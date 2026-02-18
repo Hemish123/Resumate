@@ -46,7 +46,9 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
         company = self.request.user.employee.company
 
-        employee = Employee.objects.create(user=user, company=company)  # Don't save employee yet (for OneToOneField)
+        employee = Employee.objects.create(user=user, company=company,name=self.request.POST.get('name'),
+        contact=self.request.POST.get('contact'),
+        designation=self.request.POST.get('designation')) 
         employee.save()
 
         site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
@@ -57,7 +59,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
 class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = User
-    fields = ['groups']
+    fields = ['first_name', 'last_name', 'groups']
     template_name = "adminuser/update_employee.html"
     title = "Update Client"
     permission_required = 'users.change_employee'   # Replace with actual permission codename
@@ -66,7 +68,7 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.get_object()
-
+        context['employee'] = context['user'].employee
         return context
 
     def has_permission(self):
@@ -75,5 +77,22 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return user.groups.filter(permissions__codename='change_employee').exists()
 
     def form_valid(self, form):
-        messages.success(self.request, message='Employee updated successfully!')
+
+        user = self.object                      # User object
+        employee = user.employee               # Related Employee object
+
+        # ---- User name update ----
+        user.first_name = self.request.POST.get('first_name')
+        user.last_name = self.request.POST.get('last_name')
+        user.save()
+
+        # ---- MAIN FIX: Employee name update karvo PADE ----
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        employee.name = full_name.title()      # 🔥 je list ma show thase
+
+        employee.contact = self.request.POST.get('contact')
+        employee.designation = self.request.POST.get('designation')
+        employee.save()
+
+        messages.success(self.request, "Employee updated successfully!")
         return super().form_valid(form)
