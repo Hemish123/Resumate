@@ -220,12 +220,13 @@ from PyPDF2 import PdfMerger
 import tempfile, os
 from django.conf import settings
 from django.utils.html import strip_tags
-from weasyprint import HTML
 import mimetypes
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 def send_stage_to_client_email(request,recruiter, candidate, job_opening, cc_list=None, recipient_type="client"):
+    from weasyprint import HTML
+
     # # Fetch AI analysis safely
     # analysis = candidate.analysis.filter(job_opening=job_opening).first()
 
