@@ -17,7 +17,7 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     )
 
     #for local testing
-    # client = OpenAI(api_key='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')
+    
     content = """Your task is to parse resume into json format with following keys:
     str(average_tenure(i.e. 2 years)), str(current_tenure(i.e. 2 years)), 
     skills(e.g.{'front-end': ['html', 'javascript']} grab all skills(no speaking languages) from resume and in which categories it falls),

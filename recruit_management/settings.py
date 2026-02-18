@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "storages",
     'interviewbot',
-    'core',
+    
 ]
 
 MIDDLEWARE = [

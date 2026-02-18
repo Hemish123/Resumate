@@ -38,7 +38,6 @@ urlpatterns = ([
     path('candidate/', include('candidate.urls')),
     path('adminuser/', include('adminuser.urls')),
     path('interviewbot/', include('interviewbot.urls')),
-    path('core/', include('core.urls')),
     path('register/', user_views.register, name='register'),
     path('users-details/<int:pk>/', UserDetailView.as_view(), name='users-details'),
     path('users-update/<int:pk>/', EmployeeUpdateView.as_view(), name='users-update'),
