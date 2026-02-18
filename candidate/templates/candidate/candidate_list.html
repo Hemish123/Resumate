@@ -439,7 +439,8 @@ table.dataTable tbody tr:hover {
 <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
 <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
 <!-- DataTables Buttons -->
-<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.css' %}">
+ {% comment %} <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.css' %}"> {% endcomment %}
+ <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}"> 
 
 <script src="{% static 'dashboard/vendor/libs/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'dashboard/vendor/libs/datatables-buttons/dataTables.buttons.min.js' %}"></script>
