@@ -7,7 +7,7 @@
      {% block css %}
 
     {% comment %} <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> {% endcomment %}
-        <link rel="stylesheet" href="{% static 'dashboard/css/bootstrap.min.css' %}">
+        {% comment %} <link rel="stylesheet" href="{% static 'dashboard/css/bootstrap.min.css' %}"> {% endcomment %}
 
     <style>
 /* ========== BASE ========== */
@@ -523,7 +523,8 @@ h4.mb-3 {
 {% block js %}
 
     <!-- Bootstrap JS (optional) -->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% comment %} <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script> {% endcomment %}
+    <script src="{% static 'dashboard/vendor/js/bootstrap.js' %}"></script>
     <script>
 const addEmailBtn = document.getElementById('add-email-btn');
 const container = document.getElementById('additional-emails-container');

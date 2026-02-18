@@ -440,11 +440,15 @@ table.dataTable tbody tr:hover {
 <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
 <!-- DataTables Buttons -->
  {% comment %} <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.css' %}"> {% endcomment %}
- <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}"> 
+ {% comment %} <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}">  {% endcomment %}
 
-<script src="{% static 'dashboard/vendor/libs/datatables/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'dashboard/vendor/libs/datatables-buttons/dataTables.buttons.min.js' %}"></script>
-<script src="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.js' %}"></script>
+{% comment %} <script src="{% static 'dashboard/vendor/libs/datatables/jquery.dataTables.min.js' %}"></script> {% endcomment %}
+{% comment %} <script src="{% static 'dashboard/vendor/libs/datatables-buttons/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons/buttons.bootstrap5.min.js' %}"></script> {% endcomment %}
 
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}">
 
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/dataTables.buttons.js' %}"></script>
+
+<script src="{% static 'dashboard/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js' %}"></script>
 {% endblock js %}
