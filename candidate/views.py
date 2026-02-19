@@ -209,7 +209,7 @@ class CandidateCreateView(FormView):
             with open(local_temp_path, "wb") as f:
                 f.write(default_storage.open(path).read())
             
-            #for local
+            # for local
             # temp_dir = tempfile.gettempdir()
             # local_temp_path = os.path.join(temp_dir, resume_file.name)
 

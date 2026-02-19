@@ -699,109 +699,125 @@ def client_import(request):
         if not file.name.endswith(".csv"):
             messages.error(request, "Only CSV files allowed.")
             return redirect("client-import")
+        
+        file_bytes=file.read()
 
-        data = file.read().decode("utf-8")
+        try:
+            data=file_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            data=file_bytes.decode("Latin-1")
+
+
         io_string = io.StringIO(data)
         reader = csv.DictReader(io_string)
 
         created_count = 0
-
         for row in reader:
 
-            row = {
-                k.strip().lower().replace(" ", "_"): (v.strip() if v else "")
-                for k, v in row.items()
-            }
+            try:
+                row = {
+                    (k.strip().lower().replace(" ", "_") if k else ""):
+                    (v.strip() if v else "")
+                    for k, v in row.items()
+                }
 
-            # Required fields check
-            if not row.get("name") or not row.get("email"):
-                continue
+                # # Required fields
+                # if not row.get("name") or not row.get("email"):
+                #     continue
 
-            # Convert agreement date
-            joined_date = timezone.now()
+                # Agreement date
+                joined_date = timezone.now()
+                if row.get("agreement_date"):
+                    try:
+                        joined_date = datetime.strptime(
+                            row.get("agreement_date"),
+                            "%d-%m-%Y"
+                        )
+                    except:
+                        pass
 
-            if row.get("agreement_date"):
+                # Safe integer conversion
                 try:
-                    joined_date = datetime.strptime(
-                        row.get("agreement_date"),
-                        "%d-%m-%Y"
-                    )
+                    payment_period = int(row.get("payment_period")) if row.get("payment_period") else None
                 except:
-                    joined_date = timezone.now()
+                    payment_period = None
 
-            # Convert integers safely
-            payment_period = int(row.get("payment_period")) if row.get("payment_period") else None
-            replacement_period = int(row.get("replacement_period")) if row.get("replacement_period") else None
+                try:
+                    replacement_period = int(row.get("replacement_period")) if row.get("replacement_period") else None
+                except:
+                    replacement_period = None
 
-            # Convert status to lowercase
-            status_value = row.get("status", "active").lower()
-            if status_value not in ["active", "inactive"]:
-                status_value = "active"
+                # Status safe handling
+                status_value = row.get("status", "active").lower()
+                if status_value not in ["active", "inactive"]:
+                    status_value = "active"
 
-            # Prevent duplicate email
-            if Client.objects.filter(email=row.get("email").lower()).exists():
+                # Duplicate email skip
+                email_value = row.get("email", "").lower()
+
+                if email_value and Client.objects.filter(email=email_value).exists():
+                    continue
+
+
+                # ---------------- Create Client ----------------
+                client = Client.objects.create(
+                    client_id=generate_client_id(),
+                    created_by=request.user,
+                    company=row.get("company", ""),
+                    name=row.get("name", ""),
+                    email=email_value,
+                    alternative_email=row.get("alternative_email", ""),
+                    contact=row.get("contact", ""),
+                    alternative_contact=row.get("alternative_contact", ""),
+                    website=row.get("website", ""),
+                    linkedin=row.get("linkedin", ""),
+                    location=row.get("location", ""),
+                    street=row.get("street", ""),
+                    city=row.get("city", ""),
+                    state=row.get("state", ""),
+                    country=row.get("country", ""),
+                    postal_code=row.get("postal_code", ""),
+                    client_location=row.get("client_location", ""),
+                    industry=row.get("industry", ""),
+                    gst_no=row.get("gst_no", ""),
+                    payment_period=payment_period,
+                    replacement_period=replacement_period,
+                    joined=joined_date,
+                    status=status_value,
+                    commercials_decided=row.get("commercials_decided", ""),
+                )
+
+
+                # ---------------- Hiring POC ----------------
+                if row.get("hiring_name") and row.get("hiring_email"):
+                    HiringPOC.objects.create(
+                        client=client,
+                        name=row.get("hiring_name"),
+                        designation=row.get("hiring_designation"),
+                        email=row.get("hiring_email"),
+                        contact=row.get("hiring_contact"),
+                        linkedin=row.get("hiring_linkedin"),
+                        description=row.get("hiring_description"),
+                    )
+
+                # ---------------- Payment POC ----------------
+                if row.get("payment_name") and row.get("payment_email"):
+                    PaymentPOC.objects.create(
+                        client=client,
+                        name=row.get("payment_name"),
+                        designation=row.get("payment_designation"),
+                        email=row.get("payment_email"),
+                        contact=row.get("payment_contact"),
+                        linkedin=row.get("payment_linkedin"),
+                        description=row.get("payment_description"),
+                    )
+
+                created_count += 1
+
+            except Exception as e:
+                # Skip broken row
                 continue
 
-            client = Client.objects.create(
-                client_id=generate_client_id(),
-                created_by=request.user,
-                company=row.get("company"),
-                name=row.get("name"),
-                email=row.get("email").lower(),
-                alternative_email=row.get("alternative_email"),
-                contact=row.get("contact"),
-                alternative_contact=row.get("alternative_contact"),
-                website=row.get("website"),
-                linkedin=row.get("linkedin"),
-                location=row.get("location"),
-                street=row.get("street"),
-                city=row.get("city"),
-                state=row.get("state"),
-                country=row.get("country"),
-                postal_code=row.get("postal_code"),
-                client_location=row.get("client_location"),
-                industry=row.get("industry"),
-                gst_no=row.get("gst_no"),
-                payment_period=payment_period,
-                replacement_period=replacement_period,
-                joined=joined_date,   # ✅ Correct field
-                status=status_value,
-                commercials_decided=row.get("commercials_decided"),
-            )
-
-            # ---------------- Hiring POC ----------------
-            if row.get("hiring_name") and row.get("hiring_email"):
-                HiringPOC.objects.create(
-                    client=client,
-                    name=row.get("hiring_name"),
-                    designation=row.get("hiring_designation"),
-                    email=row.get("hiring_email"),
-                    contact=row.get("hiring_contact"),
-                    linkedin=row.get("hiring_linkedin"),
-                    description=row.get("hiring_description"),
-                )
-
-            # ---------------- Payment POC ----------------
-            if row.get("payment_name") and row.get("payment_email"):
-                PaymentPOC.objects.create(
-                    client=client,
-                    name=row.get("payment_name"),
-                    designation=row.get("payment_designation"),
-                    email=row.get("payment_email"),
-                    contact=row.get("payment_contact"),
-                    linkedin=row.get("payment_linkedin"),
-                    description=row.get("payment_description"),
-                )
-
-            # ---------------- Additional Emails ----------------
-            additional_emails = row.get("additional_emails")
-            if additional_emails:
-                for email in additional_emails.split(","):
-                    email = email.strip().lower()
-                    if email:
-                        client.additional_emails.create(email=email)
-
-            created_count += 1
 
         messages.success(request, f"{created_count} Clients Imported Successfully!")
         return redirect("client_list")

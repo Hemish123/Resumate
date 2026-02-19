@@ -23,7 +23,7 @@
                             {% if user.employee.profile_pic %}
                               <img src="{{ user.employee.profile_pic.url }}" alt="Profile Pic" />
                             {% else %}
-<img src="/profile_pics/default.png" alt="Default Profile Pic">
+                              <img src="{% static 'dashboard/img/avatars/8380015.jpg' %}" alt="Default Profile Pic">
                             {% endif %}
                           </div>
                         </div>
@@ -98,7 +98,7 @@
                         >
                       </li>
 
-                      {% if has_perm2 %}
+                     {% if has_perm2  %}
 
                       <li class="nav-item">
                         <a class="nav-link" href="{% url 'users-employees' %}"
@@ -196,7 +196,8 @@
                             <div class="d-flex align-items-center">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
-                                  <h6 class="mb-0">{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</h6>
+                                  {% comment %} <h6 class="mb-0">{{ emp.user.first_name|capfirst }} {{ emp.user.last_name|capfirst }}</h6> {% endcomment %}
+                                  <h6 class="mb-0">{{ emp.name|capfirst }}</h6>
                                 </div>
                               </div>
                               {% if emp.user.is_active %}

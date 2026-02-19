@@ -233,6 +233,11 @@
           <div class="col-md-6 mb-3">
             <label for="id_email" class="form-label">Email address</label>
             <input type="email" name="email" maxlength="254" class="form-control" id="id_email" required>
+            <div id="email-error" class="text-danger mt-1">
+                {% if form.email.errors %}
+                    {{ form.email.errors.0 }}
+                {% endif %}
+            </div>
           </div>
 
           <div class="col-md-12 mb-3">

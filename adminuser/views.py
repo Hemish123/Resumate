@@ -36,13 +36,17 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         password = generate_random_password()
         user.password = make_password(password)
         user.save()
-        selected_group_id = self.request.POST.get('groups')
-        # Add the user to the selected group (if any)
+        # selected_group_id = self.request.POST.get('groups')
+        # # Add the user to the selected group (if any)
 
-        group = Group.objects.get(pk=selected_group_id)
-        # group = form.cleaned_data['group']  # Replace 'admin' with your actual group name
+        # group = Group.objects.get(pk=selected_group_id)
+        # # group = form.cleaned_data['group']  # Replace 'admin' with your actual group name
 
-        user.groups.add(group)
+        # user.groups.add(group)
+        group = form.cleaned_data['groups']
+        if group:
+            user.groups.set(group)
+
 
         company = self.request.user.employee.company
 
