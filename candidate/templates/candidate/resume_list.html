@@ -179,7 +179,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for candidate in page_obj  %}
+                {% for candidate in candidates  %}
                 {% if candidate.upload_resume %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
                     <td><input type="checkbox" class="row-checkbox" /></td>

@@ -27,7 +27,7 @@ class Employee(models.Model):
     joined = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=255, blank=True, null=True)        # New
     designation = models.CharField(max_length=255, blank=True, null=True) # New
-    profile_pic = models.ImageField(upload_to='profile_pics/',blank=True,null=True,default='profile_pics/default.png')
+    profile_pic = models.ImageField(upload_to='profile_pics/',blank=True,null=True)
     
     def __str__(self):
         return self.user.username
