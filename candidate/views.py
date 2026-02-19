@@ -993,7 +993,7 @@ from django.core.paginator import Paginator
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
     title = 'Resume Database'
-    paginate_by = 1  # per page resumes
+    paginate_by = 10  # per page resumes
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
