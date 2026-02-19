@@ -203,18 +203,18 @@ class CandidateCreateView(FormView):
             #for production
             # Download from Azure and write to a local file
             # Define a temporary local path
-            # local_temp_path = f"/tmp/{resume_file.name}"
-            # print("path:",local_temp_path)
-
-            # with open(local_temp_path, "wb") as f:
-            #     f.write(default_storage.open(path).read())
-            
-            #for local
-            temp_dir = tempfile.gettempdir()
-            local_temp_path = os.path.join(temp_dir, resume_file.name)
+            local_temp_path = f"/tmp/{resume_file.name}"
+            print("path:",local_temp_path)
 
             with open(local_temp_path, "wb") as f:
                 f.write(default_storage.open(path).read())
+            
+            #for local
+            # temp_dir = tempfile.gettempdir()
+            # local_temp_path = os.path.join(temp_dir, resume_file.name)
+
+            # with open(local_temp_path, "wb") as f:
+            #     f.write(default_storage.open(path).read())
 
 
             extractedText = extractText(local_temp_path)
