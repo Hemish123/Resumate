@@ -23,7 +23,7 @@
                             {% if user.employee.profile_pic %}
                               <img src="{{ user.employee.profile_pic.url }}" alt="Profile Pic" />
                             {% else %}
-                              <img src="{% static '/profile_pics/default.png' %}" alt="Default Profile Pic" />
+                              <img src="{% static 'profile_pics/default.png' %}" alt="Default Profile Pic" />
                             {% endif %}
                           </div>
                         </div>
@@ -98,7 +98,7 @@
                         >
                       </li>
 
-                      {% if has_perm2 and employees %}
+                      {% if has_perm2 %}
 
                       <li class="nav-item">
                         <a class="nav-link" href="{% url 'users-employees' %}"

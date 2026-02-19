@@ -988,21 +988,39 @@ class ShareJobOpeningView(LoginRequiredMixin, View):
 
         return JsonResponse({"status": "success"})
 
+from django.core.paginator import Paginator
+
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
     title = 'Resume Database'
+    paginate_by = 10  # per page resumes
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        # context['candidates'] = Candidate.objects.filter(job_openings__assignemployee=self.request.user.employee, company=self.request.user.employee.company)
-        candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="")
-        context['candidates'] = candidates.order_by('-updated')
-        context['counts'] = f"Total {candidates.count()} resumes"
 
-        context['job_openings'] = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
+        candidates = Candidate.objects.filter(
+            company=self.request.user.employee.company
+        ).exclude(
+            upload_resume__isnull=True
+        ).exclude(
+            upload_resume=""
+        ).order_by('-updated')
+
+        paginator = Paginator(candidates, self.paginate_by)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context['candidates'] = page_obj
+        context['page_obj'] = page_obj
+        context['counts'] = f"Total {paginator.count} resumes"
+        context['job_openings'] = JobOpening.objects.filter(
+            company=self.request.user.employee.company,
+            active=True
+        )
 
         return context
+
 
 
 class ResumeSearchView(LoginRequiredMixin, APIView):

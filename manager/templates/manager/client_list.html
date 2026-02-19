@@ -123,6 +123,11 @@ table tbody tr:hover {
             <i class="bi bi-grid-fill" onclick="showCards()"></i>
             <i class="bi bi-list-task" onclick="showList()"></i>
           </div>
+          <a href="{% url 'client-import' %}" class="btn btn-outline-primary btn-sm">
+            Import
+          </a>
+
+
             <button type="button" onclick="exportClients()" 
                     class="btn btn-outline-primary btn-sm">
                  Export

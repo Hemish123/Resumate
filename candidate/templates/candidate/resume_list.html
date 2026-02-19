@@ -6,6 +6,21 @@
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/select2/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'dashboard/vendor/libs/bootstrap-select/bootstrap-select.css' %}" />
     <style>
+/* ================= PAGINATION ================= */
+.pagination .page-link {
+  border-radius: 4px !important;   /* Square shape */
+  padding: 6px 12px;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+  border-radius: 4px !important;
+}
+
+/* Optional: remove any pill styling completely */
+.pagination .page-item .page-link {
+  border-radius: 0 !important;
+}
 
 /* ================= CARD ================= */
 .card {
@@ -164,7 +179,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for candidate in candidates %}
+                {% for candidate in page_obj  %}
                 {% if candidate.upload_resume %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
                     <td><input type="checkbox" class="row-checkbox" /></td>
@@ -177,6 +192,44 @@
             </tbody>
         </table>
     </div>
+    {% if page_obj.has_other_pages %}
+<nav>
+  <ul class="pagination justify-content-center mt-3">
+
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1">&laquo; First</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      </li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+      </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
 </div>
 </div>
 </div>

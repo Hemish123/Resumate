@@ -19,6 +19,8 @@ urlpatterns = [
     path('export-clients/', views.export_clients, name='export_clients'),
     path("client/<int:pk>/delete/", views.client_delete, name="client_delete"),
     path("client/<int:pk>/update/", views.update_client, name="update_client"),
+    path("client-import/", views.client_import, name="client-import"),
+
 
 
 

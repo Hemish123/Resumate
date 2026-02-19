@@ -1,0 +1,252 @@
+{% extends "screening/base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'dashboard/vendor/libs/dropzone/dropzone.css' %}" />
+
+<style>
+.file-name-display {
+    margin-top: 15px;
+    font-weight: 500;
+    color: #0b0b5d;
+}
+
+.dropzone .dz-preview {
+    display: none !important;
+}
+
+.dropzone:hover {
+    border-color: #696cff !important;
+    background: #f3f4ff;
+}
+
+.dropzone {
+    padding: 40px 20px !important;
+}
+
+#clientDropzone {
+    position: relative;
+}
+
+.upload-instruction {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="content-wrapper">
+
+<div class="d-flex align-items-center mb-4">
+  <button type="button"
+          onclick="window.history.back()"
+          class="btn btn-outline-primary px-4 py-2 fw-semibold">
+    <i class="ti ti-chevron-left me-2"></i> Back
+  </button>
+</div>
+
+<div class="container-xxl container-p-y">
+
+  <!-- FORMAT PREVIEW -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Upload file in following format only</h5>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive">
+<table class="table table-bordered table-sm">
+  <thead class="table-light">
+    <tr>
+      <th>Company</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Alternative Email</th>
+      <th>Contact</th>
+      <th>Alternative Contact</th>
+      <th>Website</th>
+      <th>LinkedIn</th>
+      <th>Location</th>
+      <th>Street</th>
+      <th>City</th>
+      <th>State</th>
+      <th>Country</th>
+      <th>Postal Code</th>
+      <th>Client Location</th>
+      <th>Industry</th>
+      <th>GST No</th>
+      <th>Payment Period (Days)</th>
+      <th>Replacement Period (Days)</th>
+      <th>Status</th>
+      <th>Commercials Decided</th>
+      <th>Agreement Date</th>
+      
+
+      <th>Hiring Name</th>
+      <th>Hiring Designation</th>
+      <th>Hiring Email</th>
+      <th>Hiring Contact</th>
+      <th>Hiring LinkedIn</th>
+      <th>Hiring Description</th>
+
+      <th>Payment Name</th>
+      <th>Payment Designation</th>
+      <th>Payment Email</th>
+      <th>Payment Contact</th>
+      <th>Payment LinkedIn</th>
+      <th>Payment Description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>ABC Pvt Ltd</td>
+      <td>Rahul Shah</td>
+      <td>rahul@abc.com</td>
+      <td>alt@abc.com</td>
+      <td>9876543210</td>
+      <td>9999999999</td>
+      <td>www.abc.com</td>
+      <td>linkedin.com/company/abc</td>
+      <td>Ahmedabad</td>
+      <td>SG Highway</td>
+      <td>Ahmedabad</td>
+      <td>Gujarat</td>
+      <td>India</td>
+      <td>380015</td>
+      <td>Gujarat</td>
+      <td>IT</td>
+      <td>22ABCDE1234F1Z5</td>
+      <td>30</td>
+      <td>90</td>
+      <td>Active</td>
+      <td>15% on CTC</td>
+      <td>25-12-2026</td>
+
+
+      <td>HR Manager</td>
+      <td>HR Head</td>
+      <td>hr@abc.com</td>
+      <td>8888888888</td>
+      <td>linkedin.com/hr</td>
+      <td>Main Hiring Person</td>
+
+      <td>Accounts Head</td>
+      <td>Finance Manager</td>
+      <td>accounts@abc.com</td>
+      <td>7777777777</td>
+      <td>linkedin.com/accounts</td>
+      <td>Payment Contact</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div> 
+</div>
+
+
+  <!-- DROPZONE CARD -->
+  <div class="card">
+    <div class="card-body">
+
+      <form method="POST" enctype="multipart/form-data" id="clientUploadForm">
+        {% csrf_token %}
+
+        <div class="dropzone needsclick" id="clientDropzone">
+          <div class="upload-instruction">
+              Upload File in .csv Format Only.
+          </div>
+
+          <div class="dz-message needsclick">
+            <span class="note needsclick">
+              Drop File Here or Click to Upload
+            </span>
+          </div>
+
+          <div class="fallback">
+            <input name="file" type="file" accept=".csv" />
+          </div>
+        </div>
+
+        <div id="clientFileName" class="file-name-display"></div>
+
+        <button type="submit" class="btn btn-primary mt-3">
+          Submit
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script src="{% static 'dashboard/vendor/libs/dropzone/dropzone.js' %}"></script>
+
+<script>
+Dropzone.autoDiscover = false;
+
+var selectedFile = null;
+
+var clientDropzone = new Dropzone("#clientDropzone", {
+    url: "/",
+    autoProcessQueue: false,
+    paramName: "file",
+    maxFiles: 1,
+    acceptedFiles: ".csv",
+    addRemoveLinks: false,
+    maxFilesize: 5,
+
+    init: function () {
+
+        this.on("addedfile", function(file) {
+
+            selectedFile = file;
+
+            document.getElementById("clientFileName").innerHTML =
+                "Selected File: " + file.name;
+
+            if (file.previewElement) {
+                file.previewElement.remove();
+            }
+        });
+
+        this.on("maxfilesexceeded", function(file) {
+            this.removeAllFiles();
+            this.addFile(file);
+        });
+    }
+});
+
+document.getElementById("clientUploadForm").addEventListener("submit", function(e) {
+
+    if (!selectedFile) {
+        e.preventDefault();
+        alert("Please select a CSV file first.");
+        return;
+    }
+
+    var dataTransfer = new DataTransfer();
+    dataTransfer.items.add(selectedFile);
+
+    var hiddenInput = document.createElement("input");
+    hiddenInput.type = "file";
+    hiddenInput.name = "file";
+    hiddenInput.files = dataTransfer.files;
+    hiddenInput.style.display = "none";
+
+    this.appendChild(hiddenInput);
+});
+</script>
+
+{% endblock %}
