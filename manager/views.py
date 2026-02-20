@@ -43,8 +43,14 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context['title'] = self.title
         context['choices'] = Employee.objects.filter(company=self.request.user.employee.company)
         # context['clients'] = Client.objects.filter(company=self.request.user.employee.company)
-        context['clients'] = Client.objects.all()
-
+        # context['clients'] = Client.objects.all()
+        # context['clients'] = Client.objects.filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+            context['clients'] = Client.objects.all()
+        else:
+            context['clients'] = Client.objects.filter(
+                created_by__employee__company=self.request.user.employee.company
+            )
         # Load JSON data for designations and skills
         # with open("dashboard/static/dashboard/json/designations.json") as f:
         #     context['data'] = json.load(f)
@@ -168,8 +174,14 @@ class JobOpeningUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         context['choices'] = Employee.objects.filter(company=self.request.user.employee.company)
-        context['clients'] = Client.objects.all()
-
+        # context['clients'] = Client.objects.all()
+        # context['clients'] = Client.objects.filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+                context['clients'] = Client.objects.all()
+        else:
+                context['clients'] = Client.objects.filter(
+                    created_by__employee__company=self.request.user.employee.company
+                )
         with open("dashboard/static/dashboard/json/designations.json") as f:
             data = json.load(f)
 
@@ -404,7 +416,14 @@ def client_onboarding(request):
 from django.shortcuts import render
 from .models import Client
 def client_list(request):
-    clients = Client.objects.all()
+    # clients = Client.objects.all()
+    if request.user.is_superuser:
+        clients = Client.objects.all()
+    else:
+          clients = Client.objects.filter(
+            created_by__employee__company=request.user.employee.company
+        )
+
     print("Clients count:", clients.count())  # <-- add this
     return render(request, 'manager/client_list.html', {'clients': clients})
 from django.shortcuts import render, get_object_or_404
@@ -708,10 +727,20 @@ def client_import(request):
             data=file_bytes.decode("Latin-1")
 
 
-        io_string = io.StringIO(data)
-        reader = csv.DictReader(io_string)
+        # io_string = io.StringIO(data)
+        # reader = csv.DictReader(io_string)
+        io_string = io.StringIO(data, newline="")
+
+        reader = csv.DictReader(
+            io_string,
+            delimiter=",",
+            quotechar='"',
+            skipinitialspace=True
+        )
+
 
         created_count = 0
+        duplicate_count = 0
         for row in reader:
 
             try:
@@ -720,10 +749,6 @@ def client_import(request):
                     (v.strip() if v else "")
                     for k, v in row.items()
                 }
-
-                # # Required fields
-                # if not row.get("name") or not row.get("email"):
-                #     continue
 
                 # Agreement date
                 joined_date = timezone.now()
@@ -756,8 +781,10 @@ def client_import(request):
                 email_value = row.get("email", "").lower()
 
                 if email_value and Client.objects.filter(email=email_value).exists():
+                    duplicate_count += 1
                     continue
-
+            
+            
 
                 # ---------------- Create Client ----------------
                 client = Client.objects.create(
@@ -815,11 +842,20 @@ def client_import(request):
                 created_count += 1
 
             except Exception as e:
-                # Skip broken row
                 continue
 
 
-        messages.success(request, f"{created_count} Clients Imported Successfully!")
+        if created_count > 0:
+            messages.success(request, f"{created_count} Clients Imported Successfully!")
+
+        if duplicate_count > 0:
+            messages.warning(request, "Clients already existed .")
+
+        # if error_count > 0:
+        #     messages.error(request, f"{error_count} Rows had errors and were skipped.")
+
+        # if created_count == 0 and duplicate_count > 0:
+        #     messages.info(request, "No new clients were added. All records already exist.")
         return redirect("client_list")
 
     return render(request, "manager/client_import.html")

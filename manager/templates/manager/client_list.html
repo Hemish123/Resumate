@@ -1,5 +1,6 @@
 {% extends "screening/base.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 
@@ -305,7 +306,9 @@ table tbody tr:hover {
           <th>Phone</th>
           <th>Company</th>
           <th>Agreement Date</th>
+        {% if user|has_group:"admin,manager" %}
           <th>Action</th>
+        {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -325,6 +328,7 @@ table tbody tr:hover {
           <td>{{ client.contact }}</td>
           <td>{{ client.company }}</td>
           <td>{{ client.joined|date:"d M Y" }}</td>
+          {% if user|has_group:"admin,manager" %}
           <td>
         <a href="{% url 'update_client' client.id %}" 
            class="btn btn-warning btn-sm">
@@ -343,7 +347,7 @@ table tbody tr:hover {
                 </button>
               </form>
             </td>
-
+{% endif %}
         </tr>
         {% empty %}
         <tr>
