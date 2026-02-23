@@ -992,7 +992,6 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.conf import settings
-from azure.storage.blob import BlobServiceClient
 import os
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
@@ -1003,6 +1002,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
 
+        # 🔹 Get candidates with uploaded resumes only
         candidates = Candidate.objects.filter(
             company=self.request.user.employee.company
         ).exclude(
@@ -1011,33 +1011,34 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
             upload_resume=""
         ).order_by('-updated')
 
-# 🔹 If running on LIVE (Azure Blob)
+        # 🔹 LIVE (Azure)
         if not settings.DEBUG:
-
-            connection_string = os.environ.get("AZURE_ACCOUNT_KEY")
             account_name = os.environ.get("AZURE_ACCOUNT_NAME")
-
-            blob_service = BlobServiceClient.from_connection_string(connection_string)
-            container_client = blob_service.get_container_client("media")
 
             for candidate in candidates:
                 if candidate.upload_resume:
                     blob_name = candidate.upload_resume.name
-                    candidate.azure_url = f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
+                    candidate.resume_url = (
+                        f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
+                    )
                 else:
-                    candidate.azure_url = None
+                    candidate.resume_url = None
 
+        # 🔹 LOCAL
         else:
-            # 🔹 Local Development
             for candidate in candidates:
                 if candidate.upload_resume:
-                    candidate.azure_url = candidate.upload_resume.url
+                    candidate.resume_url = candidate.upload_resume.url
                 else:
-                    candidate.azure_url = None
-                    
-        context['candidates'] = candidates   
+                    candidate.resume_url = None
+
+        # 🔹 Add context
+        context['candidates'] = candidates
         context['counts'] = f"Total {candidates.count()} resumes"
-        context['job_openings'] = JobOpening.objects.filter( company=self.request.user.employee.company, active=True )
+        context['job_openings'] = JobOpening.objects.filter(
+            company=self.request.user.employee.company,
+            active=True
+        )
 
         return context
 

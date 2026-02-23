@@ -274,10 +274,32 @@ def send_stage_to_client_email(request,recruiter, candidate, job_opening, cc_lis
     ai_pdf = create_ai_analysis_pdf(candidate, job_opening,analysis=analysis)
 
     # ✅ MERGE AI PDF + RESUME
-    final_pdf = merge_ai_pdf_with_resume(
-        ai_pdf,
-        candidate.upload_resume.path if candidate.upload_resume else None
-    )
+    import os
+    import tempfile
+
+    resume_file_path = None
+
+    if candidate.upload_resume:
+        try:
+            extension = os.path.splitext(candidate.upload_resume.name)[1] or ".pdf"
+
+            temp_resume = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+
+            candidate.upload_resume.open("rb")
+            temp_resume.write(candidate.upload_resume.read())
+            candidate.upload_resume.close()
+
+            temp_resume.close()
+            resume_file_path = temp_resume.name
+
+        except Exception as e:
+            print("Resume handling failed:", str(e))
+            resume_file_path = None
+            
+        final_pdf = merge_ai_pdf_with_resume(
+            ai_pdf,
+            resume_file_path
+        )
 
     html_message = render_to_string(
         "dashboard/sent_to_client_email.html",
