@@ -1014,7 +1014,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 # 🔹 If running on LIVE (Azure Blob)
         if not settings.DEBUG:
 
-            connection_string = os.environ.get("AZURE_CONNECTION_STRING")
+            connection_string = os.environ.get("AZURE_ACCOUNT_KEY")
             account_name = os.environ.get("AZURE_ACCOUNT_NAME")
 
             blob_service = BlobServiceClient.from_connection_string(connection_string)
