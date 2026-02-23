@@ -373,3 +373,32 @@ def merge_ai_pdf_with_resume(ai_pdf, resume_path):
     merger.close()
 
     return final_pdf.name
+
+# import re
+
+# def extract_email_from_text(text):
+#     if not text:
+#         return None
+
+#     email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+#     emails = re.findall(email_pattern, text)
+
+#     return emails[0].lower() if emails else None
+
+
+# def resolve_candidate_email(form_email=None, text_content=None):
+#     """
+#     Priority:
+#     1️⃣ Form email (candidate.email)
+#     2️⃣ Extracted email from resume
+#     """
+
+#     if form_email and form_email.strip():
+#         return form_email.strip().lower()
+
+#     extracted_email = extract_email_from_text(text_content)
+
+#     if extracted_email:
+#         return extracted_email
+
+#     return None

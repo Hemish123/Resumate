@@ -32,7 +32,6 @@ import csv, openpyxl
 import tempfile
 from django.db.models import Prefetch
 
-
 class CandidateImportView(LoginRequiredMixin, FormView):
     template_name = "candidate/candidate_import.html"
     title = "Import Candidates"
@@ -216,7 +215,6 @@ class CandidateCreateView(FormView):
             # with open(local_temp_path, "wb") as f:
             #     f.write(default_storage.open(path).read())
 
-
             extractedText = extractText(local_temp_path)
             default_storage.delete(path)
             if extractedText.strip() == "" :
@@ -286,6 +284,15 @@ class CandidateCreateView(FormView):
             candidate.text_content = resume
             candidate.company = job_opening.company
             candidate.job_opening_id_temp = job_opening.id
+
+            # # 🔥 Email Resolution Logic
+            # final_email = resolve_candidate_email(
+            #     form_email=form.cleaned_data.get("email"),
+            #     text_content=resume
+            # )
+
+            # if final_email:
+            #     candidate.email = final_email
 
             candidate.save()
 
@@ -993,6 +1000,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.conf import settings
 import os
+from azure.storage.blob import BlobServiceClient
+
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
@@ -1002,39 +1011,56 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
 
-        # 🔹 Get candidates with uploaded resumes only
-        candidates = Candidate.objects.filter(
-            company=self.request.user.employee.company
-        ).exclude(
-            upload_resume__isnull=True
-        ).exclude(
-            upload_resume=""
-        ).order_by('-updated')
-
-        # 🔹 LIVE (Azure)
-        if not settings.DEBUG:
-            account_name = os.environ.get("AZURE_ACCOUNT_NAME")
+        # ================= LOCAL =================
+        if settings.DEBUG:
+            candidates = Candidate.objects.filter(
+                company=self.request.user.employee.company
+            ).exclude(
+                upload_resume__isnull=True
+            ).exclude(
+                upload_resume=""
+            ).order_by('-updated')
 
             for candidate in candidates:
-                if candidate.upload_resume:
-                    blob_name = candidate.upload_resume.name
-                    candidate.resume_url = (
-                        f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
-                    )
-                else:
-                    candidate.resume_url = None
+                candidate.resume_url = (
+                    candidate.upload_resume.url
+                    if candidate.upload_resume else None
+                )
 
-        # 🔹 LOCAL
+            context['candidates'] = candidates
+            context['counts'] = f"Total {candidates.count()} resumes"
+
+        # ================= PRODUCTION (AZURE) =================
         else:
-            for candidate in candidates:
-                if candidate.upload_resume:
-                    candidate.resume_url = candidate.upload_resume.url
-                else:
-                    candidate.resume_url = None
+            account_name = os.environ["AZURE_ACCOUNT_NAME"]
+            account_key = os.environ["AZURE_ACCOUNT_KEY"]
 
-        # 🔹 Add context
-        context['candidates'] = candidates
-        context['counts'] = f"Total {candidates.count()} resumes"
+            connect_str = (
+                f"DefaultEndpointsProtocol=https;"
+                f"AccountName={account_name};"
+                f"AccountKey={account_key};"
+                f"EndpointSuffix=core.windows.net"
+            )
+
+            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            container_client = blob_service_client.get_container_client("media")
+
+            blobs = container_client.list_blobs(name_starts_with="resumes/")
+
+            resume_list = []
+
+            for blob in blobs:
+                file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+
+                resume_list.append({
+                    "name": blob.name.split("/")[-1],
+                    "resume_url": file_url,
+                    "updated": blob.last_modified
+                })
+
+            context['candidates'] = resume_list
+            context['counts'] = f"Total {len(resume_list)} resumes"
+
         context['job_openings'] = JobOpening.objects.filter(
             company=self.request.user.employee.company,
             active=True

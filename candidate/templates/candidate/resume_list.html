@@ -180,14 +180,44 @@
             </thead>
             <tbody>
                 {% for candidate in candidates  %}
-                {% if candidate.upload_resume %}
+                {% comment %} {% if candidate.upload_resume %} {% endcomment %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
                     <td><input type="checkbox" class="row-checkbox" /></td>
-                    <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{ candidate.filename }}</a></td>
-                    <td>{{ candidate.text_content|truncatewords:10 }}</td>
-                    <td>{{ candidate.updated }}</td>
+                    {% comment %} <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{ candidate.filename }}</a></td> {% endcomment %}
+        <!-- Resume Link -->
+        <td>
+            {% if candidate.resume_url %}
+                <a href="{{ candidate.resume_url }}" target="_blank">
+                    {{ candidate.name|default:"View Resume" }}
+                </a>
+            {% elif candidate.upload_resume %}
+                <a href="{{ candidate.upload_resume.url }}" target="_blank">
+                    {{ candidate.upload_resume.name|cut:"resumes/" }}
+                </a>
+            {% else %}
+                -
+            {% endif %}
+        </td>
+                    {% comment %} <td>{{ candidate.text_content|truncatewords:10 }}</td> {% endcomment %}
+          <!-- Content (Only works locally if model has text_content) -->
+        <td>
+            {% if candidate.text_content %}
+                {{ candidate.text_content|truncatewords:10 }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+                    {% comment %} <td>{{ candidate.updated }}</td> {% endcomment %}
+        <!-- Updated Date -->
+        <td>
+            {% if candidate.updated %}
+                {{ candidate.updated }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
                 </tr>
-                {% endif %}
+                {% comment %} {% endif %} {% endcomment %}
                 {% endfor %}
             </tbody>
         </table>
@@ -223,8 +253,8 @@
     <input type="text" name="skill" class="form-control auto-submit"
         placeholder="Skill" value="{{ request.GET.skill }}">
 
-    <input type="text" name="industry" class="form-control auto-submit"
-        placeholder="Industry" value="{{ request.GET.industry }}">
+    {% comment %} <input type="text" name="industry" class="form-control auto-submit"
+        placeholder="Industry" value="{{ request.GET.industry }}"> {% endcomment %}
 </form>
         
     </div>
