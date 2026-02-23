@@ -988,12 +988,16 @@ class ShareJobOpeningView(LoginRequiredMixin, View):
 
         return JsonResponse({"status": "success"})
 
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.conf import settings
+from azure.storage.blob import BlobServiceClient
+import os
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
     title = 'Resume Database'
-    paginate_by = 10  # per page resumes
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1007,22 +1011,132 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
             upload_resume=""
         ).order_by('-updated')
 
-        paginator = Paginator(candidates, self.paginate_by)
-        page_number = self.request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+# 🔹 If running on LIVE (Azure Blob)
+        if not settings.DEBUG:
 
-        context['candidates'] = page_obj
-        context['page_obj'] = page_obj
-        context['counts'] = f"Total {paginator.count} resumes"
-        context['job_openings'] = JobOpening.objects.filter(
-            company=self.request.user.employee.company,
-            active=True
-        )
+            connection_string = os.environ.get("AZURE_CONNECTION_STRING")
+            account_name = os.environ.get("AZURE_ACCOUNT_NAME")
+
+            blob_service = BlobServiceClient.from_connection_string(connection_string)
+            container_client = blob_service.get_container_client("media")
+
+            for candidate in candidates:
+                if candidate.upload_resume:
+                    blob_name = candidate.upload_resume.name
+                    candidate.azure_url = f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
+                else:
+                    candidate.azure_url = None
+
+        else:
+            # 🔹 Local Development
+            for candidate in candidates:
+                if candidate.upload_resume:
+                    candidate.azure_url = candidate.upload_resume.url
+                else:
+                    candidate.azure_url = None
+                    
+        context['candidates'] = candidates   
+        context['counts'] = f"Total {candidates.count()} resumes"
+        context['job_openings'] = JobOpening.objects.filter( company=self.request.user.employee.company, active=True )
 
         return context
 
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 
+def resume_list_api(request):
+    draw = int(request.GET.get("draw", 1))
+    start = int(request.GET.get("start", 0))
+    length = int(request.GET.get("length", 10))
+
+   # Base queryset (IMPORTANT - company based filter)
+    candidates = Candidate.objects.filter(
+        company=request.user.employee.company
+    ).exclude(
+        upload_resume__isnull=True
+    ).exclude(
+        upload_resume=""
+    )
+
+    # ----------- Filters (Same as your original logic) ------------
+
+    name = request.GET.get("name")
+    if name:
+        candidates = candidates.filter(name__icontains=name)
+
+    filename = request.GET.get("filename")
+    if filename:
+        candidates = candidates.filter(filename__icontains=filename)
+
+    designation = request.GET.get("designation")
+    if designation:
+        candidates = candidates.filter(current_designation__icontains=designation)
+
+    experience = request.GET.get("experience")
+    if experience:
+        candidates = candidates.filter(experience__gte=experience)
+
+    education = request.GET.get("education")
+    if education:
+        candidates = candidates.filter(education__icontains=education)
+
+    location = request.GET.get("location")
+    if location:
+        candidates = candidates.filter(location__icontains=location)
+
+    skill = request.GET.get("skill")
+    if skill:
+        candidates = candidates.filter(text_content__icontains=skill)
+
+    industry = request.GET.get("industry")
+    if industry:
+        candidates = candidates.filter(text_content__icontains=industry)
+
+    # Order
+    candidates = candidates.order_by("-updated")
+
+    # ------------ DataTable Pagination -------------
+
+    total_records = Candidate.objects.filter(
+        company=request.user.employee.company
+    ).exclude(
+        upload_resume__isnull=True
+    ).exclude(
+        upload_resume=""
+    ).count()
+
+    filtered_records = candidates.count()
+
+    paginator = Paginator(candidates, length)
+    page_number = (start // length) + 1
+    page = paginator.get_page(page_number)
+
+    data = []
+
+    for candidate in page:
+        data.append({
+            "id": candidate.id,
+            "filename": candidate.filename,
+            "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
+            "content": candidate.text_content[:120] if candidate.text_content else "",
+            "updated": candidate.updated.strftime("%d-%m-%Y"),
+            # "name": candidate.name,
+            # "designation": candidate.current_designation,
+            # "experience": candidate.experience,
+            # "education": candidate.education,
+            # "location": candidate.location,
+            # "updated": candidate.updated.strftime("%d-%m-%Y"),
+        })
+
+    return JsonResponse({
+        "draw": draw,
+        "recordsTotal": total_records,
+        "recordsFiltered": filtered_records,
+        "data": data,
+    })
+        
 class ResumeSearchView(LoginRequiredMixin, APIView):
     def get(self, request, *args, **kwargs):
         query = request.GET.get('q').strip()
@@ -1053,66 +1167,66 @@ class ResumeSearchView(LoginRequiredMixin, APIView):
             })
         return JsonResponse({'results': results, 'counts': counts})
     
-from django.views import View
-from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin
+# from django.views import View
+# from django.shortcuts import render
+# from django.contrib.auth.mixins import LoginRequiredMixin
 
-class ResumeFilterView(LoginRequiredMixin, View):
+# class ResumeFilterView(LoginRequiredMixin, View):
 
-    def get(self, request):
+#     def get(self, request):
 
-        candidates = Candidate.objects.filter(
-            company=request.user.employee.company
-        ).exclude(
-            upload_resume__isnull=True
-        ).exclude(upload_resume="")
+#         candidates = Candidate.objects.filter(
+#             company=request.user.employee.company
+#         ).exclude(
+#             upload_resume__isnull=True
+#         ).exclude(upload_resume="")
 
-        # Candidate Name
-        name = request.GET.get('name')
-        if name:
-            candidates = candidates.filter(name__icontains=name)
+#         # Candidate Name
+#         name = request.GET.get('name')
+#         if name:
+#             candidates = candidates.filter(name__icontains=name)
 
-        # File Name
-        filename = request.GET.get('filename')
-        if filename:
-            candidates = candidates.filter(filename__icontains=filename)
+#         # File Name
+#         filename = request.GET.get('filename')
+#         if filename:
+#             candidates = candidates.filter(filename__icontains=filename)
 
-        # Designation
-        designation = request.GET.get('designation')
-        if designation:
-            candidates = candidates.filter(current_designation__icontains=designation)
+#         # Designation
+#         designation = request.GET.get('designation')
+#         if designation:
+#             candidates = candidates.filter(current_designation__icontains=designation)
 
-        # Experience
-        experience = request.GET.get('experience')
-        if experience:
-            candidates = candidates.filter(experience__gte=experience)
+#         # Experience
+#         experience = request.GET.get('experience')
+#         if experience:
+#             candidates = candidates.filter(experience__gte=experience)
 
-        # Education
-        education = request.GET.get('education')
-        if education:
-            candidates = candidates.filter(education__icontains=education)
+#         # Education
+#         education = request.GET.get('education')
+#         if education:
+#             candidates = candidates.filter(education__icontains=education)
 
-        # Location
-        location = request.GET.get('location')
-        if location:
-            candidates = candidates.filter(location__icontains=location)
+#         # Location
+#         location = request.GET.get('location')
+#         if location:
+#             candidates = candidates.filter(location__icontains=location)
 
-        # Skill
-        skill = request.GET.get('skill')
-        if skill:
-            candidates = candidates.filter(text_content__icontains=skill)
+#         # Skill
+#         skill = request.GET.get('skill')
+#         if skill:
+#             candidates = candidates.filter(text_content__icontains=skill)
 
-        # Industry
-        industry = request.GET.get('industry')
-        if industry:
-            candidates = candidates.filter(text_content__icontains=industry)
+#         # Industry
+#         industry = request.GET.get('industry')
+#         if industry:
+#             candidates = candidates.filter(text_content__icontains=industry)
 
-        candidates = candidates.order_by('-updated')
+#         candidates = candidates.order_by('-updated')
 
-        return render(request, "candidate/resume_list.html", {
-            "candidates": candidates,
-            "counts": candidates.count()
-        })
+#         return render(request, "candidate/resume_list.html", {
+#             "candidates": candidates,
+#             "counts": candidates.count()
+#         })
 
 
 

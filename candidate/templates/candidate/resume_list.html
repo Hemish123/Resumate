@@ -192,43 +192,6 @@
             </tbody>
         </table>
     </div>
-    {% if page_obj.has_other_pages %}
-<nav>
-  <ul class="pagination justify-content-center mt-3">
-
-    {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page=1">&laquo; First</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      </li>
-    {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-      {% if page_obj.number == num %}
-        <li class="page-item active">
-          <span class="page-link">{{ num }}</span>
-        </li>
-      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-        </li>
-      {% endif %}
-    {% endfor %}
-
-    {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-      </li>
-    {% endif %}
-
-  </ul>
-</nav>
-{% endif %}
 
 </div>
 </div>
@@ -237,7 +200,7 @@
   <div class="col-12 col-xl-3">
 <div class="card filter-card">
             <h6><strong>Filters</strong></h6>
-<form method="GET" action="{% url 'resume-filter' %}" id="filterForm">
+<form method="GET" id="filterForm">
 
         <input type="text" name="name" class="form-control auto-submit"
        placeholder="Candidate Name" value="{{ request.GET.name }}">
@@ -277,43 +240,52 @@
     <script src="{% static 'dashboard/vendor/js/dropdown-hover.js' %}"></script>
     <script src="{% static 'dashboard/js/form-input-group.js' %}"></script>
     <script src="{% static 'dashboard/js/resume-list.js' %}"></script>
-    <script>
-$(document).ready(function() {
+<script>
+let table = $('#resume-table').DataTable({
+    processing: true,
+    serverSide: true,
+    searching: false,
+    dom: 'lrtip',
 
-    let delayTimer;
+    ajax: {
+        url: "{% url 'resume_list_api' %}",
+        data: function(d) {
+            d.name = $("input[name='name']").val();
+            d.filename = $("input[name='filename']").val();
+            d.designation = $("input[name='designation']").val();
+            d.experience = $("input[name='experience']").val();
+            d.education = $("input[name='education']").val();
+            d.location = $("input[name='location']").val();
+            d.skill = $("input[name='skill']").val();
+            d.industry = $("input[name='industry']").val();
+        }
+    },
 
-    $(".auto-submit").on("input", function() {
+    pageLength: 10,
+    lengthMenu: [7, 10, 25, 50, 75, 100],
 
-        clearTimeout(delayTimer);
+    columns: [
+        {
+            data: "id",
+            render: function(data) {
+                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+            },
+            orderable: false
+        },
+         {
+        data: "file_url",
+        render: function(data, type, row) {
+            return `<a href="${data}" target="_blank">${row.filename}</a>`;
+        }
+    },
+        { data: "content" },
+        { data: "updated" }
+    ]
+});
 
-        delayTimer = setTimeout(function() {
-
-            $.ajax({
-                url: $("#filterForm").attr("action"),
-                type: "GET",
-                data: $("#filterForm").serialize(),
-                success: function(response) {
-
-                    // Replace only table body
-                    $("#resume-table tbody").html(
-                        $(response).find("#resume-table tbody").html()
-                    );
-
-                    // Update counts
-                    $("strong").first().html(
-                        $(response).find("strong").first().html()
-                    );
-
-                }
-            });
-
-        }, 400);
-
-    });
-
+$(".auto-submit").on("input", function() {
+    table.ajax.reload();
 });
 </script>
-
-
 
 {% endblock js %}
