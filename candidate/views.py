@@ -1179,9 +1179,10 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 #     })
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.conf import settings
+from azure.storage.blob import BlobServiceClient
 import os
+
 
 def resume_list_api(request):
 
@@ -1189,7 +1190,9 @@ def resume_list_api(request):
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
 
-    # ================= BASE QUERYSET =================
+    data = []
+
+    # ================= DATABASE QUERY (FILTERS KEEP SAME) =================
 
     candidates = Candidate.objects.filter(
         company=request.user.employee.company
@@ -1199,7 +1202,7 @@ def resume_list_api(request):
         upload_resume=""
     )
 
-    # ----------- Filters (UNCHANGED) ------------
+    # Filters (UNCHANGED)
 
     name = request.GET.get("name")
     if name:
@@ -1233,58 +1236,60 @@ def resume_list_api(request):
     if industry:
         candidates = candidates.filter(text_content__icontains=industry)
 
-    # Order (UNCHANGED)
     candidates = candidates.order_by("-updated")
-
-    # ================= RECORD COUNTS (UNCHANGED) =================
-
-    total_records = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    ).count()
 
     filtered_records = candidates.count()
 
-    # ================= PAGINATION (UNCHANGED) =================
+    # ================= AZURE TOTAL COUNT =================
+
+    if settings.DEBUG:
+
+        total_records = filtered_records
+
+    else:
+
+        account_name = os.environ["AZURE_ACCOUNT_NAME"]
+        account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+        connect_str = (
+            f"DefaultEndpointsProtocol=https;"
+            f"AccountName={account_name};"
+            f"AccountKey={account_key};"
+            f"EndpointSuffix=core.windows.net"
+        )
+
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+        container_client = blob_service_client.get_container_client("media")
+
+        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+
+        total_records = len(blobs)
+
+    # ================= PAGINATION =================
 
     paginator = Paginator(candidates, length)
     page_number = (start // length) + 1
     page = paginator.get_page(page_number)
 
-    data = []
-
-    # ================= FILE URL LOGIC =================
+    # ================= DATA BUILD =================
 
     for candidate in page:
 
-        # LOCAL (DEBUG=True)
         if settings.DEBUG:
 
-            file_url = candidate.upload_resume.url if candidate.upload_resume else ""
-            filename_value = candidate.filename
+            file_url = candidate.upload_resume.url
+            filename_value = candidate.upload_resume.name.split("/")[-1]
 
-        # PRODUCTION (AZURE)
         else:
 
-            account_name = os.environ.get("AZURE_ACCOUNT_NAME")
+            account_name = os.environ["AZURE_ACCOUNT_NAME"]
 
-            if candidate.upload_resume:
+            blob_name = candidate.upload_resume.name
 
-                blob_name = candidate.upload_resume.name
+            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
 
-                file_url = (
-                    f"https://{account_name}.blob.core.windows.net/"
-                    f"media/{blob_name}"
-                )
-
-                filename_value = blob_name.split("/")[-1]
-
-            else:
-                file_url = ""
-                filename_value = ""
+            filename_value = blob_name.split("/")[-1]
 
         data.append({
             "id": candidate.id,
@@ -1296,8 +1301,8 @@ def resume_list_api(request):
 
     return JsonResponse({
         "draw": draw,
-        "recordsTotal": total_records,
-        "recordsFiltered": filtered_records,
+        "recordsTotal": total_records,        # 10K+
+        "recordsFiltered": filtered_records,  # Filtered DB
         "data": data,
     })
 
