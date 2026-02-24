@@ -47,7 +47,10 @@ function searchResumes() {
     });
 
     const selectAll = document.getElementById("select-all");
-        const checkboxes = document.querySelectorAll(".row-checkbox");
+        // const checkboxes = document.querySelectorAll(".row-checkbox");
+        function getCheckboxes() {
+            return document.querySelectorAll(".row-checkbox");
+        }
         const bulkAction = document.getElementById("shareJobOpeningForm");
 
     // Select all checkboxes
@@ -62,15 +65,21 @@ function searchResumes() {
         toggleBulkActionButton();
     });
 
+        // function toggleBulkActionButton() {
+        //     const anyChecked = Array.from(checkboxes).some((checkbox) => checkbox.checked);
+        //     bulkAction.disabled = !anyChecked;
+        // }
         function toggleBulkActionButton() {
-            const anyChecked = Array.from(checkboxes).some((checkbox) => checkbox.checked);
+            const anyChecked = Array.from(getCheckboxes())
+                .some((checkbox) => checkbox.checked);
             bulkAction.disabled = !anyChecked;
         }
 
 
         $('#shareJobOpeningForm').on('submit', function(e) {
         e.preventDefault();  // Prevent default form submission
-        checkboxes.forEach((checkbox) => {
+        // checkboxes.forEach((checkbox) => {
+         getCheckboxes().forEach((checkbox) => {
     console.log('Checkbox checked:', checkbox.checked, 'Row ID:', checkbox.closest('tr').dataset.id);
 });
                     const selectedIds = $('.row-checkbox:checked').map(function () {

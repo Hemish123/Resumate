@@ -232,7 +232,10 @@ class CandidateCreateView(FormView):
         # Create a form instance with the POST data
         form = self.get_form()
         if form.is_valid():
-            email = form.cleaned_data['email'].lower()
+            # email = form.cleaned_data['email'].lower()
+            email = form.cleaned_data.get('email')
+            if email:
+                email = email.lower()
             # candidate, created = Candidate.objects.get_or_create(email=email)
             if Candidate.objects.filter(email=email, company=job_opening.company).exists():
                 candidate = Candidate.objects.get(email=email, company=job_opening.company)
@@ -285,14 +288,25 @@ class CandidateCreateView(FormView):
             candidate.company = job_opening.company
             candidate.job_opening_id_temp = job_opening.id
 
-            # # 🔥 Email Resolution Logic
-            # final_email = resolve_candidate_email(
-            #     form_email=form.cleaned_data.get("email"),
-            #     text_content=resume
-            # )
+            # ================= EMAIL PRIORITY LOGIC =================
 
-            # if final_email:
-            #     candidate.email = final_email
+            final_email = None
+
+            # 1️⃣ Priority – Form Email
+            if email and email.strip():
+                final_email = email.strip().lower()
+
+            # 2️⃣ Fallback – Resume Extracted Email
+            else:
+                resume_text = candidate.text_content
+                if resume_text:
+                    email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                    emails = re.findall(email_pattern, resume_text)
+                    if emails:
+                        final_email = emails[0].lower()
+
+            if final_email:
+                candidate.email = final_email
 
             candidate.save()
 
@@ -1163,36 +1177,125 @@ def resume_list_api(request):
         "recordsFiltered": filtered_records,
         "data": data,
     })
-        
+
+from django.conf import settings
+from azure.storage.blob import BlobServiceClient
+import os
+from django.db.models import Q
+from django.http import JsonResponse
+
+
 class ResumeSearchView(LoginRequiredMixin, APIView):
+
     def get(self, request, *args, **kwargs):
-        query = request.GET.get('q').strip()
-        if query:
-            keywords = [word.strip() for word in query.replace(',', ' ').split() if word.strip()]
-            query_filter = Q()
-            for keyword in keywords:
-                query_filter &= Q(text_content__icontains=keyword)
+
+        query = request.GET.get('q', '').strip()
+
+        # ================= LOCAL =================
+        if settings.DEBUG:
+
             candidates = Candidate.objects.filter(
-                query_filter,
-                company=self.request.user.employee.company,
-                upload_resume__isnull=False
-            ).order_by('-updated')
-            counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").count()}'
+                company=request.user.employee.company
+            ).exclude(
+                upload_resume__isnull=True
+            ).exclude(
+                upload_resume=""
+            )
 
-        else:
-            candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").order_by('-updated')
-            counts = f'Total {candidates.count()} resumes'
+            if query:
+                keywords = query.replace(',', ' ').split()
+                for keyword in keywords:
+                    candidates = candidates.filter(
+                        text_content__icontains=keyword
+                    )
 
-        results = []
-        for candidate in candidates:
-            results.append({
-                'id': candidate.id,
-                'filename': candidate.filename,
-                'resume_url': candidate.upload_resume.url,
-                'content': candidate.text_content[:100],  # Limit to 100 characters or customize
-                'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
+            candidates = candidates.order_by('-updated')
+
+            results = []
+            for candidate in candidates:
+                results.append({
+                    "id": candidate.id,
+                    "filename": candidate.filename,
+                    "resume_url": candidate.upload_resume.url,
+                    "content": candidate.text_content[:100] if candidate.text_content else "",
+                    "updated": candidate.updated.strftime('%Y-%m-%d')
+                })
+
+            return JsonResponse({
+                "results": results,
+                "counts": f"Total {candidates.count()} resumes"
             })
-        return JsonResponse({'results': results, 'counts': counts})
+
+        # ================= PRODUCTION (AZURE) =================
+        else:
+
+            account_name = os.environ["AZURE_ACCOUNT_NAME"]
+            account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+            connect_str = (
+                f"DefaultEndpointsProtocol=https;"
+                f"AccountName={account_name};"
+                f"AccountKey={account_key};"
+                f"EndpointSuffix=core.windows.net"
+            )
+
+            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            container_client = blob_service_client.get_container_client("media")
+
+            blobs = container_client.list_blobs(name_starts_with="resumes/")
+
+            resume_list = []
+
+            for blob in blobs:
+                filename = blob.name.split("/")[-1]
+
+                # 🔎 search in filename (Azure does not have text_content)
+                if query and query.lower() not in filename.lower():
+                    continue
+
+                file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+
+                resume_list.append({
+                    "id": blob.name,
+                    "filename": filename,
+                    "resume_url": file_url,
+                    "content": "",
+                    "updated": blob.last_modified.strftime('%Y-%m-%d')
+                })
+
+            return JsonResponse({
+                "results": resume_list,
+                "counts": f"Total {len(resume_list)} resumes"
+            })
+# class ResumeSearchView(LoginRequiredMixin, APIView):
+#     def get(self, request, *args, **kwargs):
+#         query = request.GET.get('q').strip()
+#         if query:
+#             keywords = [word.strip() for word in query.replace(',', ' ').split() if word.strip()]
+#             query_filter = Q()
+#             for keyword in keywords:
+#                 query_filter &= Q(text_content__icontains=keyword)
+#             candidates = Candidate.objects.filter(
+#                 query_filter,
+#                 company=self.request.user.employee.company,
+#                 upload_resume__isnull=False
+#             ).order_by('-updated')
+#             counts = f'Filtered {candidates.count()} resumes from {Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").count()}'
+
+#         else:
+#             candidates = Candidate.objects.filter(company=self.request.user.employee.company).exclude(upload_resume__isnull=True).exclude(upload_resume="").order_by('-updated')
+#             counts = f'Total {candidates.count()} resumes'
+
+#         results = []
+#         for candidate in candidates:
+#             results.append({
+#                 'id': candidate.id,
+#                 'filename': candidate.filename,
+#                 'resume_url': candidate.upload_resume.url,
+#                 'content': candidate.text_content[:100],  # Limit to 100 characters or customize
+#                 'updated': candidate.updated.strftime('%Y-%m-%d'),  # Customize as needed
+#             })
+#         return JsonResponse({'results': results, 'counts': counts})
     
 # from django.views import View
 # from django.shortcuts import render

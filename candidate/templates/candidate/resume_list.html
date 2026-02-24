@@ -178,7 +178,7 @@
                     <th>Updated</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody  id="resume-body" >
                 {% for candidate in candidates  %}
                 {% comment %} {% if candidate.upload_resume %} {% endcomment %}
                 <tr data-id="{{ candidate.id }}" data-job_opening_id="{{ job_opening.id }}">
