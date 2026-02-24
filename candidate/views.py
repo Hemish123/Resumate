@@ -1102,38 +1102,41 @@ def resume_list_api(request):
     )
 
     # ----------- Filters (Same as your original logic) ------------
-
-    name = request.GET.get("name")
+    name = request.GET.get("name", "").strip()
     if name:
         candidates = candidates.filter(name__icontains=name)
 
-    filename = request.GET.get("filename")
+    filename = request.GET.get("filename", "").strip()
     if filename:
         candidates = candidates.filter(filename__icontains=filename)
 
-    designation = request.GET.get("designation")
+    designation = request.GET.get("designation", "").strip()
     if designation:
         candidates = candidates.filter(current_designation__icontains=designation)
 
-    experience = request.GET.get("experience")
+    experience = request.GET.get("experience", "").strip()
     if experience:
         candidates = candidates.filter(experience__gte=experience)
 
-    education = request.GET.get("education")
+    education = request.GET.get("education", "").strip()
     if education:
         candidates = candidates.filter(education__icontains=education)
 
-    location = request.GET.get("location")
+    location = request.GET.get("location", "").strip()
     if location:
         candidates = candidates.filter(location__icontains=location)
 
-    skill = request.GET.get("skill")
-    if skill:
-        candidates = candidates.filter(text_content__icontains=skill)
+    # ---------------- SKILLS FILTER (Multi-keyword AND) ----------------
 
-    industry = request.GET.get("industry")
-    if industry:
-        candidates = candidates.filter(text_content__icontains=industry)
+    skills = request.GET.get("skills", "").strip()
+
+    if skills:
+        skill_keywords = skills.replace(",", " ").split()
+
+        for skill in skill_keywords:
+            candidates = candidates.filter(
+                text_content__icontains=skill
+            )
 
     # Order
     candidates = candidates.order_by("-updated")
