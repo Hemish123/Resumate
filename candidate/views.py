@@ -1178,7 +1178,6 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 #         "data": data,
 #     })
 from django.http import JsonResponse
-from django.core.paginator import Paginator
 from django.conf import settings
 from azure.storage.blob import BlobServiceClient
 import os
@@ -1190,61 +1189,42 @@ def resume_list_api(request):
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
 
+    name_filter = request.GET.get("filename")
+
     data = []
 
-    # ================= DATABASE QUERY (FILTERS KEEP SAME) =================
-
-    candidates = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    )
-
-    # Filters (UNCHANGED)
-
-    name = request.GET.get("name")
-    if name:
-        candidates = candidates.filter(name__icontains=name)
-
-    filename = request.GET.get("filename")
-    if filename:
-        candidates = candidates.filter(filename__icontains=filename)
-
-    designation = request.GET.get("designation")
-    if designation:
-        candidates = candidates.filter(current_designation__icontains=designation)
-
-    experience = request.GET.get("experience")
-    if experience:
-        candidates = candidates.filter(experience__gte=experience)
-
-    education = request.GET.get("education")
-    if education:
-        candidates = candidates.filter(education__icontains=education)
-
-    location = request.GET.get("location")
-    if location:
-        candidates = candidates.filter(location__icontains=location)
-
-    skill = request.GET.get("skill")
-    if skill:
-        candidates = candidates.filter(text_content__icontains=skill)
-
-    industry = request.GET.get("industry")
-    if industry:
-        candidates = candidates.filter(text_content__icontains=industry)
-
-    candidates = candidates.order_by("-updated")
-
-    filtered_records = candidates.count()
-
-    # ================= AZURE TOTAL COUNT =================
+    # ================= LOCAL =================
 
     if settings.DEBUG:
 
-        total_records = filtered_records
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company
+        ).exclude(
+            upload_resume__isnull=True
+        ).exclude(
+            upload_resume=""
+        ).order_by("-updated")
+
+        total_records = candidates.count()
+
+        if name_filter:
+            candidates = candidates.filter(filename__icontains=name_filter)
+
+        filtered_records = candidates.count()
+
+        page = candidates[start:start+length]
+
+        for candidate in page:
+
+            data.append({
+                "id": candidate.id,
+                "filename": candidate.upload_resume.name.split("/")[-1],
+                "file_url": candidate.upload_resume.url,
+                "content": candidate.text_content[:120] if candidate.text_content else "",
+                "updated": candidate.updated.strftime("%d-%m-%Y"),
+            })
+
+    # ================= PRODUCTION =================
 
     else:
 
@@ -1264,48 +1244,44 @@ def resume_list_api(request):
 
         blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
 
+        # TOTAL COUNT
         total_records = len(blobs)
 
-    # ================= PAGINATION =================
+        # FILTER
+        if name_filter:
+            blobs = [
+                b for b in blobs
+                if name_filter.lower() in b.name.lower()
+            ]
 
-    paginator = Paginator(candidates, length)
-    page_number = (start // length) + 1
-    page = paginator.get_page(page_number)
+        filtered_records = len(blobs)
 
-    # ================= DATA BUILD =================
+        # SORT
+        blobs.sort(key=lambda x: x.last_modified, reverse=True)
 
-    for candidate in page:
+        # PAGINATION
+        blobs = blobs[start:start+length]
 
-        if settings.DEBUG:
+        for blob in blobs:
 
-            file_url = candidate.upload_resume.url
-            filename_value = candidate.upload_resume.name.split("/")[-1]
+            filename = blob.name.split("/")[-1]
 
-        else:
+            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
 
-            account_name = os.environ["AZURE_ACCOUNT_NAME"]
-
-            blob_name = candidate.upload_resume.name
-
-            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob_name}"
-
-            filename_value = blob_name.split("/")[-1]
-
-        data.append({
-            "id": candidate.id,
-            "filename": filename_value,
-            "file_url": file_url,
-            "content": candidate.text_content[:120] if candidate.text_content else "",
-            "updated": candidate.updated.strftime("%d-%m-%Y"),
-        })
+            data.append({
+                "id": blob.name,
+                "filename": filename,
+                "file_url": file_url,
+                "content": "",
+                "updated": blob.last_modified.strftime("%d-%m-%Y"),
+            })
 
     return JsonResponse({
         "draw": draw,
-        "recordsTotal": total_records,        # 10K+
-        "recordsFiltered": filtered_records,  # Filtered DB
+        "recordsTotal": total_records,
+        "recordsFiltered": filtered_records,
         "data": data,
     })
-
 
 from django.conf import settings
 from azure.storage.blob import BlobServiceClient
