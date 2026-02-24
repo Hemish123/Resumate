@@ -1082,9 +1082,108 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 
         return context
 
+# from django.http import JsonResponse
+# from django.core.paginator import Paginator
+# from django.db.models import Q
+
+
+# def resume_list_api(request):
+#     draw = int(request.GET.get("draw", 1))
+#     start = int(request.GET.get("start", 0))
+#     length = int(request.GET.get("length", 10))
+
+#    # Base queryset (IMPORTANT - company based filter)
+#     candidates = Candidate.objects.filter(
+#         company=request.user.employee.company
+#     ).exclude(
+#         upload_resume__isnull=True
+#     ).exclude(
+#         upload_resume=""
+#     )
+
+#     # ----------- Filters (Same as your original logic) ------------
+
+#     name = request.GET.get("name")
+#     if name:
+#         candidates = candidates.filter(name__icontains=name)
+
+#     filename = request.GET.get("filename")
+#     if filename:
+#         candidates = candidates.filter(filename__icontains=filename)
+
+#     designation = request.GET.get("designation")
+#     if designation:
+#         candidates = candidates.filter(current_designation__icontains=designation)
+
+#     experience = request.GET.get("experience")
+#     if experience:
+#         candidates = candidates.filter(experience__gte=experience)
+
+#     education = request.GET.get("education")
+#     if education:
+#         candidates = candidates.filter(education__icontains=education)
+
+#     location = request.GET.get("location")
+#     if location:
+#         candidates = candidates.filter(location__icontains=location)
+
+#     skill = request.GET.get("skill")
+#     if skill:
+#         candidates = candidates.filter(text_content__icontains=skill)
+
+#     industry = request.GET.get("industry")
+#     if industry:
+#         candidates = candidates.filter(text_content__icontains=industry)
+
+#     # Order
+#     candidates = candidates.order_by("-updated")
+
+#     # ------------ DataTable Pagination -------------
+
+#     total_records = Candidate.objects.filter(
+#         company=request.user.employee.company
+#     ).exclude(
+#         upload_resume__isnull=True
+#     ).exclude(
+#         upload_resume=""
+#     ).count()
+
+#     filtered_records = candidates.count()
+
+#     paginator = Paginator(candidates, length)
+#     page_number = (start // length) + 1
+#     page = paginator.get_page(page_number)
+
+#     data = []
+
+#     for candidate in page:
+#         data.append({
+#             "id": candidate.id,
+#             "filename": candidate.filename,
+#             "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
+#             "content": candidate.text_content[:120] if candidate.text_content else "",
+#             "updated": candidate.updated.strftime("%d-%m-%Y"),
+#             # "name": candidate.name,
+#             # "designation": candidate.current_designation,
+#             # "experience": candidate.experience,
+#             # "education": candidate.education,
+#             # "location": candidate.location,
+#             # "updated": candidate.updated.strftime("%d-%m-%Y"),
+#         })
+
+#     return JsonResponse({
+#         "draw": draw,
+#         "recordsTotal": total_records,
+#         "recordsFiltered": filtered_records,
+#         "data": data,
+#     })
+
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.conf import settings
 from django.db.models import Q
+from azure.storage.blob import ContainerClient
+import os
 
 
 def resume_list_api(request):
@@ -1092,91 +1191,115 @@ def resume_list_api(request):
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
 
-   # Base queryset (IMPORTANT - company based filter)
-    candidates = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    )
+    # ==========================================================
+    # 🔹 LOCAL ENVIRONMENT (Use DB — SAME AS YOUR CURRENT CODE)
+    # ==========================================================
+    if settings.DEBUG:
 
-    # ----------- Filters (Same as your original logic) ------------
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company
+        ).exclude(
+            upload_resume__isnull=True
+        ).exclude(
+            upload_resume=""
+        )
 
-    name = request.GET.get("name")
-    if name:
-        candidates = candidates.filter(name__icontains=name)
+        # Filters (same as your original)
+        name = request.GET.get("name")
+        if name:
+            candidates = candidates.filter(name__icontains=name)
 
-    filename = request.GET.get("filename")
-    if filename:
-        candidates = candidates.filter(filename__icontains=filename)
+        filename = request.GET.get("filename")
+        if filename:
+            candidates = candidates.filter(filename__icontains=filename)
 
-    designation = request.GET.get("designation")
-    if designation:
-        candidates = candidates.filter(current_designation__icontains=designation)
+        designation = request.GET.get("designation")
+        if designation:
+            candidates = candidates.filter(current_designation__icontains=designation)
 
-    experience = request.GET.get("experience")
-    if experience:
-        candidates = candidates.filter(experience__gte=experience)
+        experience = request.GET.get("experience")
+        if experience:
+            candidates = candidates.filter(experience__gte=experience)
 
-    education = request.GET.get("education")
-    if education:
-        candidates = candidates.filter(education__icontains=education)
+        education = request.GET.get("education")
+        if education:
+            candidates = candidates.filter(education__icontains=education)
 
-    location = request.GET.get("location")
-    if location:
-        candidates = candidates.filter(location__icontains=location)
+        location = request.GET.get("location")
+        if location:
+            candidates = candidates.filter(location__icontains=location)
 
-    skill = request.GET.get("skill")
-    if skill:
-        candidates = candidates.filter(text_content__icontains=skill)
+        skill = request.GET.get("skill")
+        if skill:
+            candidates = candidates.filter(text_content__icontains=skill)
 
-    industry = request.GET.get("industry")
-    if industry:
-        candidates = candidates.filter(text_content__icontains=industry)
+        industry = request.GET.get("industry")
+        if industry:
+            candidates = candidates.filter(text_content__icontains=industry)
 
-    # Order
-    candidates = candidates.order_by("-updated")
+        candidates = candidates.order_by("-updated")
 
-    # ------------ DataTable Pagination -------------
+        total_records = candidates.count()
 
-    total_records = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    ).count()
+        paginator = Paginator(candidates, length)
+        page_number = (start // length) + 1
+        page = paginator.get_page(page_number)
 
-    filtered_records = candidates.count()
+        data = []
 
-    paginator = Paginator(candidates, length)
-    page_number = (start // length) + 1
-    page = paginator.get_page(page_number)
+        for candidate in page:
+            data.append({
+                "id": candidate.id,
+                "filename": candidate.filename,
+                "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
+                "content": candidate.text_content[:120] if candidate.text_content else "",
+                "updated": candidate.updated.strftime("%d-%m-%Y"),
+            })
 
-    data = []
-
-    for candidate in page:
-        data.append({
-            "id": candidate.id,
-            "filename": candidate.filename,
-            "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
-            "content": candidate.text_content[:120] if candidate.text_content else "",
-            "updated": candidate.updated.strftime("%d-%m-%Y"),
-            # "name": candidate.name,
-            # "designation": candidate.current_designation,
-            # "experience": candidate.experience,
-            # "education": candidate.education,
-            # "location": candidate.location,
-            # "updated": candidate.updated.strftime("%d-%m-%Y"),
+        return JsonResponse({
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data,
         })
 
-    return JsonResponse({
-        "draw": draw,
-        "recordsTotal": total_records,
-        "recordsFiltered": filtered_records,
-        "data": data,
-    })
+    # ==========================================================
+    # 🔹 LIVE ENVIRONMENT (Fetch ALL from Azure Blob)
+    # ==========================================================
+    else:
+
+        container_client = ContainerClient.from_connection_string(
+            settings.AZURE_CONNECTION_STRING,
+            container_name=settings.AZURE_CONTAINER
+        )
+
+        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+
+        resume_list = []
+
+        for index, blob in enumerate(blobs, start=1):
+
+            filename = blob.name.split("/")[-1]
+
+            resume_list.append({
+                "id": index,
+                "filename": filename,
+                "file_url": f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER}/{blob.name}",
+                "content": "",
+                "updated": blob.last_modified.strftime("%d-%m-%Y") if blob.last_modified else "",
+            })
+
+        total_records = len(resume_list)
+
+        # Pagination
+        resume_list = resume_list[start:start + length]
+
+        return JsonResponse({
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": resume_list,
+        })
 
 from django.conf import settings
 from azure.storage.blob import BlobServiceClient
