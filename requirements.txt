@@ -229,4 +229,4 @@ yarl==1.15.5
 zipp==3.20.2
 zope.interface==7.0.3
 zopfli==0.4.0
-psycopg2-binary==2.9.9
+
