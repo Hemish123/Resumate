@@ -1016,7 +1016,6 @@ from django.conf import settings
 import os
 from azure.storage.blob import BlobServiceClient
 
-
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
     title = 'Resume Database'
@@ -1040,40 +1039,84 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                     candidate.upload_resume.url
                     if candidate.upload_resume else None
                 )
+                # Load extracted text file
+                txt_path = os.path.join(
+                    settings.MEDIA_ROOT,
+                    "resume_text",
+                    candidate.upload_resume.name + ".txt"
+                )
+
+                if os.path.exists(txt_path):
+                    with open(txt_path, "r", encoding="utf-8") as f:
+                        candidate.dynamic_content = f.read()[:150]
+                else:
+                    candidate.dynamic_content = ""
 
             context['candidates'] = candidates
             context['counts'] = f"Total {candidates.count()} resumes"
 
         # ================= PRODUCTION (AZURE) =================
         else:
-            account_name = os.environ["AZURE_ACCOUNT_NAME"]
-            account_key = os.environ["AZURE_ACCOUNT_KEY"]
+            user_email = self.request.user.email.lower()
+            # 🔥 Only allow Azure listing for JMS Advisory
+            if user_email.endswith("@jmsadvisory"):
+                account_name = os.environ["AZURE_ACCOUNT_NAME"]
+                account_key = os.environ["AZURE_ACCOUNT_KEY"]
 
-            connect_str = (
-                f"DefaultEndpointsProtocol=https;"
-                f"AccountName={account_name};"
-                f"AccountKey={account_key};"
-                f"EndpointSuffix=core.windows.net"
-            )
+                connect_str = (
+                    f"DefaultEndpointsProtocol=https;"
+                    f"AccountName={account_name};"
+                    f"AccountKey={account_key};"
+                    f"EndpointSuffix=core.windows.net"
+                )
 
-            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-            container_client = blob_service_client.get_container_client("media")
+                blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+                container_client = blob_service_client.get_container_client("media")
 
-            blobs = container_client.list_blobs(name_starts_with="resumes/")
+                blobs = container_client.list_blobs(name_starts_with="resumes/")
 
-            resume_list = []
+                resume_list = []
 
-            for blob in blobs:
-                file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+                for blob in blobs:
 
-                resume_list.append({
-                    "name": blob.name.split("/")[-1],
-                    "resume_url": file_url,
-                    "updated": blob.last_modified
-                })
+                    filename = blob.name.split("/")[-1]
 
-            context['candidates'] = resume_list
-            context['counts'] = f"Total {len(resume_list)} resumes"
+                    file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+
+                    candidate = Candidate.objects.filter(
+                        upload_resume=blob.name
+                    ).first()
+
+                    content_preview = ""
+
+                    # ✅ If already saved in DB
+                    if candidate and candidate.text_content:
+                        content_preview = candidate.text_content[:120]
+
+                    # ✅ If not saved → Extract from Azure once
+                    elif candidate:
+                        extracted_text = get_blob_pdf_text(blob.name)
+
+                        if extracted_text:
+                            candidate.text_content = extracted_text
+                            candidate.save(update_fields=["text_content"])
+
+                            content_preview = extracted_text[:120]
+
+                    resume_list.append({
+                        "name": filename,
+                        "resume_url": file_url,
+                        "updated": blob.last_modified,
+                        "content": content_preview
+                    })
+                    
+
+                context['candidates'] = resume_list
+                context['counts'] = f"Total {len(resume_list)} resumes"
+            else:
+                    # ❌ Other companies should NOT see Azure resumes
+                    context['candidates'] = []
+                    context['counts'] = "Total 0 resumes"
 
         context['job_openings'] = JobOpening.objects.filter(
             company=self.request.user.employee.company,
@@ -1082,97 +1125,315 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
 
         return context
 
+
+from django.views import View
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
+import os
+
+from adminuser.utils import extract_resume_text
+from .models import Candidate
+
+
+class ResumeUploadView(LoginRequiredMixin, View):
+    
+
+    def post(self, request):
+        resume_file = request.FILES.get("resume")
+
+        # ✅ 1. Check file exists FIRST
+        if not resume_file:
+            messages.error(request, "Please select a file.")
+            return redirect("resume-list")
+
+        # ✅ 2. Validate extension BEFORE saving
+        allowed_extensions = ['.pdf', '.doc', '.docx']
+        ext = os.path.splitext(resume_file.name)[1].lower()
+
+        if ext not in allowed_extensions:
+            messages.error(request, "Only PDF, DOC, DOCX files allowed.")
+            return redirect("resume-list")
+
+        # ✅ 3. Extract text safely
+        try:
+            extracted_text = extract_resume_text(resume_file)
+        except Exception as e:
+            messages.error(request, "Error extracting resume content.")
+            return redirect("resume-list")
+
+        # IMPORTANT: reset file pointer after reading
+        resume_file.seek(0)
+
+        # ✅ 4. Save candidate ONLY ONCE
+        candidate = Candidate.objects.create(
+            company=request.user.employee.company,
+            name=os.path.splitext(resume_file.name)[0],
+            upload_resume=resume_file,
+            text_content=extracted_text
+        )
+
+        # ✅ 5. Save extracted text as .txt file
+        txt_folder = os.path.join(settings.MEDIA_ROOT, "resume_text")
+        os.makedirs(txt_folder, exist_ok=True)
+
+        txt_filename = candidate.upload_resume.name.replace("/", "_") + ".txt"
+        txt_path = os.path.join(txt_folder, txt_filename)
+
+        with open(txt_path, "w", encoding="utf-8") as f:
+            f.write(extracted_text or "")
+
+        messages.success(request, "Resume uploaded and content extracted successfully!")
+        return redirect("resume-list")
+    
+
+# from django.http import JsonResponse
+# from django.core.paginator import Paginator
+# from django.db.models import Q
+
+
+# def resume_list_api(request):
+#     draw = int(request.GET.get("draw", 1))
+#     start = int(request.GET.get("start", 0))
+#     length = int(request.GET.get("length", 10))
+
+#    # Base queryset (IMPORTANT - company based filter)
+#     candidates = Candidate.objects.filter(
+#         company=request.user.employee.company
+#     ).exclude(
+#         upload_resume__isnull=True
+#     ).exclude(
+#         upload_resume=""
+#     )
+
+#     # ----------- Filters (Same as your original logic) ------------
+
+#     name = request.GET.get("name")
+#     if name:
+#         candidates = candidates.filter(name__icontains=name)
+
+#     filename = request.GET.get("filename")
+#     if filename:
+#         candidates = candidates.filter(filename__icontains=filename)
+
+#     designation = request.GET.get("designation")
+#     if designation:
+#         candidates = candidates.filter(current_designation__icontains=designation)
+
+#     experience = request.GET.get("experience")
+#     if experience:
+#         candidates = candidates.filter(experience__gte=experience)
+
+#     education = request.GET.get("education")
+#     if education:
+#         candidates = candidates.filter(education__icontains=education)
+
+#     location = request.GET.get("location")
+#     if location:
+#         candidates = candidates.filter(location__icontains=location)
+
+#     skill = request.GET.get("skill")
+#     if skill:
+#         candidates = candidates.filter(text_content__icontains=skill)
+
+#     industry = request.GET.get("industry")
+#     if industry:
+#         candidates = candidates.filter(text_content__icontains=industry)
+
+#     # Order
+#     candidates = candidates.order_by("-updated")
+
+#     # ------------ DataTable Pagination -------------
+
+#     total_records = Candidate.objects.filter(
+#         company=request.user.employee.company
+#     ).exclude(
+#         upload_resume__isnull=True
+#     ).exclude(
+#         upload_resume=""
+#     ).count()
+
+#     filtered_records = candidates.count()
+
+#     paginator = Paginator(candidates, length)
+#     page_number = (start // length) + 1
+#     page = paginator.get_page(page_number)
+
+#     data = []
+
+#     for candidate in page:
+#         data.append({
+#             "id": candidate.id,
+#             "filename": candidate.filename,
+#             "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
+#             "content": candidate.text_content[:120] if candidate.text_content else "",
+#             "updated": candidate.updated.strftime("%d-%m-%Y"),
+#             # "name": candidate.name,
+#             # "designation": candidate.current_designation,
+#             # "experience": candidate.experience,
+#             # "education": candidate.education,
+#             # "location": candidate.location,
+#             # "updated": candidate.updated.strftime("%d-%m-%Y"),
+#         })
+
+#     return JsonResponse({
+#         "draw": draw,
+#         "recordsTotal": total_records,
+#         "recordsFiltered": filtered_records,
+#         "data": data,
+#     })
 from django.http import JsonResponse
-from django.core.paginator import Paginator
-from django.db.models import Q
+from django.conf import settings
+from azure.storage.blob import BlobServiceClient
+import os
 
 
 def resume_list_api(request):
+
     draw = int(request.GET.get("draw", 1))
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
-
-   # Base queryset (IMPORTANT - company based filter)
-    candidates = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    )
-
-    # ----------- Filters (Same as your original logic) ------------
-    name = request.GET.get("name", "").strip()
-    if name:
-        candidates = candidates.filter(name__icontains=name)
-
-    filename = request.GET.get("filename", "").strip()
-    if filename:
-        candidates = candidates.filter(filename__icontains=filename)
-
-    designation = request.GET.get("designation", "").strip()
-    if designation:
-        candidates = candidates.filter(current_designation__icontains=designation)
-
-    experience = request.GET.get("experience", "").strip()
-    if experience:
-        candidates = candidates.filter(experience__gte=experience)
-
-    education = request.GET.get("education", "").strip()
-    if education:
-        candidates = candidates.filter(education__icontains=education)
-
-    location = request.GET.get("location", "").strip()
-    if location:
-        candidates = candidates.filter(location__icontains=location)
-
-    # ---------------- SKILLS FILTER (Multi-keyword AND) ----------------
-
-    skills = request.GET.get("skills", "").strip()
-
-    if skills:
-        skill_keywords = skills.replace(",", " ").split()
-
-        for skill in skill_keywords:
-            candidates = candidates.filter(
-                text_content__icontains=skill
-            )
-
-    # Order
-    candidates = candidates.order_by("-updated")
-
-    # ------------ DataTable Pagination -------------
-
-    total_records = Candidate.objects.filter(
-        company=request.user.employee.company
-    ).exclude(
-        upload_resume__isnull=True
-    ).exclude(
-        upload_resume=""
-    ).count()
-
-    filtered_records = candidates.count()
-
-    paginator = Paginator(candidates, length)
-    page_number = (start // length) + 1
-    page = paginator.get_page(page_number)
-
     data = []
 
-    for candidate in page:
-        data.append({
-            "id": candidate.id,
-            "filename": candidate.filename,
-            "file_url": candidate.upload_resume.url if candidate.upload_resume else "",
-            "content": candidate.text_content[:120] if candidate.text_content else "",
-            "updated": candidate.updated.strftime("%d-%m-%Y"),
-            # "name": candidate.name,
-            # "designation": candidate.current_designation,
-            # "experience": candidate.experience,
-            # "education": candidate.education,
-            # "location": candidate.location,
-            # "updated": candidate.updated.strftime("%d-%m-%Y"),
-        })
+    # ================= LOCAL =================
+
+    if settings.DEBUG:
+
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company
+        ).exclude(
+            upload_resume__isnull=True
+        ).exclude(
+            upload_resume=""
+        ).order_by("-updated")
+
+        total_records = candidates.count()
+
+          # -------- INDIVIDUAL FILTERS --------
+
+        # name = request.GET.get("name", "").strip()
+        # if name:
+        #     candidates = candidates.filter(name__icontains=name)
+
+        filename = request.GET.get("filename", "").strip()
+        if filename:
+            candidates = candidates.filter(filename__icontains=filename)
+
+        updated = request.GET.get("updated", "").strip()
+        if updated:
+            candidates = candidates.filter(updated__date=updated)
+
+        # designation = request.GET.get("designation", "").strip()
+        # if designation:
+        #     candidates = candidates.filter(current_designation__icontains=designation)
+
+        # experience = request.GET.get("experience", "").strip()
+        # if experience:
+        #     candidates = candidates.filter(experience__gte=experience)
+
+        # education = request.GET.get("education", "").strip()
+        # if education:
+        #     candidates = candidates.filter(education__icontains=education)
+
+        # location = request.GET.get("location", "").strip()
+        # if location:
+        #     candidates = candidates.filter(location__icontains=location)
+
+        # ---------------- SKILLS FILTER (Multi-keyword AND) ----------------
+
+        # skills = request.GET.get("skills", "").strip()
+
+        # if skills:
+        #     skill_keywords = skills.replace(",", " ").split()
+
+        #     for skill in skill_keywords:
+        #         candidates = candidates.filter(
+        #             text_content__icontains=skill
+        #         )
+
+
+        filtered_records = candidates.count()
+        candidates = candidates.order_by("-updated")
+        page = candidates[start:start+length]
+
+        for candidate in page:
+
+            data.append({
+                "id": candidate.id,
+                "filename": candidate.upload_resume.name.split("/")[-1],
+                "file_url": candidate.upload_resume.url,
+                "content": candidate.text_content[:120] if candidate.text_content else "",
+                "updated": candidate.updated.strftime("%d-%m-%Y"),
+            })
+
+    # ================= PRODUCTION =================
+
+    else:
+
+        account_name = os.environ["AZURE_ACCOUNT_NAME"]
+        account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+        connect_str = (
+            f"DefaultEndpointsProtocol=https;"
+            f"AccountName={account_name};"
+            f"AccountKey={account_key};"
+            f"EndpointSuffix=core.windows.net"
+        )
+
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+        container_client = blob_service_client.get_container_client("media")
+
+        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+
+        # TOTAL COUNT
+        total_records = len(blobs)
+
+         # FILTER filename
+        if filename:
+            blobs = [
+                b for b in blobs
+                if filename.lower() in b.name.lower()
+            ]
+
+        # FILTER updated
+        if updated:
+            blobs = [
+                b for b in blobs
+                if b.last_modified.date().strftime("%Y-%m-%d") == updated
+            ]
+
+        filtered_records = len(blobs)
+
+        # SORT
+        blobs.sort(key=lambda x: x.last_modified, reverse=True)
+
+        # PAGINATION
+        blobs = blobs[start:start+length]
+
+        for blob in blobs:
+
+            filename = blob.name.split("/")[-1]
+
+            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+            candidate = Candidate.objects.filter(
+                upload_resume=blob.name
+            ).first()
+
+            content_preview = ""
+
+            if candidate and candidate.text_content:
+                content_preview = candidate.text_content[:120]
+
+
+            data.append({
+                "id": blob.name,
+                "filename": filename,
+                "file_url": file_url,
+                "content": content_preview,
+                "updated": blob.last_modified.strftime("%d-%m-%Y"),
+            })
 
     return JsonResponse({
         "draw": draw,
@@ -1506,3 +1767,119 @@ def build_multi_icontains(field, value):
     for v in values:
         q |= Q(**{f"{field}__icontains": v})
     return q
+
+
+import requests
+import tempfile
+from django.core.files.base import ContentFile
+from .extract_text import extract_text_from_pdf  # tamaru existing function
+
+from urllib.parse import quote
+import requests
+import io
+from PyPDF2 import PdfReader
+
+from urllib.parse import quote
+import requests
+import io
+from PyPDF2 import PdfReader
+
+def get_blob_pdf_text(blob_name):
+    try:
+        # Proper URL encode
+        encoded_name = quote(blob_name.split("/")[-1])
+
+        blob_url = f"{settings.MEDIA_URL}resumes/{encoded_name}"
+
+        response = requests.get(blob_url)
+        if response.status_code != 200:
+            return ""
+
+        pdf_file = io.BytesIO(response.content)
+        reader = PdfReader(pdf_file)
+
+        text = ""
+        for page in reader.pages:
+            extracted = page.extract_text()
+            if extracted:
+                text += extracted
+
+        return text
+
+    except Exception as e:
+        print("Blob Parsing Error:", e)
+        return ""
+
+import requests
+import tempfile
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
+from .models import Candidate
+from .extract_text import extract_text_from_pdf
+
+import requests
+import tempfile
+import os
+import io
+from urllib.parse import unquote
+from PyPDF2 import PdfReader
+from docx import Document
+from django.core.files.base import ContentFile
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from .models import Candidate
+
+
+def save_candidate_from_blob_url(request):
+    if request.method == "GET":
+        return render(request, "candidate/blob_test.html")
+
+    blob_url = request.POST.get("resume_url")
+
+    if not blob_url:
+        return HttpResponse("No URL provided")
+
+    response = requests.get(blob_url)
+
+    if response.status_code != 200:
+        return HttpResponse("Failed to download file")
+
+    # Clean filename properly
+    filename = unquote(blob_url.split("/")[-1])
+    file_extension = os.path.splitext(filename)[1].lower()
+
+    file_bytes = response.content
+
+    # 🔍 Validate real file content
+    if file_bytes.startswith(b'%PDF'):
+        file_type = "pdf"
+    elif file_bytes.startswith(b'PK'):
+        file_type = "docx"
+    else:
+        return HttpResponse("Invalid or corrupted file in Azure")
+
+    extracted_text = ""
+
+    # ================= PDF =================
+    if file_type == "pdf":
+        pdf_file = io.BytesIO(file_bytes)
+        reader = PdfReader(pdf_file)
+        for page in reader.pages:
+            extracted_text += page.extract_text() or ""
+
+    # ================= DOCX =================
+    elif file_type == "docx":
+        docx_file = io.BytesIO(file_bytes)
+        doc = Document(docx_file)
+        for para in doc.paragraphs:
+            extracted_text += para.text + "\n"
+
+    # ================= SAVE TO DB =================
+    candidate = Candidate.objects.create(
+        company=request.user.employee.company,
+        name=filename.replace(file_extension, ""),
+        upload_resume=ContentFile(file_bytes, name=filename),
+        text_content=extracted_text
+    )
+
+    return redirect("resume-list")

@@ -223,6 +223,11 @@
           <div class="col-md-6 mb-3">
             <label for="id_contact" class="form-label">Phone Number</label>
             <input type="text" name="contact" maxlength="12" class="form-control" id="id_contact" required>
+              {% if form.non_field_errors %}
+                <div class="text-danger mt-1">
+                    {{ form.non_field_errors.0 }}
+                </div>
+              {% endif %}
           </div>
 
           <div class="col-md-6 mb-3">

@@ -27,6 +27,11 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         user = get_user_model()()  # Create user instance
         user.email = form.cleaned_data['email'].lower()
         user.username = user.email
+        contact = self.request.POST.get('contact')
+
+        if Employee.objects.filter(contact=contact).exists():
+            form.add_error(None, 'Contact number already exists!')
+            return self.form_invalid(form)
 
         if User.objects.filter(email=user.email).exists():
             form.add_error('email', 'email already exists')
@@ -51,7 +56,7 @@ class CreateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         company = self.request.user.employee.company
 
         employee = Employee.objects.create(user=user, company=company,name=self.request.POST.get('name'),
-        contact=self.request.POST.get('contact'),
+        contact=contact,
         designation=self.request.POST.get('designation')) 
         employee.save()
 

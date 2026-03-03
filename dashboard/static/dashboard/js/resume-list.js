@@ -83,13 +83,21 @@ function searchResumes() {
     console.log('Checkbox checked:', checkbox.checked, 'Row ID:', checkbox.closest('tr').dataset.id);
 });
                     const selectedIds = $('.row-checkbox:checked').map(function () {
-                        return $(this).closest('tr').data('id');
+                        // return $(this).closest('tr').data('id');
+                        return $(this).val();   // ✅ Correct ID source
+
                     }).get(); // Use `.get()` to retrieve an array of IDs
 
             console.log('d', selectedIds);
             if (selectedIds.length) {
+                // alert("Sharing job opening... Please wait.");
                var selectedJobOpening = $('#jobOpening').val(); // Get the selected job opening ID
                 // Perform your desired action (e.g., send data to server)
+                // Start Button Loading
+                $('#resumeSendBtn').prop('disabled', true);
+                $('#resumeBtnText').text('Sending...');
+                $('#resumeBtnLoader').removeClass('d-none');
+
                 $.ajax({
                   url: $(this).attr('action'),  // Replace with your delete endpoint
                   method: 'POST',
@@ -100,12 +108,22 @@ function searchResumes() {
                     csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Add CSRF token
                   },
                   success: function(response) {
+                    // Stop Button Loading
+                    $('#resumeSendBtn').prop('disabled', false);
+                    $('#resumeBtnText').text('Send Email');
+                    $('#resumeBtnLoader').addClass('d-none');
                     // On success, remove rows from DataTable
                     $('.row-checkbox').prop('checked', false); // Uncheck individual checkboxes
                     $('#select-all').prop('checked', false);
+                    alert("Job opening shared successfully!");
                     $('#shareOpening').modal('hide');
                   },
                   error: function(xhr){
+                    // Stop Button Loading
+                    $('#resumeSendBtn').prop('disabled', false);
+                    $('#resumeBtnText').text('Send Email');
+                    $('#resumeBtnLoader').addClass('d-none');
+                    alert("Something went wrong!");
                     console.log("Error:", xhr.responseText);
                 }
                 });

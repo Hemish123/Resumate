@@ -786,6 +786,10 @@ $('#shareJobOpeningForm').on('submit', function (e) {
         alert("Please select at least one candidate.");
         return;
     }
+     // 🔥 START LOADER (Correct IDs)
+    $('#sendEmailBtn').prop('disabled', true);
+    $('#btnText').text('Sending...');
+    $('#btnLoader').removeClass('d-none');
 
     $.ajax({
         url: $(this).attr("action"),
@@ -796,7 +800,15 @@ $('#shareJobOpeningForm').on('submit', function (e) {
             csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
         },
         success: function (response) {
+            // 🔥 STOP LOADER
+            $('#sendEmailBtn').prop('disabled', false);
+            $('#btnText').text('Send Email');
+            $('#btnLoader').addClass('d-none');
+
             if (response.status === "success") {
+
+                alert("Job opening shared successfully!");
+
                 $('#shareOpening').modal('hide');
                 dt_basic.ajax.reload(null, false);
             } else {
@@ -804,6 +816,12 @@ $('#shareJobOpeningForm').on('submit', function (e) {
             }
         },
         error: function (xhr) {
+             // 🔥 STOP LOADER ON ERROR
+            $('#sendEmailBtn').prop('disabled', false);
+            $('#btnText').text('Send Email');
+            $('#btnLoader').addClass('d-none');
+
+            alert("Something went wrong!");
             console.error("Error:", xhr.responseText);
         }
     });

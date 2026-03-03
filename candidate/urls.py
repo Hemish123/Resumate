@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
-from .views import (CandidateCreateView, CandidateListView, candidate_list_api,resume_list_api,
+from .views import (CandidateCreateView, CandidateListView, ResumeUploadView, candidate_list_api,resume_list_api,
                     CandidateDetailsView, CandidateUpdateView, CandidateImportView, ShareJobOpeningView,
                     CandidateDeleteView, ApplicationSuccessView, ResumeListView, ResumeSearchView,
                     CandidateAnalysisView, ApplicationListView, export_selected_candidates_csv)
+from .views import save_candidate_from_blob_url
+
 
 urlpatterns = [
     path('application-create/<int:pk>/', CandidateCreateView.as_view(), name='application_create'),
@@ -16,6 +18,9 @@ urlpatterns = [
     path('resume-search/', ResumeSearchView.as_view(), name='resume-search'),
     # path('resume-filter/', ResumeFilterView.as_view(), name='resume-filter'),
     path("resume-list-api/", resume_list_api, name="resume_list_api"),  
+    path("resume/upload/", ResumeUploadView.as_view(), name="resume_upload"),
+
+    path('test-blob-save/', save_candidate_from_blob_url, name='test_blob_save'),
 
     path('candidate-details/<int:pk>/', CandidateDetailsView.as_view(), name='candidate-details'),
     path('candidate-update/<int:pk>/', CandidateUpdateView.as_view(), name='candidate-update'),

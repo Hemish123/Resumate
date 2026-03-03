@@ -1,0 +1,8 @@
+<h2>Test Azure Blob Resume</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="resume_url" style="width:600px"
+    value="https://parsingmodel.blob.core.windows.net/media/resumes/_PriyaPatel1y_11m.pdf">
+    <button type="submit">Save Resume</button>
+</form>

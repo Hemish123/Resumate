@@ -130,6 +130,11 @@
               </li>
             </ul>
         </div>
+        {% comment %} <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadResumeModal">
+        Upload Resume
+    </button>
+</div> {% endcomment %}
 
              <!--Job opening share Modal -->
             <div class="modal fade" id="shareOpening" tabindex="-1" aria-hidden="true">
@@ -156,14 +161,53 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">Send Email</button>
+                            {% comment %} <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">Send Email</button> {% endcomment %}
+                            <button type="submit" form="shareJobOpeningForm"
+        class="btn btn-primary"
+        id="resumeSendBtn">
+
+    <span id="resumeBtnText">Send Email</span>
+    <span id="resumeBtnLoader"
+          class="spinner-border spinner-border-sm d-none"
+          role="status"></span>
+</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Upload Resume Modal -->
+<div class="modal fade" id="uploadResumeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Upload Resume</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
+      <form method="POST" enctype="multipart/form-data" action="{% url 'resume_upload' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Select Resume (PDF/DOC/DOCX)</label>
+            <input type="file" name="resume" class="form-control" required>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
     <!-- TABLE -->
         <div class="mb-3">
           <strong>   {{ counts }} </strong>
@@ -185,7 +229,29 @@
                     <td><input type="checkbox" class="row-checkbox" /></td>
                     {% comment %} <td><a href="{{ candidate.upload_resume.url }}" target="_blank">{{ candidate.filename }}</a></td> {% endcomment %}
         <!-- Resume Link -->
-        <td>
+         <td>
+    {% if candidate.text_content %}
+        {{ candidate.text_content|truncatewords:25 }}
+        
+    {% elif candidate.dynamic_content %}
+        {{ candidate.dynamic_content|truncatewords:25 }}
+
+    {% elif candidate.upload_resume %}
+        <a href="{{ candidate.upload_resume.url }}" target="_blank">
+            {{ candidate.upload_resume.name|cut:"resumes/" }}
+        </a>
+
+    {% elif candidate.resume_url %}
+        <a href="{{ candidate.resume_url }}" target="_blank">
+            {{ candidate.name|default:"View Resume" }}
+        </a>
+ <br>
+        <small>{{ candidate.content }}</small>
+    {% else %}
+        No Resume Available
+    {% endif %}
+</td>
+        {% comment %} <td>
             {% if candidate.resume_url %}
                 <a href="{{ candidate.resume_url }}" target="_blank">
                     {{ candidate.name|default:"View Resume" }}
@@ -195,9 +261,9 @@
                     {{ candidate.upload_resume.name|cut:"resumes/" }}
                 </a>
             {% else %}
-                -
+                {{ candidate.dynamic_content }}
             {% endif %}
-        </td>
+        </td> {% endcomment %}
                     {% comment %} <td>{{ candidate.text_content|truncatewords:10 }}</td> {% endcomment %}
           <!-- Content (Only works locally if model has text_content) -->
         <td>
@@ -232,13 +298,17 @@
             <h6><strong>Filters</strong></h6>
 <form method="GET" id="filterForm">
 
-        <input type="text" name="name" class="form-control auto-submit"
-       placeholder="Candidate Name" value="{{ request.GET.name }}">
+    {% comment %} <input type="text" name="name" class="form-control auto-submit"
+       placeholder="Candidate Name" value="{{ request.GET.name }}"> {% endcomment %}
 
     <input type="text" name="filename" class="form-control auto-submit"
         placeholder="File Name" value="{{ request.GET.filename }}">
 
-    <input type="text" name="location" class="form-control auto-submit"
+    <label> <strong>Updated Date</strong></label>
+    <input type="date" name="updated" class="form-control auto-submit"
+         value="{{ request.GET.updated }}">
+
+    {% comment %} <input type="text" name="location" class="form-control auto-submit"
         placeholder="Current Location" value="{{ request.GET.location }}">
 
     <input type="text" name="designation" class="form-control auto-submit"
@@ -251,7 +321,7 @@
         placeholder="Education" value="{{ request.GET.education }}">
 
     <input type="text" name="skill" class="form-control auto-submit"
-        placeholder="Skill" value="{{ request.GET.skill }}">
+        placeholder="Skill" value="{{ request.GET.skill }}"> {% endcomment %}
 
     {% comment %} <input type="text" name="industry" class="form-control auto-submit"
         placeholder="Industry" value="{{ request.GET.industry }}"> {% endcomment %}
@@ -280,14 +350,9 @@ let table = $('#resume-table').DataTable({
     ajax: {
         url: "{% url 'resume_list_api' %}",
         data: function(d) {
-            d.name = $("input[name='name']").val();
             d.filename = $("input[name='filename']").val();
-            d.designation = $("input[name='designation']").val();
-            d.experience = $("input[name='experience']").val();
-            d.education = $("input[name='education']").val();
-            d.location = $("input[name='location']").val();
-            d.skill = $("input[name='skill']").val();
-            d.industry = $("input[name='industry']").val();
+            d.updated = $("input[name='updated']").val();
+            
         }
     },
 

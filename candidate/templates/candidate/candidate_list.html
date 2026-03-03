@@ -395,8 +395,9 @@ table.dataTable tbody tr:hover {
 
       <div class="modal-footer">
         <button class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" form="shareJobOpeningForm" class="btn btn-primary">
-          Send Email
+        <button type="submit" form="shareJobOpeningForm" class="btn btn-primary" id="sendEmailBtn">
+          <span id="btnText">Send Email</span>
+          <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
         </button>
       </div>
 
