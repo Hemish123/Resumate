@@ -25,18 +25,20 @@ def send_activation_email(employee, site_url, password):
 
     # send_mail(subject, message, '', [employee.email])
 
-import pdfplumber
-import docx
+
+
 
 def extract_resume_text(file):
     text = ""
 
     if file.name.endswith(".pdf"):
+        import pdfplumber
         with pdfplumber.open(file) as pdf:
             for page in pdf.pages:
                 text += page.extract_text() or ""
 
     elif file.name.endswith(".docx"):
+        import docx
         doc = docx.Document(file)
         for para in doc.paragraphs:
             text += para.text + "\n"
