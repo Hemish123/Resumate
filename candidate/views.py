@@ -1295,6 +1295,9 @@ def resume_list_api(request):
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
     data = []
+    # GET filter params for both DEBUG and PRODUCTION
+    filename = request.GET.get("filename", "").strip()
+    updated = request.GET.get("updated", "").strip()
 
     # ================= LOCAL =================
 
