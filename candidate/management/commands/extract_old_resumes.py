@@ -54,10 +54,19 @@ class Command(BaseCommand):
         processed = 0
 
         for candidate in candidates:
-
             try:
-                blob_name = candidate.upload_resume.name
+                full_url = candidate.upload_resume.name
 
+                import urllib.parse
+                parsed_url = urllib.parse.urlparse(full_url)
+                path_parts = parsed_url.path.lstrip("/").split("/", 1)
+                if len(path_parts) != 2:
+                    self.stdout.write(self.style.WARNING(f"Invalid blob URL for {candidate.name}"))
+                    continue
+
+                container_name, blob_name = path_parts
+
+                container_client = blob_service_client.get_container_client(container_name)
                 blob_client = container_client.get_blob_client(blob=blob_name)
 
                 download_stream = blob_client.download_blob()
@@ -66,26 +75,18 @@ class Command(BaseCommand):
                 file_obj = ContentFile(file_bytes)
                 file_obj.name = blob_name
 
-                # ✅ Extract Text
                 extracted_text = extract_resume_text(file_obj)
 
                 if extracted_text:
                     candidate.text_content = extracted_text
                     candidate.save(update_fields=["text_content"])
-                    processed += 1
-
-                    self.stdout.write(
-                        self.style.SUCCESS(f"Processed: {candidate.name}")
-                    )
+                    self.stdout.write(self.style.SUCCESS(f"Processed: {candidate.name}"))
                 else:
-                    self.stdout.write(
-                        self.style.WARNING(f"No text found: {candidate.name}")
-                    )
+                    self.stdout.write(self.style.WARNING(f"No text found: {candidate.name}"))
 
             except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(f"Error processing {candidate.name}: {str(e)}")
-                )
+                self.stdout.write(self.style.ERROR(f"Error processing {candidate.name}: {str(e)}"))
+                
 
         self.stdout.write(
             self.style.SUCCESS(f"\nExtraction completed. {processed}/{total} updated.")
