@@ -116,24 +116,102 @@
 #             self.style.SUCCESS(f"\nExtraction completed. {processed}/{total} updated.")
 #         )
 
-import os
+# import os
 
+# from django.core.management.base import BaseCommand
+# from django.core.files.base import ContentFile
+
+# from candidate.models import Candidate
+# from adminuser.utils import extract_resume_text
+
+# from azure.storage.blob import BlobServiceClient
+
+
+# class Command(BaseCommand):
+
+#     help = "Extract text from Azure resumes"
+
+#     def handle(self, *args, **kwargs):
+
+#         print("Starting extraction...")
+
+#         account_name = os.environ.get("AZURE_ACCOUNT_NAME")
+#         account_key = os.environ.get("AZURE_ACCOUNT_KEY")
+
+#         connect_str = (
+#             f"DefaultEndpointsProtocol=https;"
+#             f"AccountName={account_name};"
+#             f"AccountKey={account_key};"
+#             f"EndpointSuffix=core.windows.net"
+#         )
+
+#         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+#         container_client = blob_service_client.get_container_client("media")
+
+#         candidates = Candidate.objects.exclude(
+#             upload_resume=""
+#         ).exclude(
+#             upload_resume__isnull=True
+#         )
+
+#         total = candidates.count()
+
+#         print("Total resumes:", total)
+
+#         processed = 0
+
+#         for candidate in candidates.iterator(chunk_size=50):
+
+#             try:
+
+#                 blob_name = str(candidate.upload_resume)
+
+#                 print("Downloading:", blob_name)
+
+#                 blob_client = container_client.get_blob_client(blob=blob_name)
+
+#                 download_stream = blob_client.download_blob()
+
+#                 file_bytes = download_stream.readall()
+
+#                 file_obj = ContentFile(file_bytes)
+#                 file_obj.name = blob_name
+
+#                 extracted_text = extract_resume_text(file_obj)
+
+#                 if extracted_text:
+
+#                     candidate.text_content = extracted_text
+#                     candidate.save(update_fields=["text_content"])
+
+#                     processed += 1
+
+#                     print("Processed:", candidate.id)
+
+#             except Exception as e:
+
+#                 print("Error:", candidate.id, e)
+
+#         print("Finished. Processed:", processed)
+
+import os
 from django.core.management.base import BaseCommand
 from django.core.files.base import ContentFile
+
+from azure.storage.blob import BlobServiceClient
 
 from candidate.models import Candidate
 from adminuser.utils import extract_resume_text
 
-from azure.storage.blob import BlobServiceClient
-
 
 class Command(BaseCommand):
 
-    help = "Extract text from Azure resumes"
+    help = "Extract text from Azure blob resumes only"
 
     def handle(self, *args, **kwargs):
 
-        print("Starting extraction...")
+        print("Starting Azure resume extraction...")
 
         account_name = os.environ.get("AZURE_ACCOUNT_NAME")
         account_key = os.environ.get("AZURE_ACCOUNT_KEY")
@@ -149,27 +227,22 @@ class Command(BaseCommand):
 
         container_client = blob_service_client.get_container_client("media")
 
-        candidates = Candidate.objects.exclude(
-            upload_resume=""
-        ).exclude(
-            upload_resume__isnull=True
-        )
+        # ONLY FETCH RESUMES FOLDER
+        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
 
-        total = candidates.count()
+        total = len(blobs)
 
-        print("Total resumes:", total)
+        print("Total Azure resumes:", total)
 
         processed = 0
 
-        for candidate in candidates.iterator(chunk_size=50):
+        for blob in blobs:
 
             try:
 
-                blob_name = str(candidate.upload_resume)
+                blob_name = blob.name
 
-                print("Downloading:", blob_name)
-
-                blob_client = container_client.get_blob_client(blob=blob_name)
+                blob_client = container_client.get_blob_client(blob_name)
 
                 download_stream = blob_client.download_blob()
 
@@ -180,7 +253,15 @@ class Command(BaseCommand):
 
                 extracted_text = extract_resume_text(file_obj)
 
-                if extracted_text:
+                if not extracted_text:
+                    continue
+
+                # find candidate with this resume
+                candidate = Candidate.objects.filter(
+                    upload_resume=blob_name
+                ).first()
+
+                if candidate:
 
                     candidate.text_content = extracted_text
                     candidate.save(update_fields=["text_content"])
@@ -191,6 +272,6 @@ class Command(BaseCommand):
 
             except Exception as e:
 
-                print("Error:", candidate.id, e)
+                print("Error:", blob.name, str(e))
 
-        print("Finished. Processed:", processed)
+        print("Extraction completed:", processed)
