@@ -58,7 +58,7 @@ class Command(BaseCommand):
             try:
                 blob_name = candidate.upload_resume.name
 
-                blob_client = container_client.get_blob_client(blob_name)
+                blob_client = container_client.get_blob_client(blob=blob_name)
 
                 download_stream = blob_client.download_blob()
                 file_bytes = download_stream.readall()
