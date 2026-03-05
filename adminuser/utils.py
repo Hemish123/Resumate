@@ -49,27 +49,33 @@ def extract_resume_text(file):
     text = ""
 
     try:
-        # -------- PDF --------
-        if file.name.lower().endswith(".pdf"):
-            import fitz  # PyMuPDF
+        filename = file.name.lower()
 
-            file.seek(0)
-            pdf = fitz.open(stream=file.read(), filetype="pdf")
+        # ---------------- PDF ----------------
+        if filename.endswith(".pdf"):
+            import fitz
+            try:
+                pdf_bytes = file.read()
+                pdf = fitz.open(stream=pdf_bytes, filetype="pdf")
 
-            for page in pdf:
-                text += page.get_text()
+                for page in pdf:
+                    text += page.get_text()
 
-        # -------- DOCX --------
-        elif file.name.lower().endswith(".docx"):
+            except Exception:
+                return ""
+
+        # ---------------- DOCX ----------------
+        elif filename.endswith(".docx"):
             import docx
+            import io
+            try:
+                doc = docx.Document(io.BytesIO(file.read()))
+                for para in doc.paragraphs:
+                    text += para.text + "\n"
+            except Exception:
+                return ""
 
-            file.seek(0)
-            doc = docx.Document(file)
+        return text.strip()
 
-            for para in doc.paragraphs:
-                text += para.text + "\n"
-
-    except Exception as e:
-        print("Resume parsing error:", file.name, e)
-
-    return text
+    except Exception:
+        return ""
