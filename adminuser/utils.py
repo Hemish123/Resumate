@@ -28,19 +28,51 @@ def send_activation_email(employee, site_url, password):
 
 
 
+# def extract_resume_text(file):
+#     text = ""
+
+#     if file.name.endswith(".pdf"):
+#         import pdfplumber
+#         with pdfplumber.open(file) as pdf:
+#             for page in pdf.pages:
+#                 text += page.extract_text() or ""
+
+#     elif file.name.endswith(".docx"):
+#         import docx
+#         doc = docx.Document(file)
+#         for para in doc.paragraphs:
+#             text += para.text + "\n"
+
+#     return text
+
 def extract_resume_text(file):
     text = ""
 
-    if file.name.endswith(".pdf"):
-        import pdfplumber
-        with pdfplumber.open(file) as pdf:
-            for page in pdf.pages:
-                text += page.extract_text() or ""
+    try:
+        # -------- PDF --------
+        if file.name.lower().endswith(".pdf"):
+            import pdfplumber
 
-    elif file.name.endswith(".docx"):
-        import docx
-        doc = docx.Document(file)
-        for para in doc.paragraphs:
-            text += para.text + "\n"
+            try:
+                with pdfplumber.open(file) as pdf:
+                    for page in pdf.pages:
+                        text += page.extract_text() or ""
+            except Exception:
+                # fallback parser
+                import fitz  # PyMuPDF
+                file.seek(0)
+                pdf = fitz.open(stream=file.read(), filetype="pdf")
+                for page in pdf:
+                    text += page.get_text()
+
+        # -------- DOCX --------
+        elif file.name.lower().endswith(".docx"):
+            import docx
+            doc = docx.Document(file)
+            for para in doc.paragraphs:
+                text += para.text + "\n"
+
+    except Exception as e:
+        print("Resume parsing error:", file.name, e)
 
     return text
