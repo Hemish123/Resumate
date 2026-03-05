@@ -1,7 +1,128 @@
+# import os
+# from django.core.management.base import BaseCommand
+# from django.core.files.base import ContentFile
+# from django.conf import settings
+# from candidate.models import Candidate
+# from adminuser.utils import extract_resume_text
+
+# from azure.storage.blob import BlobServiceClient
+
+
+# class Command(BaseCommand):
+#     help = "Extract text from old Azure resumes and save into text_content"
+
+#     def handle(self, *args, **kwargs):
+
+#         self.stdout.write(self.style.SUCCESS("Starting extraction process..."))
+
+#         # ✅ Azure Connection
+#         account_name = os.environ.get("AZURE_ACCOUNT_NAME")
+#         account_key = os.environ.get("AZURE_ACCOUNT_KEY")
+
+#         if not account_name or not account_key:
+#             self.stdout.write(self.style.ERROR("Azure credentials not found"))
+#             return
+
+#         connect_str = (
+#             f"DefaultEndpointsProtocol=https;"
+#             f"AccountName={account_name};"
+#             f"AccountKey={account_key};"
+#             f"EndpointSuffix=core.windows.net"
+#         )
+
+#         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+#         container_client = blob_service_client.get_container_client("media")
+
+#         # ✅ Only old resumes (no text_content)
+#         candidates = Candidate.objects.filter(
+#             upload_resume__isnull=False
+#         ).filter(
+#             text_content__isnull=True
+#         ) | Candidate.objects.filter(
+#             upload_resume__isnull=False,
+#             text_content=""
+#         )
+
+#         total = candidates.count()
+
+#         if total == 0:
+#             self.stdout.write(self.style.SUCCESS("No old resumes found 🎉"))
+#             return
+
+#         self.stdout.write(self.style.WARNING(f"Found {total} resumes to process"))
+
+#         processed = 0
+
+#         # for candidate in candidates:
+#         #     try:
+#         #         full_url = candidate.upload_resume.name
+
+#         #         import urllib.parse
+#         #         parsed_url = urllib.parse.urlparse(full_url)
+#         #         path_parts = parsed_url.path.lstrip("/").split("/", 1)
+#         #         if len(path_parts) != 2:
+#         #             self.stdout.write(self.style.WARNING(f"Invalid blob URL for {candidate.name}"))
+#         #             continue
+
+#         #         container_name, blob_name = path_parts
+
+#         #         container_client = blob_service_client.get_container_client(container_name)
+#         #         blob_client = container_client.get_blob_client(blob=blob_name)
+
+#         #         download_stream = blob_client.download_blob()
+#         #         file_bytes = download_stream.readall()
+
+#         #         file_obj = ContentFile(file_bytes)
+#         #         file_obj.name = blob_name
+
+#         #         extracted_text = extract_resume_text(file_obj)
+
+#         #         if extracted_text:
+#         #             candidate.text_content = extracted_text
+#         #             candidate.save(update_fields=["text_content"])
+#         #             self.stdout.write(self.style.SUCCESS(f"Processed: {candidate.name}"))
+#         #         else:
+#         #             self.stdout.write(self.style.WARNING(f"No text found: {candidate.name}"))
+
+#         #     except Exception as e:
+#         #         self.stdout.write(self.style.ERROR(f"Error processing {candidate.name}: {str(e)}"))
+#         for candidate in candidates:
+#             try:
+#                 blob_name = candidate.upload_resume.name
+        
+#                 blob_client = container_client.get_blob_client(blob=blob_name)
+        
+#                 download_stream = blob_client.download_blob()
+#                 file_bytes = download_stream.readall()
+        
+#                 file_obj = ContentFile(file_bytes)
+#                 file_obj.name = blob_name
+        
+#                 extracted_text = extract_resume_text(file_obj)
+        
+#                 if extracted_text:
+#                     candidate.text_content = extracted_text
+#                     candidate.save(update_fields=["text_content"])
+#                     processed += 1
+#                     self.stdout.write(self.style.SUCCESS(f"Processed: {candidate.name}"))
+#                 else:
+#                     self.stdout.write(self.style.WARNING(f"No text found: {candidate.name}"))
+        
+#             except Exception as e:
+#                 self.stdout.write(self.style.ERROR(f"Error processing {candidate.name}: {str(e)}"))
+
+
+#         self.stdout.write(
+#             self.style.SUCCESS(f"\nExtraction completed. {processed}/{total} updated.")
+#         )
+
 import os
+from urllib.parse import urlparse
+
 from django.core.management.base import BaseCommand
 from django.core.files.base import ContentFile
-from django.conf import settings
+from django.db.models import Q
+
 from candidate.models import Candidate
 from adminuser.utils import extract_resume_text
 
@@ -9,18 +130,17 @@ from azure.storage.blob import BlobServiceClient
 
 
 class Command(BaseCommand):
-    help = "Extract text from old Azure resumes and save into text_content"
+    help = "Extract resume text from Azure blob storage and save into text_content"
 
     def handle(self, *args, **kwargs):
 
-        self.stdout.write(self.style.SUCCESS("Starting extraction process..."))
+        self.stdout.write(self.style.SUCCESS("Starting resume extraction..."))
 
-        # ✅ Azure Connection
         account_name = os.environ.get("AZURE_ACCOUNT_NAME")
         account_key = os.environ.get("AZURE_ACCOUNT_KEY")
 
         if not account_name or not account_key:
-            self.stdout.write(self.style.ERROR("Azure credentials not found"))
+            self.stdout.write(self.style.ERROR("Azure credentials missing"))
             return
 
         connect_str = (
@@ -31,87 +151,92 @@ class Command(BaseCommand):
         )
 
         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-        container_client = blob_service_client.get_container_client("media")
 
-        # ✅ Only old resumes (no text_content)
+        container_name = "media"
+        container_client = blob_service_client.get_container_client(container_name)
+
         candidates = Candidate.objects.filter(
             upload_resume__isnull=False
         ).filter(
-            text_content__isnull=True
-        ) | Candidate.objects.filter(
-            upload_resume__isnull=False,
-            text_content=""
+            Q(text_content__isnull=True) | Q(text_content="")
         )
 
         total = candidates.count()
 
         if total == 0:
-            self.stdout.write(self.style.SUCCESS("No old resumes found 🎉"))
+            self.stdout.write(self.style.SUCCESS("No resumes found to process"))
             return
 
-        self.stdout.write(self.style.WARNING(f"Found {total} resumes to process"))
+        self.stdout.write(self.style.WARNING(f"{total} resumes found"))
 
         processed = 0
 
-        # for candidate in candidates:
-        #     try:
-        #         full_url = candidate.upload_resume.name
+        for candidate in candidates.iterator(chunk_size=50):
 
-        #         import urllib.parse
-        #         parsed_url = urllib.parse.urlparse(full_url)
-        #         path_parts = parsed_url.path.lstrip("/").split("/", 1)
-        #         if len(path_parts) != 2:
-        #             self.stdout.write(self.style.WARNING(f"Invalid blob URL for {candidate.name}"))
-        #             continue
-
-        #         container_name, blob_name = path_parts
-
-        #         container_client = blob_service_client.get_container_client(container_name)
-        #         blob_client = container_client.get_blob_client(blob=blob_name)
-
-        #         download_stream = blob_client.download_blob()
-        #         file_bytes = download_stream.readall()
-
-        #         file_obj = ContentFile(file_bytes)
-        #         file_obj.name = blob_name
-
-        #         extracted_text = extract_resume_text(file_obj)
-
-        #         if extracted_text:
-        #             candidate.text_content = extracted_text
-        #             candidate.save(update_fields=["text_content"])
-        #             self.stdout.write(self.style.SUCCESS(f"Processed: {candidate.name}"))
-        #         else:
-        #             self.stdout.write(self.style.WARNING(f"No text found: {candidate.name}"))
-
-        #     except Exception as e:
-        #         self.stdout.write(self.style.ERROR(f"Error processing {candidate.name}: {str(e)}"))
-        for candidate in candidates:
             try:
-                blob_name = candidate.upload_resume.name
-        
-                blob_client = container_client.get_blob_client(blob=blob_name)
-        
+
+                resume_value = str(candidate.upload_resume)
+
+                if not resume_value:
+                    continue
+
+                blob_name = resume_value
+
+                # Case 1: Full URL stored
+                if blob_name.startswith("http"):
+                    parsed = urlparse(blob_name)
+                    blob_name = parsed.path
+
+                # Remove container name
+                blob_name = blob_name.replace("/media/", "")
+
+                # Remove leading slash
+                blob_name = blob_name.lstrip("/")
+
+                # Ensure resumes folder
+                if not blob_name.startswith("resumes/"):
+                    blob_name = f"resumes/{blob_name.split('/')[-1]}"
+
+                self.stdout.write(f"Downloading: {blob_name}")
+
+                blob_client = container_client.get_blob_client(blob_name)
+
                 download_stream = blob_client.download_blob()
+
                 file_bytes = download_stream.readall()
-        
+
                 file_obj = ContentFile(file_bytes)
                 file_obj.name = blob_name
-        
+
                 extracted_text = extract_resume_text(file_obj)
-        
+
                 if extracted_text:
+
                     candidate.text_content = extracted_text
                     candidate.save(update_fields=["text_content"])
+
                     processed += 1
-                    self.stdout.write(self.style.SUCCESS(f"Processed: {candidate.name}"))
+
+                    self.stdout.write(
+                        self.style.SUCCESS(f"Processed: {candidate.name}")
+                    )
+
                 else:
-                    self.stdout.write(self.style.WARNING(f"No text found: {candidate.name}"))
-        
+
+                    self.stdout.write(
+                        self.style.WARNING(f"No text extracted: {candidate.name}")
+                    )
+
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error processing {candidate.name}: {str(e)}"))
-                
+
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Error processing {candidate.name}: {str(e)}"
+                    )
+                )
 
         self.stdout.write(
-            self.style.SUCCESS(f"\nExtraction completed. {processed}/{total} updated.")
+            self.style.SUCCESS(
+                f"\nCompleted. {processed}/{total} resumes processed."
+            )
         )
