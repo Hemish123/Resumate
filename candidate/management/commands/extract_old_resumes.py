@@ -117,11 +117,9 @@
 #         )
 
 import os
-from urllib.parse import urlparse
 
 from django.core.management.base import BaseCommand
 from django.core.files.base import ContentFile
-from django.db.models import Q
 
 from candidate.models import Candidate
 from adminuser.utils import extract_resume_text
@@ -130,18 +128,15 @@ from azure.storage.blob import BlobServiceClient
 
 
 class Command(BaseCommand):
-    help = "Extract resume text from Azure blob storage and save into text_content"
+
+    help = "Extract text from Azure resumes"
 
     def handle(self, *args, **kwargs):
 
-        self.stdout.write(self.style.SUCCESS("Starting resume extraction..."))
+        print("Starting extraction...")
 
         account_name = os.environ.get("AZURE_ACCOUNT_NAME")
         account_key = os.environ.get("AZURE_ACCOUNT_KEY")
-
-        if not account_name or not account_key:
-            self.stdout.write(self.style.ERROR("Azure credentials missing"))
-            return
 
         connect_str = (
             f"DefaultEndpointsProtocol=https;"
@@ -152,22 +147,17 @@ class Command(BaseCommand):
 
         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 
-        container_name = "media"
-        container_client = blob_service_client.get_container_client(container_name)
+        container_client = blob_service_client.get_container_client("media")
 
-        candidates = Candidate.objects.filter(
-            upload_resume__isnull=False
-        ).filter(
-            Q(text_content__isnull=True) | Q(text_content="")
+        candidates = Candidate.objects.exclude(
+            upload_resume=""
+        ).exclude(
+            upload_resume__isnull=True
         )
 
         total = candidates.count()
 
-        if total == 0:
-            self.stdout.write(self.style.SUCCESS("No resumes found to process"))
-            return
-
-        self.stdout.write(self.style.WARNING(f"{total} resumes found"))
+        print("Total resumes:", total)
 
         processed = 0
 
@@ -175,31 +165,11 @@ class Command(BaseCommand):
 
             try:
 
-                resume_value = str(candidate.upload_resume)
+                blob_name = str(candidate.upload_resume)
 
-                if not resume_value:
-                    continue
+                print("Downloading:", blob_name)
 
-                blob_name = resume_value
-
-                # Case 1: Full URL stored
-                if blob_name.startswith("http"):
-                    parsed = urlparse(blob_name)
-                    blob_name = parsed.path
-
-                # Remove container name
-                blob_name = blob_name.replace("/media/", "")
-
-                # Remove leading slash
-                blob_name = blob_name.lstrip("/")
-
-                # Ensure resumes folder
-                if not blob_name.startswith("resumes/"):
-                    blob_name = f"resumes/{blob_name.split('/')[-1]}"
-
-                self.stdout.write(f"Downloading: {blob_name}")
-
-                blob_client = container_client.get_blob_client(blob_name)
+                blob_client = container_client.get_blob_client(blob=blob_name)
 
                 download_stream = blob_client.download_blob()
 
@@ -217,26 +187,10 @@ class Command(BaseCommand):
 
                     processed += 1
 
-                    self.stdout.write(
-                        self.style.SUCCESS(f"Processed: {candidate.name}")
-                    )
-
-                else:
-
-                    self.stdout.write(
-                        self.style.WARNING(f"No text extracted: {candidate.name}")
-                    )
+                    print("Processed:", candidate.id)
 
             except Exception as e:
 
-                self.stdout.write(
-                    self.style.ERROR(
-                        f"Error processing {candidate.name}: {str(e)}"
-                    )
-                )
+                print("Error:", candidate.id, e)
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\nCompleted. {processed}/{total} resumes processed."
-            )
-        )
+        print("Finished. Processed:", processed)
