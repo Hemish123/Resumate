@@ -51,24 +51,21 @@ def extract_resume_text(file):
     try:
         # -------- PDF --------
         if file.name.lower().endswith(".pdf"):
-            import pdfplumber
+            import fitz  # PyMuPDF
 
-            try:
-                with pdfplumber.open(file) as pdf:
-                    for page in pdf.pages:
-                        text += page.extract_text() or ""
-            except Exception:
-                # fallback parser
-                import fitz  # PyMuPDF
-                file.seek(0)
-                pdf = fitz.open(stream=file.read(), filetype="pdf")
-                for page in pdf:
-                    text += page.get_text()
+            file.seek(0)
+            pdf = fitz.open(stream=file.read(), filetype="pdf")
+
+            for page in pdf:
+                text += page.get_text()
 
         # -------- DOCX --------
         elif file.name.lower().endswith(".docx"):
             import docx
+
+            file.seek(0)
             doc = docx.Document(file)
+
             for para in doc.paragraphs:
                 text += para.text + "\n"
 
