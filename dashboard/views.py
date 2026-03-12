@@ -695,3 +695,13 @@ def candidate_analysis_pdf_view(request, candidate_id):
             "text": analysis,
         }
     )
+
+# def landing_page(request):
+#     return render(request, "dashboard/landing.html")
+
+
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect('/dashboard')   
+
+    return render(request, "dashboard/landing.html")

@@ -1,0 +1,592 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Recruit Smart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{% static 'dashboard/css/landing.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="{% static 'dashboard/img/icons/logo_1.png' %}" />
+<style>
+  .user .fa-user { color: #6c4cff; }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+<div class="container nav">
+
+<div class="logo">
+<img src="{% static 'dashboard/img/icons/logo.png' %}" alt="Recruit Smart Logo">
+</div>
+
+
+
+<a href="/register" class="trial-btn"><strong>Signup Today</strong></a>
+
+</div>
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="hero-container">
+
+<div class="hero-badge">
+Designed for Recruiters, Loved by Businesses
+</div>
+
+<h1>
+Smarter Recruitment. Faster Hiring. Better Results. 
+</h1>
+
+<p class="hero-desc">
+An AI-powered ATS that simplifies hiring from job creation to candidate selection. 
+Manage openings, screen candidates, and collaborate, all in one platform. 
+ 
+</p>
+
+<div class="hero-buttons">
+
+<a href="/register" class="btn-primary">Start Free Trial ↗</a>
+<a href="https://outlook.office365.com/book/BookaMeetingwithJMSConsultants@jmsadvisory.in/?ismsaljsauthenabled=true" class="btn-secondary">Schedule Demo</a>
+
+</div>
+
+<div class="hero-dashboard">
+
+<img src="{% static 'dashboard/img/dashboard.png' %}" loading="lazy" alt="Recruiting analytics dashboard">
+
+</div>
+
+</div>
+
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+<div class="features-container">
+
+<!-- LEFT SIDE -->
+
+<div class="features-left">
+
+<span class="tag">Features & Benefits</span>
+
+<h2>
+Everything you need to
+streamline hiring on one
+smart platform.
+</h2>
+
+<p>
+Recruit Smart brings together automation, candidate management, and structured hiring workflows in a single system. 
+It helps recruitment teams reduce manual work, stay organized, and make faster hiring decisions. 
+</p>
+
+</div>
+
+
+<!-- RIGHT SIDE -->
+
+<div class="features-right">
+
+<div class="feature-card">
+{% comment %} <div class="icon">💬</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-users-gear"></i></div>
+<h3>Role-Based Access & Team Management </h3>
+<p>
+Manage recruitment teams with structured roles including Super Admin, Admin, Manager, and Recruiter to ensure secure access and smooth collaboration across hiring workflows. 
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">∞</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-diagram-project"></i></div>
+<h3>Job Opening & Recruitment Pipeline Management </h3>
+<p>
+Create, manage, and track job openings with customizable hiring stages, recruiter assignments, and clear visibility into the entire recruitment pipeline. 
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">≡</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+<h3>Resume Upload & Intelligent Parsing </h3>
+<p>
+Upload resumes directly to the platform and automatically extract key candidate details to generate structured candidate profiles quickly. 
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">+</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-robot"></i></div>
+<h3>AI-Powered Resume Screening</h3>
+<p>
+Automatically analyze resumes and rank candidates based on skills and job requirements, helping recruiters identify the most suitable profiles faster.  
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">👥</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-database"></i></div>
+<h3>Centralized Candidate Database </h3>
+<p>
+Store and manage candidate profiles in a searchable database with advanced filters, making it easy to organize and track candidates across multiple job openings. 
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">★</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-calendar-check"></i></div>
+<h3>Interview Scheduling & Automated Notifications </h3>
+<p>
+Schedule interviews, manage interview timelines, and send automated reminders or updates to candidates and recruiters from one system.  
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">📊</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-handshake"></i></div>
+<h3>Client & Candidate Management </h3>
+<p>
+Manage client companies, job openings, candidate submissions, and related documents while maintaining clear communication and collaboration.  
+</p>
+</div>
+
+<div class="feature-card">
+{% comment %} <div class="icon">⚡</div> {% endcomment %}
+<div class="icon"><i class="fa-solid fa-file-csv"></i></div>
+<h3>Bulk Job Import & Recruitment Insights </h3>
+<p>
+Import multiple job openings using CSV files and export recruitment data for reporting, helping teams manage hiring activities more efficiently. 
+</p>
+</div>
+
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section class="why-section">
+
+<div class="container">
+
+<div class="section-head">
+
+<span class="tag">Featured of Recruit Smart</span>
+
+<h2>
+Why Teams Choose Recruit Smart Over Traditional ATS Platforms 
+</h2>
+
+<p>
+Modern recruitment teams need more than just resume storage. Recruit Smart combines automation, intelligent screening, and collaborative workflows to help teams manage hiring more efficiently than traditional ATS platforms. 
+</p>
+
+</div>
+
+
+<!-- ROW 1 -->
+
+<div class="why-row">
+
+<div class="why-img">
+<img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71">
+</div>
+
+<div class="why-text">
+
+<span class="tag-small">Intelligent </span>
+
+<h3>AI-Powered Candidate Screening</h3>
+
+<p>
+Find the right talent faster. 
+Automatically analyze resumes and match candidate skills with job requirements. Recruit Smart ranks applicants based on relevance, helping recruiters focus on the most qualified candidates without manual screening. 
+</p>
+
+</div>
+
+</div>
+
+
+<!-- ROW 2 -->
+
+<div class="why-row reverse">
+
+<div class="why-img">
+<img src="https://img.freepik.com/premium-photo/software-development-background-with-codding-ai-generated_624163-394.jpg">
+</div>
+
+<div class="why-text">
+
+<span class="tag-small">Organized </span>
+
+<h3>Centralized Candidate & Job Management </h3>
+
+<p>
+Everything in one place. 
+Manage job openings, candidate profiles, and recruitment stages from a single dashboard. Advanced filtering and structured candidate data make it easy to track applicants and hiring progress.
+</p>
+
+</div>
+
+</div>
+
+
+<!-- ROW 3 -->
+
+<div class="why-row">
+
+<div class="why-img">
+<img src="https://recruitsmart.jmsadvisory.in/wp-content/themes/saaslauncher/assets/images/about_5.jpg">
+</div>
+
+<div class="why-text">
+
+<span class="tag-small">Collaborative </span>
+
+<h3>Role-Based Recruitment Workflows</h3>
+
+<p>
+Built for modern hiring teams. 
+Enable seamless collaboration between admins, managers, and recruiters with role-based access. Assign job openings, track recruitment activities, and manage hiring tasks efficiently across teams. 
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<!-- TESTIMONIAL -->
+
+<section class="testimonials">
+<div class="container">
+
+<div class="section-head center">
+<span class="tag">Testimonials & Reviews</span>
+<h2>What Our Clients Say About 
+  <br> Recruit Smart</h2>
+<p>Trusted by hiring teams, loved by recruiters Recruit Smart is transforming how businesses attract, evaluate, and hire top talent. </p>
+</div>
+
+<div class="testimonial-grid">
+
+<div class="testimonial-card">
+<div class="user">
+<i class="fa-solid fa-user fa-2x"></i>
+<div>
+<h4>Founder – Potmen Technology</h4>
+<div class="stars">★★★★★</div>
+</div>
+</div>
+<p>
+Recruit Smart helped us cut down our hiring time drastically. 
+Everything from resume screening to interview scheduling feels effortless now. 
+It’s like having an extra recruiter on the team only smarter. 
+</p>
+</div>
+
+<div class="testimonial-card">
+<div class="user">
+<i class="fa-solid fa-user fa-2x"></i><div>
+<h4>CEO – RM Growth</h4>
+<div class="stars">★★★★★</div>
+</div>
+</div>
+<p>
+The product is solid, but the real value lies in the support. 
+Their team was with us every step of the way from setup to scale. 
+We’ve made better hires, faster, and with far less stress.
+</p>
+</div>
+
+<div class="testimonial-card">
+<div class="user">
+<i class="fa-solid fa-user fa-2x"></i><div>
+<h4>Owner – Brandson Industry</h4>
+<div class="stars">★★★★★</div>
+</div>
+</div>
+<p>
+The platform is clean, intuitive, and automation-driven. 
+It took our recruitment from manual and messy to structured and seamless. 
+Recruit Smart is now a core part of our hiring strategy.
+</p>
+</div>
+
+<div class="testimonial-card">
+<div class="user">
+<i class="fa-solid fa-user fa-2x"></i><div>
+<h4>Founder – Lorel Technology</h4>
+<div class="stars">★★★★★</div>
+</div>
+</div>
+<p>
+We needed an ATS that could scale with us,” Recruit Smart delivered. 
+It’s fast, reliable, and designed with recruiters in mind. 
+We’ve seen better candidates and smoother processes since day one.
+</p>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<!-- FAQ -->
+
+<section class="faq">
+<div class="container">
+
+<div class="section-head center">
+<span class="tag">Frequently Asked Questions</span>
+<h2>Hiring Doesn’t Have to Be Hard. Here’s How Recruit Smart Helps.</h2>
+</div>
+
+<div class="faq-box">
+
+<details>
+<summary>Why does hiring take so long? </summary>
+
+<p> - Hiring becomes slow when recruiters manually review resumes, track candidates in spreadsheets, and coordinate interviews across different tools. Recruit Smart speeds up the process by automating resume screening, organizing candidate pipelines, and managing recruitment workflows in one centralized platform.  </p>
+</details>
+
+<details>
+<summary>How can we quickly identify the right candidates for a role? </summary>
+
+<p> - Recruit Smart uses AI-based screening to analyze resumes and match candidate skills with job requirements. This helps recruiters quickly shortlist the most relevant candidates without manually reviewing every application.  </p>
+</details>
+
+<details>
+<summary>Why is managing candidate information often disorganized? </summary>
+
+<p> - Candidate data often gets scattered across emails, spreadsheets, and multiple tools. Recruit Smart provides a centralized candidate database where recruiters can store, search, and filter candidate profiles easily. </p>
+</details>
+
+<details>
+<summary>How can recruitment teams collaborate more effectively? </summary>
+
+<p> - Recruit Smart supports role-based access for administrators, managers, and recruiters. This allows teams to work together on job openings, track candidate progress, and manage recruitment tasks from one shared platform.  </p>
+</details>
+
+<details>
+<summary>Why is interview scheduling often difficult to coordinate? </summary>
+
+<p> - Coordinating interview schedules between candidates, recruiters, and interviewers can be time-consuming. Recruit Smart simplifies this by allowing teams to schedule interviews, manage timelines, and send automated reminders directly from the platform. </p>
+</details>
+
+<details>
+<summary>How can recruitment teams manage clients and candidates together? </summary>
+
+<p> - Recruit Smart includes a client management module where teams can manage client companies, track job openings for each client, and submit candidate profiles with structured information and AI analysis reports.  </p>
+</details>
+
+<details>
+<summary>Can Recruit Smart grow with our hiring needs? </summary>
+
+<p> - Yes. Recruit Smart is designed to support growing recruitment teams with scalable features like multi-user access, multiple job openings, customizable recruitment stages, and structured workflows. </p>
+</details>
+
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+
+<section class="cta">
+<div class="container center">
+
+<h2>Try It Free. Scale When You're Ready.</h2>
+
+<p>
+Get started without limits. Explore all features at your own pace upgrade only when your business grows.</p>
+<a href="/register" class="cta-btn">Try Free Today →</a>
+
+</div>
+</section>
+
+
+<!-- FOOTER -->
+
+<footer>
+<div class="container footer-grid">
+
+<div>
+<div class="footer-logo">
+<img src="{% static 'dashboard/img/icons/logo.png' %}" alt="Recruit Smart Logo">
+</div>
+<p>
+Recruit Smart is an intelligent ATS designed to streamline the entire hiring process.
+Automate resume screening, track candidates, and manage interviews effortlessly.
+Smarter tools to help your team hire faster and better.
+</p>
+{% comment %} <p><a href="#top" class="scroll-top"><strong>Recruit Smart.</strong></a>
+</p>
+<p>Our AI-powered screening helps you find the right candidates faster, saving time and effort.</p> {% endcomment %}
+</div>
+
+<div>
+<h4>Features</h4>
+<ul>
+
+<li><a href="#features">AI Resume Screening</a></li>
+<li><a href="#features">Custom Hiring Pipelines</a></li>
+<li><a href="#features">Smart Interview Scheduling </a></li>
+<li><a href="#features">Real-Time Alerts & Notifications</a></li>
+<li><a href="#features">Advanced Analytics & Reports</a></li>
+<li><a href="#features">Team Collaboration</a></li>
+<li><a href="#features">Resume Management with Keyword Search </a></li>
+<li><a href="#features">Scalable for Any Team Size</a></li>
+</ul>
+</div>
+
+<div>
+<h4>Contact Us</h4>
+
+<p>
+<i class="fa-solid fa-location-dot" style="font-size:19px;"></i>
+<a href="https://www.google.com/maps/dir//Anand+Mangal+3,+2H94%2B628,+Tulsi+Baug+Rd,+Tulsibag+Society,+Ambawadi,+Ahmedabad,+Gujarat+380006/@23.0183465,72.4726632,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x395e84e325c26985:0x47da16a1b753a025!2m2!1d72.5551106!2d23.0180304?entry=ttu&g_ep=EgoyMDI2MDMwNC4xIKXMDSoASAFQAw%3D%3D">
+401, Anand Mangal 3, Ambavadi, Ahmedabad, Gujarat, India
+</a>
+</p>
+
+<p>
+<i class="fa-solid fa-phone" style="font-size:19px;"></i>
+<a href="tel:+918866071321">+91 88660 71321</a>
+</p>
+
+<p>
+<i class="fa-solid fa-envelope" style="font-size:19px;"></i>
+<a href="mailto:info@jmvadvisory.in">info@jmvadvisory.in</a>
+</p>
+
+</div>
+</div>
+
+<div class="copyright">
+    ©  <span id="year"></span>
+    <a href="#top" class="scroll-top">Recruit Smart.</a>
+     Made with <span class="heart">❤</span> by
+      <a href="https://jmsadvisory.in/" class="scroll-top">JMS Advisory Services</a>
+
+</div>
+
+</footer>
+{% comment %} <script>
+(function () {
+  if (window.innerWidth <= 1024) return;
+
+  const section       = document.getElementById("features");
+  const rightPanel    = document.querySelector(".features-right");
+  const leftPanel     = document.querySelector(".features-left");
+  const NAV_H         = 90;
+
+  function setup() {
+    section.style.height = "";
+    rightPanel.style.transform = "";
+
+    const viewportRoom  = window.innerHeight - NAV_H;
+    const rightH        = rightPanel.scrollHeight;
+    const scrollTravel  = Math.max(0, rightH - viewportRoom);
+
+    // Section height = travel + enough to show left content centered
+    const leftH = leftPanel.offsetHeight;
+    const totalH = scrollTravel + Math.max(viewportRoom, leftH + 80);
+    section.style.height = (rightPanel.scrollHeight + NAV_H) + "px";
+    return scrollTravel;
+  }
+
+  let scrollTravel = setup();
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth <= 1024) {
+      section.style.height = "";
+      rightPanel.style.transform = "";
+      return;
+    }
+    scrollTravel = setup();
+  });
+
+  window.addEventListener("scroll", () => {
+  if (window.innerWidth <= 1024) return;
+
+  const rect = section.getBoundingClientRect();
+  const sectionTop = rect.top + window.scrollY;
+  const scrolled = window.scrollY - sectionTop;
+
+  const progress = Math.min(Math.max(scrolled / scrollTravel, 0), 1);
+
+  rightPanel.style.transform =
+    `translateY(-${progress * scrollTravel}px)`;
+});
+  window.addEventListener("load", () => { scrollTravel = setup(); });
+})();
+</script> {% endcomment %}
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+<script>
+const details = document.querySelectorAll(".faq-box details");
+
+// Open first by default
+if(details.length > 0){
+    details[0].setAttribute("open", true);
+}
+
+details.forEach((targetDetail) => {
+  targetDetail.addEventListener("click", () => {
+    details.forEach((detail) => {
+      if(detail !== targetDetail){
+        detail.removeAttribute("open");
+      }
+    });
+  });
+});
+</script>
+<!-- Back to top button -->
+<button id="backToTopBtn" class="back-to-top">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+
+<script>
+  const backToTopBtn = document.getElementById("backToTopBtn");
+  const featuresSec = document.getElementById("features");
+
+  window.addEventListener("scroll", () => {
+    if (featuresSec) {
+      const featuresBottom = featuresSec.offsetTop + featuresSec.offsetHeight;
+      if (window.scrollY > featuresBottom) {
+        backToTopBtn.classList.add("show");
+      } else {
+        backToTopBtn.classList.remove("show");
+      }
+    }
+  });
+
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+</script>
+</body>
+</html>

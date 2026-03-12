@@ -28,19 +28,54 @@ def send_activation_email(employee, site_url, password):
 
 
 
+# def extract_resume_text(file):
+#     text = ""
+
+#     if file.name.endswith(".pdf"):
+#         import pdfplumber
+#         with pdfplumber.open(file) as pdf:
+#             for page in pdf.pages:
+#                 text += page.extract_text() or ""
+
+#     elif file.name.endswith(".docx"):
+#         import docx
+#         doc = docx.Document(file)
+#         for para in doc.paragraphs:
+#             text += para.text + "\n"
+
+#     return text
+
 def extract_resume_text(file):
     text = ""
 
-    if file.name.endswith(".pdf"):
-        import pdfplumber
-        with pdfplumber.open(file) as pdf:
-            for page in pdf.pages:
-                text += page.extract_text() or ""
+    try:
+        filename = file.name.lower()
 
-    elif file.name.endswith(".docx"):
-        import docx
-        doc = docx.Document(file)
-        for para in doc.paragraphs:
-            text += para.text + "\n"
+        # ---------------- PDF ----------------
+        if filename.endswith(".pdf"):
+            import fitz
+            try:
+                pdf_bytes = file.read()
+                pdf = fitz.open(stream=pdf_bytes, filetype="pdf")
 
-    return text
+                for page in pdf:
+                    text += page.get_text()
+
+            except Exception:
+                return ""
+
+        # ---------------- DOCX ----------------
+        elif filename.endswith(".docx"):
+            import docx
+            import io
+            try:
+                doc = docx.Document(io.BytesIO(file.read()))
+                for para in doc.paragraphs:
+                    text += para.text + "\n"
+            except Exception:
+                return ""
+
+        return text.strip()
+
+    except Exception:
+        return ""
