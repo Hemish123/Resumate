@@ -143,10 +143,10 @@ represent a single roundabout balls -->
 {% endif %}
 </div>
 <div class="col-md-6">
-    <label class="form-label" for="id_dob">Date of Birth *</label>
+    <label class="form-label" for="id_dob">Date of Birth </label>
     <input type="date" id="id_dob" name="dob"
            value="{{ form.dob.value|default_if_none:'' }}"
-           class="form-control" required/>
+           class="form-control" />
     {% if form.errors %}
         {% for error in form.dob.errors %}
             <div class="error-message text-danger">{{ error }}</div>
@@ -155,7 +155,7 @@ represent a single roundabout balls -->
 </div>
 
 <div class="col-md-6">
-    <label class="form-label" for="id_college">College *</label>
+    <label class="form-label" for="id_college">College </label>
     <input type="text" id="id_college" name="college"
            value="{{ form.college.value|default_if_none:'' }}"
            class="form-control"/>

@@ -99,9 +99,8 @@
               </div>
               <div class="col-md-3">
                   <label for="id_dob" class="form-label">Date of Birth
-                    <span>*</span>
                   </label>
-                  <input id="id_dob" name="dob" value="{{ form.dob.value|default_if_none:'' }}" type="date" class="form-control" required/>  <!-- class = bs-datepicker-format  -->
+                  <input id="id_dob" name="dob" value="{{ form.dob.value|default_if_none:'' }}" type="date" class="form-control" />  <!-- class = bs-datepicker-format  -->
                   {% if form.errors %}
                   {% for error in form.dob.errors %}
                     <div class="error-message text-danger">{{ error }}</div>

@@ -65,8 +65,6 @@ class CandidateForm(forms.ModelForm):
             'name',
             'email',
             'contact',
-            'dob',
-            'college',
             'location',
             'preferred_location',
             'education',
