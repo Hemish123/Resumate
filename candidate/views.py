@@ -32,6 +32,56 @@ import csv, openpyxl
 import tempfile
 from django.db.models import Prefetch
 
+
+from datetime import datetime
+
+from datetime import datetime
+
+def parse_date_safe(value):
+    if not value:
+        return None
+    
+    value = str(value).strip()
+
+    formats = [
+        "%Y-%m-%d",
+        "%d-%m-%Y",
+        "%m-%d-%Y",
+        "%d/%m/%Y",
+        "%m/%d/%Y",
+        "%Y/%m/%d",
+    ]
+    
+    for f in formats:
+        try:
+            return datetime.strptime(value, f).date()
+        except:
+            continue
+    
+    return None
+
+def parse_ctc(value):
+    if not value:
+        return None
+    match = re.search(r'\d+(\.\d+)?', str(value))
+    return float(match.group()) if match else None 
+
+import re
+
+def extract_number(value):
+    if not value:
+        return None
+    match = re.search(r'\d+(\.\d+)?', str(value))
+    return float(match.group()) if match else None
+
+def get_value(row, key):
+    for k in row.keys():
+        if k.replace(" ", "").lower() == key.replace(" ", "").lower():
+            return row[k]
+    return None
+
+
+
 class CandidateImportView(LoginRequiredMixin, FormView):
     template_name = "candidate/candidate_import.html"
     title = "Import Candidates"
@@ -53,32 +103,67 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                 workbook = openpyxl.load_workbook(file)
                 sheet = workbook.active
 
-                for row in sheet.iter_rows(min_row=2, values_only=True):  # Skipping header
-                    name, contact, email1, *rest = row  # Unpack first three columns into name, email, contact
-                    if name and ('@' in str(email1).strip()) and (len(str(contact))>=10):   # Check if row is not empty
-                        email = row[2].lower() if isinstance(row[2], str) else None
-                        if email:
-                            if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
-                                try:
-                                    experience = int(row[5])
-                                except (ValueError, TypeError):
-                                    experience = 0
-                                #
-                                # if not row[3]:
-                                #     row[3] = None
-                                # if not row[4]:
-                                #     row[4] = None
-                                Candidate.objects.create(
-                                    name=row[0],
-                                    contact=row[1],
-                                    email=row[2],
-                                    current_designation=row[3],
-                                    location=row[4],
-                                    experience=experience,
-                                    company=request.user.employee.company
-                                )
-                            else:
-                                skip += 1
+                # for row in sheet.iter_rows(min_row=2, values_only=True):  # Skipping header
+                #         name = row[0]
+                #         designation = row[1]
+                #         contact = row[2]
+                #         email = row[3]
+                #         location = row[4]  # Unpack first three columns into name, email, contact
+                #     if name and ('@' in str(email1).strip()) and (len(str(contact))>=10):   # Check if row is not empty
+                #         email = row[2].lower() if isinstance(row[2], str) else None
+                #         if email:
+                #             if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
+                #                 try:
+                #                     experience = int(row[5])
+                #                 except (ValueError, TypeError):
+                #                     experience = 0
+                #                 #
+                #                 # if not row[3]:
+                #                 #     row[3] = None
+                #                 # if not row[4]:
+                #                 #     row[4] = None
+                #                 Candidate.objects.create(
+                #                     name=row[0],
+                #                     contact=row[1],
+                #                     email=row[2],
+                #                     current_designation=row[3],
+                #                     location=row[4],
+                #                     experience=experience,
+                #                     company=request.user.employee.company
+                #                 )
+                #             else:
+                #                 skip += 1
+                #         else:
+                #             skip += 1
+                #     else:
+                #         skip += 1
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+
+                    name = row[0]
+                    designation = row[1]
+                    contact = row[2]
+                    email = row[3]
+                    location = row[4]
+
+                    if name and email and ('@' in str(email).strip()) and (len(str(contact)) >= 10):
+
+                        email = email.lower()
+
+                        if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
+                            try:
+                                experience = int(row[6]) if len(row) > 6 and row[6] else 0
+                            except (ValueError, TypeError):
+                                experience = 0
+
+                            Candidate.objects.create(
+                                name=name,
+                                contact=contact,
+                                email=email,
+                                current_designation=designation,
+                                location=location,
+                                experience=experience,
+                                company=request.user.employee.company
+                            )
                         else:
                             skip += 1
                     else:
@@ -91,38 +176,85 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                 except UnicodeDecodeError:
                     # Fallback to a lenient encoding
                     decoded_file = file.read().decode('latin1').splitlines()
-                reader = csv.reader(decoded_file)
-                # Skipping the header row (optional)
-                next(reader, None)
+                # reader = csv.reader(decoded_file)
+                # # Skipping the header row (optional)
+                # next(reader, None)
+                # for row in reader:
+                #     email = row[2].lower() if isinstance(row[2], str) else None
+                #     if email:
+                #         if not Candidate.objects.filter(email=email,
+                #                                         company=request.user.employee.company).exists():
+                #             try:
+                #                 experience = int(row[5])
+                #             except (ValueError, TypeError):
+                #                 experience = 0
+
+                #             Candidate.objects.create(
+                #                 name=row[0],
+                #                 contact=row[1],
+                #                 email=row[2],
+                #                 current_designation=row[3],
+                #                 location=row[4],
+                #                 experience=experience,
+                #                 company=request.user.employee.company
+                #             )
+                #             # print('candidate')
+                #         else:
+                #             skip += 1
+                #     else:
+                #         skip += 1
+                reader = csv.DictReader(decoded_file)
+
                 for row in reader:
-                    email = row[2].lower() if isinstance(row[2], str) else None
-                    if email:
-                        if not Candidate.objects.filter(email=email,
-                                                        company=request.user.employee.company).exists():
-                            try:
-                                experience = int(row[5])
-                            except (ValueError, TypeError):
-                                experience = 0
+
+                    name = row.get("Name")
+                    designation = row.get("Designation")
+                    contact = row.get("Contact")
+                    email = row.get("Email")
+                    location = row.get("Location")
+
+                    if email and "@" in str(email):
+
+                        email = email.lower()
+
+                        if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
 
                             Candidate.objects.create(
-                                name=row[0],
-                                contact=row[1],
-                                email=row[2],
-                                current_designation=row[3],
-                                location=row[4],
-                                experience=experience,
+
+                                name=get_value(row,"Name"),
+                                contact=get_value(row,"Contact"),
+                                email=get_value(row,"Email"),
+                                current_designation=get_value(row,"Designation"),
+
+                                location=get_value(row,"Location"),
+                                preferred_location=get_value(row,"Preferred Location"),
+
+                                experience=int(extract_number(get_value(row,"Experience (In Years)"))) if get_value(row,"Experience (In Years)") else 0,
+
+                                current_ctc=parse_ctc(get_value(row,"Current CTC")),
+                                expected_ctc=parse_ctc(get_value(row,"Expected CTC")),
+
+                                notice_period=int(extract_number(get_value(row,"Notice Period"))) if get_value(row,"Notice Period") else None,
+
+                                share_date=parse_date_safe(get_value(row,"Share Date")),
+
+                                dob = parse_date_safe(get_value(row, "DOB")) if get_value(row, "DOB") else None,
+
+                                college = get_value(row, "College"),
+
+                                current_organization=get_value(row,"Current Organization"),
+
                                 company=request.user.employee.company
                             )
-                            # print('candidate')
                         else:
                             skip += 1
-                    else:
-                        skip += 1
-
             else:
                 messages.error(request, "Invalid file format! Please upload CSV or Excel file.")
                 return redirect('candidate-list')
-            messages.success(request, f"Candidates imported successfully. skipped: {skip}")
+            if skip > 0:
+                messages.warning(request, f"{skip} duplicate candidates were skipped during import.")
+
+            messages.success(request, "Candidates imported successfully.")
             return redirect('candidate-list')
 
         else:
@@ -918,7 +1050,7 @@ def export_selected_candidates_csv(request):
         ])
 
     return response
-
+ 
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
     title = 'Candidate Database'
