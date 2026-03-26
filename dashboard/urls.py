@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/send-interview-link/', SendInterviewLinkView.as_view(), name='send_interview_link'),
     path('client-emails/<int:job_opening_id>/', views.get_client_emails, name='client-emails'),
     path('', views.landing_page, name="landing_page"),
+    path('download-stage-csv/<int:job_opening_id>/', views.download_stage_csv, name='download-stage-csv'),
     
 
 

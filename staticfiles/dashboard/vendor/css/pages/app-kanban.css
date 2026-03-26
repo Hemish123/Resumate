@@ -21,6 +21,12 @@
 .app-kanban .kanban-wrapper .kanban-container .kanban-board:focus {
   outline: 0;
 }
+.app-kanban .kanban-board .kanban-board-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: inherit; 
+}
 .app-kanban .kanban-wrapper .kanban-container .kanban-board .kanban-board-header {
   display: flex;
   justify-content: space-between;

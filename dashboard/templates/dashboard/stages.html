@@ -413,6 +413,10 @@
                           {{ employee }}
                           {% endfor %}</div>
                   </a>
+                  <a href="{% url 'download-stage-csv' job_opening.id %}" 
+                    class="btn btn-success">
+                    <i class="ti ti-download"></i> Download CSV
+                  </a>
 
                 </div>
                 

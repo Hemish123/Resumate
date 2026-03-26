@@ -17,6 +17,9 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     )
 
     #for local testing
+
+    # client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
+    # client = OpenAI(api_key=CHATGPT_API_KEY)
     
     content = """Your task is to parse resume into json format with following keys:
     str(average_tenure(i.e. 2 years)), str(current_tenure(i.e. 2 years)), 

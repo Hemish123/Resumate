@@ -25,6 +25,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--bs-body-bg);
   padding: 0 0 1rem 0;
 }
 .app-kanban .kanban-wrapper .kanban-container .kanban-board .kanban-board-header .kanban-title-board {

@@ -1190,8 +1190,11 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
         # ================= PRODUCTION (AZURE) =================
         else:
             user_email = self.request.user.email.lower()
+
             # 🔥 Only allow Azure listing for JMS Advisory
-            if user_email.endswith("@jmsadvisory"):
+            if user_email.endswith("@jmsadvisory.in"):
+
+                # ================= AZURE =================
                 account_name = os.environ["AZURE_ACCOUNT_NAME"]
                 account_key = os.environ["AZURE_ACCOUNT_KEY"]
 
@@ -1206,33 +1209,25 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                 container_client = blob_service_client.get_container_client("media")
 
                 blobs = container_client.list_blobs(name_starts_with="resumes/")
-
                 resume_list = []
 
                 for blob in blobs:
-
                     filename = blob.name.split("/")[-1]
-
                     file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
 
-                    candidate = Candidate.objects.filter(
-                        upload_resume=blob.name
-                    ).first()
+                    candidate = Candidate.objects.filter(upload_resume=blob.name).first()
 
                     content_preview = ""
 
-                    # ✅ If already saved in DB
                     if candidate and candidate.text_content:
                         content_preview = candidate.text_content[:120]
 
-                    # ✅ If not saved → Extract from Azure once
                     elif candidate:
                         extracted_text = get_blob_pdf_text(blob.name)
 
                         if extracted_text:
                             candidate.text_content = extracted_text
                             candidate.save(update_fields=["text_content"])
-
                             content_preview = extracted_text[:120]
 
                     resume_list.append({
@@ -1241,14 +1236,102 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                         "updated": blob.last_modified,
                         "content": content_preview
                     })
-                    
+
+                # ================= LOCAL =================
+                local_candidates = Candidate.objects.filter(
+                    company=self.request.user.employee.company
+                ).exclude(
+                    upload_resume__isnull=True
+                ).exclude(
+                    upload_resume=""
+                )
+
+                for candidate in local_candidates:
+                    resume_list.append({
+                        "name": candidate.upload_resume.name.split("/")[-1],
+                        "resume_url": candidate.upload_resume.url,
+                        "updated": candidate.updated,
+                        "content": ""
+                    })
+
+                resume_list = sorted(resume_list, key=lambda x: x["updated"], reverse=True)
 
                 context['candidates'] = resume_list
                 context['counts'] = f"Total {len(resume_list)} resumes"
+
+            # ================= NORMAL USERS =================
             else:
-                    # ❌ Other companies should NOT see Azure resumes
-                    context['candidates'] = []
-                    context['counts'] = "Total 0 resumes"
+                candidates = Candidate.objects.filter(
+                    company=self.request.user.employee.company
+                ).exclude(
+                    upload_resume__isnull=True
+                ).exclude(
+                    upload_resume=""
+                ).order_by('-updated')
+
+                context['candidates'] = candidates
+                context['counts'] = f"Total {candidates.count()} resumes"
+            
+            # user_email = self.request.user.email.lower()
+            # # 🔥 Only allow Azure listing for JMS Advisory
+            # if user_email.endswith("@jmsadvisory"):
+            #     account_name = os.environ["AZURE_ACCOUNT_NAME"]
+            #     account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+            #     connect_str = (
+            #         f"DefaultEndpointsProtocol=https;"
+            #         f"AccountName={account_name};"
+            #         f"AccountKey={account_key};"
+            #         f"EndpointSuffix=core.windows.net"
+            #     )
+
+            #     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            #     container_client = blob_service_client.get_container_client("media")
+
+            #     blobs = container_client.list_blobs(name_starts_with="resumes/")
+
+            #     resume_list = []
+
+            #     for blob in blobs:
+
+            #         filename = blob.name.split("/")[-1]
+
+            #         file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+
+            #         candidate = Candidate.objects.filter(
+            #             upload_resume=blob.name
+            #         ).first()
+
+            #         content_preview = ""
+
+            #         # ✅ If already saved in DB
+            #         if candidate and candidate.text_content:
+            #             content_preview = candidate.text_content[:120]
+
+            #         # ✅ If not saved → Extract from Azure once
+            #         elif candidate:
+            #             extracted_text = get_blob_pdf_text(blob.name)
+
+            #             if extracted_text:
+            #                 candidate.text_content = extracted_text
+            #                 candidate.save(update_fields=["text_content"])
+
+            #                 content_preview = extracted_text[:120]
+
+            #         resume_list.append({
+            #             "name": filename,
+            #             "resume_url": file_url,
+            #             "updated": blob.last_modified,
+            #             "content": content_preview
+            #         })
+                    
+
+            #     context['candidates'] = resume_list
+            #     context['counts'] = f"Total {len(resume_list)} resumes"
+            # else:
+            #         # ❌ Other companies should NOT see Azure resumes
+            #         context['candidates'] = []
+            #         context['counts'] = "Total 0 resumes"
 
         context['job_openings'] = JobOpening.objects.filter(
             company=self.request.user.employee.company,

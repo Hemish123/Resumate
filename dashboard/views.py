@@ -219,13 +219,15 @@ class StageAPIView(APIView):
         # Optimize queries by prefetching related data
         stages = stages.prefetch_related(
             Prefetch(
-                'candidatestage_set__candidate',
-                queryset=Candidate.objects.prefetch_related(
+                'candidatestage_set',
+                queryset=CandidateStage.objects.select_related('candidate')
+                .prefetch_related(
                     Prefetch(
-                        'analysis',
+                        'candidate__analysis',
                         queryset=ResumeAnalysis.objects.filter(job_opening_id=job_opening_id)
                     )
                 )
+                .order_by('-moved_at')  
             )
         )
         serializer = self.serializer_class(stages, many=True, context={'job_opening_id': job_opening_id})
@@ -705,3 +707,161 @@ def landing_page(request):
         return redirect('/dashboard')   
 
     return render(request, "dashboard/landing.html")
+
+
+import csv
+from django.http import HttpResponse
+from django.utils.timezone import localtime
+from collections import defaultdict
+
+# def download_stage_csv(request, job_opening_id):
+#     job = JobOpening.objects.get(id=job_opening_id)
+
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = f'attachment; filename="job_{job.id}_candidates_full.csv"'
+
+#     writer = csv.writer(response)
+
+#     # ✅ HEADER (ALL FIELDS LIKE DETAIL PAGE)
+#     writer.writerow([
+#         "Name", "Email", "Contact", "Location", "DOB",
+#         "Education",
+#         "LinkedIn", "GitHub", "Portfolio", "Blog",
+#         "Experience", "Current Designation", "Current Organization",
+#         "Notice Period",
+#         "Current CTC", "Current CTC (In Hand)",
+#         "Expected CTC", "Expected CTC (In Hand)",
+#         "Offer In Hand",
+#         "Reason For Change", "Feedback",
+#         "Stage", "Stage Date"
+#     ])
+
+#     # ✅ Get ALL stage records (date-wise)
+#     candidate_stages = CandidateStage.objects.filter(
+#         stage__job_opening=job
+#     ).select_related('candidate', 'stage').order_by('candidate__id', 'moved_at')
+
+#     for cs in candidate_stages:
+#         c = cs.candidate
+
+#         writer.writerow([
+#             c.name,
+#             c.email,
+#             c.contact,
+#             c.location,
+#             c.dob.strftime('%Y-%m-%d') if c.dob else "",
+#             c.education,
+
+#             c.linkedin,
+#             c.github,
+#             c.portfolio,
+#             c.blog,
+
+#             c.experience,
+#             c.current_designation,
+#             c.current_organization,
+#             c.notice_period,
+
+#             c.current_ctc,
+#             c.current_ctc_ih,
+#             c.expected_ctc,
+#             c.expected_ctc_ih,
+#             c.offer_in_hand,
+
+#             c.reason_for_change,
+#             c.feedback,
+
+#             cs.stage.name,
+#             cs.moved_at.strftime('%Y-%m-%d %H:%M')
+#         ])
+
+#     return response
+
+import csv
+from django.http import HttpResponse
+from collections import defaultdict
+from manager.models import JobOpening
+from .models import CandidateStage
+
+
+def download_stage_csv(request, job_opening_id):
+    job = JobOpening.objects.get(id=job_opening_id)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="job_{job.id}_candidates_full.csv"'
+
+    writer = csv.writer(response)
+
+    # ✅ HEADER (ALL FIELDS LIKE DETAIL PAGE)
+    writer.writerow([
+        "Name", "Email", "Contact", "Location", "DOB",
+        "Education",
+        "LinkedIn", "GitHub", "Portfolio", "Blog",
+        "Experience", "Current Designation", "Current Organization",
+        "Notice Period",
+        "Current CTC", "Current CTC (In Hand)",
+        "Expected CTC", "Expected CTC (In Hand)",
+        "Offer In Hand",
+        "Reason For Change", "Feedback",
+        "Stage", "Stage Date"
+    ])
+
+    # ✅ GROUP DATA BY CANDIDATE
+    candidate_dict = defaultdict(list)
+
+    for cs in CandidateStage.objects.filter(
+        stage__job_opening=job
+    ).select_related('candidate', 'stage'):
+        candidate_dict[cs.candidate].append(cs)
+
+    # ✅ SORT CANDIDATES (LATEST ACTIVITY FIRST)
+    sorted_candidates = sorted(
+        candidate_dict.items(),
+        key=lambda x: max(c.moved_at for c in x[1]),
+        reverse=True
+    )
+
+    # ✅ WRITE DATA
+    for candidate, stages in sorted_candidates:
+
+        # sort stages inside candidate (latest first)
+        stages = sorted(stages, key=lambda x: x.moved_at, reverse=True)
+
+        for cs in stages:
+            c = cs.candidate
+
+            writer.writerow([
+                c.name,
+                c.email,
+                c.contact,
+                c.location,
+                c.dob.strftime('%Y-%m-%d') if c.dob else "",
+                c.education,
+
+                c.linkedin,
+                c.github,
+                c.portfolio,
+                c.blog,
+
+                c.experience,
+                c.current_designation,
+                c.current_organization,
+                c.notice_period,
+
+                c.current_ctc,
+                c.current_ctc_ih,
+                c.expected_ctc,
+                c.expected_ctc_ih,
+                c.offer_in_hand,
+
+                c.reason_for_change,
+                c.feedback,
+
+                cs.stage.name,
+                cs.moved_at.strftime('%Y-%m-%d %H:%M')
+            ])
+
+        # ✅ optional: blank line between candidates
+        writer.writerow([])
+
+    return response
