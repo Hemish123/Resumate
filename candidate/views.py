@@ -1585,80 +1585,211 @@ def resume_list_api(request):
                 "updated": candidate.updated.strftime("%d-%m-%Y"),
             })
 
-    # ================= PRODUCTION =================
-
     else:
+        user_email = request.user.email.lower()
 
-        account_name = os.environ["AZURE_ACCOUNT_NAME"]
-        account_key = os.environ["AZURE_ACCOUNT_KEY"]
+        # ================= NON-JMS USERS (ONLY LOCAL) =================
+        if not user_email.endswith("@jmsadvisory.in"):
 
-        connect_str = (
-            f"DefaultEndpointsProtocol=https;"
-            f"AccountName={account_name};"
-            f"AccountKey={account_key};"
-            f"EndpointSuffix=core.windows.net"
-        )
+            candidates = Candidate.objects.filter(
+                company=request.user.employee.company
+            ).exclude(
+                upload_resume__isnull=True
+            ).exclude(
+                upload_resume=""
+            ).order_by("-updated")
 
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            total_records = candidates.count()
 
-        container_client = blob_service_client.get_container_client("media")
+            # FILTERS
+            if filename:
+                candidates = candidates.filter(upload_resume__icontains=filename)
 
-        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+            if updated:
+                candidates = candidates.filter(updated__date=updated)
 
-        # TOTAL COUNT
-        total_records = len(blobs)
+            filtered_records = candidates.count()
 
-         # FILTER filename
-        if filename:
-            blobs = [
-                b for b in blobs
-                if filename.lower() in b.name.lower()
-            ]
+            page = candidates[start:start+length]
 
-        # FILTER updated
-        if updated:
-            blobs = [
-                b for b in blobs
-                if b.last_modified.date().strftime("%Y-%m-%d") == updated
-            ]
+            for candidate in page:
+                data.append({
+                    "id": candidate.id,
+                    "filename": candidate.upload_resume.name.split("/")[-1],
+                    "file_url": candidate.upload_resume.url,
+                    "content": candidate.text_content[:120] if candidate.text_content else "",
+                    "updated": candidate.updated.strftime("%d-%m-%Y"),
+                })
 
-        filtered_records = len(blobs)
+        # ================= JMS USERS (AZURE + LOCAL BOTH) =================
+        else:
 
-        # SORT
-        blobs.sort(key=lambda x: x.last_modified, reverse=True)
+            account_name = os.environ["AZURE_ACCOUNT_NAME"]
+            account_key = os.environ["AZURE_ACCOUNT_KEY"]
 
-        # PAGINATION
-        blobs = blobs[start:start+length]
+            connect_str = (
+                f"DefaultEndpointsProtocol=https;"
+                f"AccountName={account_name};"
+                f"AccountKey={account_key};"
+                f"EndpointSuffix=core.windows.net"
+            )
 
-        for blob in blobs:
+            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            container_client = blob_service_client.get_container_client("media")
 
-            filename = blob.name.split("/")[-1]
+            blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
 
-            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
-            candidate = Candidate.objects.filter(
-                upload_resume=blob.name
-            ).first()
+            combined_list = []
 
-            content_preview = ""
+            # ---------- AZURE DATA ----------
+            for blob in blobs:
+                filename_blob = blob.name.split("/")[-1]
 
-            if candidate and candidate.text_content:
-                content_preview = candidate.text_content[:120]
+                file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
 
+                candidate = Candidate.objects.filter(upload_resume=blob.name).first()
 
-            data.append({
-                "id": blob.name,
-                "filename": filename,
-                "file_url": file_url,
-                "content": content_preview,
-                "updated": blob.last_modified.strftime("%d-%m-%Y"),
-            })
+                content_preview = ""
+                if candidate and candidate.text_content:
+                    content_preview = candidate.text_content[:120]
 
+                combined_list.append({
+                    "id": blob.name,
+                    "filename": filename_blob,
+                    "file_url": file_url,
+                    "content": content_preview,
+                    "updated": blob.last_modified,
+                    "source": "azure"
+                })
+
+            # ---------- LOCAL DATA ----------
+            local_candidates = Candidate.objects.filter(
+                company=request.user.employee.company
+            ).exclude(
+                upload_resume__isnull=True
+            ).exclude(
+                upload_resume=""
+            )
+
+            for candidate in local_candidates:
+                combined_list.append({
+                    "id": candidate.id,
+                    "filename": candidate.upload_resume.name.split("/")[-1],
+                    "file_url": candidate.upload_resume.url,
+                    "content": candidate.text_content[:120] if candidate.text_content else "",
+                    "updated": candidate.updated,
+                    "source": "local"
+                })
+
+            # ---------- FILTER ----------
+            if filename:
+                combined_list = [
+                    item for item in combined_list
+                    if filename.lower() in item["filename"].lower()
+                ]
+
+            if updated:
+                combined_list = [
+                    item for item in combined_list
+                    if item["updated"].strftime("%Y-%m-%d") == updated
+                ]
+
+            # ---------- SORT ----------
+            combined_list.sort(key=lambda x: x["updated"], reverse=True)
+
+            total_records = len(combined_list)
+            filtered_records = len(combined_list)
+
+            # ---------- PAGINATION ----------
+            page = combined_list[start:start+length]
+
+            # FORMAT DATE
+            for item in page:
+                item["updated"] = item["updated"].strftime("%d-%m-%Y")
+                data.append(item)
+
+    # FINAL RESPONSE
     return JsonResponse({
         "draw": draw,
         "recordsTotal": total_records,
         "recordsFiltered": filtered_records,
         "data": data,
     })
+
+    # # ================= PRODUCTION =================
+
+    # else:
+
+    #     account_name = os.environ["AZURE_ACCOUNT_NAME"]
+    #     account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+    #     connect_str = (
+    #         f"DefaultEndpointsProtocol=https;"
+    #         f"AccountName={account_name};"
+    #         f"AccountKey={account_key};"
+    #         f"EndpointSuffix=core.windows.net"
+    #     )
+
+    #     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+    #     container_client = blob_service_client.get_container_client("media")
+
+    #     blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+
+    #     # TOTAL COUNT
+    #     total_records = len(blobs)
+
+    #      # FILTER filename
+    #     if filename:
+    #         blobs = [
+    #             b for b in blobs
+    #             if filename.lower() in b.name.lower()
+    #         ]
+
+    #     # FILTER updated
+    #     if updated:
+    #         blobs = [
+    #             b for b in blobs
+    #             if b.last_modified.date().strftime("%Y-%m-%d") == updated
+    #         ]
+
+    #     filtered_records = len(blobs)
+
+    #     # SORT
+    #     blobs.sort(key=lambda x: x.last_modified, reverse=True)
+
+    #     # PAGINATION
+    #     blobs = blobs[start:start+length]
+
+    #     for blob in blobs:
+
+    #         filename = blob.name.split("/")[-1]
+
+    #         file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+    #         candidate = Candidate.objects.filter(
+    #             upload_resume=blob.name
+    #         ).first()
+
+    #         content_preview = ""
+
+    #         if candidate and candidate.text_content:
+    #             content_preview = candidate.text_content[:120]
+
+
+    #         data.append({
+    #             "id": blob.name,
+    #             "filename": filename,
+    #             "file_url": file_url,
+    #             "content": content_preview,
+    #             "updated": blob.last_modified.strftime("%d-%m-%Y"),
+    #         })
+
+    # return JsonResponse({
+    #     "draw": draw,
+    #     "recordsTotal": total_records,
+    #     "recordsFiltered": filtered_records,
+    #     "data": data,
+    # })
 
 from django.conf import settings
 from azure.storage.blob import BlobServiceClient
