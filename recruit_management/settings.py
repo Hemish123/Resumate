@@ -273,17 +273,28 @@ EXPIRE_AFTER = "10m"
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380".format(
+#                 password= "YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=",
+#                 hostname="jiviredis",
+#                 port=6380
+
+#             ))],
+
+#         },
+#     },
+# }
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380".format(
-                password= "YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=",
-                hostname="jiviredis",
-                port=6380
-
-            ))],
-
+            "hosts": [{
+                "address": "rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380/0",
+                "ssl_cert_reqs": None,
+            }],
         },
     },
 }
