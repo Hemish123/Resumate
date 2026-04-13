@@ -287,13 +287,25 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 #         },
 #     },
 # }
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [{
+#                 "address": "rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380/0",
+#                 "ssl_cert_reqs": None,
+#             }],
+#         },
+#     },
+# }
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [{
-                "address": "rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380/0",
-                "ssl_cert_reqs": None,
+                "address": ("jiviredis.redis.cache.windows.net", 6380),
+                "password": "YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=",
+                "ssl": True,
             }],
         },
     },
