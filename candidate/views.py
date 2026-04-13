@@ -1205,31 +1205,63 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                     f"EndpointSuffix=core.windows.net"
                 )
 
-                blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-                container_client = blob_service_client.get_container_client("media")
+                # blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+                # container_client = blob_service_client.get_container_client("media")
 
-                blobs = container_client.list_blobs(name_starts_with="resumes/")
+                # blobs = container_client.list_blobs(name_starts_with="resumes/")
+                # resume_list = []
+
+                # for blob in blobs:
+                #     filename = blob.name.split("/")[-1]
+                #     file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+
+                #     candidate = Candidate.objects.filter(upload_resume=blob.name).first()
+
+                #     content_preview = ""
+
+                #     if candidate and candidate.text_content:
+                #         content_preview = candidate.text_content[:120]
+
+                #     elif candidate:
+                #         extracted_text = get_blob_pdf_text(blob.name)
+
+                #         if extracted_text:
+                #             candidate.text_content = extracted_text
+                #             candidate.save(update_fields=["text_content"])
+                #             content_preview = extracted_text[:120]
+
+                #     resume_list.append({
+                #         "name": filename,
+                #         "resume_url": file_url,
+                #         "updated": blob.last_modified,
+                #         "content": content_preview
+                #     })
+                # ✅ preload all candidates (1 DB query only)
+                candidates_map = {
+                    c.upload_resume.name: c
+                    for c in Candidate.objects.all()
+                }
+                
+                # ✅ limit Azure blobs (avoid timeout)
+                blob_pages = container_client.list_blobs(
+                    name_starts_with="resumes/",
+                    results_per_page=20
+                ).by_page()
+                
+                blobs = list(next(blob_pages))  # only first 20
+                
                 resume_list = []
-
+                
                 for blob in blobs:
                     filename = blob.name.split("/")[-1]
                     file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
-
-                    candidate = Candidate.objects.filter(upload_resume=blob.name).first()
-
+                
+                    candidate = candidates_map.get(blob.name)
+                
                     content_preview = ""
-
                     if candidate and candidate.text_content:
                         content_preview = candidate.text_content[:120]
-
-                    elif candidate:
-                        extracted_text = get_blob_pdf_text(blob.name)
-
-                        if extracted_text:
-                            candidate.text_content = extracted_text
-                            candidate.save(update_fields=["text_content"])
-                            content_preview = extracted_text[:120]
-
+                
                     resume_list.append({
                         "name": filename,
                         "resume_url": file_url,
