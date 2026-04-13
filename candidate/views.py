@@ -1147,6 +1147,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 import os
 from azure.storage.blob import BlobServiceClient
+from django.utils import timezone
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
@@ -1266,7 +1267,8 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                     resume_list.append({
                         "name": filename,
                         "resume_url": file_url,
-                        "updated": blob.last_modified,
+                        # "updated": blob.last_modified,
+                        "updated": blob.last_modified.astimezone(timezone.utc),
                         "content": content_preview
                     })
 
@@ -1283,7 +1285,8 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                     resume_list.append({
                         "name": candidate.upload_resume.name.split("/")[-1],
                         "resume_url": candidate.upload_resume.url,
-                        "updated": candidate.updated,
+                        # "updated": candidate.updated,
+                        "updated": timezone.make_aware(candidate.updated) if timezone.is_naive(candidate.updated) else candidate.updated,
                         "content": ""
                     })
 
