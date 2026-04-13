@@ -1148,6 +1148,7 @@ from django.conf import settings
 import os
 from azure.storage.blob import BlobServiceClient
 from django.utils import timezone
+from datetime import timezone as dt_timezone
 
 class ResumeListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/resume_list.html'
@@ -1268,7 +1269,7 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                         "name": filename,
                         "resume_url": file_url,
                         # "updated": blob.last_modified,
-                        "updated": blob.last_modified.astimezone(timezone.utc),
+                        "updated": blob.last_modified.astimezone(dt_timezone.utc),
                         "content": content_preview
                     })
 
