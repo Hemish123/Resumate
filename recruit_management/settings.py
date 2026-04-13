@@ -302,11 +302,9 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [{
-                "address": ("jiviredis.redis.cache.windows.net", 6380),
-                "password": "YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=",
-                "ssl": True,
-            }],
+            "hosts": [
+                "rediss://:YTa9PJvHbw8sDIeh6k70EvPjwotmed6HYAzCaAekPl8=@jiviredis.redis.cache.windows.net:6380/0"
+            ],
         },
     },
 }
