@@ -1205,8 +1205,8 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                     f"EndpointSuffix=core.windows.net"
                 )
 
-                # blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-                # container_client = blob_service_client.get_container_client("media")
+                blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+                container_client = blob_service_client.get_container_client("media")
 
                 # blobs = container_client.list_blobs(name_starts_with="resumes/")
                 # resume_list = []
@@ -1237,18 +1237,19 @@ class ResumeListView(LoginRequiredMixin, TemplateView):
                 #         "content": content_preview
                 #     })
                 # ✅ preload all candidates (1 DB query only)
+                # ✅ preload DB (1 query only)
                 candidates_map = {
                     c.upload_resume.name: c
                     for c in Candidate.objects.all()
                 }
                 
-                # ✅ limit Azure blobs (avoid timeout)
+                # ✅ pagination (FAST)
                 blob_pages = container_client.list_blobs(
                     name_starts_with="resumes/",
                     results_per_page=20
                 ).by_page()
                 
-                blobs = list(next(blob_pages))  # only first 20
+                blobs = list(next(blob_pages, []))  # safe
                 
                 resume_list = []
                 
