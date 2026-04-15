@@ -6,6 +6,9 @@ from django.core.mail import EmailMultiAlternatives
 from candidate.models import ResumeAnalysis
 from django.utils.html import strip_tags
 from django.conf import settings
+from .whatsapp_utils import send_whatsapp
+
+_whatsapp_sent_cache = set()
 
 def send_success_email(candidate, job_opening):
     emailOfSender = DEFAULT_FROM_EMAIL
@@ -20,6 +23,25 @@ def send_success_email(candidate, job_opening):
                                           to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"Your application for *{job_opening.designation}* at "
+    #     f"*{job_opening.company}* has been successfully submitted. ✅\n\n"
+    #     f"We will keep you updated on the next steps.\n\n"
+    #     f"- JMS Advisory"
+    # )
+    send_whatsapp(
+        candidate.contact,
+        f"🎉 *Application Received — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"Thank you for applying! Your application has been successfully submitted. ✅\n\n"
+        f"📋 *Role:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n\n"
+        f"Our team will review your profile and reach out with next steps shortly.\n\n"
+        f"Warm regards,\n*JMS Advisory*\n info@jmsadvisory.in"
+    )
 
 
 def send_stage_change_email(user, candidate, job_opening, stage):
@@ -36,6 +58,28 @@ def send_stage_change_email(user, candidate, job_opening, stage):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"There's an update on your application for "
+    #     f"*{job_opening.designation}* at *{job_opening.company}*.\n\n"
+    #     f"Current Status: *{stage.name}*\n\n"
+    #     f"- JMS Advisory"
+    # )
+    send_whatsapp(
+        candidate.contact,
+        f"📢 *Application Update — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"There's an update on your application:\n\n"
+        f"📋 *Role:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n"
+        f"🔄 *Status:* {stage.name}\n\n"
+        f"Our team will be in touch with further details soon. Stay tuned!\n\n"
+        f"Best,\n*JMS Advisory*\n info@jmsadvisory.in"
+    )
+
+    
+
 def send_hired_email(user, candidate, job_opening):
     emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Congratulations!'
@@ -48,6 +92,28 @@ def send_hired_email(user, candidate, job_opening):
                                           to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Congratulations {candidate.name}! 🎉\n\n"
+    #     f"We are thrilled to inform you that you have been selected "
+    #     f"for the *{job_opening.designation}* position at "
+    #     f"*{job_opening.company}*.\n\n"
+    #     f"Please check your email for further details.\n\n"
+    #     f"- JMS Advisory"
+    # )
+    send_whatsapp(
+        candidate.contact,
+        f"🎊 *Congratulations — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"We are delighted to share some *great news* with you! 🌟\n\n"
+        f"✅ You have been *selected* for the role of:\n\n"
+        f"📋 *Position:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n\n"
+        f"Please check your email for the formal offer details and next steps.\n\n"
+        f"Wishing you a wonderful start to this new journey! 🚀\n\n"
+        f"Warm regards,\n*JMS Advisory*\n info@jmsadvisory.in"
+    )
 
 def send_rejected_email(user, candidate, job_opening):
     emailOfSender = DEFAULT_FROM_EMAIL
@@ -62,6 +128,32 @@ def send_rejected_email(user, candidate, job_opening):
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
 
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"Thank you for your interest in the *{job_opening.designation}* "
+    #     f"role at *{job_opening.company}*.\n\n"
+    #     f"After careful consideration, we will not be moving forward "
+    #     f"with your application at this time.\n\n"
+    #     f"We wish you all the best in your job search.\n\n"
+    #     f"- JMS Advisory"
+    # )
+
+    send_whatsapp(
+        candidate.contact,
+        f"📩 *Application Update — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"Thank you for your interest in:\n\n"
+        f"📋 *Role:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n\n"
+        f"After careful consideration, we regret that we will not be moving forward "
+        f"with your application at this time.\n\n"
+        f"We value your effort and your profile will remain on record for future openings. 💪\n\n"
+        f"*JMS Advisory*\ninfo@jmsadvisory.in"
+    )
+
+    
+
 def send_interview_email(user, candidate, job_opening, event):
     emailOfSender = DEFAULT_FROM_EMAIL
     subject = 'Interview update!'
@@ -75,6 +167,31 @@ def send_interview_email(user, candidate, job_opening, event):
                                           to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"Your interview for *{job_opening.designation}* at "
+    #     f"*{job_opening.company}* has been scheduled.\n\n"
+    #     f"📅 Date & Time: {event.start_time}\n\n"
+    #     f"Please check your email for complete details.\n\n"
+    #     f"- JMS Advisory"
+    # )
+    send_whatsapp(
+        candidate.contact,
+        f"📅 *Interview Scheduled — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"Great news! Your interview has been confirmed:\n\n"
+        f"📋 *Role:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n"
+        f"📅 *Date & Time:* {event.start_time}\n\n"
+        f"🔔 *Quick Tips:*\n"
+        f"• Be on time and well-prepared\n"
+        f"• Review the job description\n"
+        f"• Keep your documents ready\n\n"
+        f"Check your email for full details. Best of luck! 🌟\n\n"
+        f"*JMS Advisory*\ninfo@jmsadvisory.in"
+    )
 
 def send_schedule_interview_email(user, employee, event):
     emailOfSender = DEFAULT_FROM_EMAIL
@@ -101,6 +218,26 @@ def send_thankyou_email(user, candidate, job_opening):
                                           to=[candidate.email, ], reply_to=['info@jmsadvisory.in'])
     emailMessage.attach_alternative(message, "text/html")
     emailMessage.send(fail_silently=False)
+
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"Thank you for your time and effort throughout the hiring process "
+    #     f"for *{job_opening.designation}* at *{job_opening.company}*.\n\n"
+    #     f"We truly appreciate your interest.\n\n"
+    #     f"- JMS Advisory"
+    # )
+    send_whatsapp(
+        candidate.contact,
+        f"🙏 *Thank You — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"We sincerely *thank you* for your time and enthusiasm throughout the hiring process for:\n\n"
+        f"📋 *Role:* {job_opening.designation}\n"
+        f"🏢 *Company:* {job_opening.company}\n\n"
+        f"Your professionalism has been greatly appreciated. We'll stay in touch for future opportunities.\n\n"
+        f"Wishing you continued success! 🌟\n\n"
+        f"Warm regards,\n*JMS Advisory*\ninfo@jmsadvisory.in"
+    )
 
 def new_application_email(candidate, job_opening, e, site_url):
     emailOfSender = DEFAULT_FROM_EMAIL
@@ -184,6 +321,21 @@ def send_interview_invitation_email(candidate, job_opening_id, additional_notes=
     plain_message = strip_tags(html_message)
     
     subject = f"Interview Invitation for {candidate.name}"
+
+    send_whatsapp(
+        candidate.contact,
+        f"🎙️ *Interview Invitation — JMS Advisory*\n\n"
+        f"Hi {candidate.name},\n\n"
+        f"You've been invited to complete an *online AI-powered interview*. 🤖\n\n"
+        f"🔗 Your interview link has been sent to your registered email.\n\n"
+        f"📌 *Before you begin:*\n"
+        f"• Find a quiet place with good lighting\n"
+        f"• Ensure a stable internet connection\n"
+        f"• Keep your resume handy\n\n"
+        f"{'📝 *Note:* ' + additional_notes + chr(10) + chr(10) if additional_notes else ''}"
+        f"Best of luck! 💼\n\n"
+        f"*JMS Advisory*\n info@jmsadvisory.in"
+    )
     
     return send_mail(
         subject=subject,
@@ -193,6 +345,15 @@ def send_interview_invitation_email(candidate, job_opening_id, additional_notes=
         recipient_list=[candidate.email],
         fail_silently=False,
     )
+
+    # send_whatsapp(
+    #     candidate.contact,
+    #     f"Hi {candidate.name},\n\n"
+    #     f"You have been invited to complete an online interview. 🎙️\n\n"
+    #     f"Please use the link sent to your email to begin.\n\n"
+    #     f"{'Note: ' + additional_notes + chr(10) + chr(10) if additional_notes else ''}"
+    #     f"- JMS Advisory"
+    # )
 
 
 
@@ -373,4 +534,3 @@ def merge_ai_pdf_with_resume(ai_pdf, resume_path):
     merger.close()
 
     return final_pdf.name
-

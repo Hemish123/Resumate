@@ -330,3 +330,9 @@ AUTHENTICATION_BACKENDS = [
 #         },
 #     }
 # }
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+WASENDER_API_KEY = os.getenv('WASENDER_API_KEY')
