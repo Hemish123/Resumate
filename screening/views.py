@@ -95,7 +95,8 @@ class ScreeningView(LoginRequiredMixin, TemplateView):
                 candidate_stage.save()
         else:
             if action=='approveall':
-                candidate_stage = CandidateStage.objects.filter(candidate=self.selected_candidates, stage__job_opening=job_opening)
+                candidate_ids = data.get('candidateIds', [])
+                candidate_stage = CandidateStage.objects.filter(candidate_id__in=candidate_ids, stage__job_opening=job_opening)
                 stage = Stage.objects.get(name="Initial Stage", job_opening=job_opening)
                 for c in candidate_stage:
                     c.stage = stage

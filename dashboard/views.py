@@ -658,6 +658,8 @@ def get_client_emails(request, job_opening_id):
     emails = []
 
     # 1️⃣ Main client email
+    if client is None:
+        return JsonResponse({'error': 'No client assigned'})
     if client.email:
         emails.append(client.email)
 
