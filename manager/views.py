@@ -79,6 +79,17 @@ class JobOpeningCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
             job_opening.client = None
             job_opening.created_by = self.request.user
             job_opening.save()
+            
+            # Assign employees
+            employees = form.cleaned_data.get('assignemployee', [])
+            if employees:
+                job_opening.assignemployee.set(employees)
+                
+                # Send notifications
+                message = "New Job Opening " + job_opening.designation + " assigned to you"
+                for e in employees:
+                    Notification.objects.create(user_id=e.user.id, message=message)
+                    new_opening_email(job_opening, e)
 
             # Default stages
             Stage.objects.create(job_opening_id=job_opening.id, name='Applied', order=1)
