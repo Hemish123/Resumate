@@ -14,7 +14,7 @@ from .models import Candidate, ResumeAnalysis
 from users.models import Employee
 from manager.models import JobOpening
 from datetime import datetime, timedelta
-
+from django.utils.timezone import localtime, is_naive, make_aware
 # from .forms import CandidateForm
 from django.utils import timezone
 from datetime import datetime
@@ -1029,6 +1029,13 @@ def export_selected_candidates_csv(request):
 
     # ✅ ROWS
     for c in candidates:
+        updated = c.updated
+        if updated:
+            if is_naive(updated):
+                updated = make_aware(updated)
+            updated = localtime(updated).strftime('%Y-%m-%d %H:%M')
+        else:
+            updated = ''
         writer.writerow([
             c.name,
             c.current_designation or '',
@@ -1042,7 +1049,7 @@ def export_selected_candidates_csv(request):
             c.notice_period,
             c.share_date.strftime('%Y-%m-%d') if c.share_date else '',
             c.get_status(),
-            localtime(c.updated).strftime('%Y-%m-%d %H:%M'),
+            updated,
             c.dob.strftime('%Y-%m-%d') if c.dob else '',
             c.college or '',
             c.client.name if c.client else '',
