@@ -32,10 +32,30 @@ import csv, openpyxl
 import tempfile
 from django.db.models import Prefetch
 
-
+import re
 from datetime import datetime
 
 from datetime import datetime
+
+
+def safe_int(value, default=0):
+    if value is None:
+        return default
+
+    value = str(value).strip()
+
+    if not value:
+        return default
+
+    match = re.search(r'\d+(\.\d+)?', value)
+
+    if match:
+        try:
+            return int(float(match.group()))
+        except:
+            return default
+
+    return default
 
 def parse_date_safe(value):
     if not value:
@@ -80,7 +100,32 @@ def get_value(row, key):
             return row[k]
     return None
 
+def parse_notice_period(value):
+    if not value:
+        return None
 
+    value = str(value).lower().strip()
+
+    # Immediate
+    if "immediate" in value:
+        return 0
+
+    # Days
+    day_match = re.search(r'(\d+)\s*day', value)
+    if day_match:
+        return int(day_match.group(1))
+
+    # Months → days
+    month_match = re.search(r'(\d+)\s*month', value)
+    if month_match:
+        return int(month_match.group(1)) * 30
+
+    # Fallback number
+    num_match = re.search(r'\d+', value)
+    if num_match:
+        return int(num_match.group())
+
+    return None
 
 class CandidateImportView(LoginRequiredMixin, FormView):
     template_name = "candidate/candidate_import.html"
@@ -151,7 +196,8 @@ class CandidateImportView(LoginRequiredMixin, FormView):
 
                         if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
                             try:
-                                experience = int(row[6]) if len(row) > 6 and row[6] else 0
+                                # experience = int(row[6]) if len(row) > 6 and row[6] else 0
+                                experience = safe_int(row[6] if len(row) > 6 else None, 0)
                             except (ValueError, TypeError):
                                 experience = 0
 
@@ -218,7 +264,8 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                         email = email.lower()
 
                         if not Candidate.objects.filter(email=email, company=request.user.employee.company).exists():
-
+                            np_value = parse_notice_period(get_value(row, "Notice Period"))
+                            notice_period = np_value if np_value is not None else 0
                             Candidate.objects.create(
 
                                 name=get_value(row,"Name"),
@@ -229,13 +276,14 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                                 location=get_value(row,"Location"),
                                 preferred_location=get_value(row,"Preferred Location"),
 
-                                experience=int(extract_number(get_value(row,"Experience (In Years)"))) if get_value(row,"Experience (In Years)") else 0,
+                                # experience=int(extract_number(get_value(row,"Experience (In Years)"))) if get_value(row,"Experience (In Years)") else 0,
+                                experience = safe_int(get_value(row, "Experience (In Years)"), 0),
+                                current_ctc=parse_ctc(get_value(row,"Current CTC"))or 0,
+                                expected_ctc = parse_ctc(get_value(row,"Expected CTC")) or 0,
 
-                                current_ctc=parse_ctc(get_value(row,"Current CTC")),
-                                expected_ctc=parse_ctc(get_value(row,"Expected CTC")),
-
-                                notice_period=int(extract_number(get_value(row,"Notice Period"))) if get_value(row,"Notice Period") else None,
-
+                                # notice_period=int(extract_number(get_value(row,"Notice Period"))) if get_value(row,"Notice Period") else None,
+                                # notice_period = safe_int(get_value(row, "Notice Period"), 0),
+                                notice_period = notice_period, 
                                 share_date=parse_date_safe(get_value(row,"Share Date")),
 
                                 dob = parse_date_safe(get_value(row, "DOB")) if get_value(row, "DOB") else None,
@@ -989,75 +1037,246 @@ import csv
 from django.http import HttpResponse
 from django.utils.timezone import localtime
 
+# def export_selected_candidates_csv(request):
+#     ids = request.GET.get('ids', '')
+
+#     if not ids:
+#         return HttpResponse("No candidates selected", status=400)
+
+#     id_list = ids.split(',')
+
+#     candidates = Candidate.objects.filter(
+#         id__in=id_list
+#     ).select_related('client')
+
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename="selected_candidates.csv"'
+
+#     writer = csv.writer(response)
+
+#     # ✅ HEADER (Same as Table)
+#     writer.writerow([
+#         'Name',
+#         'Designation',
+#         'Contact',
+#         'Email',
+#         'Location',
+#         'Preferred Location',
+#         'Experience (In Years)',
+#         'Current CTC',
+#         'Expected CTC',
+#         'Notice Period',
+#         'Share Date',
+#         'Status',
+#         'Updated',
+#         'DOB',
+#         'College',
+#         'Client',
+#         'Current Organization'
+#     ])
+
+#     # ✅ ROWS
+#     for c in candidates:
+#         updated = c.updated
+#         if updated:
+#             if is_naive(updated):
+#                 updated = make_aware(updated)
+#             updated = localtime(updated).strftime('%Y-%m-%d %H:%M')
+#         else:
+#             updated = ''
+#         writer.writerow([
+#             c.name,
+#             c.current_designation or '',
+#             c.contact,
+#             c.email,
+#             c.location or '',
+#             c.preferred_location or '',
+#             c.experience,
+#             c.current_ctc,
+#             c.expected_ctc,
+#             c.notice_period,
+#             c.share_date.strftime('%Y-%m-%d') if c.share_date else '',
+#             c.get_status(),
+#             updated,
+#             c.dob.strftime('%Y-%m-%d') if c.dob else '',
+#             c.college or '',
+#             c.client.name if c.client else '',
+#             c.current_organization or ''
+#         ])
+
+#     return response
 def export_selected_candidates_csv(request):
-    ids = request.GET.get('ids', '')
+    filters = Q()
+    # ids = request.GET.get('ids', '')
+    ids = request.GET.getlist('ids')
 
-    if not ids:
-        return HttpResponse("No candidates selected", status=400)
+    ids = [i.strip() for item in ids for i in item.split(',') if i.strip()]
 
-    id_list = ids.split(',')
+    if ids:
+        candidates = Candidate.objects.filter(
+            # id__in=ids.split(',')
+            id__in=ids
+        ).select_related('client').annotate(
+            stage_name=Coalesce(
+                Subquery(CandidateStage.objects.filter(
+                    candidate=OuterRef('pk')
+                ).order_by('-id').values('stage__name')[:1]),
+                Value('')
+            )
+        )
+    else:
+        latest_stage_subquery = CandidateStage.objects.filter(
+            candidate=OuterRef('pk')
+        ).order_by('-id').values('stage__name')[:1]
 
-    candidates = Candidate.objects.filter(
-        id__in=id_list
-    ).select_related('client')
+        candidates = Candidate.objects.filter(
+            company=request.user.employee.company
+        ).prefetch_related('job_openings__client').annotate(
+            stage_name=Coalesce(Subquery(latest_stage_subquery), Value(''))
+        ).order_by('-updated')
 
+        filters = Q()
+        search_value = request.GET.get('search_value', '').strip()
+        if search_value:
+            keywords = [word.strip() for word in search_value.replace(",", " ").split() if word.strip()]
+            search_query = Q()
+            for keyword in keywords:
+                search_query |= (
+                    Q(name__icontains=keyword) |
+                    Q(email__icontains=keyword) |
+                    Q(contact__icontains=keyword) |
+                    Q(location__icontains=keyword) |
+                    Q(current_designation__icontains=keyword)
+                )
+            filters &= search_query
+        name_filter = request.GET.get('name', '').strip()
+        if name_filter: filters &= build_multi_icontains('name', name_filter)
+
+        designation_filter = request.GET.get('designation', '').strip()
+        if designation_filter: filters &= build_multi_icontains('current_designation', designation_filter)
+
+        contact_filter = request.GET.get('contact', '').strip()
+        if contact_filter: filters &= build_multi_icontains('contact', contact_filter)
+
+        email_filter = request.GET.get('email', '').strip()
+        if email_filter: filters &= build_multi_icontains('email', email_filter)
+
+        location_filter = request.GET.get('location', '').strip()
+        if location_filter: filters &= build_multi_icontains('location', location_filter)
+
+        preferred_location = request.GET.get('preferred_location', '').strip()
+        if preferred_location: filters &= build_multi_icontains('preferred_location', preferred_location)
+
+        current_ctc = request.GET.get('current_ctc', '').strip()
+        if current_ctc: filters &= build_multi_icontains('current_ctc', current_ctc)
+
+        expected_ctc = request.GET.get('expected_ctc', '').strip()
+        if expected_ctc: filters &= build_multi_icontains('expected_ctc', expected_ctc)
+
+        notice_period = request.GET.get('notice_period', '').strip()
+        if notice_period: filters &= build_multi_icontains('notice_period', notice_period)
+
+        college_filter = request.GET.get('college', '').strip()
+        if college_filter: filters &= build_multi_icontains('college', college_filter)
+
+        organization_filter = request.GET.get('organization', '').strip()
+        if organization_filter: filters &= build_multi_icontains('current_organization', organization_filter)
+
+        dob_filter = request.GET.get('dob', '').strip()
+        if dob_filter: filters &= Q(dob=dob_filter)
+
+        client_filter = request.GET.get('client', '').strip()
+        if client_filter: filters &= Q(client__name__icontains=client_filter)
+
+        updated_filter = request.GET.get('updated', '').strip()
+        if updated_filter:
+            dates = [d.strip() for d in updated_filter.split(',') if d.strip()]
+            filters &= Q(updated__date__in=dates)
+
+        share_from = request.GET.get('share_from', '')
+        share_to   = request.GET.get('share_to', '')
+        try:    share_from = datetime.strptime(share_from, "%Y-%m-%d").date() if share_from else None
+        except: share_from = None
+        try:    share_to = datetime.strptime(share_to, "%Y-%m-%d").date() if share_to else None
+        except: share_to = None
+        if share_from and share_to: filters &= Q(share_date__range=[share_from, share_to])
+        elif share_from:            filters &= Q(share_date__gte=share_from)
+        elif share_to:              filters &= Q(share_date__lte=share_to)
+
+        min_exp = request.GET.get('min_exp', '').strip()
+        max_exp = request.GET.get('max_exp', '').strip()
+        if min_exp.isdigit() and max_exp.isdigit():
+            filters &= Q(experience__gte=int(min_exp), experience__lte=int(max_exp))
+        elif min_exp.isdigit(): filters &= Q(experience__gte=int(min_exp))
+        elif max_exp.isdigit(): filters &= Q(experience__lte=int(max_exp))
+
+        status_filter = request.GET.get('status', '').strip()
+        if status_filter:
+            status_filters = Q()
+            status_list = [s.strip() for s in status_filter.split(',') if s.strip()]
+            if "In Stage" in status_list:
+                exclude_stages = ['']
+                if "Hired"    not in status_list: exclude_stages.append("Hired")
+                if "Rejected" not in status_list: exclude_stages.append("Rejected")
+                status_filters |= ~Q(stage_name__in=exclude_stages)
+            direct_statuses = [s for s in status_list if s not in ["In Stage", "Inactive"]]
+            if direct_statuses: status_filters |= Q(stage_name__in=direct_statuses)
+            if 'Inactive' in status_list: status_filters |= Q(stage_name='')
+            else: status_filters &= Q(job_openings__active=True)
+            filters &= status_filters
+
+        updated_range = request.GET.get('updated_range', '').strip()
+        from_month    = request.GET.get('from_month', '')
+        to_month      = request.GET.get('to_month', '')
+        today = timezone.now().date()
+        if updated_range and updated_range.isdigit():
+            candidates = candidates.filter(updated__date__gte=today - timedelta(days=int(updated_range)))
+        elif updated_range == "month":
+            candidates = candidates.filter(updated__year=today.year, updated__month=today.month)
+        elif updated_range == "between" and from_month and to_month:
+            from_date = datetime.strptime(from_month, "%Y-%m").date().replace(day=1)
+            to_date   = datetime.strptime(to_month, "%Y-%m").date()
+            to_date   = to_date.replace(year=to_date.year+1, month=1, day=1) if to_date.month==12 else to_date.replace(month=to_date.month+1, day=1)
+            candidates = candidates.filter(updated__date__gte=from_date, updated__date__lt=to_date)
+        elif updated_range == "year":
+            candidates = candidates.filter(updated__date__lte=today - timedelta(days=365))
+
+    candidates = candidates.filter(filters).distinct()
+
+    # ── CSV generation (unchanged) ──
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="selected_candidates.csv"'
-
     writer = csv.writer(response)
-
-    # ✅ HEADER (Same as Table)
     writer.writerow([
-        'Name',
-        'Designation',
-        'Contact',
-        'Email',
-        'Location',
-        'Preferred Location',
-        'Experience (In Years)',
-        'Current CTC',
-        'Expected CTC',
-        'Notice Period',
-        'Share Date',
-        'Status',
-        'Updated',
-        'DOB',
-        'College',
-        'Client',
-        'Current Organization'
+        'Name', 'Designation', 'Contact', 'Email', 'Location',
+        'Preferred Location', 'Experience (In Years)',
+        'Current CTC', 'Expected CTC', 'Notice Period', 'Share Date',
+        'Status', 'Updated', 'DOB', 'College', 'Client', 'Current Organization'
     ])
 
-    # ✅ ROWS
     for c in candidates:
+        stage_name = getattr(c, 'stage_name', None) or c.get_status()
+        if not c.job_openings.filter(active=True).exists():
+            stage_name = ''
         updated = c.updated
         if updated:
-            if is_naive(updated):
-                updated = make_aware(updated)
+            if is_naive(updated): updated = make_aware(updated)
             updated = localtime(updated).strftime('%Y-%m-%d %H:%M')
         else:
             updated = ''
         writer.writerow([
-            c.name,
-            c.current_designation or '',
-            c.contact,
-            c.email,
-            c.location or '',
-            c.preferred_location or '',
-            c.experience,
-            c.current_ctc,
-            c.expected_ctc,
-            c.notice_period,
+            c.name, c.current_designation or '', c.contact, c.email,
+            c.location or '', c.preferred_location or '', c.experience,
+            c.current_ctc, c.expected_ctc, c.notice_period,
             c.share_date.strftime('%Y-%m-%d') if c.share_date else '',
-            c.get_status(),
-            updated,
+            stage_name or '', updated,
             c.dob.strftime('%Y-%m-%d') if c.dob else '',
             c.college or '',
             c.client.name if c.client else '',
-            c.current_organization or ''
+            c.current_organization or '',
         ])
 
     return response
- 
 class CandidateListView(LoginRequiredMixin, TemplateView):
     template_name = 'candidate/candidate_list.html'
     title = 'Candidate Database'

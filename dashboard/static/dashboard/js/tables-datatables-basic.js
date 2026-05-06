@@ -42,6 +42,7 @@ $(function () {
   // DataTable with buttons
   // --------------------------------------------------------------------
 var selectedRows = '';
+var selectAllMode = false;
   if (dt_basic_table.length) {
     dt_basic = dt_basic_table.DataTable({
         processing: true,
@@ -477,6 +478,7 @@ dom:
             .off("change")
             .on("change", function () {
                 let checked = $(this).prop("checked");
+                selectAllMode = checked;
 
                 dt_basic.rows({ search: 'applied' }).every(function () {
                     var node = this.node();
@@ -487,6 +489,9 @@ dom:
                 actions.prop("disabled", !checked);
             });
              $(".dt-checkboxes").off("change").on("change", function () {
+              if (!$(this).prop("checked")) {
+                  selectAllMode = false; // ADD THIS
+              }
               updateSelectedRows();
           });
     });
@@ -831,20 +836,62 @@ $('#shareJobOpeningForm').on('submit', function (e) {
 // ==========================
 // EXPORT CSV FROM ACTION
 // ==========================
+// $('#exportCsvAction').on('click', function () {
+//     const ids = getSelectedIds();
+
+//     if (ids.length === 0) {
+//         alert("Please select at least one candidate");
+//         return;
+//     }
+
+//     window.location.href = `/candidate/export-selected-csv/?ids=${ids.join(',')}`;
+// });
+
+// }
+// ==========================
+// EXPORT CSV FROM ACTION
+// ==========================
 $('#exportCsvAction').on('click', function () {
-    const ids = getSelectedIds();
+    const params = new URLSearchParams(window.location.search);
 
-    if (ids.length === 0) {
-        alert("Please select at least one candidate");
-        return;
+    params.set('name',               $('#filter-name').val());
+    params.set('designation',        $('#filter-designation').val());
+    params.set('contact',            $('#filter-contact').val());
+    params.set('email',              $('#filter-email').val());
+    params.set('location',           $('#filter-location').val());
+    params.set('preferred_location', $('#filter-preferred-location').val());
+    params.set('min_exp',            $('#min-exp').val());
+    params.set('max_exp',            $('#max-exp').val());
+    params.set('dob',                $('#filter-dob').val());
+    params.set('college',            $('#filter-college').val());
+    params.set('client',             $('#filter-client').val());
+    params.set('organization',       $('#filter-organization').val());
+    params.set('current_ctc',        $('#filter-current-ctc').val());
+    params.set('expected_ctc',       $('#filter-expected-ctc').val());
+    params.set('notice_period',      $('#filter-notice').val());
+    params.set('updated',            $('#filter-updated').val());
+    params.set('search_value',       dt_basic.search());
+
+    const sfrom = $('#filter-share-from').length ? $('#filter-share-from').val() : '';
+    const sto   = $('#filter-share-to').length   ? $('#filter-share-to').val()   : '';
+    params.set('share_from', sfrom || '');
+    params.set('share_to',   sto   || '');
+
+    const status = $('.form-check-input:checked').map(function () {
+        return $(this).data('value');
+    }).get().join(',');
+    params.set('status', status);
+
+    const selectedIds = getSelectedIds();
+    if (!selectAllMode && selectedIds.length > 0) {
+        // ✅ Specific rows selected → export only those
+        params.set('ids', selectedIds.join(','));
     }
+    // ✅ No selection / select-all → export ALL filtered (no ids param)
 
-    window.location.href = `/candidate/export-selected-csv/?ids=${ids.join(',')}`;
+    window.location.href = `/candidate/export-selected-csv/?${params.toString()}`;
 });
-
-}
-
-
+      }
 
 const scrollContainer = document.querySelector(".table-responsive");
 let scrollInterval;
