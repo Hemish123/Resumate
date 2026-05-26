@@ -32,8 +32,6 @@ class Candidate(models.Model):
     current_organization = models.CharField(max_length=255, blank=True, null=True)
     current_ctc = models.FloatField(max_length=255, blank=True, default=0)
     current_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
-
-
     expected_ctc = models.FloatField(max_length=255, blank=True, default=0)
     expected_ctc_ih = models.FloatField(max_length=255, blank=True, default=0)
     offer_in_hand = models.FloatField(max_length=255, blank=True, default=0)
@@ -53,6 +51,20 @@ class Candidate(models.Model):
     dob = models.DateField(blank=True, null=True)
     college = models.CharField(max_length=255, blank=True, null=True)
     client = models.ForeignKey(Client,on_delete=models.SET_NULL,null=True,blank=True,related_name='candidates')
+
+    #  NEW FIELDS FOR STORAGE TRACKING
+    file_size = models.PositiveBigIntegerField(
+        default=0, 
+        help_text="Size of the file in bytes"
+    )
+    uploaded_by = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='uploaded_candidates'
+    )
+    
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()  # Convert email to lowercase

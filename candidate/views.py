@@ -36,6 +36,7 @@ import re
 from datetime import datetime
 
 from datetime import datetime
+from .storage_utils import check_storage_limit, get_storage_usage
 
 
 def safe_int(value, default=0):
@@ -143,6 +144,16 @@ class CandidateImportView(LoginRequiredMixin, FormView):
 
         if form.is_valid():
             file = form.cleaned_data['upload_file']
+
+            # ✅ Check storage limit for CSV/XLSX file itself
+            is_allowed, error_message, current_usage = check_storage_limit(
+                request.user, 
+                file.size
+            )
+            
+            if not is_allowed:
+                messages.error(request, error_message)
+                return redirect('candidate-list')
             skip = 0
             if file.name.endswith('.xlsx'):
                 workbook = openpyxl.load_workbook(file)
@@ -214,7 +225,7 @@ class CandidateImportView(LoginRequiredMixin, FormView):
                             skip += 1
                     else:
                         skip += 1
-
+                    
             elif file.name.endswith('.csv'):
                 try:
                     # Attempt decoding with a fallback encoding
@@ -358,6 +369,12 @@ class CandidateCreateView(FormView):
         #     context['choices'] = JobOpening.objects.all()
         # context['clients'] = Client.objects.all()
 
+        # ✅ Add storage usage for authenticated users
+        if self.request.user.is_authenticated:
+            storage_usage = get_storage_usage(self.request.user)
+            if storage_usage:
+                context['storage_usage'] = storage_usage
+        
         return context
 
     def post(self, request, *args, **kwargs):
@@ -372,6 +389,21 @@ class CandidateCreateView(FormView):
         if request.FILES.get('upload_resume'):
 
             resume_file = request.FILES['upload_resume']
+
+            # ✅ Check storage limit for authenticated users
+            if request.user.is_authenticated:
+                is_allowed, error_message, current_usage = check_storage_limit(
+                    request.user, 
+                    resume_file.size
+                )
+                
+                if not is_allowed:
+                    return JsonResponse({
+                    'success': False,
+                    'is_storage_error': True,
+                    'error_message': error_message,
+                    'errors': {'upload_resume': [error_message]}
+                })
 
             file_content = resume_file.read()
 
@@ -405,42 +437,36 @@ class CandidateCreateView(FormView):
 
                 request.session['resume'] = extractedText
                 return JsonResponse({'success': True, 'parsed_data': parsed_data})
-
+    
 
     def handle_form_submission(self, request):
         job_opening = get_object_or_404(JobOpening, pk=self.kwargs['pk'])
-        # Create a form instance with the POST data
         form = self.get_form()
+        
         if form.is_valid():
-            # email = form.cleaned_data['email'].lower()
+            file = request.FILES.get('upload_resume')
+            
+            # ✅ STORAGE CHECK FIRST (before anything else)
+            if request.user.is_authenticated:
+                is_allowed, error_message, current_usage = check_storage_limit(
+                    request.user, 
+                    file.size
+                )
+                
+                # If storage limit exceeded, show error and return
+                if not is_allowed:
+                    # Add error to the upload_resume field
+                    form.add_error('upload_resume', error_message)
+                    # Return form with error - template will display it
+                    return self.form_invalid(form)
+            
+            # Only continue if storage check passed
             email = form.cleaned_data.get('email')
             if email:
                 email = email.lower()
-            # candidate, created = Candidate.objects.get_or_create(email=email)
+            
             if Candidate.objects.filter(email=email, company=job_opening.company).exists():
                 candidate = Candidate.objects.get(email=email, company=job_opening.company)
-                candidate.name = form.cleaned_data['name']
-                candidate.contact = form.cleaned_data['contact']
-                candidate.location = form.cleaned_data['location']
-                candidate.education = form.cleaned_data['education']
-                candidate.current_designation = form.cleaned_data['current_designation']
-                candidate.experience = form.cleaned_data['experience']
-                candidate.linkedin = form.cleaned_data['linkedin']
-                candidate.github = form.cleaned_data['github']
-                candidate.portfolio = form.cleaned_data['portfolio']
-                candidate.blog = form.cleaned_data['blog']
-                candidate.current_organization = form.cleaned_data['current_organization']
-                candidate.preferred_location = form.cleaned_data.get('preferred_location')
-                candidate.current_ctc = form.cleaned_data.get('current_ctc')
-                candidate.expected_ctc = form.cleaned_data.get('expected_ctc')
-                candidate.notice_period = form.cleaned_data.get('notice_period')
-                candidate.share_date = form.cleaned_data.get('share_date')
-                candidate.dob = form.cleaned_data.get('dob')
-                candidate.college = form.cleaned_data.get('college')
-                candidate.client = job_opening.client
-                candidate.updated = timezone.now()
-                candidate.is_new = True
-                # candidate.job_openings.add(job_opening)
             else:
                 candidate = form.save(commit=False)
             
@@ -448,35 +474,26 @@ class CandidateCreateView(FormView):
 
             if not resume:
                 form.add_error(None, 'Resume data is missing. Please upload the resume again.')
-                # return render(request, self.template_name, self.get_context_data())
-
                 return self.form_invalid(form)
-
-            # if Candidate.objects.filter(email=email, job_openings=job_opening, company=job_opening.company).exists():
-            #     form.add_error(None, 'You have already applied for this role!')
-            #     # return render(request, self.template_name, self.get_context_data())
-            #     return self.form_invalid(form)
 
             del request.session['resume']
             file = request.FILES.get('upload_resume')
 
-            # self.object = candidate
-            # if created or candidate.upload_resume:
             candidate.upload_resume = file
             candidate.filename = file.name
+            candidate.file_size = file.size
             candidate.text_content = resume
             candidate.company = job_opening.company
             candidate.job_opening_id_temp = job_opening.id
+            
+            if request.user.is_authenticated:
+                candidate.uploaded_by = request.user
 
-            # ================= EMAIL PRIORITY LOGIC =================
-
+            # Email priority logic
             final_email = None
 
-            # 1️⃣ Priority – Form Email
             if email and email.strip():
                 final_email = email.strip().lower()
-
-            # 2️⃣ Fallback – Resume Extracted Email
             else:
                 resume_text = candidate.text_content
                 if resume_text:
@@ -488,14 +505,15 @@ class CandidateCreateView(FormView):
             if final_email:
                 candidate.email = final_email
 
+            # Save (storage check already passed)
             candidate.save()
 
             send_success_email(candidate, job_opening)
 
             candidate.job_openings.add(job_opening)
             response_text = get_response(candidate.text_content, job_opening.designation,
-                                         job_opening.requiredskills, str(job_opening.min_experience),
-                                         str(job_opening.max_experience), job_opening.education)
+                                        job_opening.requiredskills, str(job_opening.min_experience),
+                                        str(job_opening.max_experience), job_opening.education)
             resume_analysis, _ = ResumeAnalysis.objects.get_or_create(candidate=candidate, job_opening=job_opening)
             resume_analysis.response_text = response_text
             resume_analysis.save()
@@ -504,7 +522,7 @@ class CandidateCreateView(FormView):
             employees = job_opening.assignemployee.all()
             for e in employees:
                 Notification.objects.create(user_id=e.user.id, message=message)
-                site_url = self.request.META.get('HTTP_HOST')  # Get current domain for activation link
+                site_url = self.request.META.get('HTTP_HOST')
                 new_application_email(candidate, job_opening, e, site_url)
 
             manager = job_opening.created_by
@@ -517,12 +535,8 @@ class CandidateCreateView(FormView):
                 stage = Stage.objects.get(name='Applied', job_opening=job_opening)
                 CandidateStage.objects.get_or_create(candidate=candidate, stage=stage)
 
-
-
             messages.success(self.request, message=f"Application created successfully for {job_opening.designation}!")
-            # Process the final submission after user reviews the parsed data
             return self.form_valid(form)
-            # return self.get_success_url()
 
         else:
             return self.form_invalid(form)
@@ -760,6 +774,10 @@ def candidate_list_api(request):
 
     queryset = Candidate.objects.filter(
     company=request.user.employee.company
+).exclude(
+    upload_resume__isnull=False,
+    job_openings__isnull=True,
+    email=""
 ).prefetch_related(
     'job_openings__client'
 ).annotate(
@@ -1615,56 +1633,144 @@ from adminuser.utils import extract_resume_text
 from .models import Candidate
 
 
+from .storage_utils import check_storage_limit, get_storage_usage, STORAGE_LIMIT
+
 class ResumeUploadView(LoginRequiredMixin, View):
-    
 
+    # def post(self, request):
+    #     resume_files = request.FILES.getlist("resume")
+
+    #     if not resume_files:
+    #         messages.error(request, "Please select at least one file.")
+    #         return redirect("resume-list")
+
+    #     allowed_extensions = ['.pdf', '.doc', '.docx']
+    #     success_count = 0
+    #     error_files = []
+
+    #     is_dspe_user = request.user.email.lower().endswith('@dspe.in')
+
+    #     if is_dspe_user:
+    #         from django.db.models import Sum
+    #         already_used = Candidate.objects.filter(
+    #             uploaded_by=request.user
+    #         ).aggregate(total_size=Sum('file_size'))['total_size'] or 0
+    #     else:
+    #         already_used = 0
+
+    #     for resume_file in resume_files:
+
+    #         # ✅ Hame STORAGE_LIMIT storage_utils thi j aave chhe
+    #         if is_dspe_user:
+    #             if already_used + resume_file.size > STORAGE_LIMIT:
+    #                 used_kb = already_used / 1024
+    #                 file_kb = resume_file.size / 1024
+    #                 limit_kb = STORAGE_LIMIT / 1024
+    #                 messages.error(
+    #                     request,
+    #                     f'Storage limit exceeded! '
+    #                 )
+    #                 break
+
+    #         ext = os.path.splitext(resume_file.name)[1].lower()
+    #         if ext not in allowed_extensions:
+    #             error_files.append(f"{resume_file.name} (invalid format)")
+    #             continue
+
+    #         try:
+    #             extracted_text = extract_resume_text(resume_file)
+    #         except Exception:
+    #             error_files.append(f"{resume_file.name} (extraction failed)")
+    #             continue
+
+    #         resume_file.seek(0)
+
+    #         candidate = Candidate.objects.create(
+    #             company=request.user.employee.company,
+    #             name=os.path.splitext(resume_file.name)[0],
+    #             upload_resume=resume_file,
+    #             text_content=extracted_text,
+    #             file_size=resume_file.size,
+    #             uploaded_by=request.user
+    #         )
+
+    #         already_used += resume_file.size  # ✅ loop ma accumulate
+
+    #         txt_folder = os.path.join(settings.MEDIA_ROOT, "resume_text")
+    #         os.makedirs(txt_folder, exist_ok=True)
+    #         txt_filename = candidate.upload_resume.name.replace("/", "_") + ".txt"
+    #         txt_path = os.path.join(txt_folder, txt_filename)
+    #         with open(txt_path, "w", encoding="utf-8") as f:
+    #             f.write(extracted_text or "")
+
+    #         success_count += 1
+
+    #     if success_count:
+    #         messages.success(request, f"{success_count} resume(s) uploaded successfully!")
+    #     if error_files:
+    #         messages.warning(request, f"Failed: {', '.join(error_files)}")
+
+    #     return redirect("resume-list")
     def post(self, request):
-        resume_file = request.FILES.get("resume")
+        resume_files = request.FILES.getlist("resume")
 
-        # ✅ 1. Check file exists FIRST
-        if not resume_file:
-            messages.error(request, "Please select a file.")
+        if not resume_files:
+            messages.error(request, "Please select at least one file.")
             return redirect("resume-list")
 
-        # ✅ 2. Validate extension BEFORE saving
         allowed_extensions = ['.pdf', '.doc', '.docx']
-        ext = os.path.splitext(resume_file.name)[1].lower()
+        success_count = 0
+        error_files = []
 
-        if ext not in allowed_extensions:
-            messages.error(request, "Only PDF, DOC, DOCX files allowed.")
-            return redirect("resume-list")
+        for resume_file in resume_files:
 
-        # ✅ 3. Extract text safely
-        try:
-            extracted_text = extract_resume_text(resume_file)
-        except Exception as e:
-            messages.error(request, "Error extracting resume content.")
-            return redirect("resume-list")
+            # ✅ Storage check via utility (covers @dspe.in and any future domains)
+            is_allowed, error_message, current_usage = check_storage_limit(
+                request.user,
+                resume_file.size
+            )
 
-        # IMPORTANT: reset file pointer after reading
-        resume_file.seek(0)
+            if not is_allowed:
+                messages.error(request, error_message)
+                break  # Stop processing remaining files
 
-        # ✅ 4. Save candidate ONLY ONCE
-        candidate = Candidate.objects.create(
-            company=request.user.employee.company,
-            name=os.path.splitext(resume_file.name)[0],
-            upload_resume=resume_file,
-            text_content=extracted_text
-        )
+            ext = os.path.splitext(resume_file.name)[1].lower()
+            if ext not in allowed_extensions:
+                error_files.append(f"{resume_file.name} (invalid format)")
+                continue
 
-        # ✅ 5. Save extracted text as .txt file
-        txt_folder = os.path.join(settings.MEDIA_ROOT, "resume_text")
-        os.makedirs(txt_folder, exist_ok=True)
+            try:
+                extracted_text = extract_resume_text(resume_file)
+            except Exception:
+                error_files.append(f"{resume_file.name} (extraction failed)")
+                continue
 
-        txt_filename = candidate.upload_resume.name.replace("/", "_") + ".txt"
-        txt_path = os.path.join(txt_folder, txt_filename)
+            resume_file.seek(0)
 
-        with open(txt_path, "w", encoding="utf-8") as f:
-            f.write(extracted_text or "")
+            candidate = Candidate.objects.create(
+                company=request.user.employee.company,
+                name=os.path.splitext(resume_file.name)[0],
+                upload_resume=resume_file,
+                text_content=extracted_text,
+                file_size=resume_file.size,
+                uploaded_by=request.user
+            )
 
-        messages.success(request, "Resume uploaded and content extracted successfully!")
+            txt_folder = os.path.join(settings.MEDIA_ROOT, "resume_text")
+            os.makedirs(txt_folder, exist_ok=True)
+            txt_filename = candidate.upload_resume.name.replace("/", "_") + ".txt"
+            txt_path = os.path.join(txt_folder, txt_filename)
+            with open(txt_path, "w", encoding="utf-8") as f:
+                f.write(extracted_text or "")
+
+            success_count += 1
+
+        if success_count:
+            messages.success(request, f"{success_count} resume(s) uploaded successfully!")
+        if error_files:
+            messages.warning(request, f"Failed: {', '.join(error_files)}")
+
         return redirect("resume-list")
-    
 
 # from django.http import JsonResponse
 # from django.core.paginator import Paginator
@@ -1767,83 +1873,194 @@ from azure.storage.blob import BlobServiceClient
 import os
 
 
+# def resume_list_api(request):
+
+#     draw = int(request.GET.get("draw", 1))
+#     start = int(request.GET.get("start", 0))
+#     length = int(request.GET.get("length", 10))
+#     data = []
+#     # GET filter params for both DEBUG and PRODUCTION
+#     filename = request.GET.get("filename", "").strip()
+#     updated = request.GET.get("updated", "").strip()
+
+#     # Check if user is from JMS Advisory
+#     user_email = request.user.email.lower()
+#     is_jms_user = user_email.endswith("@jmsadvisory.in")
+
+#     # ================= LOCAL =================
+
+#     if settings.DEBUG:
+
+#         candidates = Candidate.objects.filter(
+#             company=request.user.employee.company
+#         ).exclude(
+#             upload_resume__isnull=True
+#         ).exclude(
+#             upload_resume=""
+#         ).order_by("-updated")
+
+#         total_records = candidates.count()
+
+#           # -------- INDIVIDUAL FILTERS --------
+
+#         # name = request.GET.get("name", "").strip()
+#         # if name:
+#         #     candidates = candidates.filter(name__icontains=name)
+
+#         filename = request.GET.get("filename", "").strip()
+#         if filename:
+#             candidates = candidates.filter(filename__icontains=filename)
+
+#         updated = request.GET.get("updated", "").strip()
+#         if updated:
+#             candidates = candidates.filter(updated__date=updated)
+
+#         # designation = request.GET.get("designation", "").strip()
+#         # if designation:
+#         #     candidates = candidates.filter(current_designation__icontains=designation)
+
+#         # experience = request.GET.get("experience", "").strip()
+#         # if experience:
+#         #     candidates = candidates.filter(experience__gte=experience)
+
+#         # education = request.GET.get("education", "").strip()
+#         # if education:
+#         #     candidates = candidates.filter(education__icontains=education)
+
+#         # location = request.GET.get("location", "").strip()
+#         # if location:
+#         #     candidates = candidates.filter(location__icontains=location)
+
+#         # ---------------- SKILLS FILTER (Multi-keyword AND) ----------------
+
+#         # skills = request.GET.get("skills", "").strip()
+
+#         # if skills:
+#         #     skill_keywords = skills.replace(",", " ").split()
+
+#         #     for skill in skill_keywords:
+#         #         candidates = candidates.filter(
+#         #             text_content__icontains=skill
+#         #         )
+
+
+#         filtered_records = candidates.count()
+#         candidates = candidates.order_by("-updated")
+#         page = candidates[start:start+length]
+
+#         for candidate in page:
+
+#             data.append({
+#                 "id": candidate.id,
+#                 "filename": candidate.upload_resume.name.split("/")[-1],
+#                 "file_url": candidate.upload_resume.url,
+#                 "content": candidate.text_content[:120] if candidate.text_content else "",
+#                 "updated": candidate.updated.strftime("%d-%m-%Y"),
+#             })
+
+#     # ================= PRODUCTION =================
+#     else:
+
+#         account_name = os.environ["AZURE_ACCOUNT_NAME"]
+#         account_key = os.environ["AZURE_ACCOUNT_KEY"]
+
+#         connect_str = (
+#             f"DefaultEndpointsProtocol=https;"
+#             f"AccountName={account_name};"
+#             f"AccountKey={account_key};"
+#             f"EndpointSuffix=core.windows.net"
+#         )
+
+#         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+#         container_client = blob_service_client.get_container_client("media")
+
+#         blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+
+#         # TOTAL COUNT
+#         total_records = len(blobs)
+
+#          # FILTER filename
+#         if filename:
+#             blobs = [
+#                 b for b in blobs
+#                 if filename.lower() in b.name.lower()
+#             ]
+
+#         # FILTER updated
+#         if updated:
+#             blobs = [
+#                 b for b in blobs
+#                 if b.last_modified.date().strftime("%Y-%m-%d") == updated
+#             ]
+
+#         filtered_records = len(blobs)
+
+#         # SORT
+#         blobs.sort(key=lambda x: x.last_modified, reverse=True)
+
+#         # PAGINATION
+#         blobs = blobs[start:start+length]
+
+#         for blob in blobs:
+
+#             filename = blob.name.split("/")[-1]
+
+#             file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+#             candidate = Candidate.objects.filter(
+#                 upload_resume=blob.name
+#             ).first()
+
+#             content_preview = ""
+
+#             if candidate and candidate.text_content:
+#                 content_preview = candidate.text_content[:120]
+
+
+#             data.append({
+#                 "id": blob.name,
+#                 "filename": filename,
+#                 "file_url": file_url,
+#                 "content": content_preview,
+#                 "updated": blob.last_modified.strftime("%d-%m-%Y"),
+#             })
+
+#     return JsonResponse({
+#         "draw": draw,
+#         "recordsTotal": total_records,
+#         "recordsFiltered": filtered_records,
+#         "data": data,
+#     })
+
 def resume_list_api(request):
 
     draw = int(request.GET.get("draw", 1))
     start = int(request.GET.get("start", 0))
     length = int(request.GET.get("length", 10))
     data = []
-    # GET filter params for both DEBUG and PRODUCTION
     filename = request.GET.get("filename", "").strip()
     updated = request.GET.get("updated", "").strip()
 
-    # Check if user is from JMS Advisory
     user_email = request.user.email.lower()
     is_jms_user = user_email.endswith("@jmsadvisory.in")
 
     # ================= LOCAL =================
-
     if settings.DEBUG:
-
         candidates = Candidate.objects.filter(
             company=request.user.employee.company
-        ).exclude(
-            upload_resume__isnull=True
-        ).exclude(
-            upload_resume=""
-        ).order_by("-updated")
+        ).exclude(upload_resume__isnull=True).exclude(upload_resume="").order_by("-updated")
 
         total_records = candidates.count()
 
-          # -------- INDIVIDUAL FILTERS --------
-
-        # name = request.GET.get("name", "").strip()
-        # if name:
-        #     candidates = candidates.filter(name__icontains=name)
-
-        filename = request.GET.get("filename", "").strip()
         if filename:
             candidates = candidates.filter(filename__icontains=filename)
-
-        updated = request.GET.get("updated", "").strip()
         if updated:
             candidates = candidates.filter(updated__date=updated)
 
-        # designation = request.GET.get("designation", "").strip()
-        # if designation:
-        #     candidates = candidates.filter(current_designation__icontains=designation)
-
-        # experience = request.GET.get("experience", "").strip()
-        # if experience:
-        #     candidates = candidates.filter(experience__gte=experience)
-
-        # education = request.GET.get("education", "").strip()
-        # if education:
-        #     candidates = candidates.filter(education__icontains=education)
-
-        # location = request.GET.get("location", "").strip()
-        # if location:
-        #     candidates = candidates.filter(location__icontains=location)
-
-        # ---------------- SKILLS FILTER (Multi-keyword AND) ----------------
-
-        # skills = request.GET.get("skills", "").strip()
-
-        # if skills:
-        #     skill_keywords = skills.replace(",", " ").split()
-
-        #     for skill in skill_keywords:
-        #         candidates = candidates.filter(
-        #             text_content__icontains=skill
-        #         )
-
-
         filtered_records = candidates.count()
-        candidates = candidates.order_by("-updated")
         page = candidates[start:start+length]
 
         for candidate in page:
-
             data.append({
                 "id": candidate.id,
                 "filename": candidate.upload_resume.name.split("/")[-1],
@@ -1855,69 +2072,71 @@ def resume_list_api(request):
     # ================= PRODUCTION =================
     else:
 
-        account_name = os.environ["AZURE_ACCOUNT_NAME"]
-        account_key = os.environ["AZURE_ACCOUNT_KEY"]
+        # ✅ JMS USERS ONLY - Azure blobs dikhav
+        if is_jms_user:
+            account_name = os.environ["AZURE_ACCOUNT_NAME"]
+            account_key = os.environ["AZURE_ACCOUNT_KEY"]
 
-        connect_str = (
-            f"DefaultEndpointsProtocol=https;"
-            f"AccountName={account_name};"
-            f"AccountKey={account_key};"
-            f"EndpointSuffix=core.windows.net"
-        )
+            connect_str = (
+                f"DefaultEndpointsProtocol=https;"
+                f"AccountName={account_name};"
+                f"AccountKey={account_key};"
+                f"EndpointSuffix=core.windows.net"
+            )
 
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            container_client = blob_service_client.get_container_client("media")
+            blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
 
-        container_client = blob_service_client.get_container_client("media")
+            total_records = len(blobs)
 
-        blobs = list(container_client.list_blobs(name_starts_with="resumes/"))
+            if filename:
+                blobs = [b for b in blobs if filename.lower() in b.name.lower()]
+            if updated:
+                blobs = [b for b in blobs if b.last_modified.date().strftime("%Y-%m-%d") == updated]
 
-        # TOTAL COUNT
-        total_records = len(blobs)
+            filtered_records = len(blobs)
+            blobs.sort(key=lambda x: x.last_modified, reverse=True)
+            blobs = blobs[start:start+length]
 
-         # FILTER filename
-        if filename:
-            blobs = [
-                b for b in blobs
-                if filename.lower() in b.name.lower()
-            ]
+            for blob in blobs:
+                fname = blob.name.split("/")[-1]
+                file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
+                candidate = Candidate.objects.filter(upload_resume=blob.name).first()
+                content_preview = candidate.text_content[:120] if candidate and candidate.text_content else ""
 
-        # FILTER updated
-        if updated:
-            blobs = [
-                b for b in blobs
-                if b.last_modified.date().strftime("%Y-%m-%d") == updated
-            ]
+                data.append({
+                    "id": blob.name,
+                    "filename": fname,
+                    "file_url": file_url,
+                    "content": content_preview,
+                    "updated": blob.last_modified.strftime("%d-%m-%Y"),
+                })
 
-        filtered_records = len(blobs)
+        # ✅ DSPE / OTHER USERS - Only company-based local resumes
+        else:
+            candidates = Candidate.objects.filter(
+                company=request.user.employee.company
+            ).exclude(upload_resume__isnull=True).exclude(upload_resume="").order_by("-updated")
 
-        # SORT
-        blobs.sort(key=lambda x: x.last_modified, reverse=True)
+            total_records = candidates.count()
 
-        # PAGINATION
-        blobs = blobs[start:start+length]
+            if filename:
+                candidates = candidates.filter(filename__icontains=filename)
+            if updated:
+                candidates = candidates.filter(updated__date=updated)
 
-        for blob in blobs:
+            filtered_records = candidates.count()
+            page = candidates[start:start+length]
 
-            filename = blob.name.split("/")[-1]
-
-            file_url = f"https://{account_name}.blob.core.windows.net/media/{blob.name}"
-            candidate = Candidate.objects.filter(
-                upload_resume=blob.name
-            ).first()
-
-            content_preview = ""
-
-            if candidate and candidate.text_content:
-                content_preview = candidate.text_content[:120]
-
-
-            data.append({
-                "id": blob.name,
-                "filename": filename,
-                "file_url": file_url,
-                "content": content_preview,
-                "updated": blob.last_modified.strftime("%d-%m-%Y"),
-            })
+            for candidate in page:
+                data.append({
+                    "id": candidate.id,
+                    "filename": candidate.upload_resume.name.split("/")[-1],
+                    "file_url": candidate.upload_resume.url,
+                    "content": candidate.text_content[:120] if candidate.text_content else "",
+                    "updated": candidate.updated.strftime("%d-%m-%Y"),
+                })
 
     return JsonResponse({
         "draw": draw,
@@ -1925,8 +2144,6 @@ def resume_list_api(request):
         "recordsFiltered": filtered_records,
         "data": data,
     })
-
-
 
     # else:
         
@@ -2642,3 +2859,28 @@ def save_candidate_from_blob_url(request):
     )
 
     return redirect("resume-list")
+
+from django.http import HttpResponse
+import csv
+
+def download_sample_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sample_candidates.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'Name', 'Designation', 'Contact', 'Email', 'Location',
+        'Preferred Location', 'Experience (In Years)',
+        'Current CTC', 'Expected CTC', 'Notice Period',
+        'Share Date', 'DOB', 'College', 'Current Organization'
+    ])
+
+    writer.writerow([
+        'John Doe', 'Python Developer', '9823920000',
+        'johndoe@gmail.com', 'Ahmedabad', 'Gandhinagar',
+        '4', '6', '8', '30',
+        '25-03-2026', '01-01-1995', 'GTU', 'TCS'
+    ])
+
+    return response

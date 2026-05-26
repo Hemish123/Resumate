@@ -19,6 +19,7 @@ urlpatterns = [
     # path('resume-filter/', ResumeFilterView.as_view(), name='resume-filter'),
     path("resume-list-api/", resume_list_api, name="resume_list_api"),  
     path("resume/upload/", ResumeUploadView.as_view(), name="resume_upload"),
+    path('download-sample-csv/', views.download_sample_csv, name='download_sample_csv'),
 
     path('test-blob-save/', save_candidate_from_blob_url, name='test_blob_save'),
 

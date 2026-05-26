@@ -9,7 +9,7 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     #for production 
     endpoint = os.getenv("ENDPOINT_URL", "https://jivihireopenai.openai.azure.com/")
 
-    # # Initialize Azure OpenAI Service client with key-based authentication
+    # Initialize Azure OpenAI Service client with key-based authentication
     client = AzureOpenAI(
         azure_endpoint=endpoint,
         api_key=os.environ['CHATGPT_API_KEY'],
@@ -17,7 +17,6 @@ def get_response(text, designation, skills_string, min_experience, max_experienc
     )
 
     #for local testing
-
     # client = OpenAI(api_key=os.environ['CHATGPT_API_KEY'])
     # client = OpenAI(api_key=CHATGPT_API_KEY)
     

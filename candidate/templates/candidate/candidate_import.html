@@ -144,9 +144,13 @@ button[type="submit"]:hover {
 
     <!-- Format Preview Card -->
 <div class="card custom-card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5>Upload file in following format only</h5>
+        <a href="{% url 'download_sample_csv' %}" class="btn btn-outline-success btn-sm fw-semibold">
+            <i class="ti ti-download me-1"></i> Download Sample
+        </a>
     </div>
+
     <div class="card-body">
         <div class="table-responsive">
             <table class="table">
