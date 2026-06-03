@@ -759,11 +759,12 @@ class StageAPIView(APIView):
         serializer = self.serializer_class(stage)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
     def put(self, request, *args, **kwargs):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
-        send_email = request.data.get('send_email', False)
-        cc_emails = request.data.get("cc_emails", [])
+        send_email = request.data.get('send_email', False)  # ✅ Candidate notification flag
+        cc_emails = request.data.get("cc_emails", [])        # ✅ Client emails (only for "Sent to Client")
         job_opening_id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(id=job_opening_id)
 
@@ -774,6 +775,7 @@ class StageAPIView(APIView):
                 candidate_order = item.get('order')
                 assigned_recruiters = job_opening.assignemployee.all()
 
+                # Update candidate stage
                 CandidateStage.objects.filter(id=candidate_stage_id).update(
                     order=candidate_order,
                     stage=stage,
@@ -783,34 +785,58 @@ class StageAPIView(APIView):
                 candidate_stage = CandidateStage.objects.get(id=candidate_stage_id)
                 candidate = candidate_stage.candidate
 
+                # ============ SPECIAL: "Sent to Client" Stage ============
                 if stage.name == "Sent to Client":
                     recruiter = assigned_recruiters.first()
-
                     
+                    # ✅ 1. ALWAYS send to CLIENT(s) with candidate details
                     send_stage_to_client_email(
                         recruiter=recruiter,
                         candidate=candidate,
                         job_opening=job_opening,
-                        cc_list=cc_emails,
+                        cc_list=cc_emails,  # ✅ These are the client emails from CC popup
                         request=request,
                     )
-
+                    
+                    # ✅ 2. OPTIONALLY notify CANDIDATE if they selected YES
                     if send_email:
                         for recruiter in assigned_recruiters:
-                            send_stage_change_email(recruiter, candidate, job_opening, stage)
+                            send_stage_change_email(
+                                recruiter, 
+                                candidate, 
+                                job_opening, 
+                                stage
+                            )
+                    print(f"✅ Candidate sent to client. Client emails: {cc_emails}, Candidate notified: {send_email}")
 
+                # ============ HIRED Stage ============
+                elif stage.name == "Hired":
+                    if send_email:
+                        for recruiter in assigned_recruiters:
+                            send_hired_email(recruiter, candidate, job_opening)
+                    print(f"✅ Candidate marked as hired. Notification sent: {send_email}")
+
+                # ============ REJECTED Stage ============
+                elif stage.name == "Rejected":
+                    if send_email:
+                        for recruiter in assigned_recruiters:
+                            send_rejected_email(recruiter, candidate, job_opening)
+                    print(f"✅ Candidate rejected. Notification sent: {send_email}")
+
+                # ============ OTHER Stages ============
                 else:
-                    # Baki stages — send_email=true hoy to j
                     if send_email:
                         for recruiter in assigned_recruiters:
-                            if stage.name == "Hired":
-                                send_hired_email(recruiter, candidate, job_opening)
-                            elif stage.name == "Rejected":
-                                send_rejected_email(recruiter, candidate, job_opening)
-                            else:
-                                send_stage_change_email(recruiter, candidate, job_opening, stage)
+                            send_stage_change_email(
+                                recruiter, 
+                                candidate, 
+                                job_opening, 
+                                stage
+                            )
+                    print(f"✅ Candidate moved to {stage.name}. Notification sent: {send_email}")
 
         else:
+            # Handle board order changes
             for item in order[:-1]:
                 s_id = item.get('id')
                 stage_obj = Stage.objects.get(id=s_id)
@@ -819,6 +845,8 @@ class StageAPIView(APIView):
                 Stage.objects.filter(id=s_id).update(order=item.get('order'))
 
         return JsonResponse({'status': 'success'}, status=200)
+    
+    
     def delete(self, request, pk):
 
         stageid = request.data.get('stage_id')

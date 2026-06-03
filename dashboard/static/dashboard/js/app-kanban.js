@@ -712,76 +712,110 @@ applyBoardColors();
 //   }
 
 // }
-async function ItemDrop(el, target, source, sibling) {
-  const stageId = target.parentElement.getAttribute('data-id');
-  const stageName = target.parentElement
-    .querySelector('.kanban-title-board')
-    .textContent.trim().toLowerCase();
 
-  let ccEmails = [];
-  let shouldSendEmail = false;
+  // ============ IMPROVED EMAIL FLOW LOGIC ============
+  // 1. CC POPUP = Select CLIENT emails (for "Sent to Client" stage only)
+  // 2. CONFIRM POPUP = Ask if CANDIDATE should be notified (for all stages)
 
-  if (stageName === "sent to client") {
-    // Popup 1: CC emails
-    ccEmails = await window.getSelectedClientEmails(jobOpeningId);
+  async function ItemDrop(el, target, source, sibling) {
+    const stageId = target.parentElement.getAttribute('data-id');
+    const stageName = target.parentElement
+      .querySelector('.kanban-title-board')
+      .textContent.trim().toLowerCase();
+
+    let ccEmails = [];
+    let shouldNotifyCandidate = false;
+
+    // ✅ STEP 1: If "Sent to Client" stage → Show CC popup to select CLIENT emails
+    if (stageName === "sent to client") {
+      console.log("🔵 Moving to 'Sent to Client' stage - showing client email selector");
+      ccEmails = await window.getSelectedClientEmails(jobOpeningId);
+      console.log("📧 Client emails selected:", ccEmails);
+    }
+
+    // ✅ STEP 2: Always ask → Should CANDIDATE be notified?
+    console.log("⚪ Asking if candidate should be notified...");
+    shouldNotifyCandidate = await askCandidateNotification();
+    console.log("📩 Candidate notification:", shouldNotifyCandidate ? "YES" : "NO");
+
+    try {
+      const item_order = Array.from(target.children).map((item, index) => ({
+        id: item.dataset.eid,
+        order: index + 1
+      }));
+
+      // ✅ STEP 3: Send to backend with BOTH:
+      //    - client emails (ccEmails) → for "Sent to Client" stage
+      //    - send_email flag → for candidate notification
+      console.log("🚀 Sending to backend...");
+      const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          'order': item_order,
+          'stage_id': stageId,
+          'send_email': shouldNotifyCandidate,  // ✅ YES/NO for candidate notification
+          'cc_emails': ccEmails,                // ✅ Client emails (empty if not "Sent to Client")
+        })
+      });
+
+      if (!response.ok) {
+        console.error('❌ Error updating order:', response);
+        showToast('Error updating candidate stage', 'error');
+      } else {
+        console.log('✅ Stage updated successfully');
+      }
+    } catch (error) {
+      console.error('❌ Error updating order:', error);
+      showToast('Error updating candidate stage', 'error');
+    }
+
+    // Update UI with moved date
+    const now = new Date().toISOString();
+    el.setAttribute('data-movedat', now);
+    const dateEl = el.querySelector('.kanban-date');
+    if (dateEl) {
+      dateEl.outerHTML = formatMovedAt(now);
+    }
   }
 
-  
-  shouldSendEmail = await new Promise((resolve) => {
+// ============ HELPER: Ask if Candidate should be notified ============
+async function askCandidateNotification() {
+  return new Promise((resolve) => {
     const confirmEmailModal = new bootstrap.Modal(
       document.getElementById('confirmEmailModal')
     );
     confirmEmailModal.show();
 
     const confirmBtn = document.getElementById('confirmSendEmail');
-    const cancelBtn  = document.querySelector('#confirmEmailModal .btn-secondary');
+    const cancelBtn = document.querySelector('#confirmEmailModal .btn-secondary');
 
-    function onConfirm() { cleanup(); confirmEmailModal.hide(); resolve(true); }
-    function onCancel()  { cleanup(); confirmEmailModal.hide(); resolve(false); }
+    function onConfirm() {
+      cleanup();
+      confirmEmailModal.hide();
+      console.log("✅ User chose: YES (notify candidate)");
+      resolve(true);  // YES - send notification to candidate
+    }
+
+    function onCancel() {
+      cleanup();
+      confirmEmailModal.hide();
+      console.log("❌ User chose: NO (don't notify candidate)");
+      resolve(false);  // NO - don't send notification to candidate
+    }
+
     function cleanup() {
       confirmBtn.removeEventListener('click', onConfirm);
-      cancelBtn .removeEventListener('click', onCancel);
+      cancelBtn.removeEventListener('click', onCancel);
     }
 
     confirmBtn.addEventListener('click', onConfirm);
-    cancelBtn .addEventListener('click', onCancel);
+    cancelBtn.addEventListener('click', onCancel);
   });
-
-  try {
-    const item_order = Array.from(target.children).map((item, index) => ({
-      id: item.dataset.eid,
-      order: index + 1
-    }));
-
-    const response = await fetch(`/stage-api/${jobOpeningId}/`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: JSON.stringify({
-        'order': item_order,
-        'stage_id': stageId,
-        'send_email': shouldSendEmail,
-        'cc_emails': ccEmails,
-      })
-    });
-
-    if (!response.ok) {
-      console.error('Error updating order:', response);
-    }
-  } catch (error) {
-    console.error('Error updating order:', error);
-  }
-
-  const now = new Date().toISOString();
-  el.setAttribute('data-movedat', now);
-  const dateEl = el.querySelector('.kanban-date');
-  if (dateEl) {
-    dateEl.outerHTML = formatMovedAt(now);
-  }
 }
-
 // drop update order board
     async function BoardDrop(el, target, source, sibling) {
     // Create the order array for boards (stages)
