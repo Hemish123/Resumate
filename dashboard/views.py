@@ -49,6 +49,349 @@ def email_action(request, candidate_id, action):
     # candidate.save()
     return JsonResponse({"success": f"Candidate {action}d successfully."})
 
+import json
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.utils import timezone
+from datetime import timedelta
+from decimal import Decimal
+
+from candidate.models import Candidate, ResumeAnalysis
+from manager.models import JobOpening
+from dashboard.models import Stage
+from dashboard.models import CandidateStage, Event
+from users.models import Employee
+from django.db.models import Count, Avg, Q
+
+
+class AnalyticsHelper:
+    """Helper methods for calculating analytics metrics"""
+
+    @staticmethod
+    def get_average_time_to_hire(active_jobs):
+        
+
+        try:
+
+            hired_stages = CandidateStage.objects.filter(
+                stage__job_opening__in=active_jobs,
+                stage__name='Hired'
+            )
+
+            durations = []
+
+            for hired in hired_stages:
+
+                first_stage = CandidateStage.objects.filter(
+                    candidate=hired.candidate,
+                    stage__job_opening=hired.stage.job_opening
+                ).order_by('moved_at').first()
+
+                if first_stage:
+
+                    diff = (
+                        hired.moved_at -
+                        first_stage.moved_at
+                    ).days
+
+                    if diff >= 0:
+                        durations.append(diff)
+
+            avg_days = (
+                round(sum(durations) / len(durations))
+                if durations else 0
+            )
+
+            return {
+                'average_days': avg_days,
+                'total_hires_measured': len(durations)
+            }
+
+        except Exception as e:
+            print("TIME TO HIRE ERROR:", e)
+
+            return {
+                'average_days': 0,
+                'total_hires_measured': 0
+            }
+
+    @staticmethod
+    def get_monthly_hiring_trend(active_jobs, months=6):
+        """Get hired candidates per month for last N months"""
+        try:
+            today = timezone.now()
+            months_data = []
+
+            for i in range(months, 0, -1):
+                month_start = today - timedelta(days=30 * i)
+                month_end = today - timedelta(days=30 * (i - 1))
+
+                hired_count = CandidateStage.objects.filter(
+                    stage__job_opening__in=active_jobs,
+                    stage__name='Hired',
+                    moved_at__gte=month_start,
+                    moved_at__lte=month_end
+                ).count()
+
+                pipeline_count = CandidateStage.objects.filter(
+                    stage__job_opening__in=active_jobs,
+                    moved_at__gte=month_start,
+                    moved_at__lte=month_end
+                ).exclude(stage__name='Rejected').count()
+
+                month_label = month_start.strftime('%b')
+                months_data.append({
+                    'month': month_label,
+                    'hired': hired_count,
+                    'in_pipeline': pipeline_count
+                })
+
+            return months_data
+        except Exception as e:
+            return []
+
+    @staticmethod
+    def get_pipeline_funnel(active_jobs):
+        """Get candidate count at each stage"""
+        try:
+            stages = Stage.objects.filter(
+                job_opening__in=active_jobs
+            ).distinct().values('name').annotate(count=Count('candidatestage')).order_by('order')
+
+            total_candidates = sum([s['count'] for s in stages])
+
+            funnel_data = []
+            for stage in stages:
+                percentage = round((stage['count'] / total_candidates) * 100) if total_candidates > 0 else 0
+                funnel_data.append({
+                    'stage_name': stage['name'],
+                    'count': stage['count'],
+                    'percentage': percentage
+                })
+
+            return funnel_data
+        except Exception as e:
+            return []
+
+    @staticmethod
+    def get_ai_match_score_distribution(active_jobs):
+        """Parse ResumeAnalysis JSON and extract skills_matching score"""
+        try:
+            analyses = ResumeAnalysis.objects.filter(
+                job_opening__in=active_jobs
+            ).values('response_text')
+
+            score_buckets = {
+                '0-25': 0,
+                '26-50': 0,
+                '51-75': 0,
+                '76-100': 0
+            }
+
+            all_scores = []
+            for analysis in analyses:
+                try:
+                    response_json = json.loads(analysis['response_text'])
+                    match_score = response_json.get('skills_matching', {}).get('match', 0)
+                    all_scores.append(match_score)
+
+                    if 0 <= match_score <= 25:
+                        score_buckets['0-25'] += 1
+                    elif 26 <= match_score <= 50:
+                        score_buckets['26-50'] += 1
+                    elif 51 <= match_score <= 75:
+                        score_buckets['51-75'] += 1
+                    elif 76 <= match_score <= 100:
+                        score_buckets['76-100'] += 1
+                except (json.JSONDecodeError, KeyError, TypeError):
+                    continue
+
+            avg_score = round(sum(all_scores) / len(all_scores)) if all_scores else 0
+            total_analyzed = sum(score_buckets.values())
+
+            return {
+                'score_distribution': score_buckets,
+                'total_analyzed': total_analyzed,
+                'average_score': avg_score
+            }
+        except Exception as e:
+            return {'score_distribution': {'0-25': 0, '26-50': 0, '51-75': 0, '76-100': 0}, 'total_analyzed': 0, 'average_score': 0}
+
+    @staticmethod
+    def get_interview_type_breakdown(active_jobs):
+        """Get interview count by type"""
+        try:
+            interview_counts = Event.objects.filter(
+    designation__in=active_jobs
+
+            ).values('interview_type').annotate(count=Count('id')).order_by('-count')
+
+            total_interviews = sum([e['count'] for e in interview_counts])
+
+            breakdown = []
+            interview_type_labels = {
+                'facetoface': 'Face-to-face',
+                'virtual': 'Virtual',
+                'telephonic': 'Telephonic'
+            }
+
+            for interview in interview_counts:
+                interview_type = interview['interview_type'] or 'Unknown'
+                label = interview_type_labels.get(interview_type, interview_type)
+                percentage = round((interview['count'] / total_interviews) * 100) if total_interviews > 0 else 0
+
+                breakdown.append({
+                    'type': label,
+                    'count': interview['count'],
+                    'percentage': percentage
+                })
+
+            return breakdown
+        except Exception as e:
+            return []
+
+    @staticmethod
+    def get_recruiter_performance(active_jobs):
+        try:
+
+            recruiters = Employee.objects.filter(
+                jobopening__in=active_jobs
+            ).distinct().annotate(
+
+                total_jobs=Count(
+                    'jobopening',
+                    distinct=True
+                ),
+
+                hired_count=Count(
+                    'jobopening__stage__candidatestage__candidate',
+                    filter=Q(
+                        jobopening__stage__name='Hired'
+                    ),
+                    distinct=True
+                )
+
+            ).order_by('-hired_count')
+
+            performance_data = []
+
+            for recruiter in recruiters:
+
+                performance_data.append({
+                    'name': recruiter.name or recruiter.user.username,
+                    'hired': recruiter.hired_count,
+                    'total_jobs': recruiter.total_jobs,
+                    'initials': ''.join(
+                        word[0].upper()
+                        for word in (
+                            recruiter.name or recruiter.user.username
+                        ).split()
+                    )
+                })
+
+            return performance_data
+
+        except Exception as e:
+            print("RECRUITER ERROR:", e)
+            return []
+
+    @staticmethod
+    def get_ctc_analysis(active_jobs):
+        """Get CTC statistics for candidates in these jobs"""
+        try:
+            candidates = Candidate.objects.filter(
+                job_openings__in=active_jobs
+            ).distinct(
+            ).filter(
+                current_ctc__isnull=False,
+                expected_ctc__isnull=False
+            ).distinct()
+
+            avg_current = candidates.aggregate(avg=Avg('current_ctc'))['avg'] or 0
+            avg_expected = candidates.aggregate(avg=Avg('expected_ctc'))['avg'] or 0
+            avg_offer = candidates.filter(offer_in_hand__isnull=False).aggregate(avg=Avg('offer_in_hand'))['avg'] or 0
+
+            ctc_gap = round(float(avg_expected - avg_current), 2) if avg_expected and avg_current else 0
+            percentage_hike = round(((float(avg_expected) - float(avg_current)) / float(avg_current)) * 100, 1) if avg_current > 0 else 0
+
+            return {
+                'average_current_ctc': round(float(avg_current), 1),
+                'average_expected_ctc': round(float(avg_expected), 1),
+                'average_offer_in_hand': round(float(avg_offer), 1),
+                'ctc_gap': ctc_gap,
+                'percentage_hike_expected': percentage_hike,
+                'candidates_analyzed': candidates.count()
+            }
+        except Exception as e:
+            return {
+                'average_current_ctc': 0,
+                'average_expected_ctc': 0,
+                'average_offer_in_hand': 0,
+                'ctc_gap': 0,
+                'percentage_hike_expected': 0,
+                'candidates_analyzed': 0
+            }
+
+    @staticmethod
+    def get_notice_period_distribution(active_jobs):
+        """Get notice period distribution for candidates"""
+        try:
+            candidates = Candidate.objects.filter(
+                        job_openings__in=active_jobs
+                    ).distinct()
+            notice_buckets = {
+                'immediate': candidates.filter(notice_period=0).count(),
+                '1_30_days': candidates.filter(notice_period__gt=0, notice_period__lte=30).count(),
+                '31_60_days': candidates.filter(notice_period__gt=30, notice_period__lte=60).count(),
+                '60_plus_days': candidates.filter(notice_period__gt=60).count()
+            }
+
+            total = sum(notice_buckets.values())
+
+            notice_data = []
+            bucket_labels = {
+                'immediate': 'Immediate',
+                '1_30_days': '1–30 days',
+                '31_60_days': '31–60 days',
+                '60_plus_days': '60+ days'
+            }
+
+            for bucket_key, count in notice_buckets.items():
+                percentage = round((count / total) * 100) if total > 0 else 0
+                notice_data.append({
+                    'bucket': bucket_labels[bucket_key],
+                    'count': count,
+                    'percentage': percentage
+                })
+
+            return notice_data
+        except Exception as e:
+            return []
+
+    @staticmethod
+    def get_top_candidate_locations(active_jobs, limit=10):
+        """Get top candidate locations"""
+        try:
+            top_locations = Candidate.objects.filter(
+    job_openings__in=active_jobs,
+    location__isnull=False
+
+            ).exclude(location='').distinct().values('location').annotate(
+                count=Count('id')
+            ).order_by('-count')[:limit]
+
+            locations_data = []
+            for loc in top_locations:
+                locations_data.append({
+                    'location': loc['location'],
+                    'count': loc['count']
+                })
+
+            return locations_data
+        except Exception as e:
+            return []
+
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/home.html'
     title = 'Dashboard'
@@ -57,19 +400,18 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
 
+        # ============ EXISTING LOGIC (UNCHANGED) ============
         if self.request.user.is_superuser:
             active_jobs = JobOpening.objects.filter(active=True)
-            # Fetch recent job openings
             recent_openings = active_jobs.order_by('-updated_on')[:4]
         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
             active_jobs = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
-            # Fetch recent job openings
             recent_openings = active_jobs.order_by('-updated_on')[:4]
         else:
             employee = Employee.objects.get(user=self.request.user)
             active_jobs = JobOpening.objects.filter(company=employee.company, assignemployee=employee, active=True)
-            # Fetch recent job openings
             recent_openings = active_jobs.order_by('-updated_on')[:4]
+
         filtered_jobs = []
         for job in active_jobs:
             job.request = self.request
@@ -77,27 +419,124 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 filtered_jobs.append(job)
         active_jobs = filtered_jobs
         active_jobs_count = len(active_jobs)
+
         candidate_applied = 0
         candidates_hired = 0
         candidates_in_review = 0
         for job in active_jobs:
             candidate_applied += job.candidate_set.count()
-            # for candidate in job.candidate_set.all():
-                # print(candidate.name)
-            # stage = Stage.objects.get(name='Hired', job_opening=job)
             stage = Stage.objects.filter(name='Hired', job_opening=job).first()
             candidates_hired += CandidateStage.objects.filter(stage=stage).count()
             stage_all = Stage.objects.filter(job_opening=job).exclude(name__in=['Hired', 'Rejected'])
             candidates_in_review += CandidateStage.objects.filter(stage__in=stage_all).count()
+
         context['active_jobs'] = active_jobs_count
         context['candidates_applied'] = candidate_applied
         context['candidates_hired'] = candidates_hired
         context['candidates_in_review'] = candidates_in_review
-
-
         context['recent_openings'] = recent_openings
 
+        # ============ NEW ANALYTICS (ADDED) ============
+        try:
+            # Convert filtered_jobs list to QuerySet for analytics queries
+            active_jobs_queryset = JobOpening.objects.filter(pk__in=[j.pk for j in active_jobs])
+
+            # Get all analytics
+            time_to_hire = AnalyticsHelper.get_average_time_to_hire(active_jobs_queryset)
+            monthly_trend = AnalyticsHelper.get_monthly_hiring_trend(active_jobs_queryset, months=6)
+            pipeline = AnalyticsHelper.get_pipeline_funnel(active_jobs_queryset)
+            ai_scores = AnalyticsHelper.get_ai_match_score_distribution(active_jobs_queryset)
+            interviews = AnalyticsHelper.get_interview_type_breakdown(active_jobs_queryset)
+            recruiters = AnalyticsHelper.get_recruiter_performance(active_jobs_queryset)
+            ctc = AnalyticsHelper.get_ctc_analysis(active_jobs_queryset)
+            notice = AnalyticsHelper.get_notice_period_distribution(active_jobs_queryset)
+            locations = AnalyticsHelper.get_top_candidate_locations(active_jobs_queryset)
+
+            print("TIME TO HIRE RESULT =", time_to_hire)
+            # Add to context
+            context['time_to_hire'] = time_to_hire
+            context['monthly_trend'] = json.dumps(monthly_trend)
+            context['pipeline'] = pipeline
+            context['ai_scores'] = ai_scores
+            context['score_0_25'] = ai_scores['score_distribution'].get('0-25', 0)
+            context['score_26_50'] = ai_scores['score_distribution'].get('26-50', 0)
+            context['score_51_75'] = ai_scores['score_distribution'].get('51-75', 0)
+            context['score_76_100'] = ai_scores['score_distribution'].get('76-100', 0)
+            context['interviews'] = json.dumps(interviews)
+            context['recruiters'] = recruiters
+            context['ctc'] = ctc
+            context['notice_period'] = notice
+            context['locations'] = locations
+            
+
+        except Exception as e:
+            # Graceful fallback if analytics fail
+            print(f"Analytics error: {str(e)}")
+            context['time_to_hire'] = {'average_days': 0, 'total_hires_measured': 0}
+            context['monthly_trend'] = '[]'
+            context['pipeline'] = []
+            context['score_0_25'] = ai_scores['score_distribution'].get('0-25', 0)
+            context['score_26_50'] = ai_scores['score_distribution'].get('26-50', 0)
+            context['score_51_75'] = ai_scores['score_distribution'].get('51-75', 0)
+            context['score_76_100'] = ai_scores['score_distribution'].get('76-100', 0)
+
+            context['ai_scores'] = ai_scores
+            context['interviews'] = '[]'
+            context['recruiters'] = []
+            context['ctc'] = {}
+            context['notice_period'] = []
+            context['locations'] = []
+
         return context
+# class HomeView(LoginRequiredMixin, TemplateView):
+#     template_name = 'dashboard/home.html'
+#     title = 'Dashboard'
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['title'] = self.title
+
+#         if self.request.user.is_superuser:
+#             active_jobs = JobOpening.objects.filter(active=True)
+#             # Fetch recent job openings
+#             recent_openings = active_jobs.order_by('-updated_on')[:4]
+#         elif self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='manager').exists():
+#             active_jobs = JobOpening.objects.filter(company=self.request.user.employee.company, active=True)
+#             # Fetch recent job openings
+#             recent_openings = active_jobs.order_by('-updated_on')[:4]
+#         else:
+#             employee = Employee.objects.get(user=self.request.user)
+#             active_jobs = JobOpening.objects.filter(company=employee.company, assignemployee=employee, active=True)
+#             # Fetch recent job openings
+#             recent_openings = active_jobs.order_by('-updated_on')[:4]
+#         filtered_jobs = []
+#         for job in active_jobs:
+#             job.request = self.request
+#             if not job.is_expired:
+#                 filtered_jobs.append(job)
+#         active_jobs = filtered_jobs
+#         active_jobs_count = len(active_jobs)
+#         candidate_applied = 0
+#         candidates_hired = 0
+#         candidates_in_review = 0
+#         for job in active_jobs:
+#             candidate_applied += job.candidate_set.count()
+#             # for candidate in job.candidate_set.all():
+#                 # print(candidate.name)
+#             # stage = Stage.objects.get(name='Hired', job_opening=job)
+#             stage = Stage.objects.filter(name='Hired', job_opening=job).first()
+#             candidates_hired += CandidateStage.objects.filter(stage=stage).count()
+#             stage_all = Stage.objects.filter(job_opening=job).exclude(name__in=['Hired', 'Rejected'])
+#             candidates_in_review += CandidateStage.objects.filter(stage__in=stage_all).count()
+#         context['active_jobs'] = active_jobs_count
+#         context['candidates_applied'] = candidate_applied
+#         context['candidates_hired'] = candidates_hired
+#         context['candidates_in_review'] = candidates_in_review
+
+
+#         context['recent_openings'] = recent_openings
+
+#         return context
 
 
 class JobOpeningView(LoginRequiredMixin, TemplateView):
