@@ -432,7 +432,7 @@ h4.fw-bold {
   </div>
 </div>
 
-<!-- ================= MAIN KPI CARDS (EXISTING) ================= -->
+<!-- ================= MAIN KPI CARDS ================= -->
 <div class="row g-4 mt-4">
   <div class="col-lg-3 col-sm-6">
     <a href="{% url 'job-opening' %}?status=active" class="text-decoration-none">
@@ -489,7 +489,6 @@ h4.fw-bold {
       </div>
     </a>
   </div>
-
 </div>
 
 <!-- ================= ADVANCED ANALYTICS SECTION ================= -->
@@ -562,16 +561,14 @@ h4.fw-bold {
       </div>
     </div>
 
-    <!-- ✅ AI MATCH SCORE DISTRIBUTION — FIXED -->
+    <!-- AI MATCH SCORE DISTRIBUTION -->
     <div class="col-lg-6">
       <div class="chart-card">
         <h4>AI Match Score Distribution</h4>
         <div class="chart-subtitle">Resume quality analysis</div>
 
         {% with total_scores=score_0_25|add:score_26_50|add:score_51_75|add:score_76_100 %}
-
           {% if total_scores %}
-            {# ── KPI row ── #}
             <div style="padding: 16px 0;">
               <div class="row text-center mb-3">
                 <div class="col-6">
@@ -588,7 +585,6 @@ h4.fw-bold {
                 </div>
               </div>
 
-              {# ── 76–100 bar ── #}
               <div class="stat-item">
                 <span class="stat-label">76–100%</span>
                 <div class="stat-bar-wrapper">
@@ -600,7 +596,6 @@ h4.fw-bold {
                 <span class="stat-count">{{ score_76_100 }}</span>
               </div>
 
-              {# ── 51–75 bar ── #}
               <div class="stat-item">
                 <span class="stat-label">51–75%</span>
                 <div class="stat-bar-wrapper">
@@ -612,7 +607,6 @@ h4.fw-bold {
                 <span class="stat-count">{{ score_51_75 }}</span>
               </div>
 
-              {# ── 26–50 bar ── #}
               <div class="stat-item">
                 <span class="stat-label">26–50%</span>
                 <div class="stat-bar-wrapper">
@@ -624,7 +618,6 @@ h4.fw-bold {
                 <span class="stat-count">{{ score_26_50 }}</span>
               </div>
 
-              {# ── 0–25 bar ── #}
               <div class="stat-item">
                 <span class="stat-label">0–25%</span>
                 <div class="stat-bar-wrapper">
@@ -635,11 +628,8 @@ h4.fw-bold {
                 </div>
                 <span class="stat-count">{{ score_0_25 }}</span>
               </div>
-
             </div>
-
           {% else %}
-            {# ── NO DATA STATE ── #}
             <div class="no-data-state">
               <span class="no-data-icon">🤖</span>
               <p>No resume analyses available yet</p>
@@ -648,12 +638,9 @@ h4.fw-bold {
               </small>
             </div>
           {% endif %}
-
         {% endwith %}
       </div>
     </div>
-    <!-- ✅ END AI MATCH SCORE DISTRIBUTION -->
-
   </div>
 
   <!-- Row 3: Interview Types + Recruiter Performance -->
@@ -668,35 +655,20 @@ h4.fw-bold {
       </div>
     </div>
 
-    <div class="col-lg-6">
-      <div class="chart-card">
-        <h4>Recruiter Performance</h4>
-        <div class="chart-subtitle">Top performers by hires</div>
-        <div style="padding: 12px 0;">
-          {% if recruiters %}
-            {% for recruiter in recruiters %}
-              <div class="stat-item">
-                <div class="kpi-mini" style="flex: 0 0 40px; padding: 6px; margin-right: 8px;">
-                  <div style="font-size: 12px; font-weight: 600; color: #6a4bff;">{{ recruiter.initials }}</div>
-                </div>
-                <span class="stat-label" style="flex: 1;">{{ recruiter.name }}</span>
-                <div class="stat-bar-wrapper" style="flex: 1.5;">
-                  <div class="stat-bar" style="width: {% widthratio recruiter.hired 14 100 %}%;"></div>
-                </div>
-                <span class="stat-count">{{ recruiter.hired }}</span>
-              </div>
-            {% endfor %}
-          {% else %}
-            <div class="no-data-state">
-              <span class="no-data-icon">👥</span>
-              <p>No recruiter data available</p>
-            </div>
-          {% endif %}
-        </div>
+    <!-- RECRUITER PERFORMANCE — DYNAMIC STACKED BAR CHART -->
+<div class="col-lg-6">
+  <div class="chart-card">
+    <h4>Recruiter Performance</h4>
+    <div class="chart-subtitle">Candidates by stage per recruiter</div>
+    <div class="chart-container">
+      <canvas id="recruiterChart"></canvas>
+      <div id="recruiterNoData" class="no-data-state" style="display:none;">
+        <span class="no-data-icon">👥</span>
+        <p>No recruiter data available</p>
       </div>
     </div>
   </div>
-
+</div>
   <!-- Row 4: CTC Analysis + Notice Period -->
   <div class="row g-4 mb-4">
     <div class="col-lg-6">
@@ -802,7 +774,7 @@ h4.fw-bold {
 </div>
 {% endif %}
 
-<!-- ================= RECENT OPENINGS (EXISTING) ================= -->
+<!-- ================= RECENT OPENINGS ================= -->
 <div class="card border-0 ">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="text-dark mb-0">Recent Openings</h3>
@@ -819,7 +791,6 @@ h4.fw-bold {
             {{ job.company }}, {{ job.updated_on|date:"F j, Y" }}
           </span>
         </div>
-
         <div class="text-end">
           <p class="m-0">Open Positions: {{ job.openings }}</p>
           <p class="m-0">No. of Applicants: {{ job.candidate_set.count }}</p>
@@ -831,24 +802,23 @@ h4.fw-bold {
   {% endfor %}
 </div>
 
-<!-- ================= BOTTOM UPGRADE BANNER (EXISTING) ================= -->
+<!-- ================= BOTTOM UPGRADE BANNER ================= -->
 <div class="row">
   <div class="col-12">
     <div class="box rounded-3 bg-black">
       <div class="box-body pe-0 ps-lg-50 ps-15 py-4">
         <div class="card border-0 shadow-lg rounded-4 bg-dark text-white p-4 mt-4">
-
-        <div class="row align-items-center">
-          <div class="col-lg-8">
-            <div class="content">
-              <h5 class="text-white ms-4">RecruitSmart</h5>
-              <h3 class="mt-25 fw-500 text-white ms-4">Upgrade to Pro</h3>
-              <p class="text-fade ms-4">Coming Soon</p>
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <div class="content">
+                <h5 class="text-white ms-4">RecruitSmart</h5>
+                <h3 class="mt-25 fw-500 text-white ms-4">Upgrade to Pro</h3>
+                <p class="text-fade ms-4">Coming Soon</p>
+              </div>
             </div>
-          </div>
-
-          <div class="col-12 col-lg-4 text-center d-flex justify-content-center align-items-center">
-            <img src="{% static 'dashboard/img/dashboard_img/book-3.png' %}" alt="Book Image" class="img-fluid" />
+            <div class="col-12 col-lg-4 text-center d-flex justify-content-center align-items-center">
+              <img src="{% static 'dashboard/img/dashboard_img/book-3.png' %}" alt="Book Image" class="img-fluid" />
+            </div>
           </div>
         </div>
       </div>
@@ -861,6 +831,7 @@ h4.fw-bold {
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+
   // ============ MONTHLY HIRING TREND CHART ============
   try {
     const monthlyData = {{ monthly_trend|safe }};
@@ -898,12 +869,8 @@ h4.fw-bold {
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-              legend: { display: true }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
           }
         });
       }
@@ -931,9 +898,7 @@ h4.fw-bold {
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-              legend: { display: true }
-            }
+            plugins: { legend: { display: true } }
           }
         });
       }
@@ -941,5 +906,102 @@ h4.fw-bold {
   } catch (e) {
     console.log('Interview chart error:', e);
   }
+
+ // ============ RECRUITER PERFORMANCE HORIZONTAL STACKED BAR CHART ============
+try {
+  const recruiterData = {{ recruiters|safe }};
+  const stageNames    = {{ recruiter_stage_names|safe }};
+
+  if (recruiterData && recruiterData.length > 0) {
+
+    const stageColors = {
+      'Hired':          '#10b981',
+      'Rejected':       '#ef4444',
+      'Initial Stage':  '#6a4bff',
+      'Applied':        '#3b82f6',
+      'Sent to Client': '#f59e0b',
+    };
+
+    const defaultPalette = [
+      '#8b5cf6','#06b6d4','#f97316','#84cc16',
+      '#ec4899','#14b8a6','#a855f7','#eab308'
+    ];
+    let colorIdx = 0;
+
+    const datasets = stageNames.map(stageName => {
+      let color = stageColors[stageName];
+      if (!color) {
+        color = defaultPalette[colorIdx % defaultPalette.length];
+        colorIdx++;
+      }
+      return {
+        label: stageName,
+        data: recruiterData.map(r => r.stage_dict[stageName] || 0),
+        backgroundColor: color,
+        borderRadius: 4,
+        borderSkipped: false,
+      };
+    });
+
+    const recruiterCtx = document.getElementById('recruiterChart');
+    if (recruiterCtx) {
+      new Chart(recruiterCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: recruiterData.map(r => r.name),
+          datasets: datasets
+        },
+        options: {
+          indexAxis: 'y',   // ← આ line horizontal બનાવે છે
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                padding: 16,
+                font: { size: 12 }
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                afterBody: function(context) {
+                  const idx = context[0].dataIndex;
+                  return `── Total: ${recruiterData[idx].total}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              beginAtZero: true,
+              grid: { color: '#f0f0f0' },
+              ticks: { precision: 0 }
+            },
+            y: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { font: { size: 12 } }
+            }
+          }
+        }
+      });
+    }
+
+  } else {
+    const canvas = document.getElementById('recruiterChart');
+    const noData = document.getElementById('recruiterNoData');
+    if (canvas) canvas.style.display = 'none';
+    if (noData) noData.style.display = 'flex';
+  }
+
+} catch (e) {
+  console.log('Recruiter chart error:', e);
+}
 </script>
 {% endblock js %}

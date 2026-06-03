@@ -633,84 +633,153 @@ function applyBoardColors() {
 applyBoardColors();
 
 
-// drop update order item
-async function ItemDrop(el, target, source, sibling) {
-  const stageId = target.parentElement.getAttribute('data-id');
-  const candidateId = el.dataset.eid;
-  const stageName = target.parentElement
-    .querySelector('.kanban-title-board')
-    .textContent
-    .trim()
-    .toLowerCase();
+// // drop update order item
+// async function ItemDrop(el, target, source, sibling) {
+//   const stageId = target.parentElement.getAttribute('data-id');
+//   const candidateId = el.dataset.eid;
+//   const stageName = target.parentElement
+//     .querySelector('.kanban-title-board')
+//     .textContent
+//     .trim()
+//     .toLowerCase();
 
-  // Create the order array
-  const item_order = Array.from(target.children).map((item, index) => ({
-    id: item.dataset.eid,
-    order: index + 1
-  }));
+//   // Create the order array
+//   const item_order = Array.from(target.children).map((item, index) => ({
+//     id: item.dataset.eid,
+//     order: index + 1
+//   }));
 
-let ccEmails = [];
+// let ccEmails = [];
 
-if (stageName === "sent to client") {
-  // call your popup function
-  ccEmails = await window.getSelectedClientEmails(jobOpeningId);
-}
+// if (stageName === "sent to client") {
+//   // call your popup function
+//   ccEmails = await window.getSelectedClientEmails(jobOpeningId);
+// }
 
-    // Show the modal to confirm sending an email
-  const shouldSendEmail = await new Promise((resolve) => {
-    const confirmEmailModal = new bootstrap.Modal(document.getElementById('confirmEmailModal'));
-    confirmEmailModal.show();
+//     // Show the modal to confirm sending an email
+//   const shouldSendEmail = await new Promise((resolve) => {
+//     const confirmEmailModal = new bootstrap.Modal(document.getElementById('confirmEmailModal'));
+//     confirmEmailModal.show();
     
-    document.getElementById('confirmSendEmail').addEventListener('click', () => {
-      confirmEmailModal.hide();
-      resolve(true); // User confirmed to send email
-    });
+//     document.getElementById('confirmSendEmail').addEventListener('click', () => {
+//       confirmEmailModal.hide();
+//       resolve(true); // User confirmed to send email
+//     });
 
-    document.querySelector('.btn-secondary').addEventListener('click', () => {
-      confirmEmailModal.hide();
-      resolve(false); // User declined to send email
-    });
+//     document.querySelector('.btn-secondary').addEventListener('click', () => {
+//       confirmEmailModal.hide();
+//       resolve(false); // User declined to send email
+//     });
    
 
+//   });
+
+//   try {
+//     // Send the order array to the backend
+//     const response = await fetch(`/stage-api/${jobOpeningId}/`, {
+//       method: 'PUT',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included for security
+//       },
+//       body: JSON.stringify({
+//       'order': item_order,
+//       'stage_id': stageId,
+//       'send_email': shouldSendEmail, // Include email confirmation flag
+//       'cc_emails': ccEmails,
+
+//       })
+//     });
+
+//     if (!response.ok) {
+//       console.error('Error updating order:', response);
+//     } else {
+//       console.log('Order updated successfully');
+//       // Update the UI with the new order
+// //          renderOrderedItems(target, order);
+//     }
+//   } catch (error) {
+//     console.error('Error updating order:', error);
+//   }
+//   // ---- UI AUTO UPDATE DATE TIME AFTER MOVE ----
+//   const now = new Date().toISOString();
+//   el.setAttribute('data-movedat', now);
+
+//   // UI ma date replace karo
+//   const dateEl = el.querySelector('.kanban-date');
+//   if (dateEl) {
+//     dateEl.outerHTML = formatMovedAt(now);
+//   }
+
+// }
+async function ItemDrop(el, target, source, sibling) {
+  const stageId = target.parentElement.getAttribute('data-id');
+  const stageName = target.parentElement
+    .querySelector('.kanban-title-board')
+    .textContent.trim().toLowerCase();
+
+  let ccEmails = [];
+  let shouldSendEmail = false;
+
+  if (stageName === "sent to client") {
+    // Popup 1: CC emails
+    ccEmails = await window.getSelectedClientEmails(jobOpeningId);
+  }
+
+  
+  shouldSendEmail = await new Promise((resolve) => {
+    const confirmEmailModal = new bootstrap.Modal(
+      document.getElementById('confirmEmailModal')
+    );
+    confirmEmailModal.show();
+
+    const confirmBtn = document.getElementById('confirmSendEmail');
+    const cancelBtn  = document.querySelector('#confirmEmailModal .btn-secondary');
+
+    function onConfirm() { cleanup(); confirmEmailModal.hide(); resolve(true); }
+    function onCancel()  { cleanup(); confirmEmailModal.hide(); resolve(false); }
+    function cleanup() {
+      confirmBtn.removeEventListener('click', onConfirm);
+      cancelBtn .removeEventListener('click', onCancel);
+    }
+
+    confirmBtn.addEventListener('click', onConfirm);
+    cancelBtn .addEventListener('click', onCancel);
   });
 
   try {
-    // Send the order array to the backend
+    const item_order = Array.from(target.children).map((item, index) => ({
+      id: item.dataset.eid,
+      order: index + 1
+    }));
+
     const response = await fetch(`/stage-api/${jobOpeningId}/`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included for security
+        'X-CSRFToken': getCookie('csrftoken')
       },
       body: JSON.stringify({
-      'order': item_order,
-      'stage_id': stageId,
-      'send_email': shouldSendEmail, // Include email confirmation flag
-      'cc_emails': ccEmails,
-
+        'order': item_order,
+        'stage_id': stageId,
+        'send_email': shouldSendEmail,
+        'cc_emails': ccEmails,
       })
     });
 
     if (!response.ok) {
       console.error('Error updating order:', response);
-    } else {
-      console.log('Order updated successfully');
-      // Update the UI with the new order
-//          renderOrderedItems(target, order);
     }
   } catch (error) {
     console.error('Error updating order:', error);
   }
-  // ---- UI AUTO UPDATE DATE TIME AFTER MOVE ----
+
   const now = new Date().toISOString();
   el.setAttribute('data-movedat', now);
-
-  // UI ma date replace karo
   const dateEl = el.querySelector('.kanban-date');
   if (dateEl) {
     dateEl.outerHTML = formatMovedAt(now);
   }
-
 }
 
 // drop update order board

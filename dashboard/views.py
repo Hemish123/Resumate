@@ -7,6 +7,7 @@ from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from future.backports.datetime import datetime
 from django.utils import timezone
+from matplotlib.style import context
 import pytz
 from manager.models import JobOpening
 from users.models import Employee
@@ -250,50 +251,108 @@ class AnalyticsHelper:
         except Exception as e:
             return []
 
+    # @staticmethod
+    # def get_recruiter_performance(active_jobs):
+    #     try:
+
+    #         recruiters = Employee.objects.filter(
+    #             jobopening__in=active_jobs
+    #         ).distinct().annotate(
+
+    #             total_jobs=Count(
+    #                 'jobopening',
+    #                 distinct=True
+    #             ),
+
+    #             hired_count=Count(
+    #                 'jobopening__stage__candidatestage__candidate',
+    #                 filter=Q(
+    #                     jobopening__stage__name='Hired'
+    #                 ),
+    #                 distinct=True
+    #             )
+
+    #         ).order_by('-hired_count')
+
+    #         performance_data = []
+
+    #         for recruiter in recruiters:
+
+    #             performance_data.append({
+    #                 'name': recruiter.name or recruiter.user.username,
+    #                 'hired': recruiter.hired_count,
+    #                 'total_jobs': recruiter.total_jobs,
+    #                 'initials': ''.join(
+    #                     word[0].upper()
+    #                     for word in (
+    #                         recruiter.name or recruiter.user.username
+    #                     ).split()
+    #                 )
+    #             })
+
+    #         return performance_data
+
+    #     except Exception as e:
+    #         print("RECRUITER ERROR:", e)
+    #         return []
     @staticmethod
     def get_recruiter_performance(active_jobs):
         try:
-
             recruiters = Employee.objects.filter(
                 jobopening__in=active_jobs
-            ).distinct().annotate(
+            ).distinct()
 
-                total_jobs=Count(
-                    'jobopening',
-                    distinct=True
-                ),
-
-                hired_count=Count(
-                    'jobopening__stage__candidatestage__candidate',
-                    filter=Q(
-                        jobopening__stage__name='Hired'
-                    ),
-                    distinct=True
-                )
-
-            ).order_by('-hired_count')
+            # પહેલાં બધા unique stage names collect કરો (order પ્રમાણે)
+            all_stage_names = list(
+                Stage.objects.filter(job_opening__in=active_jobs)
+                .values('name', 'order')
+                .distinct()
+                .order_by('order')
+                .values_list('name', flat=True)
+            )
 
             performance_data = []
 
             for recruiter in recruiters:
+                recruiter_jobs = active_jobs.filter(assignemployee=recruiter)
+
+                stage_breakdown = (
+                    CandidateStage.objects
+                    .filter(stage__job_opening__in=recruiter_jobs)
+                    .values('stage__name')
+                    .annotate(count=Count('id'))
+                )
+
+                # stage name -> count dictionary
+                stage_dict = {s['stage__name']: s['count'] for s in stage_breakdown}
+                total = sum(stage_dict.values())
+
+                if total == 0:
+                    continue
 
                 performance_data.append({
                     'name': recruiter.name or recruiter.user.username,
-                    'hired': recruiter.hired_count,
-                    'total_jobs': recruiter.total_jobs,
                     'initials': ''.join(
                         word[0].upper()
-                        for word in (
-                            recruiter.name or recruiter.user.username
-                        ).split()
-                    )
+                        for word in (recruiter.name or recruiter.user.username).split()
+                    ),
+                    'stage_dict': stage_dict,
+                    'total': total,
                 })
 
-            return performance_data
+            performance_data.sort(key=lambda x: x['stage_dict'].get('Hired', 0), reverse=True)
+
+            return {
+                'recruiters': performance_data,
+                'stage_names': all_stage_names,
+            }
 
         except Exception as e:
             print("RECRUITER ERROR:", e)
-            return []
+            return {
+                'recruiters': [],
+                'stage_names': [],
+            }
 
     @staticmethod
     def get_ctc_analysis(active_jobs):
@@ -447,7 +506,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
             pipeline = AnalyticsHelper.get_pipeline_funnel(active_jobs_queryset)
             ai_scores = AnalyticsHelper.get_ai_match_score_distribution(active_jobs_queryset)
             interviews = AnalyticsHelper.get_interview_type_breakdown(active_jobs_queryset)
-            recruiters = AnalyticsHelper.get_recruiter_performance(active_jobs_queryset)
+            # recruiters = AnalyticsHelper.get_recruiter_performance(active_jobs_queryset)
+            recruiter_perf = AnalyticsHelper.get_recruiter_performance(active_jobs_queryset)
             ctc = AnalyticsHelper.get_ctc_analysis(active_jobs_queryset)
             notice = AnalyticsHelper.get_notice_period_distribution(active_jobs_queryset)
             locations = AnalyticsHelper.get_top_candidate_locations(active_jobs_queryset)
@@ -463,7 +523,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
             context['score_51_75'] = ai_scores['score_distribution'].get('51-75', 0)
             context['score_76_100'] = ai_scores['score_distribution'].get('76-100', 0)
             context['interviews'] = json.dumps(interviews)
-            context['recruiters'] = recruiters
+            context['recruiters'] = json.dumps(recruiter_perf['recruiters'])
+            context['recruiter_stage_names'] = json.dumps(recruiter_perf['stage_names'])
             context['ctc'] = ctc
             context['notice_period'] = notice
             context['locations'] = locations
@@ -482,7 +543,9 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
             context['ai_scores'] = ai_scores
             context['interviews'] = '[]'
-            context['recruiters'] = []
+            # context['recruiters'] = []
+            context['recruiters'] = '[]'
+            context['recruiter_stage_names'] = '[]'
             context['ctc'] = {}
             context['notice_period'] = []
             context['locations'] = []
@@ -699,10 +762,11 @@ class StageAPIView(APIView):
     def put(self, request, *args, **kwargs):
         order = request.data.get('order', [])
         stage_id = request.data.get('stage_id')
-        send_email = request.data.get('send_email', False)  # New flag
+        send_email = request.data.get('send_email', False)
         cc_emails = request.data.get("cc_emails", [])
         job_opening_id = self.kwargs.get('pk')
         job_opening = JobOpening.objects.get(id=job_opening_id)
+
         if stage_id:
             stage = Stage.objects.get(id=stage_id)
             for item in order:
@@ -710,61 +774,51 @@ class StageAPIView(APIView):
                 candidate_order = item.get('order')
                 assigned_recruiters = job_opening.assignemployee.all()
 
-                CandidateStage.objects.filter(id=candidate_stage_id).update(order=candidate_order, stage=stage,moved_at=timezone.now())
+                CandidateStage.objects.filter(id=candidate_stage_id).update(
+                    order=candidate_order,
+                    stage=stage,
+                    moved_at=timezone.now()
+                )
 
-                # send email to candidate
                 candidate_stage = CandidateStage.objects.get(id=candidate_stage_id)
                 candidate = candidate_stage.candidate
-                if send_email:
 
-                    # --- 1) FIRST: send mail to CLIENT with CC ---
-                    if stage.name == "Sent to Client":
-                        # pick first recruiter as sender
-                        recruiter = assigned_recruiters.first()
+                if stage.name == "Sent to Client":
+                    recruiter = assigned_recruiters.first()
 
-                        send_stage_to_client_email(
-                            recruiter=recruiter,
-                            candidate=candidate,
-                            job_opening=job_opening,
-                            cc_list=cc_emails,
-                            request=request,  
-                        )
+                    
+                    send_stage_to_client_email(
+                        recruiter=recruiter,
+                        candidate=candidate,
+                        job_opening=job_opening,
+                        cc_list=cc_emails,
+                        request=request,
+                    )
 
-                    # --- 2) THEN: send mails to recruiters ---
-                    for recruiter in assigned_recruiters:
-
-                        if stage.name == "Hired":
-                            send_hired_email(recruiter, candidate, job_opening)
-
-                        elif stage.name == "Rejected":
-                            send_rejected_email(recruiter, candidate, job_opening)
-
-                        else:
+                    if send_email:
+                        for recruiter in assigned_recruiters:
                             send_stage_change_email(recruiter, candidate, job_opening, stage)
 
-                # if stage.name == "Sent to Client":
-                #     send_stage_to_client_email(request.user, candidate, job_opening)
-
-                # elif stage.name == 'Hired':
-                #     send_hired_email(request.user, candidate, job_opening)
-
-                # elif stage.name == 'Rejected':
-                #     send_rejected_email(request.user, candidate, job_opening)
-
-                # else:
-                #     send_stage_change_email(request.user, candidate, job_opening, stage)
+                else:
+                    # Baki stages — send_email=true hoy to j
+                    if send_email:
+                        for recruiter in assigned_recruiters:
+                            if stage.name == "Hired":
+                                send_hired_email(recruiter, candidate, job_opening)
+                            elif stage.name == "Rejected":
+                                send_rejected_email(recruiter, candidate, job_opening)
+                            else:
+                                send_stage_change_email(recruiter, candidate, job_opening, stage)
 
         else:
             for item in order[:-1]:
-                stage_id = item.get('id')
-                stage_name = Stage.objects.get(id=stage_id)
-                if stage_name.name == 'Hired' :
+                s_id = item.get('id')
+                stage_obj = Stage.objects.get(id=s_id)
+                if stage_obj.name == 'Hired':
                     continue
-                order = item.get('order')
-                Stage.objects.filter(id=stage_id).update(order=order)
+                Stage.objects.filter(id=s_id).update(order=item.get('order'))
 
         return JsonResponse({'status': 'success'}, status=200)
-
     def delete(self, request, pk):
 
         stageid = request.data.get('stage_id')

@@ -163,11 +163,12 @@
         <div id="emailList"></div>
         <br>
          <div class="mb-3">
+            <label class="form-label text-muted small">Add more CC emails (comma separated)</label>
             <input
-              type="email"
+              type="text"
               id="manualEmail"
               class="form-control"
-              placeholder="Enter email address" />
+              placeholder="e.g. hr@company.com, ceo@company.com" />
           </div>
       </div>
 
@@ -553,7 +554,7 @@ async function sendStageUpdate(jobId, candidateStageId, ccEmails) {
 
 window.enableSentToClientPopup = true;   // flag your main JS can check
 
-window.getSelectedClientEmails = async function(jobId) {
+{% comment %} window.getSelectedClientEmails = async function(jobId) {
   const res = await fetch(`/client-emails/${jobId}/`);
   const data = await res.json();
 
@@ -591,6 +592,55 @@ window.getSelectedClientEmails = async function(jobId) {
         selected.push(manualEmail);
       }
       
+      emailModal.hide();
+      resolve(selected);
+    };
+  });
+}; {% endcomment %}
+
+window.getSelectedClientEmails = async function(jobId) {
+  const res = await fetch(`/client-emails/${jobId}/`);
+  const data = await res.json();
+
+  let html = "";
+  data.emails.forEach(email => {
+    html += `
+      <div class="form-check mb-2">
+        <input class="form-check-input client-email" 
+               type="checkbox" value="${email}" id="chk_${email}" checked>
+        <label class="form-check-label" for="chk_${email}">
+          ${email}
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("emailList").innerHTML = html;
+  document.getElementById("manualEmail").value = "";
+
+  const emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+  emailModal.show();
+
+  return new Promise(resolve => {
+    document.getElementById("sendWithCC").onclick = function() {
+      let selected = [];
+
+      // Checked client emails
+      document.querySelectorAll(".client-email:checked").forEach(cb => {
+        selected.push(cb.value);
+      });
+
+      // ✅ Manually typed emails — comma split
+      const manualInput = document.getElementById("manualEmail").value.trim();
+      if (manualInput) {
+        manualInput.split(',').forEach(e => {
+          const trimmed = e.trim();
+          if (trimmed && trimmed.includes('@')) {
+            selected.push(trimmed);
+          }
+        });
+      }
+
       emailModal.hide();
       resolve(selected);
     };
