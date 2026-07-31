@@ -29,7 +29,7 @@ SECRET_KEY = os.environ['SECRET']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['recruitsmart.hirewithjms.com','20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com','recruitsmart.co','www.recruitsmart.co', '127.0.0.1','localhost']
+ALLOWED_HOSTS = ['recruitsmart.hirewithjms.com','20.192.170.8', '169.254.131.2', '169.254.131.3', 'jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net', 'jivihire.com','recruitsmart.co','www.recruitsmart.co', '127.0.0.1','localhost','recruitsmart-c2bqerbrgveccebr.centralindia-01.azurewebsites.net']
 
 
 
@@ -79,7 +79,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net']
+CSRF_TRUSTED_ORIGINS = ['https://jivihire-b0bvbvh9aecpghbn.centralindia-01.azurewebsites.net','https://recruitsmart-c2bqerbrgveccebr.centralindia-01.azurewebsites.net']
 
 #log file
 if not DEBUG:
